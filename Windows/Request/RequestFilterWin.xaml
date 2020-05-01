@@ -1,0 +1,247 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.RequestFilterWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Фильтр для регистра" Name="winRequestFilter" Loaded="winRequestFilter_Loaded" Closed="winRequestFilter_Closed" Height="384" Width="668" Icon="/CustomBrokerWpf;component/Images/index.png">
+    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <ToolBar Grid.ColumnSpan="2">
+                <Button ToolTip="Применить фильтр" x:Name="RunFilterButton" Click="RunFilterButton_Click" >
+                    <Image Source="/CustomBrokerWpf;component/Images/funnel_down.png" />
+                </Button>
+                <Separator/>
+                <Button ToolTip="Фильтр по умолчанию" x:Name="DefaultFilterButton" Click="DefaultFilterButton_Click">
+                    <Image Source="/CustomBrokerWpf;component/Images/funnel_preferences.png" />
+                </Button>
+                <Button ToolTip="Очистить условия" x:Name="ClearFilterButton" Click="ClearFilterButton_Click">
+                    <Image Source="/CustomBrokerWpf;component/Images/funnel_new.png" />
+                </Button>
+                <!--<Button ToolTip="Удалить фильтр" x:Name="RemoveFilterButton" Click="RemoveFilterButton_Click">
+                    <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+                </Button>-->
+                <Separator/>
+                <Button ToolTip="Сохранить фильтр как фильтр по умолчанию" x:Name="SaveFilterButton" Click="SaveFilterButton_Click">
+                    <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+                </Button>
+                <Separator/>
+                <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+            </ToolBar>
+            <ScrollViewer  Grid.Row="1" HorizontalAlignment="Left" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="№ c" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <TextBox x:Name="startRequestIdTextBox" Grid.Column="1" Margin="2,0" TextChanged="RequestIdTextBox_TextChanged" />
+                        <TextBlock Text="по" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <TextBox x:Name="stopRequestIdTextBox" Grid.Column="3" Margin="2,0" TextChanged="RequestIdTextBox_TextChanged" />
+                        <TextBlock Text="Дата спецификации c" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <DatePicker x:Name="startSpecDatePicker" Grid.Row="0" Grid.Column="5" Margin="2,0" SelectedDateChanged="SpecDateDatePicker_SelectedDateChanged" />
+                        <TextBlock Text="по" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                        <DatePicker x:Name="stopSpecDatePicker" Grid.Row="0" Grid.Column="7" Margin="2,0" SelectedDateChanged="SpecDateDatePicker_SelectedDateChanged"/>
+                        <TextBlock Text="Дата заявки c" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <DatePicker x:Name="startRequestDatePicker" Grid.Row="1" Grid.Column="1" Margin="2,0" SelectedDateChanged="RequestDateDatePicker_SelectedDateChanged" />
+                        <TextBlock Text="по" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                        <DatePicker x:Name="stopRequestDatePicker" Grid.Row="1" Grid.Column="3" Margin="2,0" SelectedDateChanged="RequestDateDatePicker_SelectedDateChanged"/>
+                        <TextBlock Text="Дата поступления c" Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <DatePicker x:Name="startStorageDatePicker" Grid.Row="1" Grid.Column="5" Margin="2,0" SelectedDateChanged="StorageDatePicker_SelectedDateChanged"/>
+                        <TextBlock Text="по" Grid.Row="1" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <DatePicker x:Name="stopStorageDatePicker" Grid.Row="1" Grid.Column="7" Margin="2,0" SelectedDateChanged="StorageDatePicker_SelectedDateChanged"/>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Позиция по складу" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="storagePointComboBox" Grid.Row="0" Grid.Column="1" SelectedIndex="0" Margin="2,0" SelectionChanged="storagePointComboBox_SelectionChanged">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="нет"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="storagePointTextBox" Grid.Row="0" Grid.Column="2" Margin="2,0" TextChanged="storagePointTextBox_TextChanged" MinWidth="20" />
+                        <TextBlock Text="Кол-во мест" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="cellNumberComboBox" Grid.Row="0" Grid.Column="4" SelectedIndex="0" Margin="2,0" SelectionChanged="cellNumberComboBox_SelectionChanged">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="&gt;"/>
+                                <ComboBoxItem Content="&lt;"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="cellNumberTextBox" Grid.Row="0" Grid.Column="5" Margin="2,0" TextChanged="cellNumberTextBox_TextChanged"  MinWidth="20"/>
+                        <TextBlock Text="Объем" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="volumeComboBox" Grid.Column="7" SelectedIndex="0" Margin="2,0" SelectionChanged="volumeComboBox_SelectionChanged" Width="33">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="&gt;"/>
+                                <ComboBoxItem Content="&lt;"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="volumeTextBox" Grid.Row="0" Grid.Column="8" Margin="2,0" TextChanged="volumeTextBox_TextChanged" MinWidth="20" />
+                        <TextBlock Text="Вес по документам" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="officialWeightComboBox" Grid.Row="1" Grid.Column="1" SelectedIndex="0" Margin="2,0,0,0" SelectionChanged="officialWeightComboBox_SelectionChanged" HorizontalAlignment="Left" Width="33">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="&gt;"/>
+                                <ComboBoxItem Content="&lt;"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="officialWeightTextBox" Grid.Row="1" Grid.Column="2" Margin="2,0" TextChanged="officialWeightTextBox_TextChanged" />
+                        <TextBlock Text="Вес факт" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="actualWeightComboBox" Grid.Row="1" Grid.Column="4" SelectedIndex="0" Margin="2,0" SelectionChanged="actualWeightComboBox_SelectionChanged">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="&gt;"/>
+                                <ComboBoxItem Content="&lt;"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="actualWeightTextBox" Grid.Row="1" Grid.Column="5" Margin="2,0" TextChanged="actualWeightTextBox_TextChanged" />
+                        <TextBlock Text="Стоимость" Grid.Row="1" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <ComboBox x:Name="goodValueComboBox" Grid.Row="1" Grid.Column="7" SelectedIndex="0" Margin="2,0" SelectionChanged="goodValueComboBox_SelectionChanged">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="="/>
+                                <ComboBoxItem Content="&gt;"/>
+                                <ComboBoxItem Content="&lt;"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBox x:Name="goodValueTextBox" Grid.Row="1" Grid.Column="8" Margin="2,0" TextChanged="goodValueTextBox_TextChanged" />
+                        <TextBlock Text="Тип перевозки" Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" Visibility="Visible"/>
+                        <ComboBox x:Name="parceltypeComboBox" Grid.Row="0" Grid.Column="10" DisplayMemberPath="parceltypename" SelectedValuePath="parceltypeid" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="parceltypeComboBox_SelectionChanged" Visibility="Visible" IsEditable="True"/>
+                        <TextBlock Text="Фрахт" Grid.Row="1" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" Visibility="Visible"/>
+                        <ComboBox x:Name="frieghtComboBox" Grid.Row="1" Grid.Column="10" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="frieghtComboBox_SelectionChanged" Visibility="Visible">
+                            <ComboBoxItem Content=""/>
+                            <ComboBoxItem Content="Да"/>
+                            <ComboBoxItem Content="Нет"/>
+                        </ComboBox>
+                    </Grid>
+                    <Grid Grid.Row="2" Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Примечание клиенту" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <TextBox x:Name="customerNoteTextBox" Grid.Column="1" Margin="2,0" TextChanged="customerNoteTextBox_TextChanged" MinWidth="20" />
+                        <TextBlock Text="Примечание склада" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <TextBox x:Name="storageNoteTextBox" Grid.Column="3" Margin="2,0" TextChanged="storageNoteTextBox_TextChanged" MinWidth="20" />
+                        <TextBlock Text="Примечание менеджера" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                        <TextBox x:Name="managerNoteTextBox" Grid.Column="5" Margin="2,0" TextChanged="managerNoteTextBox_TextChanged" MinWidth="20" />
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+            <GridSplitter Grid.Row="2" Height="3" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="3,0" IsTabStop="False">
+                <GridSplitter.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ScrollBarColorKey}}"/>
+                </GridSplitter.BorderBrush>
+            </GridSplitter>
+            <Grid Grid.Row="3" Grid.Column="0" Margin="0,3">
+                <Grid.Resources>
+                    <Style x:Key="CheckBoxListStyle" TargetType="{x:Type ListBox}">
+                        <Setter Property="SelectionMode" Value="Multiple"/>
+                        <Setter Property="ItemContainerStyle">
+                            <Setter.Value>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}" >
+                                                <CheckBox Focusable="False" IsChecked="{Binding Path=IsSelected, RelativeSource={RelativeSource TemplatedParent}}" IsTabStop="False">
+                                                    <ContentPresenter />
+                                                </CheckBox>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                        <EventSetter Event="SelectionChanged" Handler="ListBoxCheckBox_SelectionChanged"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="150" MinWidth="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="150" MinWidth="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Статус" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="statusListBox" Grid.Row="1" Grid.Column="0" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="name" IsTextSearchEnabled="True" TextSearch.TextPath="name" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="statusListBox_SelectionChanged" />
+                <StackPanel Orientation="Vertical" Grid.Column="1" Margin="2">
+                    <TextBlock Text="Группа" HorizontalAlignment="Center" />
+                    <TextBlock Text="менеджеров" HorizontalAlignment="Center" />
+                </StackPanel>
+                <ListBox x:Name="managerGroupListBox" Grid.Column="1" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="managergroupName" IsTextSearchEnabled="True" TextSearch.TextPath="managergroupName" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="managerGroupListBox_SelectionChanged" />
+                <TextBlock Text="Клиент" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="customerListBox" Grid.Column="2" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="customerName" IsTextSearchEnabled="True" TextSearch.TextPath="customerName" Margin="3,2,0,0" SelectionChanged="customerListBox_SelectionChanged" IsTabStop="True" MinWidth="10"/>
+                <GridSplitter Grid.Column="3" Grid.Row="1"  ResizeDirection="Columns" Width="6" VerticalAlignment="Stretch" HorizontalAlignment="Left" IsTabStop="False" Opacity="0"/>
+                <StackPanel Orientation="Vertical" Grid.Column="4" Margin="2">
+                    <TextBlock Text="Описание" HorizontalAlignment="Center" />
+                    <TextBlock Text="груза" HorizontalAlignment="Center" />
+                </StackPanel>
+                <ListBox x:Name="goodsListBox" Grid.Column="4" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Nameitem" IsTextSearchEnabled="True" TextSearch.TextPath="Nameitem" Margin="0,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="goodsListBox_SelectionChanged" />
+                <TextBlock Text="Поставщик" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="agentListBox" Grid.Column="5" Grid.Row="1" DisplayMemberPath="agentName" IsTextSearchEnabled="True" TextSearch.TextPath="agentName" Margin="3,2,0,0" SelectionChanged="agentListBox_SelectionChanged" Style="{StaticResource CheckBoxListStyle}" />
+                <GridSplitter Grid.Column="6" Grid.Row="1"  ResizeDirection="Columns" Width="6" VerticalAlignment="Stretch" HorizontalAlignment="Left" IsTabStop="False" Opacity="0"/>
+                <TextBlock Text="Склад" Grid.Column="7" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="storeListBox" Grid.Column="7" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="storeName" IsTextSearchEnabled="True" TextSearch.TextPath="storeName" Margin="0,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="storeListBox_SelectionChanged" />
+                <TextBlock Text="Экспедитор" Grid.Column="8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="forwarderListBox" Grid.Column="8" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="itemName" IsTextSearchEnabled="True" TextSearch.TextPath="itemName" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="forwarderListBox_SelectionChanged" />
+            </Grid>
+            <!--<ScrollBar Grid.Row="2" Orientation="Horizontal" Scroll="OnScroll" Minimum="1" Maximum="100"/>-->
+        </Grid>
+    </ScrollViewer>
+</Window>

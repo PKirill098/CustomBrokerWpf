@@ -1,0 +1,1200 @@
+﻿<UserControl x:Class="KirillPolyanskiy.CustomBrokerWpf.WindowsAccount.PaymentRegisterUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+             xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+             xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="1400"
+             DataContextChanged="UserControl_DataContextChanged">
+	<Grid>
+		<Grid.Resources>
+			<lib:BindingProxy x:Key="DataContext" Data="{Binding}"/>
+		</Grid.Resources>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<!--<RowDefinition Height="Auto"/>-->
+		</Grid.RowDefinitions>
+		<ToolBar Grid.ColumnSpan="2" Height="32">
+			<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
+				<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+			</Button>
+			<Button ToolTip="Копировать" Command="Copy" IsTabStop="False">
+				<Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+			</Button>
+			<Separator/>
+			<Button Command="{Binding Path=Add}" ToolTip="Добавить предоплату" IsTabStop="False" Visibility="Collapsed">
+				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+			</Button>
+			<Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+				<Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+			</Button>
+			<Separator/>
+			<Button ToolTip="Покупка валюты" Click="CurrencyBuyButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Green" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+				Покупка валюты
+			</Button>
+			<Button ToolTip="Оплата поставщику" Click="CurrencyPayButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Blue" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+				Оплата поставщику
+			</Button>
+			<Button ToolTip="Таможенный и финальные счета по машине" Click="CustomsInvoiceButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Brown" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+				Счета по машине
+			</Button>
+			<Separator/>
+			<Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+				<Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+			</Button>
+			<Separator/>
+			<Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+			</Button>
+			<Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+				<Image Source="/CustomBrokerWpf;component/Images/save.png" />
+			</Button>
+			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+			</Button>
+			<Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
+				<Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+					<TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+				</Border>
+			</Popup>
+		</ToolBar>
+		<ScrollViewer x:Name="MainScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Disabled" ScrollChanged="ScrollViewer_ScrollChanged">
+			<ScrollViewer.Style>
+				<Style TargetType="ScrollViewer">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding ElementName=MainDataGrid, Path=HasItems, Mode=OneWay}" Value="False">
+							<Setter Property="HorizontalScrollBarVisibility" Value="Visible"/>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</ScrollViewer.Style>
+			<DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" FrozenColumnCount="1"
+							  SelectionChanged="DataGrid_SelectionChanged" ScrollViewer.ScrollChanged="Scrol_ScrollChanged">
+				<DataGrid.Resources>
+					<libui:CheckListBoxPopup x:Key="AgentFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.AgentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CBRateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CBRateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CBRatep2pFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CBRatep2pFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="ConsolidateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ConsolidateFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="CurrencyBoughtDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBoughtDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CurrencyBuyRateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBuyRateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="CurrencyPaidDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyPaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CurrencyPayFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyPayFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="CustomerFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomerFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CustomerBalanceFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomerBalanceFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="CustomsInvoiceDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="CustomsInvoicePaidDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoicePaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CustomsInvoiceRubSumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceRubSumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="CustomsInvoicePercentFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoicePercentFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="DealPassportFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.DealPassportFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="DTSumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.DTSumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="EuroSumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.EuroSumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="ExpiryDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ExpiryDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="FinalPaidDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalPaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="FinalCurPaidDate1FilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur1PaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="FinalCurPaidDate2FilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur2PaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="FinalInvoiceCur1SumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur1SumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="FinalInvoiceCur2SumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur2SumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="FinalRubSumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalRubSumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="FinalRubSumPaidFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FinalRubSumPaidFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="InvoiceDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.InvoiceDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="InvoiceNumberFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.InvoiceNumberFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="ManagerFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ManagerFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="NoteFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.NoteFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="OverPayFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.OverPayFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="ParcelFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ParcelFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="PercentFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.PercentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="PrepayFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.PrepayFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="RateDiffPerFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RateDiffPerFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:CheckListBoxPopup x:Key="RateDiffResultFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RateDiffResultFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="RefundFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RefundFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="RubDiffFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RubDiffFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="RubPaidDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RubPaidDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="RubSumFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RubSumFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:NumberFilterPopup x:Key="SellingFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.SellingFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="SellingDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.SellingDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+					<libui:DateFilterPopup x:Key="SPDDateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.SPDDateFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				</DataGrid.Resources>
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Prepay.Customer.Name, TargetNullValue='', Mode=OneWay}" Width="200">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomerFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CustomerFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="АМ" Binding="{Binding Path=Request.Parcel.ParcelNumber, TargetNullValue='', Mode=OneWay}" SortMemberPath="Specification.Parcel.ParcelNumberOrder" Width="54" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="№ перевозки"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ParcelFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="ParcelFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridCheckBoxColumn Header="Пр" Binding="{Binding Path=IsPrepay, Mode=OneWay}" IsReadOnly="True" IsThreeState="False">
+						<DataGridCheckBoxColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Признак предоплаты"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.PrepayFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDPrepayFilterPopup_Open"/>
+							</Style>
+						</DataGridCheckBoxColumn.HeaderStyle>
+					</DataGridCheckBoxColumn>
+					<DataGridTextColumn Header="%" Binding="{Binding Prepay.Percent, Mode=TwoWay, StringFormat=\{0:P0\}}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.PercentFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDPercentFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Кон-ция" Binding="{Binding Path=Request.Consolidate, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Консолидация"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ConsolidateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDConsolidateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Счет в руб." Binding="{Binding Path=RubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToHeader">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма счета выставленного клиенту"/>
+								<Setter Property="Margin" Value="0"/>
+								<Setter Property="Padding" Value="0"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RubSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.PrepayRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDRubSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+						<DataGridTextColumn.ElementStyle>
+							<Style TargetType="TextBlock" BasedOn="{StaticResource StyleTextBlockAlignmentRight}">
+								<Setter Property="Padding" Value="0,0,4,0"/>
+							</Style>
+						</DataGridTextColumn.ElementStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Счет №" Binding="{Binding Path=Prepay.InvoiceNumber, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Номер счета выставленного клиенту"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.InvoiceNumberFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDInvoiceNumberFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Дата счета" Binding="{Binding Path=Prepay.InvoiceDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата выставления счета клиенту"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.InvoiceDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDInvoiceDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Курс ЦБ" Binding="{Binding Path=Prepay.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Курс ЦБ на дату выставления счета"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CBRateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCBRateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Курс ЦБ + 2%" Binding="{Binding Path=Prepay.CBRatep2p, StringFormat=\{0:N4\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CBRatep2pFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCBRatep2pFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="Prepay.RubPaidDate" ClipboardContentBinding="{Binding Prepay.RubPaidDate}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Даты оплаты счета  на предоплату выставленного клиенту"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RubPaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDRubPaidDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=Prepay.RubPaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата счета в рублях" Click="PrepayRubPayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=Prepay.RubPaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True, TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплаты счета в рублях" Click="PrepayRubPayButton_Click" Command="{Binding PrepayRubPayAdd}" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=Prepay.Agent.Name, TargetNullValue='', Mode=OneWay}" Width="200">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.AgentFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDAgentFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Инвойс" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма инвойса, евро"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.EuroSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.PrepayEuroSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDEuroSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Валюта" SortMemberPath="Prepay.CurrencyBoughtDate" ClipboardContentBinding="{Binding Prepay.CurrencyBoughtDate}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата покупки валюты"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBoughtDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCurrencyBoughtDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=Prepay.CurrencyBoughtDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Покупка валюты" Click="PrepayCurrencyBuyButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=Prepay.CurrencyBoughtDate, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+									<Button Content="" ToolTip="Покупка валюты" Click="CurrencyBuyButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Курс покупки" Binding="{Binding Path=Prepay.CurrencyBuyRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Взвешенный курс покупки валюты"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBuyRateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCurrencyBuyRateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Оплачено" Binding="{Binding Path=CurrencyPaySum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Cумма оплаченная поставщику"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyPayFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.CurrencyPaySum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CurrencyPayFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Инвойс оплачен" SortMemberPath="Prepay.CurrencyPaidDate" ClipboardContentBinding="{Binding Path=Prepay.CurrencyPaidDate}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата оплаты поставщику.&#13;Является признаком того, что оплаты поставщику по данной предоплате завершены.&#13;При наличии оплаты на ту же дату, при заполнении, корректировка суммы оплаты производиться не будет."/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyPaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCurrencyPaidDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=Prepay.CurrencyPaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплаты поставщику" Click="PrepayCurrencyPayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=Prepay.CurrencyPaidDate, StringFormat=\{0:d\},UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True,TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплаты поставщику" Click="PrepayCurrencyPayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Cумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Cумма стоимости товаров из файла разбивок"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DTSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.DTSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="DTSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Дата СПД" Binding="{Binding Path=Request.Specification.Declaration.SPDDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата отправки СПД в банк"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SPDDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDSPDDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Таможенный cчет" Binding="{Binding Path=CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма таможенного счета выставленного клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceRubSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.CustomsInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CustomsInvoiceRubSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="% таможенный" Binding="{Binding CustomsInvoice.Percent, Mode=TwoWay, StringFormat=\{0:P0\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Ставка таможенного счета"/>
+								<Setter Property="FontWeight" Value="Bold"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoicePercentFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CustomsInvoicePercentFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Дата счета" Binding="{Binding Path=CustomsInvoice.InvoiceDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата выставления таможенного счета клиенту"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCustomsInvoiceDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="CustomsInvoice.PaidDate" ClipboardContentBinding="{Binding CustomsInvoice.PaidDate}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Даты оплаты таможенного счета"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoicePaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCustomsInvoicePaidDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=CustomsInvoice.PaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата таможенного счета в рублях" Click="CustomsInvoicePayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=CustomsInvoice.PaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True, TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата таможенного счета в рублях" Click="CustomsInvoicePayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn Header="Реализация" SortMemberPath="Selling" ClipboardContentBinding="{Binding Path=Selling}" IsReadOnly="True">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Для расчета реализации необходимо загрузить файл ДТ"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SellingFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.Selling, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="SellingFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
+									<Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<!--<DataGridTemplateColumn.CellEditingTemplate>
+									<DataTemplate>
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition/>
+												<ColumnDefinition Width="Auto"/>
+											</Grid.ColumnDefinitions>
+											<TextBox Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+											<Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+										</Grid>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellEditingTemplate>-->
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Дата Реализации" Binding="{Binding Path=SellingDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SellingDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDSellingDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Финальный счет RUB" Binding="{Binding Path=FinalInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма рублевого финального счета выставленного клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalRubSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.FinalInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalRubSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Сумма оплаты RUB" Binding="{Binding Path=FinalInvoiceRubSumPaid, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма оплат по рублевому финальному счету"/>
+								<Setter Property="FontWeight" Value="Bold"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalRubSumPaidFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.FinalInvoiceRubSumPaid, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalRubSumPaidFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="CustomsInvoice.FinalRubPaidDate" ClipboardContentBinding="{Binding CustomsInvoice.FinalRubPaidDate}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата оплаты рублевого финального счета"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalPaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDFinalPaidDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=CustomsInvoice.FinalRubPaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата финального счета" Click="FinalInvoicePayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=CustomsInvoice.FinalRubPaidDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True, TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата финального счета" Click="FinalInvoicePayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Счет EUR 1" Binding="{Binding Path=FinalInvoiceCurSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма первого валютного финального счета выставленного клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur1SumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.FinalInvoiceCurSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalInvoiceCur1SumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Оплата EUR 1" SortMemberPath="CustomsInvoice.FinalCurPaidDate1" ClipboardContentBinding="{Binding CustomsInvoice.FinalCurPaidDate1}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата оплаты первого финального счета в валюте"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur1PaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalCurPaidDate1FilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=CustomsInvoice.FinalCurPaidDate1, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Дата оплаты первого финального счета в валюте" Click="FinalCurPaidDate1Button_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=CustomsInvoice.FinalCurPaidDate1, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True, TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата первого финального счета в валюте" Click="FinalCurPaidDate1Button_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Cчет EUR 2" Binding="{Binding Path=FinalInvoiceCurSum2, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма второго валютного финального счета выставленного клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur2SumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.FinalInvoiceCur2Sum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalInvoiceCur2SumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Оплата EUR 2" SortMemberPath="CustomsInvoice.FinalCurPaidDate2" ClipboardContentBinding="{Binding CustomsInvoice.FinalCurPaidDate2}">
+						<DataGridTemplateColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата оплаты второго финального счета в валюте"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FinalCur2PaidDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="FinalCurPaidDate2FilterPopup_Open"/>
+							</Style>
+						</DataGridTemplateColumn.HeaderStyle>
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{Binding Path=CustomsInvoice.FinalCurPaidDate2, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Дата оплаты второго финального счета в валюте" Click="FinalCurPaidDate2Button_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox Text="{Binding Path=CustomsInvoice.FinalCurPaidDate2, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True, TargetNullValue=''}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
+									<Button Content="" ToolTip="Оплата второго финального счета в валюте" Click="FinalCurPaidDate2Button_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTextColumn Header="Cальдо" Binding="{Binding Path=CustomerBalance, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Cальдо в руб. по клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomerBalanceFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.CustomerBalance, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CustomerBalanceFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Переплата" Binding="{Binding Path=OverPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Переплата по ДТ в евро"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.OverPayFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.OverPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="OverPayFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+						<DataGridTextColumn.CellStyle>
+							<Style TargetType="DataGridCell">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Path=IsOverPay}" Value="True">
+										<Setter Property="Foreground" Value="Red"/>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</DataGridTextColumn.CellStyle>
+					</DataGridTextColumn>
+					<DataGridCheckBoxColumn Header="без ПС" Binding="{Binding Path=Prepay.NotDealPassport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" IsThreeState="False" Width="SizeToHeader">
+						<DataGridCheckBoxColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Без паспорта сделки"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DealPassportFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="DealPassportFilterPopup_Open"/>
+							</Style>
+						</DataGridCheckBoxColumn.HeaderStyle>
+					</DataGridCheckBoxColumn>
+					<DataGridTextColumn Header="Ожидаемый срок" Binding="{Binding Path=Prepay.ExpiryDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=OneWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Дата истечения срока поставки товаров"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ExpiryDateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDExpiryDateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Возврат" Binding="{Binding Path=Refund, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Возврат предоплаты от поставщика"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RefundFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.Refund, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RefundFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridComboBoxColumn Header="Ответственный" SelectedItemBinding="{Binding Path=Request.Manager}" ItemsSource="{Binding Source={StaticResource DataContext}, Path=Data.Managers}" DisplayMemberPath="NameComb">
+						<DataGridComboBoxColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Ответственный менеджер"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ManagerFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDManagerFilterPopup_Open"/>
+							</Style>
+						</DataGridComboBoxColumn.HeaderStyle>
+					</DataGridComboBoxColumn>
+					<DataGridTextColumn Header="Разница %" Binding="{Binding Prepay.RateDiffPer, Mode=OneWay, StringFormat=\{0:P\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Разница в курсе %"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RateDiffPerFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RateDiffPerFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Разница RUB" Binding="{Binding Path=RubDiff, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Разница по покупке валюты (-) доход (+) убыток"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RubDiffFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.RubDiff, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RubDiffFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Результат" Binding="{Binding Path=Prepay.RateDiffResult, TargetNullValue='', Mode=OneWay}" >
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Результат по покупке валюты"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RateDiffResultFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RateDiffResultFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Коментарии" Binding="{Binding Path=Note}" >
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.NoteFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="NoteFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Изменено" Binding="{Binding Updated, Mode=OneWay, StringFormat=\{0:g\}}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" Width="90"/>
+					<DataGridTextColumn Header="Изменил" Binding="{Binding Path=Updater,Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" Width="80"/>
+				</DataGrid.Columns>
+			</DataGrid>
+		</ScrollViewer>
+	</Grid>
+</UserControl>

@@ -1,0 +1,329 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.RequestWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:coll="clr-namespace:System.Collections;assembly=mscorlib"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Регистр" x:Name="winRequest" Language="ru-RU" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/index.png" WindowState="Maximized">
+    <Window.Resources>
+        <my:RequestDS x:Key="requestDS" />
+        <my:RequestTotalConverter x:Key="keyRequestTotalConverter"/>
+        <my:BooleanClipBoardConverter x:Key="BooleanClipBoardConverter1" />
+        <CollectionViewSource x:Key="keyForwarderVS" />
+        <CollectionViewSource x:Key="keyStoreVS" />
+        <CollectionViewSource x:Key="keyStatusVS" />
+        <CollectionViewSource x:Key="keyGoodsTypeVS" />
+        <CollectionViewSource x:Key="keyParcelTypeVS" />
+        <CollectionViewSource x:Key="keyManagerGroupVS">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="managergroupName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="keyCustomerName" Source="{Binding Source={StaticResource requestDS}, Path=tableCustomerName}">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="customerName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="keyAgentName" Source="{Binding Source={StaticResource requestDS}, Path=tableAgentName}">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="agentName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="2,0,2,0" />
+        </Style>
+        <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="0,-1,0,-2" />
+        </Style>
+        <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="NumberCenterStyleViewEdit" TargetType="{x:Type TextBox}">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0,-1,0,-2" />
+        </Style>
+    </Window.Resources>
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="35">
+            <my:MainMenuUC VerticalAlignment="Center"/>
+            <Separator/>
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </ToggleButton>
+            <Separator/>
+            <Button Name="SortAZButton" ToolTip="Сортировать по возрастанию" Click="SortAZButton_Click">
+                <Button.Content>
+                    <Image Source="/CustomBrokerWpf;component/Images/AZ.png" />
+                </Button.Content>
+            </Button>
+            <Button Name="SortZAButton" ToolTip="Сортировать по убыванию" Click="SortZAButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/ZA.png" />
+            </Button>
+            <Button Name="SoprtClean" ToolTip="Отменить сортировку" Click="SoprtClean_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/AZClean.png" />
+            </Button>
+            <Separator />
+            <Button ToolTip="Добавить заявку" Click="ButtonAdd_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button ToolTip="Заявка" Click="RequestItem_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Button ToolTip="Сохранить изменения в БД" Click="Button_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/refresh.ico" />
+            </Button>
+            <Separator/>
+            <Button Command="Cut" ToolTip="Вырезать">
+                <Image Source="/CustomBrokerWpf;component/Images/cut.png" />
+            </Button>
+            <Button Command="Copy" ToolTip="Копировать">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <TextBlock Text="Клиент" VerticalAlignment="Center" Margin="5,0"/>
+            <ComboBox  SelectedValue="{Binding ClientFilter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource keyCustomerName}}" SelectedValuePath="customerID" DisplayMemberPath="customerName" IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="False" MinWidth="100" KeyDown="Filter_KeyDown"/>
+            <TextBlock Text="Позиция" VerticalAlignment="Center" Margin="5,0"/>
+            <TextBox Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Path=StoragePointFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="60" KeyDown="Filter_KeyDown"/>
+            <Button ToolTip="Применить фильтр" Click="FastFilterButton_Click" Margin="5,0">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <DataGrid Name="mainDataGrid" Grid.Row="1" AutoGenerateColumns="False" EnableRowVirtualization="True" HorizontalAlignment="Left" RowDetailsVisibilityMode="Collapsed" VerticalAlignment="Top" SelectionUnit="FullRow" Validation.Error="mainDataGrid_Error" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" AlternationCount="2"
+                  CommandManager.PreviewExecuted="mainDataGrid_PreviewExecuted" CellEditEnding="mainDataGrid_CellEditEnding" RowEditEnding="mainDataGrid_RowEditEnding" UnloadingRow="mainDataGrid_UnloadingRow" LoadingRow="mainDataGrid_LoadingRow" BeginningEdit="mainDataGrid_BeginningEdit" RowHeaderWidth="10" CanUserResizeRows="False" FrozenColumnCount="2" SelectionChanged="mainDataGrid_SelectionChanged"
+                  my:DataGridColumnsJoiner.FirstDisplayIndex="{Binding ElementName=specificationColumn, Path=DisplayIndex, Mode=TwoWay}"
+                  my:DataGridColumnsJoiner.SecondDisplayIndex="{Binding ElementName=isSpecColumn, Path=DisplayIndex, Mode=TwoWay}"
+                  >
+            <DataGrid.Resources>
+                <my:DataGridDisplayIndexConverter x:Key="keyDisplayIndexConverter"/>
+                <my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+                <my:IsEnabledConverter x:Key="keyIsEnabledConverter"/>
+                <my:IsReadOnlyHasValueConverter x:Key="keyHasValueConverter"/>
+            </DataGrid.Resources>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="colmark">
+                    <DataGridTemplateColumn.Header>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="Green" Grid.Row="0" Width="6" Height="6" />
+                            <Rectangle Fill="Red" Grid.Column="1" Width="6" Height="6" />
+                            <Rectangle Fill="Blue" Grid.Row="1" Width="6" Height="6" />
+                            <Rectangle Fill="Yellow" Grid.Row="1" Grid.Column="1" Width="6" Height="6" />
+                        </Grid>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Rectangle Fill="{Binding Path=colmark}" RadiusX="2" RadiusY="2" Width="15" Height="15" Margin="1" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedValue="{Binding Path=colmark}" SelectedValuePath="Fill" TextSearch.TextPath="Fill" SelectionChanged="ColmarkComboBox_SelectionChanged" >
+                                <ComboBox.ItemsSource>
+                                    <coll:ArrayList>
+                                        <Rectangle Fill="Transparent" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                        <Rectangle Fill="Green" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                        <Rectangle Fill="Red" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                        <Rectangle Fill="Blue" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                        <Rectangle Fill="Yellow" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                        <Rectangle Fill="Black" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                    </coll:ArrayList>
+                                </ComboBox.ItemsSource>
+                                <!--<ComboBox.Style>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property=""
+                                    </Style>
+                                </ComboBox.Style>-->
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="№" x:Name="requestIdColumn" Binding="{Binding Path=requestId}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                <DataGridComboBoxColumn Header="Статус" SelectedValueBinding="{Binding Path=status}" ItemsSource="{Binding Source={StaticResource keyStatusVS}}" SelectedValuePath="rowId" DisplayMemberPath="name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}">
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=rowId, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}, ConverterParameter=50}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=rowId, Converter={StaticResource keyIsEnabledConverter}, ConverterParameter=50, Mode=OneWay}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Дата заявки" Binding="{Binding Path=requestDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Спецификация" Binding="{Binding Path=specification, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" x:Name="specificationColumn" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата получения спецификации"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Path=isspecification}" x:Name="isSpecColumn" CanUserSort="True" SortMemberPath="isspecification" CanUserReorder="False" CanUserResize="False" IsReadOnly="True" ClipboardContentBinding="{Binding Path=isspecification, Converter={StaticResource BooleanClipBoardConverter1}}">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridTextColumn Header="Позиция" x:Name="storagePointColumn" ElementStyle="{StaticResource NumberCenterStyleView}">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="storagePoint" NotifyOnValidationError="True" >
+                            <Binding.ValidationRules>
+                                <my:RequestStoagePointValidationRule x:Name="thisStoragePointValidationRule"/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Позиция по складу"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource NumberCenterStyleViewEdit}">
+                            <Setter Property="MaxLength" Value="6"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Дата поступления" Binding="{Binding Path=storageDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}"/>
+                <DataGridTextColumn Header="Группа менеджеров" Binding="{Binding Path=managerGroup}" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="Клиент" SelectedValueBinding="{Binding Path=customerId, TargetNullValue=0}"
+                                    ItemsSource="{Binding Source={StaticResource keyCustomerName}}" SelectedValuePath="customerID" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="customerName" />
+                <DataGridComboBoxColumn Header="Описание груза" SelectedValueBinding="{Binding Path=loadDescription}" ItemsSource="{Binding Source={StaticResource keyGoodsTypeVS}}" SelectedValuePath="Nameitem" DisplayMemberPath="Nameitem" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                <DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=agentId, TargetNullValue=0}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                    ItemsSource="{Binding Source={StaticResource keyAgentName}}" SelectedValuePath="agentID" DisplayMemberPath="agentName" SortMemberPath="agentName" />
+                <DataGridComboBoxColumn Header="Склад" SelectedValueBinding="{Binding Path=storeid, NotifyOnValidationError=True, ValidatesOnExceptions=true}" ItemsSource="{Binding Source={StaticResource keyStoreVS}}" SelectedValuePath="storeId" DisplayMemberPath="storeName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                <DataGridCheckBoxColumn Header="Фрахт" Binding="{Binding Path=isfreight, Mode=OneWay}" IsReadOnly="True" ClipboardContentBinding="{Binding Path=isfreight, Converter={StaticResource BooleanClipBoardConverter1}}">
+                    <DataGridCheckBoxColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <EventSetter Event="MouseDoubleClick" Handler="FreightColumn_Click"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.CellStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridTextColumn Header="Экспедитор" Binding="{Binding Path=forwarder}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Кол-во мест" x:Name="cellNumberColumn" Binding="{Binding Path=cellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}" />
+                <DataGridTextColumn Header="Вес по док, кг" x:Name="officialWeightColumn" Binding="{Binding Path=officialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
+                <DataGridTextColumn Header="Объем, м3" x:Name="volumeColumn" Binding="{Binding Path=volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
+                <DataGridTextColumn Header="Вес факт, кг" x:Name="actualWeightColumn" Binding="{Binding Path=actualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
+                <DataGridTextColumn Header="Стоимость товара, Е" x:Name="goodValueColumn" Binding="{Binding Path=goodValue, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" />
+                <DataGridTextColumn Header="Группа" Binding="{Binding Path=parcelgroup, UpdateSourceTrigger=LostFocus, TargetNullValue='',NotifyOnValidationError=True}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}" SortMemberPath="pgroupsort">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Группа загрузки"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Тип перевозки" SelectedValueBinding="{Binding Path=parceltype}" ItemsSource="{Binding Source={StaticResource keyParcelTypeVS}}" SelectedValuePath="parceltypeid" DisplayMemberPath="parceltypename" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="SizeToCells" IsReadOnly="{Binding Path=fullNumber,Converter={StaticResource keyHasValueConverter}, ConverterParameter=True }">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="IsEnabled" Value="{Binding Path=fullNumber,Converter={StaticResource keyHasValueConverter}, ConverterParameter=True }"/>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Отправка" Binding="{Binding Path=fullNumber,Mode=OneWay}" SortMemberPath="parcelnumbersort" IsReadOnly="True" />
+                <DataGridTextColumn Header="Инфо" Binding="{Binding Path=storageInform, StringFormat=\{0:d\},Mode=OneWay, TargetNullValue=''}" IsReadOnly="True" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата отправки информации на склад о загрузке заявки."/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn x:Name="customerNoteColumn" Binding="{Binding Path=customerNote}" Header="Примечание клиенту" Width="SizeToHeader">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечание склада" x:Name="storageNoteColumn" Binding="{Binding Path=storageNote}" Width="SizeToHeader">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn x:Name="managerNoteColumn" Binding="{Binding Path=managerNote}" Header="Примечание менеджера" Width="SizeToHeader" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="История">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="HistoryOpen_Click" Tag="{Binding Mode=OneWay}" Height="20" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" >
+                                <Image Source="/CustomBrokerWpf;component/Images/history.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!--<DataGrid Grid.Row="2" AutoGenerateColumns="False" SelectionUnit="Cell" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" IsReadOnly="True" HeadersVisibility="None">
+            <DataGrid.Columns>
+             <DataGridTextColumn Header="Кол-во мест" x:Name="cellTotalNumberColumn" Binding="{Binding Path=cellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" ElementStyle="{StaticResource NumberCenterStyleView}" />
+               
+            </DataGrid.Columns>
+        </DataGrid>-->
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock Text="Всего: Заявок" VerticalAlignment="Center" Margin="5,0,3,0"/>
+            <TextBox x:Name="TotalCountTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5"/>
+            <TextBlock Text="Кол-во мест" VerticalAlignment="Center" Margin="10,0,3,0"/>
+            <TextBox x:Name="TotalcellNumberTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" />
+            <TextBlock Text="Вес по док, кг" VerticalAlignment="Center" Margin="10,0,3,0"/>
+            <TextBox x:Name="TotalOfficialWeightTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" />
+            <TextBlock Text="Объем, м3" VerticalAlignment="Center" Margin="10,0,3,0"/>
+            <TextBox x:Name="TotalVolumeTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" />
+            <TextBlock Text="Вес факт, кг" VerticalAlignment="Center" Margin="10,0,3,0"/>
+            <TextBox x:Name="TotalActualWeightTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" />
+            <TextBlock Text="Стоимость товара, Е" VerticalAlignment="Center" Margin="10,0,3,0"/>
+            <TextBox x:Name="TotalGoodValueTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" />
+        </StackPanel>
+    </Grid>
+</Window>

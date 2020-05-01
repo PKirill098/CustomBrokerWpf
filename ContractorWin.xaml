@@ -1,0 +1,17 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ContractorWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Контрагенты" Name="winContractor" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/security_agent.png" Height="300" Width="300">
+    <Grid >
+        <DataGrid Name="mainDataGrid" CanUserAddRows="True" CanUserDeleteRows="True" Margin="3" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" HeadersVisibility="None"
+                  ItemsSource="{Binding Path=Contractors }" IsSynchronizedWithCurrentItem="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Name}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

@@ -1,0 +1,1841 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.GoodsWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:component="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        xmlns:lib="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+        xmlns:dmcl="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        mc:Ignorable="d"
+        Title="ДС, СРТ" Name="winGoods" Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Maximized" FontSize="11" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/certificate.png" >
+    <TabControl x:Name="mainTabControl">
+        <TabItem Header="База" x:Name="GoodsTab">
+            <Grid>
+                <Grid.Resources>
+                    <dmcl:BindingProxy x:Key="keyGoodsDataContext" Data="{Binding}"/>
+                    <CollectionViewSource x:Key="keyGenders" Source="{Binding Path=Genders}">
+                        <CollectionViewSource.SortDescriptions>
+                            <component:SortDescription PropertyName="Name" Direction="Ascending"/>
+                        </CollectionViewSource.SortDescriptions>
+                    </CollectionViewSource>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Click="AddButton_Click" ToolTip="Прокрутить для добавления номера" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=mainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>
+                    <Button ToolTip="Привязать файлы сертификатов" Command="{Binding Path=LinkSertFiles}" IsTabStop="False">
+                        <Image Source="Images/certificate.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <!--<Grid Grid.Row="1" Visibility="Visible" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Товар" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Все слова разделенные пробелом" />
+                    <TextBox Text="{Binding Path=FilterName, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Grid.Row="0" Grid.Column="1" Margin="6,6,4,6" ToolTip="Все слова разделенные пробелом"/>
+                    <TextBlock Text="Пол" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Выбор из списка" />
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="6,6,4,6">
+                        <ComboBox SelectedItem="{Binding Path=FilterGender}" ItemsSource="{Binding Source={StaticResource keyGenders}}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" ToolTip="Выбор из списка" />
+                        <Button Command="{Binding FilterGenderClear}" ToolTip="Очистить поле Пол" Margin="2,0,0,0">
+                            <Image Source="Images\clean.png" Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Button},Path=FontSize}"/>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Text="Материал" Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Любое слово из разделенных пробелом" />
+                    <TextBox Grid.Column="5" Text="{Binding Path=FilterMaterial, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Любое слово из разделенных пробелом"/>
+                    <TextBlock Text="Ткань" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Любое слово из разделенных пробелом" />
+                    <TextBox Grid.Column="7" Text="{Binding Path=FilterContexture, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Любое слово из разделенных пробелом"/>
+                    <TextBlock Text="Группа ТН ВЭД" Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Любое слово из разделенных пробелом" />
+                    <TextBox Grid.Column="9" Text="{Binding Path=FilterCode, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Любое слово из разделенных пробелом"/>
+                    <TextBlock Text="Торговая марка" Grid.Row="0" Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Все слова разделенные пробелом" />
+                    <TextBox Grid.Column="11" Text="{Binding Path=FilterBrand, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Все слова разделенные пробелом"/>
+                    <TextBlock Text="Производитель" Grid.Column="12" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Все слова разделенные пробелом" />
+                    <TextBox Grid.Row="0" Grid.Column="13" Text="{Binding Path=FilterProducer, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Все слова разделенные пробелом"/>
+                    <TextBlock Text="Страна" Grid.Row="0" Grid.Column="14" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,6,0,0" ToolTip="Титульная страна, категории, исключения"/>
+                    <TextBox Grid.Column="15" Text="{Binding Path=FilterCountry, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" KeyDown="TextBox_KeyDown" ToolTip="Титульная страна, категории, исключения"/>
+                    <TextBlock Text="Номер ДС" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Все слова разделенные пробелом" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FilterCertificateFull, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Все слова разделенные пробелом"/>
+                    <TextBlock Text="ДС с" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Дата начала действия сертификата не позднее" />
+                    <DatePicker Grid.Row="1" Grid.Column="3" SelectedDate="{Binding Path=FilrterCertificateStart}" KeyDown="TextBox_KeyDown" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged" ToolTip="Дата начала действия сертификата не позднее" />
+                    <TextBlock Text="ДС по" Grid.Row="1" Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Дата окончания действия сертификата не ранее" />
+                    <DatePicker Grid.Row="1" Grid.Column="5" SelectedDate="{Binding Path=FilrterCertificateStop}" KeyDown="TextBox_KeyDown" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged" ToolTip="Дата окончания действия сертификата не ранее"/>
+                    <TextBlock Text="Договор" Grid.Row="1" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Все слова разделенные пробелом" />
+                    <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding Path=FilterContractNmbr, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Все слова разделенные пробелом"/>
+                    <TextBlock Text="Договор с" Grid.Row="1" Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" />
+                    <DatePicker Grid.Row="1" Grid.Column="9" SelectedDate="{Binding Path=FilrterContractStart}" KeyDown="TextBox_KeyDown" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                    <TextBlock Text="Договор по" Grid.Row="1" Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" />
+                    <DatePicker Grid.Row="1" Grid.Column="11" SelectedDate="{Binding Path=FilrterContractStop}" KeyDown="TextBox_KeyDown" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                    <TextBlock Text="Артикулы" Grid.Row="1" Grid.Column="12" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Любое слово из разделенных пробелом" />
+                    <TextBox Grid.Row="1" Grid.Column="13" Text="{Binding Path=FilterVendorCode, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Margin="6,6,4,6" ToolTip="Любое слово из разделенных пробелом"/>
+                    <Button Content="Выбрать" Command="{Binding FilterRun}" Grid.Row="1" Grid.Column="14" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightGreen"/>
+                    <Button Content="Очистить" Command="{Binding FilterClear}" Grid.Row="1" Grid.Column="15" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightYellow"/>
+                </Grid>-->
+                <DataGrid x:Name="mainDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" >
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.RowValidationErrorTemplate>
+                        <ControlTemplate>
+                            <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"
+                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}" />
+                        </ControlTemplate>
+                    </DataGrid.RowValidationErrorTemplate>
+                    <DataGrid.Resources>
+                        <lib:CheckListBoxPopup x:Key="CertTypeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="ContextureFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="ProducerFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="TitleCountryFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="Cat1FilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="CertificateFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="ContractNmbrFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:DateFilterPopup x:Key="CertStopFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="DeclarantFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="InfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
+                                        <Image Source="Images/form_blue.png" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Тип"  Binding="{Binding CertType}" Width="SizeToHeader">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="CertTypeFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }" Padding="0">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="CertTypeMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Товар"  Binding="{Binding Name}" Width="300">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="GoodsNameFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }" Padding="0">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="GoodsNameenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridComboBoxColumn Header="Пол" SelectedItemBinding="{Binding Path=Gender}" ItemsSource="{Binding Source={StaticResource keyGenders}}" DisplayMemberPath="Name" SortMemberPath="Name" Width="SizeToHeader" >
+                            <DataGridComboBoxColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="GenderFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" />
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>-->
+                                </Style>
+                            </DataGridComboBoxColumn.HeaderStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle >
+                                <Style TargetType="ComboBox" BasedOn="{StaticResource ErrorStyle}" >
+                                    <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="ComboBox" BasedOn="{StaticResource ErrorStyle}" >
+                                    <Setter Property="IsSynchronizedWithCurrentItem" Value="False"/>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridTextColumn Header="Материал" Binding="{Binding Material}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MaterialFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="MaterialMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Ткань" Binding="{Binding Contexture}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="ContextureFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="ContextureMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="ТН ВЭД" Binding="{Binding ContextureNote}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Группа ТН ВЭД"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="TNVEDFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="TNVEDMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Торговая марка" Binding="{Binding Path=Brand}" Width="300">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="BrandFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="BrandMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Производитель" Binding="{Binding Producer}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="ProducerFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="ProducerMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Титульная страна" Binding="{Binding TitleCountry}" Width="SizeToCells">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Титульная страна"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="TitleCountryFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="TitleCountryMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Страны" Binding="{Binding Cat1}" Width="300" >
+                            <!--<DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Австралия, Австрия, Бельгия, Болгария, Великобитания, Великое Герцогство Люксембург, Венгрия, Германия, Греция, Дания, Ирландия, Испания, Италия, Канада, Латвия, Литва, Люксембург, Мальта, Нидерланды, Польша, Португалия, Республика Кипр, Румыния, Словакия, Словения, Соединенное Королевство Великобритании и Северной Ирландии, США, Финляндия, Франция, Хорватия, Чехия, Швейцария, Швеция, Эстония, Япония"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>-->
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="Cat1FilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="Cat1MenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <!--<DataGridTextColumn Header="Филиалы 3 категории" Binding="{Binding Cat3}" Width="4*">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Албания, Босния и Герцеговина, Израиль, Индонезия, Камбоджа, Лаос, Македония, Малайзия, Монголия, Мьянма, Пакистан, Сербия, Таиланд, Турция, Филиппины, Шри-Ланка"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Филиалы 4 категории" Binding="{Binding Cat4}" Width="4*">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Бангладеш, Вьетнам, Гонконг, Индия, Китай, Тайвань"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Филиалы 5 категории" Binding="{Binding Cat5}" Width="4*">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Бразилия, Доминиканская республика, Египет, Маврикий, Мадагаскар, Макао, Марокко, Мауритиус, Перу, Тунис, Уругвай, Эфиопия"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Исключения" Binding="{Binding Cat2}" Width="*">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Страны исключения"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>-->
+                        <DataGridTextColumn Header="ДС, СРТ" Binding="{Binding Certificate}" Width="SizeToCells">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Номер ДС, СРТ"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="CertificateFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="CertificateMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="60"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <!--<DataGridTextColumn Header="ДС c" Binding="{Binding CertStart, StringFormat=\{0:d\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="SizeToCells"/>-->
+                        <DataGridTextColumn Header="Договор" Binding="{Binding ContractNmbr}" Width="SizeToCells">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Договор на использование"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="ContractNmbrFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="ContractNmbrMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="ДС по" Binding="{Binding CertStop, StringFormat=\{0:d\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="SizeToCells">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="ДАТА ОКОНЧАНИЯ ДС, СРТ"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="CertStopFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <lib:DateFilterUserControl DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" />
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <!--<DataGridTextColumn Header="Договор от" Binding="{Binding Path=ContractDate, StringFormat=\{0:d\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="SizeToCells"/>-->
+                        <DataGridTextColumn Header="Артикулы" Binding="{Binding Path=VendorCode}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Артикулы, примечания"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="VendorCodeFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="VendorCodeMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Заявитель" Binding="{Binding Path=Declarant}" Width="100">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="DeclarantFilterPopup_Open"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="DeclarantMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Примечание" Binding="{Binding Path=Cat2}" Width="SizeToHeader"/>
+                        <DataGridTemplateColumn CanUserReorder="False" Header="Файл">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding FileOpen}" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Открыть файл" >
+                                        <Image Source="{Binding FileOpenImage}" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Филиалы" x:Name="BranchTab" GotFocus="BranchTab_GotFocus">
+            <Grid>
+                <Grid.Resources>
+                    <dmcl:BindingProxy x:Key="keyBranchDataContext" Data="{Binding}"/>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>
+                    <ComboBox ToolTip="Выбор цвета для текущего производителя" SelectedValue="{Binding Path=ProducerColor,Mode=OneWayToSource}" SelectedValuePath="Code" ItemsSource="{Binding Source={x:Static local:References.Colors}}" IsSynchronizedWithCurrentItem="False" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <Rectangle Fill="{Binding Path=Code}" ToolTip="{Binding Path=Name}" RadiusX="2" RadiusY="2" Margin="1" Height="20" Width="20"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Click="RefreshButton_Click" Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <DataGrid x:Name="BranchDataGrid" Grid.Row="1" ItemsSource="{Binding Path=Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" FrozenColumnCount="2"
+                          VirtualizingPanel.VirtualizationMode="Recycling"
+                          BeginningEdit="BranchDataGrid_BeginningEdit" CellEditEnding="BranchDataGrid_CellEditEnding"
+                          BorderBrush="#FF53CD46" >
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="MaxHeight" Value="140"/>
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Content.Name}"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate >
+                                        <TextBlock Text="{Binding Path=Name}" VerticalAlignment="Bottom">
+                                            <TextBlock.LayoutTransform>
+                                                <RotateTransform Angle="-90" />
+                                            </TextBlock.LayoutTransform>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Background" Value="{Binding Path=Goods.ColorMark}"/>
+                        </Style>
+                        <lib:CheckListBoxPopup x:Key="Certificate2FilterPopup" DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" TextBlock.FontWeight="Normal" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <Popup x:Key="PopupProducerFilter" DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade" AllowsTransparency="True" StaysOpen="False">
+                            <Border BorderBrush = "Black" BorderThickness="1" Background="WhiteSmoke" CornerRadius="7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="1"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1"/>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="1"/>
+                                    </Grid.RowDefinitions>
+                                    <Thumb Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Stretch" Cursor="SizeWE" Background="WhiteSmoke" Margin="0,10" DragDelta="OnThumbLeftDragDelta" Width="1"/>
+                                    <Thumb Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Cursor="SizeNS" Background="WhiteSmoke" Margin="10,0" DragDelta="OnThumbTopDragDelta" Height="1" />
+                                    <lib:CheckListBoxUC Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
+                                    <Thumb Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Stretch" Cursor="SizeWE" Background="WhiteSmoke" Margin="0,10" DragDelta="OnThumbRightDragDelta" Width="1" />
+                                    <Thumb Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Cursor="SizeNS" Background="WhiteSmoke" Margin="10,0" DragDelta="OnThumbBottomDragDelta" Height="1" />
+                                </Grid>
+                            </Border>
+                        </Popup>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="НОМЕР ДС, СРТ" Binding="{Binding Goods.Certificate2}" Width="200" CanUserResize="True" CanUserSort="True" IsReadOnly="True">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="ToolTip" Value="Номер ДС, СРТ"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="BranchCertificate2_OpenFilter"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>-->
+                                    <!--<EventSetter Event="ContextMenuOpening" Handler="CertificateMenuOpening"/> -->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Производитель" Binding="{Binding Path=Goods.Producer}" Width="200" CanUserResize="True" CanUserSort="True" IsReadOnly="True">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="BranchProducer_OpenFilter"/>
+                                    <!--<Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu StaysOpen="True" DataContext="{Binding }">
+                                                <MenuItem StaysOpenOnClick="True" Background="Transparent">
+                                                    <MenuItem.Header>
+                                                        <Grid Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand}"/>
+                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                        </Grid>
+                                                    </MenuItem.Header>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="ContextMenuOpening" Handler="ProducerMenuOpening"/>-->
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Соответствие" x:Name="MappingTab">
+            <TabItem.Resources>
+                <CollectionViewSource x:Key="keyMappingMaterials">
+                    <CollectionViewSource.SortDescriptions>
+                        <component:SortDescription PropertyName="Name" Direction="Ascending"/>
+                    </CollectionViewSource.SortDescriptions>
+                </CollectionViewSource>
+                <dmcl:BindingProxy x:Key="keyMappingDataContext" Data="{Binding}"/>
+            </TabItem.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Click="MappingAddButton_Click" ToolTip="Добавить новый товар" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=mappingDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <!--<Grid Grid.Row="1" Visibility="Visible" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Товар/Синоним" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,0,0,0" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или синоним)" />
+                    <TextBox Text="{Binding Path=FilterGoods, UpdateSourceTrigger=PropertyChanged}" KeyDown="MappingTextBox_KeyDown" TextAlignment="Left" Grid.Row="0" Grid.Column="1" Margin="6,6,4,6" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или синоним)"/>
+                    <TextBlock Text="Пол" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или поиск)"/>
+                    <TextBox Text="{Binding Path=FilterGender, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" KeyDown="MappingTextBox_KeyDown" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или поиск)"/>
+                    <TextBlock Text="Материал/Ткань" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или поиск)"/>
+                    <TextBox Text="{Binding Path=FilterMaterial, UpdateSourceTrigger=PropertyChanged}" Grid.Column="5" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" KeyDown="MappingTextBox_KeyDown" ToolTip="Любое из слов разделенных пробелом (полное совпадение, наименование или поиск)"/>
+                    <TextBlock Text="Группа ТН ВЭД" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Любое из слов разделенных пробелом  (полное совпадение)"/>
+                    <TextBox Text="{Binding Path=FilterTNVEDGroup, UpdateSourceTrigger=PropertyChanged}" Grid.Column="7" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" KeyDown="MappingTextBox_KeyDown" ToolTip="Любое из слов разделенных пробелом (полное совпадение)"/>
+                    <Button Command="{Binding FilterRun}" Grid.Column="8" VerticalAlignment="Center" Margin="4,0,10,0" Background="LightGreen" Height="18">
+                        <Image Source="/CustomBrokerWpf;component/Images/rpoisk2.png" />
+                    </Button>
+                </Grid>-->
+                <DataGrid x:Name="mappingDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" >
+                    <DataGrid.Resources>
+                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                    </DataGrid.Resources>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.RowValidationErrorTemplate>
+                        <ControlTemplate>
+                            <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"
+                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}" />
+                        </ControlTemplate>
+                    </DataGrid.RowValidationErrorTemplate>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="MappingInfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
+                                        <Image Source="Images/form_blue.png" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Товар" Binding="{Binding Goods}" Width="SizeToCells">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MappingGoodsNameFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Синонимы"  Binding="{Binding SynonymsStr}" IsReadOnly="True">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MappingGoodsNameFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Группа ТН ВЭД" Binding="{Binding TNVEDGroup}" Width="SizeToHeader" TextBlock.TextAlignment="Center">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Группа ТН ВЭД"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MappingTNVEDFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Материал/Ткань" CanUserSort="True" SortMemberPath="Material.Name">
+                            <DataGridTemplateColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MappingMaterialFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTemplateColumn.HeaderStyle>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path=Material.Name}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedItem="{Binding Path=Material}" ItemsSource="{Binding ElementName=MappingTab, Path=DataContext.Materials}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Пол"  Binding="{Binding GendersStr}" IsReadOnly="True">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="MappingGenderFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Ткани" x:Name="IngredientTab">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Command="New" ToolTip="Добавить материал" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="Delete" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button Command="Open" ToolTip="Изменить" >
+                        <Image Source="Images/edit.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" Visibility="Visible">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <!--<Separator/>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>-->
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <Grid Grid.Row="1" Visibility="Collapsed" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Материал" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Слова разделенные пробелом" />
+                    <TextBox Grid.Column="1" Text="{Binding Path=FilterName, UpdateSourceTrigger=PropertyChanged}" KeyDown="IngredientTextBox_KeyDown" TextAlignment="Left" Grid.Row="0" Margin="6,6,4,6" ToolTip="Слова разделенные пробелом"/>
+                    <Button Content="Выбрать" Click="IngredientSelect_Click" Grid.Column="2" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightGreen"/>
+                    <Button Content="Очистить" Command="{Binding FilterClear}" Grid.Column="3" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightYellow"/>
+                </Grid>
+                <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.RowSpan="3" Background="#FFFCD5B4" BorderBrush="Black" BorderThickness="2,2,0,2">
+                            <TextBlock Text="ТКАННЫЕ МАТЕРИАЛЫ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="1" Grid.RowSpan="3" Background="#FFFFFF99" BorderBrush="Black" BorderThickness="0,2,1,2">
+                            <TextBlock Text="ВСЕ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="2" Background="#FFDDD9C4" BorderBrush="Black" BorderThickness="1,2,0,1">
+                            <TextBlock Text="НАТУРАЛЬНЫЕ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="3" Background="#FFFFFF99" BorderBrush="Black" BorderThickness="0,2,1,1">
+                            <TextBlock Grid.Column="1" Text="НАТ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="2" Grid.Row="1" Background="#FFC5D9F1" BorderBrush="Black" BorderThickness="1,1,0,1">
+                            <TextBlock Text="ХИМИЧЕСКИЕ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="3" Grid.Row="1" Background="#FFFFFF99" BorderBrush="Black" BorderThickness="0,1,1,1">
+                            <TextBlock Grid.Column="1" Text="ХИМ" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="6" FontWeight="Bold"/>
+                        </Border>
+                        <Border Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" BorderBrush="Black" BorderThickness="0,1,1,2"/>
+                        <DataGrid x:Name="IngredientNatDataGrid" Grid.Column="4" ItemsSource="{Binding Natureal}" SelectedIndex="-1" IsSynchronizedWithCurrentItem="False" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" HeadersVisibility="None" BorderBrush="Black" SelectionMode="Single" HorizontalScrollBarVisibility="Disabled" Background="#FFDDD9C4"
+                                  SizeChanged="IngredientDataGrid_SizeChanged">
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Delete" Executed="IngredientDelete" CanExecute="IngredientCanDelete"/>
+                                <CommandBinding Command="Open" Executed="IngredientOpen" CanExecute="IngredientCanOpen"/>
+                                <CommandBinding Command="New" Executed="IngredientNew" CanExecute="IngredientCanNew"/>
+                            </DataGrid.CommandBindings>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="Validation.HasError" Value="true">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}" FontWeight="Bold" Width="{Binding ElementName=MaterialTab, Path=DataContext.Width1}">
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="50"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}" FontWeight="Bold" Width="100" CanUserResize="False" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <Trigger Property="DataGridCell.IsSelected" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF99"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenter}">
+                                            <Setter Property="MaxLength" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Синонимы"  Binding="{Binding SubProductsStr, Mode=OneWay}" IsReadOnly="True" ToolTipService.ToolTip="Синонимы" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid x:Name="IngredientChmDataGrid" Grid.Column="4" Grid.Row="1" ItemsSource="{Binding Chemical}" SelectedIndex="-1" IsSynchronizedWithCurrentItem="False" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" HeadersVisibility="None" BorderBrush="Black" SelectionMode="Single" HorizontalScrollBarVisibility="Disabled" Background="#FFC5D9F1"
+                                  SizeChanged="IngredientDataGrid_SizeChanged">
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Delete" Executed="IngredientDelete" CanExecute="IngredientCanDelete"/>
+                                <CommandBinding Command="Open" Executed="IngredientOpen" CanExecute="IngredientCanOpen"/>
+                                <CommandBinding Command="New" Executed="IngredientNew" CanExecute="IngredientCanNew"/>
+                            </DataGrid.CommandBindings>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="Validation.HasError" Value="true">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}" FontWeight="Bold" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=Width1}">
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="50"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}" FontWeight="Bold" Width="100" CanUserResize="False" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <Trigger Property="DataGridCell.IsSelected" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF99"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenter}">
+                                            <Setter Property="MaxLength" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Синонимы"  Binding="{Binding SubProductsStr, Mode=OneWay}" IsReadOnly="True" ToolTipService.ToolTip="Синонимы" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid x:Name="IngredientOthDataGrid" Grid.Column="4" Grid.Row="2" ItemsSource="{Binding Others}" SelectedIndex="-1" IsSynchronizedWithCurrentItem="False" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" HeadersVisibility="None" BorderBrush="Black" SelectionMode="Single" HorizontalScrollBarVisibility="Disabled" Background="#FFC5F1F1"
+                                  SizeChanged="IngredientDataGrid_SizeChanged">
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Delete" Executed="IngredientDelete" CanExecute="IngredientCanDelete"/>
+                                <CommandBinding Command="Open" Executed="IngredientOpen" CanExecute="IngredientCanOpen"/>
+                                <CommandBinding Command="New" Executed="IngredientNew" CanExecute="IngredientCanNew"/>
+                            </DataGrid.CommandBindings>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="Validation.HasError" Value="true">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}" FontWeight="Bold" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=Width1}">
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="50"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}" FontWeight="Bold" Width="100" CanUserResize="False" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <Trigger Property="DataGridCell.IsSelected" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF99"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenter}">
+                                            <Setter Property="MaxLength" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Синонимы"  Binding="{Binding SubProductsStr, Mode=OneWay}" IsReadOnly="True" ToolTipService.ToolTip="Синонимы" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid x:Name="IngredientNoWDataGrid" Grid.Column="4" Grid.Row="3" ItemsSource="{Binding NoWoven}" SelectedIndex="-1" IsSynchronizedWithCurrentItem="False" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" HeadersVisibility="None" SelectionMode="Single" Background="#FFD5F1C5"
+                                  SizeChanged="IngredientDataGrid_SizeChanged" BorderBrush="Black">
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Delete" Executed="IngredientDelete" CanExecute="IngredientCanDelete"/>
+                                <CommandBinding Command="Open" Executed="IngredientOpen" CanExecute="IngredientCanOpen"/>
+                                <CommandBinding Command="New" Executed="IngredientNew" CanExecute="IngredientCanNew"/>
+                            </DataGrid.CommandBindings>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="Validation.HasError" Value="true">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}" FontWeight="Bold" Width="SizeToCells">
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="50"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}" FontWeight="Bold" Width="100" CanUserResize="False" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <Trigger Property="DataGridCell.IsSelected" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF99"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenter}">
+                                            <Setter Property="MaxLength" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Синонимы"  Binding="{Binding SubProductsStr, Mode=OneWay}" IsReadOnly="True" ToolTipService.ToolTip="Синонимы" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid x:Name="IngredientHlfDataGrid" Grid.Column="4" Grid.Row="4" Margin="0,10,0,0" ItemsSource="{Binding Half}" SelectedIndex="-1" IsSynchronizedWithCurrentItem="False" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" HeadersVisibility="None" BorderBrush="Black" Background="#FFF1E3C5"
+                                  SizeChanged="IngredientDataGrid_SizeChanged" SelectionMode="Single" >
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Delete" Executed="IngredientDelete" CanExecute="IngredientCanDelete"/>
+                                <CommandBinding Command="Open" Executed="IngredientOpen" CanExecute="IngredientCanOpen"/>
+                                <CommandBinding Command="New" Executed="IngredientNew" CanExecute="IngredientCanNew"/>
+                            </DataGrid.CommandBindings>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="Validation.HasError" Value="true">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.RowValidationErrorTemplate>
+                                <ControlTemplate>
+                                    <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"
+                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}" />
+                                </ControlTemplate>
+                            </DataGrid.RowValidationErrorTemplate>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}" FontWeight="Bold" Width="SizeToCells" ToolTipService.ToolTip="Наименование">
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="50"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}" FontWeight="Bold" Width="100" CanUserResize="False" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" ToolTipService.ToolTip="Сокращение в ДС">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <Trigger Property="DataGridCell.IsSelected" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF99"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenter}">
+                                            <Setter Property="MaxLength" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Синонимы"  Binding="{Binding SubProductsStr, Mode=OneWay}" IsReadOnly="True" ToolTipService.ToolTip="Синонимы" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Пол" x:Name="GenderTab">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Command="{Binding Path=Add}" CommandParameter="{Binding ElementName=GenderTreeView, Path=SelectedItem}" ToolTip="Добавить к выделенному элементу" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=GenderTreeView, Path=SelectedItem}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button ToolTip="Свернуть все" Padding="0" Click="ButtonCollapsed_Click">
+                        <Image Source="Images/navigate_close.png" />
+                    </Button>
+                    <Button ToolTip="Развернуть все" Padding="0" Click="ButtonExpended_Click" >
+                        <Image Source="Images/navigate_expand.png"  />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <Separator/>
+                    <!--<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>-->
+                    <!--<Separator/>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>-->
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <TreeView x:Name="GenderTreeView" Grid.Row="1" ItemsSource="{Binding Path=Items}" Background="#FFDBFDFA" VirtualizingStackPanel.IsVirtualizing="False">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="BorderThickness" Value="1,0,0,0"/>
+                            <Setter Property="BorderBrush" Value="Blue"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Path=Under}">
+                            <Grid>
+                                <Grid.Resources>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Style.Triggers>
+                                            <Trigger Property="Validation.HasError" Value="true">
+                                                <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Наименование" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding Path=Name,NotifyOnValidationError=True,ValidatesOnExceptions=True,ValidatesOnDataErrors=True}" Style="{StaticResource ErrorStyle}" MaxLength="10" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" MinWidth="50"/>
+                                <TextBlock Text="Поиск" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                <TextBox Grid.Column="3" Text="{Binding Path=ShortName,NotifyOnValidationError=True,ValidatesOnExceptions=True,ValidatesOnDataErrors=True}" Style="{StaticResource ErrorStyle}" MaxLength="5" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" MinWidth="50"/>
+                            </Grid>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Группа ТНВЭД" x:Name="TNVEDGroupTab">
+            <TabItem.Resources>
+                <dmcl:BindingProxy x:Key="keyTNVEDGroupDataContext" Data="{Binding}"/>
+            </TabItem.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Click="TNVEDGroupAddButton_Click" ToolTip="Добавить новую группу" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=TNVEDGroupDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <DataGrid x:Name="TNVEDGroupDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" >
+                    <DataGrid.Resources>
+                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                    </DataGrid.Resources>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="True">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.RowValidationErrorTemplate>
+                        <ControlTemplate>
+                            <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"
+                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}" />
+                        </ControlTemplate>
+                    </DataGrid.RowValidationErrorTemplate>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="TNVEDGroupInfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
+                                        <Image Source="Images/form_blue.png" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Группа ТН ВЭД" Binding="{Binding Group}" Width="SizeToHeader" TextBlock.TextAlignment="Center">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Группа ТН ВЭД"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="TNVEDGroupTNVEDFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Материал" CanUserSort="True" SortMemberPath="Material.Name">
+                            <DataGridTemplateColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="TNVEDGroupMaterialFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTemplateColumn.HeaderStyle>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path=Material.Name}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedItem="{Binding Path=Material}" ItemsSource="{Binding ElementName=TNVEDGroupTab, Path=DataContext.Materials}" DisplayMemberPath="Name" IsEditable="True" IsSynchronizedWithCurrentItem="False"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Товар"  Binding="{Binding GoodsStr}" IsReadOnly="True">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="TNVEDGroupGoodsNameFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Материалы" x:Name="MaterialTab">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Click="MaterialAddButton_Click" ToolTip="Прокрутить для добавления" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/rPlus_01-66-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=materialDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="Images/remove.png" />
+                    </Button>
+                    <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="Images/excel_import.png" />
+                    </Button>
+                    <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="Images/excel_export.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="Images/Save.png" />
+                    </Button>
+                    <!--<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="Images/rRemove-512.png" />
+                    </Button>-->
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <Grid Grid.Row="1" Visibility="Visible" HorizontalAlignment="Left">
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Control}">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Материал" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,0,0,0" ToolTip="Слова разделенные пробелом" />
+                    <TextBox Grid.Column="1" Text="{Binding Path=FilterName, UpdateSourceTrigger=PropertyChanged}" KeyDown="MaterialTextBox_KeyDown" TextAlignment="Left" Grid.Row="0" Margin="6,6,4,6" ToolTip="Слова разделенные пробелом"/>
+                    <Button Command="{Binding FilterRun}" Grid.Column="2" VerticalAlignment="Center" Margin="4,0,10,0" Background="LightGreen" Height="18">
+                        <Image Source="/CustomBrokerWpf;component/Images/rpoisk2.png" />
+                    </Button>
+                </Grid>
+                <DataGrid x:Name="materialDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" >
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}">
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="50"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Поиск"  Binding="{Binding ShortName}">
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="50"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="База Ткань" Binding="{Binding GoodsName}" >
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="10"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

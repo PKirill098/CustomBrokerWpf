@@ -1,0 +1,236 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ExpenditureWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:me="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Затрата" Name="winExpenditure" Language="ru-RU" Loaded="Window_Loaded" Closing="Window_Closing" Height="350" Width="754" Icon="/CustomBrokerWpf;component/Images/money_envelope.png">
+    <Window.Resources>
+        <me:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
+        <CollectionViewSource x:Key="keyExpenditureDetailVS" />
+    </Window.Resources>
+    <Grid x:Name="mainGrid">
+        <Grid.Resources>
+            <me:IsEnabledConverter x:Key="keyIsEnabledConverter"/>
+            <me:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+            <me:BitVisibilityConverter x:Key="keyBitVisibilityConverterEqual" asCompare="Equal"/>
+            <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="Margin" Value="2,0,2,0" />
+            </Style>
+            <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="0,-1,0,-2" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition IsEnabled="False" Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.BindingGroup>
+            <BindingGroup Name="mainBindingGroup">
+                <BindingGroup.ValidationRules>
+                    <me:DataGridRowValidation ValidationStep="UpdatedValue"/>
+                </BindingGroup.ValidationRules>
+            </BindingGroup>
+        </Grid.BindingGroup>
+        <ToolBar Height="32" IsTabStop="False">
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click" IsTabStop="False" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="SaveButton" ToolTip="Сохранить изменения в БД" Click="SaveButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Button ToolTip="Удалить затрату" Click="DelButton_Click" IsEnabled="{Binding Source={StaticResource keyVisibilityAccountVisors}, Path=isMember}" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Платеж" Click="WithdrawalButton_Click" IsTabStop="False" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click" IsTabStop="False"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" >
+            <Grid x:Name="GridData" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type me:ExpenditureWin}}, Path=IsEditable}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Тип затраты*" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" Visibility="Collapsed"/>
+                <TextBlock Text="Статья затрат*" VerticalAlignment="Center" Margin="4,0,0,0" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,5,0,5">
+                    <ComboBox x:Name="typeComboBox" SelectedValue="{Binding Path=ExpenditureTypeID, Converter={StaticResource keyNoNullValueBackConverter}}" SelectedValuePath="TypeID" DisplayMemberPath="NameET" Margin="3,2,3,0"  MinWidth="90" SelectionChanged="typeComboBox_SelectionChanged" LostFocus="typeComboBox_LostFocus" Loaded="ComboBox_Loaded" Visibility="Collapsed">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+                    <ComboBox x:Name="itemComboBox" SelectedValue="{Binding Path=ExpenditureItemID, Converter={StaticResource keyNoNullValueBackConverter}}" SelectedValuePath="expenditureItemID" DisplayMemberPath="nameEI" Margin="3,2,3,0" MinWidth="90" Loaded="ComboBox_Loaded" >
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+                    <TextBlock Text="Валюта" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <ComboBox x:Name="currencyComboBox" SelectedValue="{Binding Path=currency, Converter={StaticResource keyNoNullValueBackConverter}}" SelectedValuePath="currency" DisplayMemberPath="currency" Margin="3,2,3,0"  MinWidth="50"/>
+                    <TextBlock Text="Счет №" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBox Text="{Binding Path=numberIIn}" TextAlignment="Center" Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" MaxLength="10" MinWidth="30"/>
+                    <TextBlock Text="дата" ToolTip="Дата счета" VerticalAlignment="Center" Margin="4,0,0,0" />
+                    <DatePicker ToolTip="Дата счета" SelectedDate="{Binding Path=dateIIn, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}" Margin="3,2,3,0" Width="90" />
+                    <TextBlock Text="Дата периода затрат*" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+                <TextBlock Text="Период с" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,0,0" />
+                <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,5">
+                    <DatePicker ToolTip="Дата начала периода" SelectedDate="{Binding Path=periodStart, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}" Margin="3,2,3,0"  Width="90"/>
+                    <TextBlock Text="по" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                    <DatePicker ToolTip="Дата окончания периода" SelectedDate="{Binding Path=periodEnd, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}" Margin="3,2,3,0"  Width="90"/>
+                    <TextBlock Text="Отправка" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" />
+                    <ComboBox x:Name="parcelComboBox" SelectedValue="{Binding Path=parcelID}" IsEditable="True" SelectedValuePath="parcelId" DisplayMemberPath="fullnumber" Margin="3,2,3,0"  MinWidth="50" LostKeyboardFocus="parcelComboBox_LostKeyboardFocus"
+                          Loaded="ComboBox_Loaded">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Visibility" Value="{Binding Path=status, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}, ConverterParameter=300}"/>
+                                <Setter Property="IsEnabled" Value="{Binding Path=status, Converter={StaticResource keyIsEnabledConverter}, ConverterParameter=500, Mode=OneWay, IsAsync=False}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Margin="0,5,0,5" Visibility="Collapsed">
+                    <TextBlock Text="{Binding Path=sumEx, Mode=OneWay, StringFormat=\{0:N\}}" VerticalAlignment="Center" TextAlignment="Right" Margin="3,2,3,0" Visibility="Collapsed"/>
+                    <TextBlock Text="{Binding Source={StaticResource keyExpenditureDetailVS} , Path=SumExD, Mode=OneWay, StringFormat=\{0:N\}}" VerticalAlignment="Center" TextAlignment="Right" Margin="10,0,0,0" Visibility="Collapsed"/>
+                    <TextBlock Text="{Binding ElementName=detailDataGrid.ItemsSource , Path=SumExD, Mode=OneWay, StringFormat=\{0:N\}}" VerticalAlignment="Center" TextAlignment="Right" Margin="10,0,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+                <TextBlock Text="Сумма затраты" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,0,0" />
+                <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" Margin="0,5,0,5">
+                    <TextBox x:Name="ExSumTextBox" TextAlignment="Right" Margin="3,2,3,0" MinWidth="30" IsReadOnly="True"/>
+                    <TextBlock Text="Оплата, вал" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBox Text="{Binding Path=sumPayCurr, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" TextAlignment="Right" Margin="3,2,3,0" MinWidth="30"/>
+                    <TextBlock Text="Оплата, руб" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBox Text="{Binding Path=sumPayRub, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" TextAlignment="Right" Margin="3,2,3,0" MinWidth="30"/>
+                    <TextBlock Text="Долг, вал" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBox Text="{Binding Path=sumDebt, StringFormat=\{0:N\}, Mode=OneWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}" TextAlignment="Right" Margin="3,2,3,0" MinWidth="30" IsReadOnly="True"/>
+                </StackPanel>
+                <TextBlock Text="Операция" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" ToolTip="Дата оплаты. Дата соотнесения платежного периода." />
+                <StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal" Margin="0,5,0,5">
+                    <ComboBox x:Name="opertypeComboBox" SelectedIndex="{Binding Path=opertype, Converter={StaticResource keyNoNullValueBackConverter}}" Margin="3,2,3,0"  MinWidth="50" IsEnabled="True">
+                        <ComboBox.Items>
+                            <ComboBoxItem>Платеж</ComboBoxItem>
+                            <ComboBoxItem>Зачет</ComboBoxItem>
+                        </ComboBox.Items>
+                    </ComboBox>
+                    <TextBlock Text="дата" ToolTip="Дата операции" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                    <DatePicker ToolTip="Дата операции" SelectedDate="{Binding Path=dateEx, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}" Margin="3,2,3,0"  Width="90"/>
+                    <TextBlock Text="Источник" ToolTip="Источник средств" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <ComboBox x:Name="customerComboBox" ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="account" DisplayMemberPath="customerName" Margin="3,2,3,0" MinWidth="60"
+                           Visibility="{Binding ElementName=opertypeComboBox, Path=SelectedIndex, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=1}">
+                    </ComboBox>
+                    <ComboBox x:Name="legalComboBox" ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="accountid" DisplayMemberPath="namelegal" Loaded="ComboBox_Loaded" Margin="3,2,3,0" MinWidth="60"
+                          Visibility="{Binding ElementName=opertypeComboBox, Path=SelectedIndex, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=0}">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+                    <TextBlock Text="Контрагент" ToolTip="Получатель средств" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <ComboBox x:Name="recipientComboBox" ToolTip="Контрагент, получатель средств" SelectedValue="{Binding Path=recipientEx, BindingGroupName=mainBindingGroup, Converter={StaticResource keyNoNullValueBackConverter}}" SelectedValuePath="Id" DisplayMemberPath="Name" Margin="3,2,3,0" MinWidth="60"
+                              /> <!-- Text="{Binding Path=contractor, Mode=OneWayToSource}"-->
+                </StackPanel>
+                <TextBlock Text="Назначение" ToolTip="Предмет затраты" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" />
+                <TextBox ToolTip="Предмет затраты" Grid.Column="1" Grid.Row="5" Text="{Binding Path=subjectEx}" Margin="3,2,3,0" MaxLength="100" MinWidth="60"/>
+                <TextBlock ToolTip="Примечание" Text="Примечание" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" Visibility="Visible"/>
+                <TextBox Text="{Binding Path=noteEx}" Grid.Row="6" Grid.Column="1" Margin="3,2,3,0" MaxLength="150" MinWidth="60"/>
+            </Grid>
+        </ScrollViewer>
+        <GridSplitter Grid.Row="2" Height="2" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="3,2" IsTabStop="False" Visibility="Visible">
+            <GridSplitter.Background>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}"/>
+            </GridSplitter.Background>
+        </GridSplitter>
+        <DataGrid x:Name="detailDataGrid" Grid.Row="3" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2,0,2,0" Visibility="Visible"
+                  BeginningEdit="detailDataGrid_BeginningEdit" CellEditEnding="detailDataGrid_CellEditEnding" RowEditEnding="detailDataGrid_RowEditEnding" UnloadingRow="detailDataGrid_UnloadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Наименование" Binding="{Binding Path=nameExD}" />
+                <DataGridTextColumn Header="Сумма" Binding="{Binding sumExD, NotifyOnValidationError=True, StringFormat=\{0:N\}, ValidatesOnDataErrors=True, ValidatesOnExceptions=True,TargetNullValue=''}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <GridSplitter Grid.Row="3" Height="6" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="3,0" IsTabStop="False" Visibility="Collapsed">
+            <GridSplitter.Background>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}"/>
+            </GridSplitter.Background>
+        </GridSplitter>
+        <DataGrid x:Name="withdrawalDataGrid" Grid.Row="4" AutoGenerateColumns="False" Background="{x:Null}" Validation.Error="withdrawalDataGrid_Error" Visibility="Collapsed">
+            <DataGrid.Resources>
+                <CollectionViewSource x:Key="keyLegalEntityVS" />
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridComboBoxColumn Header="Источник*" SelectedValueBinding="{Binding Path=accountId, NotifyOnValidationError=True}" ItemsSource="{Binding Source={StaticResource keyLegalEntityVS}}" SelectedValuePath="accountid" DisplayMemberPath="namelegal" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="legalName">
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Оплачено" Binding="{Binding Path=dateW, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue=''}" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата оплаты"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Сумма в валюте*" Binding="{Binding Path=sumCurr, StringFormat=\{0:N\}, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnExceptions=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма в валюте затраты"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Сумма в рублях*" Binding="{Binding Path=sumRub, StringFormat=\{0:N\}, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnExceptions=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма в валюте затраты"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

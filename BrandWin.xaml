@@ -1,0 +1,21 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.BrandWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Брэнды" x:Name="itemBrandWin" Height="300" Width="300"  Loaded="Window_Loaded" Closing="itemBrandWin_Closing" Icon="/CustomBrokerWpf;component/Images/factory.png">
+    <Window.Resources>
+        <CollectionViewSource x:Key="brandViewSource" Source="{Binding Path=tableBrand, Source={StaticResource keyReferenceDS}}">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="brandName" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource brandViewSource}">
+        <DataGrid AutoGenerateColumns="False" Name="mainDataGrid" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" VerticalAlignment="Top">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="brandNameColumn" Binding="{Binding Path=brandName}" Header="Наименование" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

@@ -1,0 +1,96 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.BankWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Банк" Name="winBank" Loaded="winBank_Loaded" Closing="winBank_Closing" Height="300" Width="449" Icon="/CustomBrokerWpf;component/Images/creditcards.png">
+    <Grid DataContext="{Binding ElementName=BankList, Path=SelectedItem}">
+        <Grid.Resources>
+                <my:ChildRelationConverter x:Key="keyChildRelationConverter"/>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Grid.ColumnSpan="2" IsTabStop="False" Height="32">
+            <TextBlock Text="Выбор:" Padding="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox x:Name="BankList" DisplayMemberPath="bankName" SelectedValuePath="bankid" 
+                      IsReadOnly="False" IsEditable="True"  IsTextSearchEnabled="True" IsSynchronizedWithCurrentItem="True" MinWidth="50" HorizontalAlignment="Stretch" GotFocus="BankList_GotFocus" />
+            <Separator/>
+            <Button x:Name="AddButton" ToolTip="Добавить банк" Click="AddButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button ToolTip="Удалить банк" Click="DelButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Cut" ToolTip="Вырезать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/cut.png" />
+            </Button>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="SaveButton" ToolTip="Сохранить изменения в БД" Click="SaveButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click" IsTabStop="False"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Mouse" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <TextBlock Text="Название*" Grid.Row="1" Margin="5,0,0,0" VerticalAlignment="Center"/>
+        <TextBox x:Name="nameTextBox" Text="{Binding Path=bankName, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="3,2,3,0" MaxLength="100" />
+        <TextBlock Text="Город" Grid.Row="2" Margin="5,0,0,0" VerticalAlignment="Center"/>
+        <TextBox Text="{Binding Path=bankLocation, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="3,2,3,0" MaxLength="20" />
+        <TextBlock Text="Кор. счет" Grid.Row="3" Margin="5,0,0,0" VerticalAlignment="Center"/>
+        <TextBox Text="{Binding Path=backCorrAccount, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" MaxLength="20" />
+        <TextBlock Text="БИК*" Grid.Row="4" Margin="5,0,0,0" VerticalAlignment="Center"/>
+        <TextBox x:Name="bikTextBox" Text="{Binding Path=bankBIC, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="1" Margin="3,2,3,0" MaxLength="9" />
+        <TextBlock Text="Тип" Grid.Row="5" Margin="5,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+        <ComboBox Text="{Binding Path=banktype, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="1" Margin="3,2,3,0" Visibility="Collapsed" />
+        <DataGrid x:Name="accountDataGrid" Grid.Row="6" Grid.ColumnSpan="2" Margin="3,2,3,0" AutoGenerateColumns="False" 
+                  ItemsSource="{Binding Converter={StaticResource keyChildRelationConverter}, ConverterParameter=FK_tableBank_tableAccount, NotifyOnValidationError=True}"
+                  Validation.Error="accountDataGrid_Error" BeginningEdit="accountDataGrid_BeginningEdit">
+            <DataGrid.Resources>
+                <CollectionViewSource x:Key="keyCurrencyVS"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Счет" Binding="{Binding Path=bankaccount}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="20"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Валюта" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                       SelectedValueBinding="{Binding Path=bankaccountcurr}" ItemsSource="{Binding Source={StaticResource keyCurrencyVS}}" SelectedValuePath="currency" DisplayMemberPath="currdescription" />
+                <DataGridTextColumn Header="Примечание" Binding="{Binding Path=accountnote}" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="50"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Изменено" Binding="{Binding Path=updtDate, Mode=OneWay, StringFormat=\{0:d\}}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Изменил" Binding="{Binding Path=updtWho, Mode=OneWay}" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

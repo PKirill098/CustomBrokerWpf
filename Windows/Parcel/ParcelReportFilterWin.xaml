@@ -1,0 +1,554 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ParcelReportFilterWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        xmlns:lib="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+        Title="Настройки отчета по отправкам" Name="winParcelReportFilter" Language="ru-RU" Loaded="Filter_Loaded" Closed="Filter_Closed" Height="500" Width="645" Icon="Images/cashier.png">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Close" Executed="thisCloseButton_Click"/>
+    </Window.CommandBindings>
+    <TabControl>
+        <TabItem Header="Фильтр" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ToolBar Grid.ColumnSpan="2" Height="32">
+                    <Button ToolTip="Применить фильтр" x:Name="RunFilterButton" Click="RunFilterButton_Click" IsDefault="True" Focusable="False" IsTabStop="False" >
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_down.png" />
+                    </Button>
+                    <Separator/>
+                    <Button ToolTip="Фильтр по умолчанию" x:Name="DefaultFilterButton" Click="DefaultFilterButton_Click" Focusable="False" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_preferences.png" />
+                    </Button>
+                    <Button ToolTip="Очистить условия" x:Name="ClearFilterButton" Click="ClearFilterButton_Click" Focusable="False" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_new.png" />
+                    </Button>
+                    <Button ToolTip="Удалить фильтр" x:Name="RemoveFilterButton" Click="RemoveFilterButton_Click" Focusable="False" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <Button ToolTip="Сохранить фильтр как фильтр по умолчанию" x:Name="SaveFilterButton" Click="SaveFilterButton_Click" Focusable="False" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="thisCloseButton_Click" Focusable="False" IsTabStop="False"/>
+                    <Popup Name="popInf" StaysOpen="False" Placement="Mouse" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                            <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Период c" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                            <DatePicker x:Name="startPeriodPicker" Grid.Row="0" Grid.Column="1" Margin="2,0" SelectedDateChanged="PeriodPicker_SelectedDateChanged" />
+                            <TextBlock Text="по" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                            <DatePicker x:Name="stopPeriodPicker" Grid.Row="0" Grid.Column="3" Margin="2,0" SelectedDateChanged="PeriodPicker_SelectedDateChanged"/>
+                            <TextBlock Text="Счет c" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                            <DatePicker x:Name="startInvoicePicker" Grid.Row="1" Grid.Column="1" Margin="2,0" SelectedDateChanged="InvoiceDatePicker_SelectedDateChanged" />
+                            <TextBlock Text="по" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                            <DatePicker x:Name="stopInvoicePicker" Grid.Row="1" Grid.Column="3" Margin="2,0" SelectedDateChanged="InvoiceDatePicker_SelectedDateChanged"/>
+                            <TextBlock Text="Отгрузка план c" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                            <DatePicker x:Name="startShipplandatePicker" Grid.Row="0" Grid.Column="5" Margin="2,0" SelectedDateChanged="ShipplandatePicker_SelectedDateChanged" />
+                            <TextBlock Text="по" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                            <DatePicker x:Name="stopShipplandatePicker" Grid.Row="0" Grid.Column="7" Margin="2,0" SelectedDateChanged="ShipplandatePicker_SelectedDateChanged"/>
+                            <TextBlock Text="Растаможено c" Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                            <DatePicker x:Name="startTerminalOutPicker" Grid.Row="1" Grid.Column="5" Margin="2,0" SelectedDateChanged="TerminalOutPicker_SelectedDateChanged" />
+                            <TextBlock Text="по" Grid.Row="1" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                            <DatePicker x:Name="stopTerminalOutPicker" Grid.Row="1" Grid.Column="7" Margin="2,0" SelectedDateChanged="TerminalOutPicker_SelectedDateChanged"/>
+                        </Grid>
+                        <WrapPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5,0,0">
+                            <Grid Margin="0,0,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="№ порядковый c" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <TextBox x:Name="startNumberTextBox" Grid.Column="1" Margin="2,0" TextChanged="NumberTextBox_TextChanged" MinWidth="20"/>
+                                <TextBlock Text="по" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <TextBox x:Name="stopNumberTextBox" Grid.Column="3" Margin="2,0" TextChanged="NumberTextBox_TextChanged" MinWidth="20"/>
+                            </Grid>
+                            <Grid Margin="0,0,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Машина: номер" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <TextBox x:Name="lorryTextBox" Grid.Column="1" TextChanged="LorryTextBox_TextChanged" Margin="2,0,5,0" MinWidth="20" />
+                            </Grid>
+                            <Grid Margin="0,0,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Перевозчик" Margin="2,0" VerticalAlignment="Center"/>
+                                <TextBox x:Name="carrierTextBox" Grid.Column="1" TextChanged="CarrierTextBox_TextChanged" Margin="3,2,3,0" HorizontalAlignment="Left" MinWidth="20" MaxLength="100"/>
+                            </Grid>
+                        </WrapPanel>
+                        <Expander Grid.Row="2" Header="Вес, объем, стоимость" Visibility="Collapsed">
+                            <Grid Margin="0,0,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Вес, кг" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="weightComboBox" Grid.Column="1" SelectedIndex="0" Margin="2" SelectionChanged="WeightComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="weightTextBox" Grid.Column="2" Margin="2,2,5,2" TextChanged="WeightTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Объем, м3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="volumeComboBox" Grid.Column="4" SelectedIndex="0" Margin="2" SelectionChanged="VolumeComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="volumeTextBox" Grid.Column="5" Margin="2,2,5,2" TextChanged="VolumeTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="ЕU" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="goodValueComboBox" Grid.Column="7" SelectedIndex="0" Margin="2" SelectionChanged="GoodValueComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="goodValueTextBox" Grid.Column="8" Margin="2,2,5,2" TextChanged="GoodValueTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Ст-ть кг, $" Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="costkgComboBox" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="CostkgComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="costkgTextBox" Grid.Column="11" Margin="2,2,5,2" TextChanged="CostkgTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Сумма, $" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="currencySumComboBox" Grid.Row="1" Grid.Column="1" SelectedIndex="0" Margin="2" SelectionChanged="CurrencySumComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="currencySumTextBox" Grid.Row="1" Grid.Column="2" Margin="2,2,5,2" TextChanged="CurrencySumTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Прочие" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="othersComboBox" Grid.Row="1" Grid.Column="4" SelectedIndex="0" Margin="2" SelectionChanged="OthersComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="othersTextBox" Grid.Row="1" Grid.Column="5" Margin="2,2,5,2" TextChanged="OthersTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Возврат" Grid.Row="1" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="returnComboBox" Grid.Row="1" Grid.Column="7" SelectedIndex="0" Margin="2" SelectionChanged="ReturnComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="returnTextBox" Grid.Row="1" Grid.Column="8" Margin="2,2,5,2" TextChanged="ReturnTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Счет, руб" Grid.Row="1" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="invoiceComboBox" Grid.Row="1" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="InvoiceComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="invoiceTextBox" Grid.Row="1" Grid.Column="11" Margin="2,2,5,2" TextChanged="InvoiceTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Оплата" Grid.Row="2" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="paySumComboBox" Grid.Row="2" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="PaySumComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="paySumTextBox" Grid.Row="2" Grid.Column="11" Margin="2,2,5,2" TextChanged="PaySumTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Там-ный" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="customsComboBox" Grid.Row="3" Grid.Column="1" SelectedIndex="0" Margin="2" SelectionChanged="CustomsComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="customsTextBox" Grid.Row="3" Grid.Column="2" Margin="2,2,5,2" TextChanged="CustomsTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Доставка" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="deliveryComboBox" Grid.Row="3" Grid.Column="4" SelectedIndex="0" Margin="2" SelectionChanged="DeliveryComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="deliveryTextBox" Grid.Row="3" Grid.Column="5" Margin="2,2,5,2" TextChanged="DeliveryTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Скидка" Grid.Row="3" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="prggermanyComboBox" Grid.Row="3" Grid.Column="7" SelectedIndex="0" Margin="2" SelectionChanged="PrggermanyComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="prggermanyTextBox" Grid.Row="3" Grid.Column="8" Margin="2,2,5,2" TextChanged="PrggermanyTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Доп.услуги" Grid.Row="3" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="storegermnComboBox" Grid.Row="3" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="StoregermnComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="storegermnTextBox" Grid.Row="3" Grid.Column="11" Margin="2,2,5,2" TextChanged="StoregermnTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Фрахт" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="freightgmnComboBox" Grid.Row="4" Grid.Column="1" SelectedIndex="0" Margin="2" SelectionChanged="FreightgmnComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="freightgmnTextBox" Grid.Row="4" Grid.Column="2" Margin="2,2,5,2" TextChanged="FreightgmnTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Оформление" Grid.Row="4" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="preparatgmComboBox" Grid.Row="4" Grid.Column="4" SelectedIndex="0" Margin="2" SelectionChanged="PreparatgmComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="preparatgmTextBox" Grid.Row="4" Grid.Column="5" Margin="2,2,5,2" TextChanged="PreparatgmTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Накладные" Grid.Row="4" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="prgmoscowComboBox" Grid.Row="4" Grid.Column="7" SelectedIndex="0" Margin="2" SelectionChanged="PrgmoscowComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="prgmoscowTextBox" Grid.Row="4" Grid.Column="8" Margin="2,2,5,2" TextChanged="PrgmoscowTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Страховка" Grid.Row="4" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="insuranceComboBox" Grid.Row="4" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="InsuranceComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="insuranceTextBox" Grid.Row="4" Grid.Column="11" Margin="2,2,5,2" TextChanged="InsuranceTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Довоз" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="deliverymsComboBox" Grid.Row="5" Grid.Column="1" SelectedIndex="0" Margin="2" SelectionChanged="DeliverymsComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="deliverymsTextBox" Grid.Row="5" Grid.Column="2" Margin="2,2,5,2" TextChanged="DeliverymsTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Серт-ты" Grid.Row="5" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="sertificatComboBox" Grid.Row="5" Grid.Column="4" SelectedIndex="0" Margin="2" SelectionChanged="SertificatComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="sertificatTextBox" Grid.Row="5" Grid.Column="5" Margin="2,2,5,2" TextChanged="SertificatTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Претензии" Grid.Row="5" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="claimComboBox" Grid.Row="5" Grid.Column="7" SelectedIndex="0" Margin="2" SelectionChanged="ClaimComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="claimTextBox" Grid.Row="5" Grid.Column="8" Margin="2,2,5,2" TextChanged="ClaimTextBox_TextChanged" MinWidth="30" />
+                                <TextBlock Text="Корр-ка" Grid.Row="5" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                                <ComboBox x:Name="escortmscwComboBox" Grid.Row="5" Grid.Column="10" SelectedIndex="0" Margin="2" SelectionChanged="EscortmscwComboBox_SelectionChanged" Width="33">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="="/>
+                                        <ComboBoxItem Content="&gt;"/>
+                                        <ComboBoxItem Content="&lt;"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBox x:Name="escortmscwTextBox" Grid.Row="5" Grid.Column="11" Margin="2,2,5,2" TextChanged="EscortmscwTextBox_TextChanged" MinWidth="30" />
+                            </Grid>
+                        </Expander>
+                    </Grid>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" Margin="0,2">
+                    <Grid  Grid.Row="4">
+                        <Grid.Resources>
+                            <Style x:Key="CheckBoxListStyle" TargetType="{x:Type ListBox}">
+                                <Setter Property="SelectionMode" Value="Multiple"/>
+                                <Setter Property="ItemContainerStyle">
+                                    <Setter.Value>
+                                        <Style TargetType="{x:Type ListBoxItem}">
+                                            <Setter Property="Margin" Value="2"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListBoxItem}" >
+                                                        <CheckBox Focusable="False" IsChecked="{Binding Path=IsSelected, RelativeSource={RelativeSource TemplatedParent}}" IsTabStop="False">
+                                                            <ContentPresenter />
+                                                        </CheckBox>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Setter.Value>
+                                </Setter>
+                                <EventSetter Event="SelectionChanged" Handler="ListBoxCheckBox_SelectionChanged"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Клиент" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <lib:CheckListBoxUC x:Name="customerListBox" Grid.Column="0" Grid.Row="1" TextSearch.TextPath="customerName" Margin="3,2,0,0" IsTabStop="True" MinWidth="10"  VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+                        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" ResizeDirection="Columns" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Юр лицо" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <lib:CheckListBoxUC x:Name="CLegalListBox" Grid.Column="2" Grid.Row="1" Margin="3,2,0,0" IsTabStop="True" MinWidth="10"  VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+                        <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" ResizeDirection="Columns" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Поставщик" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <!--<ListBox x:Name="agentListBox" Grid.Column="4" Grid.Row="1" DisplayMemberPath="agentName" IsTextSearchEnabled="True" TextSearch.TextPath="agentName" Margin="3,2,0,0" SelectionChanged="agentListBox_SelectionChanged" Style="{StaticResource CheckBoxListStyle}" VerticalAlignment="Top" />-->
+                        <lib:CheckListBoxUC x:Name="agentListBox" Grid.Column="4" Grid.Row="1" Margin="3,2,0,0" IsTabStop="True" MinWidth="10"  VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+                        <GridSplitter Grid.Column="5" Grid.Row="0" Grid.RowSpan="2" ResizeDirection="Columns" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Менеджер" Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <ListBox x:Name="ManagerListBox" Grid.Column="6" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Name" IsTextSearchEnabled="True" TextSearch.TextPath="Name" Margin="0,2,3,0"  VerticalAlignment="Top" SelectionChanged="ManagerListBox_SelectionChanged" Visibility="Visible" />
+                        <StackPanel Orientation="Vertical" Grid.Column="7" Margin="2">
+                            <TextBlock Text="Группа" HorizontalAlignment="Center" />
+                            <TextBlock Text="менеджеров" HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <ListBox x:Name="managerGroupListBox" Grid.Column="7" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Name" IsTextSearchEnabled="True" TextSearch.TextPath="Name" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Stretch" SelectionChanged="managerGroupListBox_SelectionChanged" />
+                        <TextBlock Text="Услуга" Grid.Column="8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <ListBox x:Name="serviceTypeListBox" Grid.Column="8" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Name" IsTextSearchEnabled="True" TextSearch.TextPath="Name" Margin="0,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="serviceTypeListBox_SelectionChanged" Visibility="Visible" />
+                        <TextBlock Text="Тип" Grid.Column="9" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <ListBox x:Name="parcelTypeListBox" Grid.Column="9" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="parceltypename" IsTextSearchEnabled="True" TextSearch.TextPath="parceltypename" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="ParcelTypeListBox_SelectionChanged" />
+                        <TextBlock Text="Статус" Grid.Column="10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <ListBox x:Name="statusListBox" Grid.Column="10" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="name" IsTextSearchEnabled="True" TextSearch.TextPath="name" Margin="3,2,3,0"  VerticalAlignment="Top" SelectionChanged="StatusListBox_SelectionChanged" />
+                        <TextBlock Text="Груз" Grid.Column="11" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                        <ListBox x:Name="goodstypeListBox" Grid.Row="1" Grid.Column="11" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Nameitem" IsTextSearchEnabled="True" TextSearch.TextPath="Nameitem" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="GoodstypeListBox_SelectionChanged" />
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Столбцы" x:Name="ColumnsTabItem" Visibility="Visible" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="32" Focusable="False" IsTabStop="False">
+                    <Button ToolTip="Подготовить отчет" Command="{Binding Path=GetReportData}" Click="SaveData_Click" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/gears_run.png" />
+                    </Button>
+                    <Separator IsTabStop="False"/>
+                    <Button ToolTip="Отобразить все столбцы" Command="{Binding Path=VisibleAll}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/column.png" />
+                    </Button>
+                    <Separator/>
+                    <Button ToolTip="Переместить столбец левее" Command="{Binding Path=ChangeDisplayIndex}" CommandParameter="Up" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/arrow_up_blue.png" />
+                    </Button>
+                    <Button ToolTip="Переместить столбец правее"  Command="{Binding Path=ChangeDisplayIndex}" CommandParameter="Down" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/arrow_down_blue.png" />
+                    </Button>
+                    <Separator/>
+                    <Button ToolTip="Сохранить настройки как настройки по умолчанию для открытия окна" Click="SaveData_Click" Command="{Binding Path=SaveDefault}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+                    </Button>
+                    <Button ToolTip="Загрузить настройки по умолчанию" Command="{Binding Path=LoadDefault}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/table_sql_check.png" />
+                    </Button>
+                    <Separator/>
+                    <ComboBox ItemsSource="{Binding Path=SavedGroups}" DisplayMemberPath="Name" Text="{Binding Path=SavedGroupName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="True" MinWidth="30"/>
+                    <Button ToolTip="Загрузить сохраненный отчет" Command="{Binding Path=LoadSavedGroups}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}" >
+                        <Image Source="/CustomBrokerWpf;component/Images/table_sql_run.png" />
+                    </Button>
+                    <Button ToolTip="Заменить сохраненный отчет текущим" Click="SaveData_Click" Command="{Binding Path=SaveSavedGroups}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/save_as_green.png" />
+                    </Button>
+                    <Button ToolTip="Установить выбранный сохраненный отчет как отчет по умолчанию для открытия окна" Command="{Binding Path=DefaultSavedGroups}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/save_as.png" />
+                    </Button>
+                    <Button ToolTip="Удалить сохраненный отчет" Command="{Binding Path=DeleteSavedGroups}" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <Image Source="/CustomBrokerWpf;component/Images/table_sql_delete.png" />
+                    </Button>
+                    <Separator/>
+                    <ComboBox x:Name="SelectChartComboBox" ToolTip="Выбор типа диаграммы" SelectedIndex="{Binding Path=ChartType}" VerticalAlignment="Stretch" HorizontalAlignment="Left" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+                        <ComboBoxItem Padding="1" Height="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=ActualHeight}">
+                            <Image Source="/CustomBrokerWpf;component/Images/column-chart.png" />
+                        </ComboBoxItem>
+                        <ComboBoxItem Padding="1" Height="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=ActualHeight}">
+                            <Image Source="/CustomBrokerWpf;component/Images/pie-chart.png"  />
+                        </ComboBoxItem>
+                        <ComboBoxItem Padding="1" Height="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=ActualHeight}">
+                            <Image Source="/CustomBrokerWpf;component/Images/chart.png"  />
+                        </ComboBoxItem>
+                        <ComboBoxItem Padding="1" Height="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=ActualHeight}">
+                            <Image Source="/CustomBrokerWpf;component/Images/line-chart.png"  />
+                        </ComboBoxItem>
+                    </ComboBox>
+                    <Button ToolTip="Построить диаграмму" Command="{Binding Path=OpenChart}" Click="SaveData_Click" Focusable="False" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}" >
+                        <Image Source="/CustomBrokerWpf;component/Images/gears_run.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" Command="ApplicationCommands.Close" Focusable="False" IsTabStop="False"/>
+                </ToolBar>
+                <DataGrid x:Name="ColumnsDataGrid" Grid.Row="1" CanUserAddRows="True" CanUserReorderColumns="False" CanUserSortColumns="False" RowHeaderWidth="0" AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=Columns }" IsSynchronizedWithCurrentItem="True" IsTabStop="True">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="IsSelected" Value="{Binding Path=isSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Resources>
+                        <CollectionViewSource x:Key="Metadata" Source="{Binding Path=ColumnsMetadata}"/>
+                        <my:DataGridDisplayIndexConverter x:Key="DisplayIndexConverter"/>
+                        <my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Path=DisplayIndex, Converter={StaticResource DisplayIndexConverter},UpdateSourceTrigger=LostFocus}" IsReadOnly="False"/>
+                        <DataGridComboBoxColumn Header="Столбец" SelectedItemBinding="{Binding Path=MetaData, UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" DisplayMemberPath="Header" ItemsSource="{Binding Source={StaticResource Metadata}}">
+                            <DataGridComboBoxColumn.EditingElementStyle >
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemContainerStyle">
+                                        <Setter.Value>
+                                            <Style TargetType="ComboBoxItem">
+                                                <Setter Property="Visibility" Value="{Binding Path=IsVisible, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                                <Setter Property="IsEnabled" Value="{Binding Path=IsVisible}"/>
+                                            </Style>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridCheckBoxColumn Header="Закреплен" Binding="{Binding Path=IsFrozen, UpdateSourceTrigger=PropertyChanged}" />
+                        <DataGridCheckBoxColumn Header="Видимый" Binding="{Binding Path=IsVisible, UpdateSourceTrigger=PropertyChanged}"/>
+                        <DataGridComboBoxColumn Header="Преобразование" SelectedValueBinding="{Binding Path=PreFunction}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                            <DataGridComboBoxColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Преобразовать значение в столбце в"/>
+                                </Style>
+                            </DataGridComboBoxColumn.HeaderStyle>
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="{x:Type ComboBox}">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=PreFunctions}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=PreFunctions}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridComboBoxColumn Header="Объединение" SelectedValueBinding="{Binding Path=AggregateFunction}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="{x:Type ComboBox}">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=GroupFunctions}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=GroupFunctions}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridComboBoxColumn Header="Диаграмма" SelectedValueBinding="{Binding Path=ChartValueType}" SelectedValuePath="Key" DisplayMemberPath="Value">
+                            <DataGridComboBoxColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Тип элемента диаграммы"/>
+                                </Style>
+                            </DataGridComboBoxColumn.HeaderStyle>
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="{x:Type ComboBox}">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=ChartValueTypes}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemsSource" Value="{Binding Path=ChartValueTypes}"/>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridTextColumn Binding="{Binding Path=ChartNumber, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Visibility="Collapsed">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTip" Value="Номер диаграммы"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Заголовок" Binding="{Binding Path=Header, UpdateSourceTrigger=LostFocus}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

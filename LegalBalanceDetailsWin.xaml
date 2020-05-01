@@ -1,0 +1,63 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.LegalBalanceDetailsWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Актив" Name="winLegalBalanceDetails" Loaded="Window_Loaded" Language="ru-Ru" Height="600" Width="800" Icon="/CustomBrokerWpf;component/Images/wallet_open.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+        </ToolBar>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="2">
+            <TextBlock Text="Детализация баланса с" Margin="5,0" VerticalAlignment="Center"/>
+            <DatePicker x:Name="startDetailTextBox" Margin="2,0,10,0" MinWidth="50" SelectedDateChanged="startDetailTextBox_SelectedDateChanged" />
+            <TextBlock Text="начальный баланс" Margin="2,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="startBalanceTextBlock" TextAlignment="Right" Margin="2,0,10,0" VerticalAlignment="Center" FontWeight="Bold" />
+        </StackPanel>
+        <DataGrid x:Name="mainDataGrid" Grid.Row="3" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" HorizontalAlignment="Left" RowDetailsVisibilityMode="Collapsed" SelectionUnit="CellOrRowHeader" CanUserSortColumns="False">
+            <DataGrid.Resources>
+                <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Дата" Binding="{Binding Path=TranDate, StringFormat=\{0:d\}, Mode=OneWay}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата операции"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="" Binding="{Binding Path=Recipient, Mode=OneWay}" />
+                <DataGridTextColumn Header="Документ" Binding="{Binding Path=DocNumber, Mode=OneWay}" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                <DataGridTextColumn Header="дата" Binding="{Binding Path=DocDate, StringFormat=\{0:d\}, Mode=OneWay}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата документа"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Сумма" Binding="{Binding Path=Sum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" />
+                <DataGridTextColumn Header="Баланс" Binding="{Binding Path=Balance, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" />
+                <DataGridTextColumn Header="Описание" Binding="{Binding Path=Description, Mode=OneWay}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

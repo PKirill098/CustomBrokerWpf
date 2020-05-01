@@ -1,0 +1,21 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.DeliveryTypeWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Виды доставки" x:Name="winDeliveryType" Height="200" Width="300" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/helicopter.png">
+    <Window.Resources>
+        <CollectionViewSource x:Key="tableDeliveryTypeVS" Source="{Binding Path=DeliveryType, Source={StaticResource keyReferenceDS}}" >
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="deliverytypeName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource tableDeliveryTypeVS}">
+        <DataGrid AutoGenerateColumns="False" Name="mainDataGrid" EnableRowVirtualization="True" HorizontalAlignment="Stretch" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" VerticalAlignment="Top" HeadersVisibility="Row">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="deliverytypeNameColumn" Binding="{Binding Path=deliverytypeName}" Header="Доставка" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

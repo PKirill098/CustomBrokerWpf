@@ -1,0 +1,883 @@
+﻿<UserControl x:Class="KirillPolyanskiy.CustomBrokerWpf.ParcelPaymentsUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+             xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="1200" Loaded="Control_Loaded">
+    <Grid x:Name="mainGrid">
+        <Grid.Resources>
+            <lib:BindingProxy x:Key="MainDataContext" Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}}"/>
+            <local:IsEnabledConverter x:Key="keyIsEnabledConverter"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32" >
+            <TextBlock Text="Выбор:" x:Name="ParcelNumberListTextBlock" Padding="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox x:Name="ParcelNumberList" DisplayMemberPath="fullNumber" SelectedValuePath="parcelId" ItemsSource="{Binding}"
+                      IsReadOnly="False" IsEditable="True"  IsTextSearchEnabled="True" IsSynchronizedWithCurrentItem="True" MinWidth="50" HorizontalAlignment="Stretch" SelectionChanged="ParcelNumberList_SelectionChanged" />
+            <Separator Margin="10,0"/>
+            <Button ToolTip="Папка документов" Click="toDocButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/catalog.png" />
+            </Button>
+            <Separator Margin="10,0"/>
+            <!--<Button ToolTip="Проставить таможенный платеж" Click="CustomsButton_Click" IsTabStop="False" BorderThickness="2" BorderBrush="Green" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/tamoj.png" />
+            </Button>
+            <Button ToolTip="Рассчитать сумму счетов" Click="InvoiceCreateButton_Click" BorderThickness="2" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/rasschet.png" />
+            </Button>
+            <Button ToolTip="в Excel" Click="toExcelButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/vexcel4.png" />
+            </Button>
+            <Button ToolTip="Распечатать счета" Click="AllInvoicePrintButton_Click" VerticalAlignment="Top"
+                        IsEnabled="{Binding Path=parcelstatus, Converter={StaticResource keyIsEnabledConverter}, ConverterParameter=500}"
+                        Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/print.png" />
+            </Button>
+            <Button ToolTip="Сформировать счет в Excel" Click="AllInvoiceExcelButton_Click" BorderBrush="Azure" Height="30" Margin="7,0,10,0" VerticalAlignment="Top"
+                        IsEnabled="{Binding Path=parcelstatus, Converter={StaticResource keyIsEnabledConverter}, ConverterParameter=500}"
+                        Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/excel.png" />
+            </Button>
+            <Separator Margin="10,0"/>-->
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Button x:Name="SaveButton" ToolTip="Сохранить изменения в БД" Click="SaveButton_Click" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" Visibility="Visible" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/rshester.png" />
+            </ToggleButton>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False">
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Border Grid.Row="1" Background="#eff6ff" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="56"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <local:IsReadOnlyConverter x:Key="keyIsReadOnlyConverter"/>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="4,0"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="TextAlignment" Value="Left"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Margin" Value="1,0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="False">
+                                <Setter Property="Background" Value="#eff6ff"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="Background" Value="#eff6ff"/>
+                        <Setter Property="BorderBrush" Value="{x:Null}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Margin" Value="2"/>
+                    </Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#eff6ff"/>
+                        <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="Margin" Value="4,0"/>
+                    </Style>
+                </Grid.Resources>
+                <TextBlock Grid.Row="0" Text="Статус"/>
+                <Border Grid.Row="0" Grid.Column="1" BorderThickness="1,0,0,0">
+                    <ComboBox x:Name="statusComboBox" SelectedValue="{Binding Path=parcelstatus}" DisplayMemberPath="name" SelectedValuePath="rowId" />
+                </Border>
+                <Border Grid.Row="0" Grid.Column="2" BorderThickness="1,0,0,0">
+                    <TextBlock Text="Дата отгрузки"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="3" BorderThickness="1,0,0,0">
+                    <TextBox Text="{Binding Path=shipdate,Mode=OneWay, StringFormat='dd.MM.yy', TargetNullValue=''}" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" HorizontalAlignment="Center" Background="#eff6ff"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="4" BorderThickness="1,0,0,0">
+                    <TextBlock Text="Курс"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="5" BorderThickness="1,0,0,0">
+                    <TextBox Text="{Binding Path=usdrate, StringFormat=\{0:N4\}, ValidatesOnExceptions=True, NotifyOnValidationError=True}" Margin="3,2,3,0" TextAlignment="Left"
+                         IsReadOnly="{Binding Path=parcelstatus, Converter={StaticResource keyIsReadOnlyConverter}, ConverterParameter=500}"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="6" BorderThickness="1,0,0,0">
+                    <TextBlock Grid.Column="6" Text="Декларации"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="7" BorderThickness="1,0,0,0">
+                    <TextBox Text="{Binding Path=declaration}" Grid.Column="7" Margin="3,2,3,0" MaxLength="106" TextAlignment="Left" 
+                     IsReadOnly="{Binding Path=parcelstatus, Converter={StaticResource keyIsReadOnlyConverter}, ConverterParameter=500}"/>
+                </Border>
+            </Grid>
+        </Border>
+        <DataGrid x:Name="ParcelRequestDataGrid" Grid.Row="2" CanUserAddRows="False" CanUserDeleteRows="False" RowDetailsVisibilityMode="Collapsed" AutoGenerateColumns="False" IsTabStop="False" RowHeaderWidth="15" CanUserResizeRows="False" FrozenColumnCount="1" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" HorizontalAlignment="Left" Background="#e0f7e3"
+            SelectionChanged="ParcelRequestDataGrid_SelectionChanged" MouseDoubleClick="ParcelDataGrid_MouseDoubleClick"  BeginningEdit="ParcelRequestDataGrid_BeginningEdit" CellEditEnding="ParcelRequestDataGrid_CellEditEnding" RowEditEnding="ParcelRequestDataGrid_RowEditEnding">
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter Property="Background" Value="#e0f7e3"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Клиент" SelectedValueBinding="{Binding Path=CustomerId, TargetNullValue=0}" Width="150"
+                                    ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="CustomerName">
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTemplateColumn Header="Юр. лица" Width="150">
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=CustomerLegalsNames, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding Path=CustomerLegalsNames}"/>
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox Text="{Binding Path=CustomerLegalsNames, Mode=OneWay, TargetNullValue=''}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=CustomerLegalsNames}"
+                                                  ItemsSource="{Binding Path=CustomerLegals}" DisplayMemberPath="CustomerLegal.Name">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Path=Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center">
+                                            <TextBlock Text="{Binding CustomerLegal.Name}" VerticalAlignment="Center"/>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <!--<DataGridTextColumn Header="Юр. лица" Binding="{Binding Path=CustomerLegalsNames, Mode=OneWay, TargetNullValue=''}" Width="150">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>-->
+                <DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=AgentId, TargetNullValue=0}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                     ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" SortMemberPath="AgentName"  Width="150">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                    ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" SortMemberPath="Name"  Width="100">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Вес" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="50">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <!--<DataGridTextColumn Header="Вес Ф" Binding="{Binding Path=ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />-->
+                <DataGridTextColumn Header="Объем" Binding="{Binding Path=Volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <!--<DataGridTextColumn Header="Мест" Binding="{Binding Path=CellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" />-->
+                <DataGridTextColumn Header="Инвойс" Binding="{Binding Path=Invoice, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Услуга" SelectedValueBinding="{Binding Path=ServiceType, TargetNullValue=''}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" SelectedValuePath="Name" DisplayMemberPath="Name">
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Тип груза" SelectedValueBinding="{Binding Path=Cargo}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Nameitem" DisplayMemberPath="Nameitem" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}">
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Там. платеж" Binding="{Binding Path=CustomsPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Транспорт" Binding="{Binding Path=DeliveryCostPay, Mode=OneWay, TargetNullValue=''}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Selector.IsSelected="True" Width="140">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Брокер" Binding="{Binding Path=BrokerCostPay,Mode=OneWay, TargetNullValue=''}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Selector.IsSelected="True" Width="140">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Страховка" Binding="{Binding Path=InsurancePay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ТД" Binding="{Binding Path=TDPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Фрахт" Binding="{Binding Path=FreightPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Оформление" Binding="{Binding Path=PreparatnPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Доп. усл." Binding="{Binding Path=AdditionalPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Довоз" Binding="{Binding Path=BringPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Серт" Binding="{Binding Path=SertificatPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Коррект." Binding="{Binding Path=CorrPay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Логистика" Binding="{Binding Path=Logistics, Mode=OneWay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Расход" Binding="{Binding Path=TotalCost, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Счет" Binding="{Binding Path=TotalPay, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Доход" Binding="{Binding Path=Income, Mode=OneWay, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="СЧ, %" Binding="{Binding Path=TotalPayInvoicePer,Mode=OneWay, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ТП, %" Binding="{Binding Path=CustomsPayInvoice,Mode=OneWay, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ЛОГ, %" Binding="{Binding Path=Log,Mode=OneWay, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Selector.IsSelected="True" Width="80">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7ede0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Оплаты" SelectedValueBinding="{Binding Path=Payments}" ItemsSource="{Binding Source={}}" SelectedValuePath="Nameitem" DisplayMemberPath="Nameitem" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="#f7e0e0" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7e0e0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="HistoryOpen_Click" Tag="{Binding}" Height="16" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}" >
+                                <Image Source="/CustomBrokerWpf;component/Images/his.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Итого:" VerticalAlignment="Center" Margin="5,0,3,0" Grid.Column="0"/>
+                <TextBlock Text="Счет" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="1" Grid.Row="0"/>
+                <TextBox x:Name="TotalPaysumTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="2" Grid.Row="0" />
+                <TextBlock Text="Таможенный" VerticalAlignment="Center" Margin="5,0,3,0" Grid.Column="3"/>
+                <TextBox x:Name="TotalCustomsTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="4"/>
+                <TextBlock Text="Транспорт" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,3,0" Grid.Column="5"/>
+                <TextBox x:Name="TotalDeliveryTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="6" />
+                <TextBlock Text="Брокер" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,3,0" Grid.Column="7"/>
+                <TextBox x:Name="TotalEscortmscwTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="8" />
+                <TextBlock Text="Страховка" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="9"/>
+                <TextBox x:Name="TotalInsuranceTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="10" />
+                <TextBlock Text="ТД" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,3,0" Grid.Column="11"/>
+                <TextBox x:Name="TotalPrggermanyTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="12" />
+                <TextBlock Text="Фрахт" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,3,0" Grid.Column="13"/>
+                <TextBox x:Name="TotalFreightgmnTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="14" />
+                <TextBlock Text="Оформление" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="15"/>
+                <TextBox x:Name="TotalPreparatgmTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="16" />
+                <TextBlock Text="Доп услуги" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="17"/>
+                <TextBox x:Name="TotalStoregermnTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="18" />
+                <TextBlock Text="Довоз" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="19"/>
+                <TextBox x:Name="TotalDeliverymsTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="20" />
+                <TextBlock Text="Серт" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="21"/>
+                <TextBox x:Name="TotalSertificatTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="22" />
+                <TextBlock Text="Коррект." VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="23"/>
+                <TextBox x:Name="TotalReturnTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="24" />
+                <!--<TextBox x:Name="TotalDiscountTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="6" />
+                <TextBlock Text="Доп. усл." VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="25"/>
+                <TextBlock Text="Накладные" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="15"/>
+                <TextBox x:Name="TotalPrgmoscowTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="16" />
+                <TextBlock Text="Претензии" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="23"/>
+                <TextBox x:Name="TotalClaimTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="24" />-->
+                <TextBlock Text="Вес" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,3,0" Grid.Column="1" Grid.Row="1"/>
+                <TextBox x:Name="TotalWeightTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="2" Grid.Row="1" />
+                <TextBlock Text="Объем" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="3" Grid.Row="1"/>
+                <TextBox x:Name="TotalVolumeTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="4" Grid.Row="1" />
+                <TextBlock Text="Инвойс" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,3,0" Grid.Column="5" Grid.Row="1"/>
+                <TextBox x:Name="TotalInvoicesumTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="6" Grid.Row="1" />
+                <TextBlock Text="Со скидкой" VerticalAlignment="Center" Margin="5,0,3,0" Grid.Column="7" Grid.Row="1"/>
+                <TextBox x:Name="TotalAmountusdTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="8" Grid.Row="1" />
+                <!--<TextBlock Text="Сумма, EU" VerticalAlignment="Center" Margin="5,0,3,0" Grid.Column="5" Grid.Row="1"/>
+                <TextBox x:Name="TotalAmounteuTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="6" Grid.Row="1" />
+                <TextBlock Text="Прочие, руб" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="9" Grid.Row="1"/>
+                <TextBox x:Name="TotalOthersTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="10" Grid.Row="1" />
+                <TextBlock Text="Задолжность" VerticalAlignment="Center" Margin="10,0,3,0" Grid.Column="15" Grid.Row="1"/>
+                <TextBox x:Name="TotalDebtsTextBox" IsReadOnly="True" TextAlignment="Right" Margin="0,5" Grid.Column="16" Grid.Row="1" />-->
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

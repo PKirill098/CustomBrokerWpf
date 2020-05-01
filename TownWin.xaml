@@ -1,0 +1,17 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.TownWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Города" x:Name="winTown" Height="300" Width="200" Icon="/CustomBrokerWpf;component/Images/signpost.png" Loaded="winTown_Loaded" Closing="winTown_Closing">
+    <Window.Resources>
+        <CollectionViewSource x:Key="keyTownVS" Source="{Binding Path=tableTown, Source={StaticResource keyReferenceDS}}" />
+    </Window.Resources>
+    <Grid DataContext="{StaticResource keyTownVS}">
+        <DataGrid Name="mainDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" HorizontalAlignment="Left" ItemsSource="{Binding}"  RowDetailsVisibilityMode="VisibleWhenSelected"  HeadersVisibility="Row">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="townNameColumn" Binding="{Binding Path=townName}" Header="town Name" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

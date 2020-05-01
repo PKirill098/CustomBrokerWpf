@@ -1,0 +1,38 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ExpenditureItemWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Статья затрат" Name="winExpenditureItem" Language="ru-RU" Height="169" Width="569" Icon="/CustomBrokerWpf;component/Images/money_envelope.png" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Window.Resources>
+        <CollectionViewSource x:Key="keyTransactionTypeVS" />
+    </Window.Resources>
+    <Grid>
+        <DataGrid x:Name="mainDataGrid" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" CanUserResizeRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Наименование" Binding="{Binding Path=nameEI}" Width="*"/>
+                <DataGridComboBoxColumn Header="Доход" SelectedValueBinding="{Binding Path=transactionTypeID}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                         ItemsSource="{Binding Source={StaticResource keyTransactionTypeVS}}" SelectedValuePath="typeid" DisplayMemberPath="typedescr" SortMemberPath="transactionTypeName" >
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Статья дохода на котору ложаться затраты"/>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle> 
+                </DataGridComboBoxColumn>
+                <DataGridCheckBoxColumn Header="По машине" Binding="{Binding Path=isParcelEI}">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Затраты по машине"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Header="В валюте" Binding="{Binding Path=isCurrencyEI}"/>
+                <DataGridCheckBoxColumn Header="Активно" Binding="{Binding Path=isActual}">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Статья затрат может использоваться при вводе нового расхода"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

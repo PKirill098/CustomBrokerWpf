@@ -1,0 +1,2262 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.RequestNewWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        mc:Ignorable="d"
+        Title="Заявка" Name="winRequestNew" Height="950" Width="1320" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/document.png" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing">
+    <Grid IsSharedSizeScope="True">
+        <Grid.Resources>
+            <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
+            <Style TargetType="TextBlock">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Padding" Value="4,0"/>
+            </Style>
+            <my:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="30" Grid.ColumnSpan="8">
+            <Button Click="HistoryOpen_Click" Tag="{Binding Path=VModel}" Margin="0,0,10,0" >
+                <Image Source="/CustomBrokerWpf;component/Images/his.png" />
+            </Button>
+            <Separator/>
+            <ToggleButton IsChecked="{Binding Path=IsEditable}" ToolTip="Включить\выключить режим редактирования" IsTabStop="False">
+                <Image Source="Images/edit.png" />
+            </ToggleButton>
+            <Separator/>
+            <!--<Button ToolTip="Загрузить разбивку" Command="{Binding Path=DetailsAdd}">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Separator/>-->
+            <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию" Margin="10,0,0,0">
+                <Image Source="Images/r2Refresh-512.png" />
+            </Button>
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+                <Image Source="/CustomBrokerWpf;component/Images/save.png" />
+            </Button>
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                <Image Source="Images/rRemove-512.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="IsEnabled" Value="{Binding  Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
+                    </Style>
+                    <Style TargetType="DataGrid">
+                        <Setter Property="IsReadOnly" Value="{Binding  Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="0" Background="#e0f7e3" VerticalAlignment="Top" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="10">
+                    <Grid DataContext="{Binding Path=VM}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition Height="100"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition MinHeight="24"/>
+                            <RowDefinition MinHeight="24" />
+                            <RowDefinition MinHeight="24" />
+                            <!--<RowDefinition MinHeight="24" />-->
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Параметры груза" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="12"/>
+                        <Border Grid.Row="1" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Клиент" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Юридические лица" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Grid.Row="3" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Поставщик*" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="4" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Импортер*" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Заявка" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Позиция по складу" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Группа" ToolTip="Группа загрузки" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="8" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Вес, кг (док / факт)" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="9" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Объем / Места" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="10" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Инвойс / Со скидкой" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Примечание склада" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Примечание менеджера" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="13" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Примечание клиенту" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <DockPanel Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3">
+                                <Button ToolTip="Открыть карточку клиента" Click="CustomerButton_Click" Tag="{Binding Path=CustomerName}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
+                                    <Image Source="/CustomBrokerWpf;component/Images/businessman2.png" />
+                                </Button>
+                                <ComboBox SelectedValue="{Binding Path=CustomerId, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                            </DockPanel>
+                        </Border>
+                        <DataGrid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" ItemsSource="{Binding Path=CustomerLegals}" CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#e0f7e3" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#e0f7e3" SelectionUnit="Cell" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Binding="{Binding Path=Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsThreeState="False" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}">
+                                    <DataGridCheckBoxColumn.ElementStyle>
+                                        <Style TargetType="CheckBox" BasedOn="{StaticResource ErrorStyle}">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="IsEnabled" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.ElementStyle>
+                                    <DataGridCheckBoxColumn.EditingElementStyle >
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.EditingElementStyle>
+                                </DataGridCheckBoxColumn>
+                                <DataGridTextColumn Binding="{Binding Path=CustomerLegal.INN}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Binding="{Binding Path=CustomerLegal.Name}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" Width="*" ToolTipService.ToolTip="Наименование"/>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Click="CustomerLegalOpen_Click" Tag="{Binding Path=CustomerLegal, Mode=OneWay}" Height="19" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}" >
+                                                <Image Source="/CustomBrokerWpf;component/Images/security_agent.png" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <DockPanel>
+                                <Button ToolTip="Открыть карточку поставщика" Click="AgentButton_Click" Tag="{Binding Path=AgentName}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
+                                    <Image Source="/CustomBrokerWpf;component/Images/businessman.png" />
+                                </Button>
+                                <ComboBox SelectedValue="{Binding Path=AgentId, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <ComboBox SelectedItem="{Binding Path=Importer}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                        </Border>
+                        <Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Id, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#e0f7e3"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox MaxLength="6" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                                <TextBox.Text>
+                                    <Binding Path="StorePoint" NotifyOnValidationError="True">
+                                        <Binding.ValidationRules>
+                                            <my:RequestStoagePointValidationRule x:Name="thisStoragePointValidationRule"/>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=ParcelGroup, TargetNullValue='', NotifyOnValidationError=True}" ToolTip="Группа загрузки" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="8" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=Volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <!--<Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0" Margin="0" >
+                        <Hyperlink NavigateUri="-" Click="ClientHyperlink_Click">
+                            <Run Text="Клиент"/>
+                        </Hyperlink>
+                    </Label>-->
+                        <!--<Border Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <ListBox ItemsSource="{Binding Path=CustomerLegals}" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" IsSynchronizedWithCurrentItem="False">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DataGrid>
+                                    
+                                    </DataGrid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>-->
+                        <!--<Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0" Margin="0" >
+                        <Hyperlink NavigateUri="-" Click="LegalHyperlink_Click">
+                            <Run Text="Счет"/>
+                        </Hyperlink>
+                    </Label>-->
+                        <!--<Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0" Margin="0" >
+                        <Hyperlink NavigateUri="-" Click="AgentHyperlink_Click">
+                            <Run Text="Поставщик"/>
+                        </Hyperlink>
+                    </Label>-->
+                        <Border Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=StoreNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=ManagerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=CustomerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=RequestDate, Mode=OneWay, StringFormat=\{0:d\}, TargetNullValue=''}" IsReadOnly="True" TextAlignment="Center" VerticalAlignment="Bottom" MinWidth="100" BorderThickness="0" Margin="0,0,0,4">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#e0f7e3"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox  Text="{Binding Path=StoreDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=SpecificationDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" ToolTip="Дата получения спецификации" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=CellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBox Text="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" BorderBrush="{x:Null}" Margin="1,0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#FFF2FFF4"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Border>
+                        <Border Grid.Row="5" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <TextBlock Text="{Binding Path=ManagerGroupName}" VerticalAlignment="Center" TextAlignment="Center"/>
+                        </Border>
+                        <Border Grid.Row="6" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Grid VerticalAlignment="Center" >
+                                <ComboBox SelectedItem="{Binding Path=Status,Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" Visibility="{Binding Path=StatusVisible}" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2"/>
+                                <TextBlock Text="{Binding Path=ParcelNumber, Mode=OneWay}" Visibility="{Binding Path=ParcelNumberVisible}" TextAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="7" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <ComboBox SelectedItem="{Binding Path=ParcelType}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.ParcelTypes}" DisplayMemberPath="Name" IsEnabled="{Binding Path=ParcelTypeEnable}" Background="#e0f7e3" BorderBrush="#e0f7e3" BorderThickness="0" Margin="2"/>
+                        </Border>
+                        <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Nameitem" DisplayMemberPath="Nameitem" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
+                        </Border>
+                        <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                        <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+							<ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                        </Border>
+                        <!--<DataGrid Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="4" ItemsSource="{Binding Path=CustomerLegalsSelected}" CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#e0f7e3" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#e0f7e3" SelectionUnit="Cell" SelectionMode="Single">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#e0f7e3"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Юр лицо" Binding="{Binding Path=CustomerLegal.Name}" IsReadOnly="True" Width="*" ToolTipService.ToolTip="Юр лицо"/>
+                                <DataGridTextColumn Header="Вес, док" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Header="Вес, факт" Binding="{Binding Path=ActualWeight, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Header="Объем" Binding="{Binding Path=Volume, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Header="Места" Binding="{Binding Path=CellNumber, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Header="Инвойс" Binding="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                <DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" ToolTipService.ToolTip="ИНН"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>-->
+                    </Grid>
+                </Border>
+                <Grid Grid.Row="0" Grid.Column="1" Margin="0,10" DataContext="{Binding Path=VM}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Margin" Value="1,0"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Border Grid.Row="0" Background="#f7ede0" BorderBrush="#FFCCCCCC" BorderThickness="1,1,1,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c21"/>
+                                <ColumnDefinition MinWidth="80"/>
+                                <ColumnDefinition MinWidth="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition SharedSizeGroup="r1" />
+                            </Grid.RowDefinitions>
+                            <Button Grid.Row="0" Grid.Column="0" Content="Алгоритм консолидации" Click="AlgorithmConButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Cursor="Hand" BorderThickness="0,0,0,1" Background="#f7ede0" BorderBrush="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Padding="0,0,0,-2"/>
+                            <Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <Border Grid.Row="1" Grid.Column="1" ToolTip="Таможенный платеж" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Consolidate, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" FontWeight="Bold" VerticalAlignment="Center" BorderThickness="0" Margin="1,0" KeyDown="BindingUpdate" MaxLength="5">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="White"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Border>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Visibility="{Binding Path=ConVisibility}" Background="#f7ede0" BorderBrush="#FFCCCCCC" BorderThickness="1,0,1,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c21"/>
+                                <ColumnDefinition MinWidth="80"/>
+                                <ColumnDefinition MinWidth="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Инвойс" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="1" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Инвойс, скидка" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Вес" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="3" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Объем / Мест" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="4" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Общий таможенный платеж" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Фрахт" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="8" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="9" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Корректировка" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="10" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Итого расход" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Итого счет" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="13" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Итого доход" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=AlgorithmConCMD.Invoice, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Center" BorderThickness="0" Margin="1,0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=AlgorithmConCMD.InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Path=AlgorithmConCMD.Weight, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Volume, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" >
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.CustomsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" KeyDown="BindingUpdate" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.FreightCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="8" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.SertificatCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Corr, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" KeyDown="BindingUpdate" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.LogisticsCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Cost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="1" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Pay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Income, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" ToolTip="Таможенный платеж" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                            <Border Grid.Row="1" Grid.Column="2" ToolTip="Транспорт" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                            <Border Grid.Row="2" Grid.Column="2" ToolTip="Брокер" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                            <Border Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.CellNumber, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" >
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.CustomsPayPer, Mode=OneWay, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.FreightPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.PreparatnPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.AdditionalPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="8" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.SertificatPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.CorrPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.LogisticsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.CostPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.PayPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.IncomePer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="2" Background="#f7ede0" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="0,6,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c21"/>
+                                <ColumnDefinition MinWidth="80"/>
+                                <ColumnDefinition MinWidth="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                            </Grid.RowDefinitions>
+                            <Button Grid.Row="0" Grid.Column="0" Content="Алгоритм заявки" Click="AlgorithmButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Cursor="Hand" BorderThickness="0,0,0,1" Background="#f7ede0" BorderBrush="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Padding="0,0,0,-2"/>
+                            <Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="Расход" HorizontalAlignment="Center" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="Счет" HorizontalAlignment="Center" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <Border Grid.Row="1" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Таможенный платеж" ToolTip="Таможенный платеж" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Транспорт" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="3" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Брокер" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="4" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Страховка" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ТД" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Фрахт" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="8" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="9" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Довоз" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="10" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Корректировка" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmNote1, TargetNullValue=''}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" ToolTip="Свободное поле" TextWrapping="Wrap" AcceptsReturn="True" VerticalAlignment="Center" BorderThickness="0" Margin="0,0,0,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="14" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО СЧЕТ" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="15" BorderBrush="White" BorderThickness="0,1,0,0" Background="#FF92D050">
+                                <TextBlock Text="ИТОГО ДОХОД" FontWeight="Bold" Margin="0,5,32,5"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=CustomsCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Center" BorderThickness="0" Margin="1,0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="1" ToolTip="Транспорт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=DeliveryCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Path=BrokerCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=InsuranceCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" >
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <!--<TextBox Text="{Binding Path=TDPay, Mode=OneWay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#f7ede0"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>-->
+                            </Border>
+                            <Border Grid.Row="6" Grid.Column="1" ToolTip="Фрахт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=FreightCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="8" Grid.Column="1" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=BringCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=LogisticsCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=SertificatCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <!--<TextBox Text="{Binding Path=CorrCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsFocused" Value="False">
+                                                <Setter Property="Background" Value="#f7ede0"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>-->
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                            <Border Grid.Row="14" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=TotalCost, StringFormat=\{0:N2\}, Mode=OneWay, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="15" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
+                                <!--<TextBox Text="{Binding Path=IncomeCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FF92D050"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>-->
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="2" ToolTip="Таможенный платеж" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=CustomsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Center"  BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="2" ToolTip="Транспорт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=DeliveryPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="2" ToolTip="Брокер" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=BrokerPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=InsurancePay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=TDPay, Mode=OneWay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=FreightPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=PreparatnPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AdditionalPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="9" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=BringPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=LogisticsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=SertificatPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=CorrCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmNote2, TargetNullValue=''}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="0,0,0,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="14" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=TotalPay, StringFormat=\{0:N2\}, Mode=OneWay, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" TextAlignment="Left" VerticalAlignment="Center">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="15" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
+                                <TextBox Text="{Binding Path=IncomePay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FF92D050"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="3" Background="#f7ede0" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="0,6,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c21"/>
+                                <ColumnDefinition MinWidth="80"/>
+                                <ColumnDefinition MinWidth="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="5">
+                                <TextBlock Text="СТАТИСТИКА" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="Доход, %" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Доход за м3" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="СЧ, %" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="ТП, %" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="ЛОГ, %" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding Path=Income, StringFormat=\{0:P\}, Mode=OneWay, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding IncomeM3, Mode=OneWay, NotifyOnValidationError=True, StringFormat=\{0:N2\}}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding TotalPayInvoicePer, Mode=OneWay, NotifyOnValidationError=True, StringFormat=\{0:P\}}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding CustomsPayInvoice, Mode=OneWay, NotifyOnValidationError=True, StringFormat=\{0:P\}}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="4" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Log, Mode=OneWay, NotifyOnValidationError=True, StringFormat=\{0:P\}}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <Grid DataContext="{Binding Path=VM}" Grid.Column="2" Margin="10">
+                    <Grid.Resources>
+                        <CollectionViewSource x:Key="keyDocTypes" Source="{Binding Source={StaticResource MainDataContext}, Path=Data.DocTypes}" />
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+						<RowDefinition SharedSizeGroup="r1" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+					<Border Grid.Row="0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1,1,1,0">
+						<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" BorderBrush="White" BorderThickness="0,0,0,1">
+							<TextBlock Text="ОПЛАТЫ" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="12"/>
+						</Border>
+					</Border>
+                    <Border Grid.Row="1" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1,0,1,1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition SharedSizeGroup="r1" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="c31"/>
+                                    <ColumnDefinition Width="97"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="86"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" BorderBrush="White" BorderThickness="0,0,0,0">
+                                    <TextBlock Text="Дата отгрузки" ToolTip="Предполагаемая дата отгрузки" TextAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+									<DatePicker SelectedDate="{Binding ShipPlanDate,NotifyOnValidationError=True}" ToolTip="Предполагаемая дата отгрузки" FirstDayOfWeek="Monday" BorderThickness="0" VerticalAlignment="Center">
+                                        <DatePicker.Resources>
+                                            <Style TargetType="DatePickerTextBox">
+                                                <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                        <Setter Property="BorderThickness" Value="0"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                            <Style TargetType="Button">
+												<Setter Property="IsEnabled" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
+                                            </Style>
+                                        </DatePicker.Resources>
+                                        <DatePicker.Style>
+                                            <Style TargetType="DatePicker">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DatePicker.Style>
+                                    </DatePicker>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                                    <!--<TextBlock Text="+%" TextAlignment="Center"/>-->
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" BorderBrush="White" BorderThickness="0,0,0,0">
+                                    <!--<TextBox Text="{Binding Path=Invoice, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Margin="0">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>-->
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="4" BorderBrush="White" BorderThickness="0,0,0,0">
+                                    <!--<TextBlock Text="Счет" TextAlignment="Left" />-->
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="5" BorderBrush="White" BorderThickness="0,0,0,0">
+                                    <!--<TextBlock Text="{Binding Path=Invoice2per, StringFormat=\{0:N2\}, TargetNullValue=''}" TextAlignment="Left" />-->
+                                </Border>
+								<Border Grid.Row="1" Grid.Column="5" BorderBrush="White" BorderThickness="0,0,0,0">
+									<!--<TextBlock Text="{Binding Path=Invoice2per, StringFormat=\{0:N2\}, TargetNullValue=''}" TextAlignment="Left" />-->
+								</Border>
+							</Grid>
+                            <DataGrid x:Name="LegalInvoiceDataGrid" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" ItemsSource="{Binding Path=CustomerLegalsSelected}" HeadersVisibility="Column" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="0,1,0,0" Background="#f7e0e0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#FFF7E0E0" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader" x:Key="HeaderStyleWithBorder">
+                                        <Setter Property="Background" Value="#f7e0e0"/>
+                                        <Setter Property="BorderBrush" Value="White"/>
+                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="Height" Value="24"/>
+                                    </Style>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#f7e0e0"/>
+                                        <Setter Property="BorderBrush" Value="White"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="Height" Value="24"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Юр лицо" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=CustomerLegal.Name}" IsReadOnly="True" Width="118"/>
+									<DataGridTextColumn Header="Инвойс" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="97">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTemplateColumn Header="cо скидкой" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="97">
+										<DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+										<DataGridTemplateColumn.CellTemplate>
+											<DataTemplate>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition Width="Auto"/>
+													</Grid.ColumnDefinitions>
+													<TextBlock Text="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
+													<Button Content="" ToolTip="Предоплаты" Click="PrepayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+												</Grid>
+											</DataTemplate>
+										</DataGridTemplateColumn.CellTemplate>
+										<DataGridTemplateColumn.CellEditingTemplate>
+											<DataTemplate>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition Width="Auto"/>
+													</Grid.ColumnDefinitions>
+													<TextBox Text="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" IsReadOnly="{Binding Path=InvoiceDiscountIsReadOnly,Mode=OneWay}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+													<Button Content="" ToolTip="Предоплаты" Click="PrepayButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+												</Grid>
+											</DataTemplate>
+										</DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+									<DataGridTextColumn Header="Сумма ДТ" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="97">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+									<DataGridTextColumn Header="Таможен %" Binding="{Binding CustomsPercent, NotifyOnValidationError=True, StringFormat=\{0:F0\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+												<Setter Property="ToolTip" Value="Ставка таможенного счета для клиента по машине"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <!--<DataGridTextColumn Header="Объем" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=Volume, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="ToolTip" Value="Объем"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>-->
+                                    <!--<DataGridTemplateColumn IsReadOnly="True" Width="26">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <ItemContainerTemplate>
+                                                <TextBlock Text="Вес, кг (док / факт)" ToolTip="Вес, кг (док / факт)" TextAlignment="Right" VerticalAlignment="Center" Padding="0,0,2,0"/>
+                                            </ItemContainerTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>-->
+                                    <!--<DataGridTextColumn Header="Вес, док" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Header="Вес, факт" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=ActualWeight, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>-->
+                                    <!--<DataGridTemplateColumn IsReadOnly="True" Width="26">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <ItemContainerTemplate>
+                                                <TextBlock Text="Объем / Места" ToolTip="Объем / Места" TextAlignment="Right" VerticalAlignment="Center" Padding="0,0,2,0"/>
+                                            </ItemContainerTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>-->
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                    <!--<Border Grid.Row="2" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c31"/>
+                                <ColumnDefinition Width="410"/>
+                                <ColumnDefinition Width="44"/>
+                                <ColumnDefinition Width="86"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="ОПЛАТА ИНВОЙСА" HorizontalAlignment="Left" FontWeight="Bold"/>
+                                <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Left">
+                                    <TextBlock Text="Общая оплата" FontWeight="Bold"/>
+                                    <CheckBox IsChecked="{Binding Path=TtlPayInvoice}" IsEnabled="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}" VerticalAlignment="Center" IsThreeState="False" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                            <DataGrid x:Name="PaymentsInvoiceDataGrid" Grid.Column="1" ItemsSource="{Binding Path=PaymentsInvoice}" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,0,0,0" Background="#f7e0e0" RowBackground="#FFF7E0E0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                                <DataGrid.CommandBindings>
+                                    <CommandBinding Command="Delete" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed" />
+                                </DataGrid.CommandBindings>
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=RequestCustomer, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext},Path=Data.VM.CustomerLegalsSelected}" SelectedValuePath="RequestCustomerLegal" DisplayMemberPath="CustomerLegal.Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="114">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=DocType, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource keyDocTypes}}" SelectedValuePath="Key" DisplayMemberPath="Value" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="30">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    --><!--<DataGridTextColumn Binding="{Binding Path=Name}" Width="50"/>--><!--
+                                    <DataGridTextColumn Binding="{Binding Path=Sum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource ErrorStyle}" Width="80">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Date, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="58">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=RateCB,Mode=OneWay}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="46"/>
+                                    <DataGridTemplateColumn ClipboardContentBinding="{Binding Path=RatePer}" SortMemberPath="RatePer" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" Width="30">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding RatePer, StringFormat=\{0:P0\}}" VerticalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <ComboBox SelectedValue="{Binding Path=RatePer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource MainDataContext},Path=Data.RatePers}" SelectedValuePath="Per" DisplayMemberPath="PerStr" IsSynchronizedWithCurrentItem="False"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Rate, Mode=OneWay, StringFormat=\{0:N4\}}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" Width="50"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            --><!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" VerticalAlignment="Top" BorderThickness="0,0,0,1" Height="18">
+                                <TextBlock Text="Курс ЦБ" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="5" BorderBrush="White" VerticalAlignment="Top" BorderThickness="1,0,0,1" Height="18">
+                                <TextBlock Text="{Binding Path=InvoiceRate.EURRate, Mode=OneWay, StringFormat=\{0:N4\}}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Border>--><!--
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="0,0,0,0">
+                                <TextBlock Text="Баланс" Foreground="{Binding Path=BalanceInvoiceColor, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="{Binding Path=BalanceInvoice, StringFormat=\{0:N2\}, TargetNullValue=''}" Foreground="{Binding Path=BalanceInvoiceColor, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="3" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c31"/>
+                                <ColumnDefinition Width="114"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="58"/>
+                                <ColumnDefinition Width="257"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                            </Grid.RowDefinitions>
+                            <Grid VerticalAlignment="Center" Grid.RowSpan="3">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="ПОКУПКА ВАЛЮТЫ" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                                <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Left">
+                                    <TextBlock Text="Общая оплата" FontWeight="Bold"/>
+                                    <CheckBox IsChecked="{Binding Path=TtlPayCurrency}" IsEnabled="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}" VerticalAlignment="Center" IsThreeState="False" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                            <DataGrid x:Name="CurrencyDataGrid" Grid.Column="1" Grid.ColumnSpan="4" ItemsSource="{Binding Path=CustomerLegalsSelected}" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,0,0,0" Background="#f7e0e0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#FFF7E0E0" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=CustomerLegal.Name}" IsReadOnly="True" Width="114"/>
+                                    <DataGridTextColumn Binding="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, Mode=OneWay}" ElementStyle="{StaticResource ErrorStyle}" Width="110"/>
+                                    <DataGridTextColumn Binding="{Binding Path=CurrencyDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="58">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTemplateColumn IsReadOnly="True" Width="46">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <ItemContainerTemplate>
+                                                <TextBlock Text="Курс ВБ" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            </ItemContainerTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=CurrencyRate, StringFormat=\{0:N4\}, ValidatesOnExceptions=true, NotifyOnValidationError=true,UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="50">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Width="161"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            --><!--<Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="Сумма" HorizontalAlignment="Left"/>
+                            </Border>--><!--
+                            <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Оплата поставщику" />
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Примечания" HorizontalAlignment="Left"/>
+                            </Border>
+                            --><!--<Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7e0e0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>--><!--
+                            <Border Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <CheckBox IsChecked="{Binding Path=CurrencyPaid}" IsEnabled="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}" VerticalAlignment="Center" IsThreeState="False" />
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="4" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding CurrencyNote}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            --><!--<Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding CurrencyDate, NotifyOnValidationError=True, StringFormat=\{0:d\}}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>--><!--
+                            <Border Grid.Row="1" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding CurrencyPaidDate, NotifyOnValidationError=True, StringFormat=\{0:d\}}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="4" BorderBrush="White" BorderThickness="1,0,0,0">
+                                --><!--<TextBlock Text="Курс ВБ" HorizontalAlignment="Left"/>--><!--
+                            </Border>
+                            --><!--<Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding Path=CurrencyRate, StringFormat=\{0:N4\}, TargetNullValue='', NotifyOnValidationError=True}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>--><!--
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="4" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c31"/>
+                                <ColumnDefinition Width="410"/>
+                                <ColumnDefinition Width="44"/>
+                                <ColumnDefinition Width="86"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="ПРЕДОПЛАТА ТП" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <DataGrid x:Name="PrepaymentsDataGrid" Grid.Column="1" ItemsSource="{Binding Path=Prepayments}" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,0,0,0" Background="#f7e0e0" RowBackground="#FFF7E0E0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                                <DataGrid.CommandBindings>
+                                    <CommandBinding Command="Delete" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed" />
+                                </DataGrid.CommandBindings>
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=RequestCustomer, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext},Path=Data.VM.CustomerLegalsSelected}" SelectedValuePath="RequestCustomerLegal" DisplayMemberPath="CustomerLegal.Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="114">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=DocType, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource keyDocTypes}}" SelectedValuePath="Key" DisplayMemberPath="Value" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="30">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Sum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource ErrorStyle}" Width="80">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Date, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="58">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=RateCB,Mode=OneWay}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="46"/>
+                                    <DataGridTextColumn Binding="{Binding Path=Rate, Mode=OneWay, StringFormat=\{0:N4\}}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" Width="50"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            --><!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" BorderThickness="0,0,0,1" Height="18" VerticalAlignment="Top">
+                                <TextBlock Text="Курс ЦБ" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,1" Height="18" VerticalAlignment="Top">
+                                <TextBlock Text="{Binding Path=PrepaymentsRate.EURRate, Mode=OneWay, StringFormat=\{0:N4\}}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Border>--><!--
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="0,0,0,0">
+                                <TextBlock Text="Баланс" Foreground="{Binding Path=BalancePrepaymentsColor}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="{Binding Path=BalancePrepayments, StringFormat=\{0:N2\}, TargetNullValue=''}" Foreground="{Binding Path=BalancePrepaymentsColor, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="5" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c31"/>
+                                <ColumnDefinition Width="114"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="58"/>
+                                <ColumnDefinition Width="46"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" SharedSizeGroup="r1"/>
+                                <RowDefinition Height="Auto" SharedSizeGroup="r1"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" SharedSizeGroup="r1"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.RowSpan="5" VerticalAlignment="Center">
+                                <TextBlock Text="СУММА" HorizontalAlignment="Left" FontWeight="Bold"/>
+                                <TextBlock Text="РЕАЛИЗАЦИИ" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </StackPanel>
+                            <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="ГТД №" HorizontalAlignment="Left" Margin="0,0,2,0"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Path=GTD}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" MaxLength="25" BorderThickness="0" Margin="2,0">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding Path=GTDDate, NotifyOnValidationError=True, StringFormat=\{0:d\}}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="4" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="Курс ДТ" HorizontalAlignment="Right"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBox Text="{Binding Path=DTRate, StringFormat=\{0:N4\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <DataGrid x:Name="SellingDataGrid" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6" ItemsSource="{Binding Path=CustomerLegalsSelected}" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#f7e0e0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#FFF7E0E0" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=CustomerLegal.Name}" IsReadOnly="True" Width="114"/>
+                                    <DataGridTemplateColumn IsReadOnly="True" Width="46">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <ItemContainerTemplate>
+                                                <TextBlock Text="Покупка" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            </ItemContainerTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, Mode=OneWay}" ElementStyle="{StaticResource ErrorStyle}" Width="64"/>
+                                    <DataGridTemplateColumn IsReadOnly="True" Width="58">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <ItemContainerTemplate>
+                                                <TextBlock Text="Наценка" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            </ItemContainerTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=SellingMarkup, Mode=OneWay, StringFormat=\{0:N2\}}" ElementStyle="{StaticResource ErrorStyle}" Width="88"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,1">
+                                <TextBlock Text="Коэф. наценки" HorizontalAlignment="Left"/>
+                            </Border>
+                            --><!--<Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Покупка валюты" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Наценка" HorizontalAlignment="Left"/>
+                            </Border>--><!--
+                            <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBlock Text="Сумма реализации" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,1">
+                                <TextBox Text="{Binding Path=SellingMarkupRate, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            --><!--<Border Grid.Row="2" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7e0e0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=SellingMarkup, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7e0e0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>--><!--
+                            <Border Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=Selling, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7e0e0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="6" BorderBrush="White" BorderThickness="1,0,0,0"/>
+                            <Border Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="4" BorderBrush="White" BorderThickness="1,1,0,1"/>
+                            --><!--<Border Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="0,1,0,0"/>--><!--
+                            <Border Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="4" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="6" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="c31"/>
+                                <ColumnDefinition Width="410"/>
+                                <ColumnDefinition Width="44"/>
+                                <ColumnDefinition Width="86"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="КОНЕЧНЫЙ СЧЕТ" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                            <DataGrid x:Name="FinalPaymentsDataGrid" Grid.Column="1" Grid.ColumnSpan="3" ItemsSource="{Binding Path=FinalPayments}" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,0,0,0" Background="#f7e0e0" RowBackground="#FFF7E0E0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                                <DataGrid.CommandBindings>
+                                    <CommandBinding Command="Delete" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed" />
+                                </DataGrid.CommandBindings>
+                                <DataGrid.Columns>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=RequestCustomer, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext},Path=Data.VM.CustomerLegalsSelected}" SelectedValuePath="RequestCustomerLegal" DisplayMemberPath="CustomerLegal.Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="114">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridComboBoxColumn SelectedValueBinding="{Binding Path=DocType, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource keyDocTypes}}" SelectedValuePath="Key" DisplayMemberPath="Value" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"  Width="30">
+                                        <DataGridComboBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridComboBoxColumn.CellStyle>
+                                    </DataGridComboBoxColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Sum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource ErrorStyle}" Width="80">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=Date, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="58">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="0,0,0,0">
+                                <TextBlock Text="Баланс" Foreground="{Binding Path=BalanceFinalColor}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                                <TextBlock Text="{Binding Path=BalanceFinal, StringFormat=\{0:N2\}, TargetNullValue=''}" Foreground="{Binding Path=BalanceFinalColor, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </Border>
+                        </Grid>
+                    </Border>-->
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>

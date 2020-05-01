@@ -1,0 +1,426 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ExpenditureListWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
+        xmlns:me="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Затраты" Name="winExpenditureList" Loaded="Window_Loaded" Closing="Window_Closing" Language="ru-RU" Height="800" Width="1100" Icon="/CustomBrokerWpf;component/Images/money_envelope.png">
+    <Grid>
+        <Grid.Resources>
+            <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="Margin" Value="2,0,2,0" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" Visibility="Visible" IsTabStop="False" IsEnabled="True">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </ToggleButton>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Button ToolTip="Сохранить изменения в БД" Click="SaveButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="AddButton" ToolTip="Новая затрата" Click="AddButton_Click" IsTabStop="False" >
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button ToolTip="Удалить затрату" Click="DelButton_Click" IsTabStop="False" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Платеж" Click="WithdrawalButton_Click" IsTabStop="False" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False">
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <DataGrid x:Name="mainDataGrid" FrozenColumnCount="2" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" SelectionUnit="CellOrRowHeader" RowHeaderWidth="10" CanUserResizeRows="False" Validation.Error="DataGrid_Error" HorizontalAlignment="Left" VerticalAlignment="Top" ClipboardCopyMode="IncludeHeader"
+                  BeginningEdit="mainDataGrid_BeginningEdit" CellEditEnding="mainDataGrid_CellEditEnding" RowEditEnding="mainDataGrid_RowEditEnding" UnloadingRow="mainDataGrid_UnloadingRow" SelectionChanged="mainDataGrid_SelectionChanged">
+            <DataGrid.RowValidationErrorTemplate>
+                <ControlTemplate>
+                    <TextBlock Margin="0" Text="!" Width="10" VerticalAlignment="Center" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Red" />
+                </ControlTemplate>
+            </DataGrid.RowValidationErrorTemplate>
+            <DataGrid.RowValidationRules>
+                <me:DataGridRowValidation ValidationStep="UpdatedValue" />
+            </DataGrid.RowValidationRules>
+            <DataGrid.Resources>
+                <me:ExpendetureOperTypeList x:Key="keyOperTypeList"/>
+                <me:BitVisibilityConverter x:Key="keyBitVisibilityConverterEqual" asCompare="Equal"/>
+                <me:LegalClientMultyBinding x:Key="keyMultyConvertor"/>
+                <me:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+                <me:IsEnabledConverter x:Key="keyIsEnabledConverter"/>
+                <me:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
+                <CollectionViewSource x:Key="keyExpenditureItemVS" />
+                <CollectionViewSource x:Key="keyExpenditureTypeVS" />
+                <CollectionViewSource x:Key="keyExpenditureCurrecyVS" />
+                <CollectionViewSource x:Key="keyParcelFullNumberVS" />
+                <CollectionViewSource x:Key="keyRecipientListVS"/>
+                <CollectionViewSource x:Key="keyLegalEntityVS" />
+                <CollectionViewSource x:Key="keyClientVS" />
+                <Style x:Key="CenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="CenterStyleViewEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+                <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="InfoButton_Click" Tag="{Binding Path=ppid, Mode=OneWay}" Height="20" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
+                                <Image Source="/CustomBrokerWpf;component/Images/unknown.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+				<DataGridTextColumn Header="№" Binding="{Binding Path=ExpenditureID, Mode=OneWay}" IsReadOnly="True" CanUserReorder="False"/>
+				<DataGridComboBoxColumn Header="Тип затраты*" SelectedValueBinding="{Binding Path=ExpenditureTypeID}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Visibility="Collapsed"
+                                       ItemsSource="{Binding Source={StaticResource keyExpenditureTypeVS}}" SelectedValuePath="TypeID" DisplayMemberPath="NameET">
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Статья затрат*" SelectedValueBinding="{Binding Path=ExpenditureItemID}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                       ItemsSource="{Binding Source={StaticResource keyExpenditureItemVS}}" SelectedValuePath="expenditureItemID" DisplayMemberPath="nameEI">
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Счет №" Binding="{Binding Path=numberIIn}" ElementStyle="{StaticResource CenterStyleView}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}" >
+                            <Setter Property="MaxLength" Value="10"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="дата" Binding="{Binding Path=dateIIn, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue='', UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource CenterStyleView}" EditingElementStyle="{StaticResource CenterStyleViewEdit}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата счета"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Валюта*" SelectedValueBinding="{Binding Path=currency}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" 
+                                       ItemsSource="{Binding Source={StaticResource keyExpenditureCurrecyVS}}" SelectedValuePath="currency" DisplayMemberPath="currency" >
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Период с" Binding="{Binding Path=periodStart, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата начала периода"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Период по" Binding="{Binding Path=periodEnd, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата окончания периода"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Отправка" SelectedValueBinding="{Binding Path=parcelID}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                       ItemsSource="{Binding Source={StaticResource keyParcelFullNumberVS}}" SelectedValuePath="parcelId" DisplayMemberPath="fullnumber" >
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsEditable" Value="True"/>
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=status, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}, ConverterParameter=300}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=status, Converter={StaticResource keyIsEnabledConverter}, ConverterParameter=500, Mode=OneWay, IsAsync=False}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Сумма затраты" Binding="{Binding Path=sumEx, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="False">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=isReadDet}" Value="True">
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=isReadDet}" Value="False">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="Background" Value="WhiteSmoke"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Оплата, вал" Binding="{Binding Path=sumPayCurr, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="False">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="True">
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="False">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="Background" Value="WhiteSmoke"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Оплата, руб" Binding="{Binding Path=sumPayRub, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="False">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="True">
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="False">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="Background" Value="WhiteSmoke"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Долг, вал" Binding="{Binding Path=sumDebt, StringFormat=\{0:N\}, ValidatesOnExceptions=true, NotifyOnValidationError=true}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" IsReadOnly="True"/>
+                <DataGridComboBoxColumn Header="Операция" SelectedValueBinding="{Binding Path=opertype, Converter={StaticResource keyNoNullValueBackConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True }" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                        ItemsSource="{StaticResource keyOperTypeList}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <EventSetter Event="SelectionChanged" Handler="OperType_SelectedCanged"/>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="дата" >
+                    <DataGridTextColumn.Binding>
+                        <Binding NotifyOnValidationError="True" ValidatesOnExceptions="True" Path="dateEx" StringFormat="{}{0:d}" TargetNullValue="">
+                            <!--<Binding.Converter>
+                                <me:NullDateConverter/>
+                            </Binding.Converter>-->
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата оплаты"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="True">
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=isReadWithd}" Value="False">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="Background" Value="WhiteSmoke"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <!--="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow }, Path=DataContext, Mode=OneWayToSource}"-->
+                <!--<DataGridTemplateColumn Header="Источник" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="account" DisplayMemberPath="customerName"
+                                    Visibility="{Binding Path=opertype, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=1, NotifyOnSourceUpdated=True, Mode=OneWay, NotifyOnTargetUpdated=True}" ItemsSource="{Binding Source={StaticResource keyClientVS}}"
+                                          IsSynchronizedWithCurrentItem="False">
+                                </ComboBox>
+                                <ComboBox ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="accountid" DisplayMemberPath="namelegal"
+                                    Visibility="{Binding Path=opertype, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=0, NotifyOnSourceUpdated=True, Mode=OneWay, NotifyOnTargetUpdated=True }" ItemsSource="{Binding Source={StaticResource keyLegalEntityVS}}"
+                                          IsSynchronizedWithCurrentItem="False" Grid.Column="0">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="ComboBoxItem">
+                                            <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                            <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="account" DisplayMemberPath="customerName"
+                                    Visibility="{Binding Path=opertype, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=1, NotifyOnSourceUpdated=True, Mode=OneWay, NotifyOnTargetUpdated=True}" ItemsSource="{Binding Source={StaticResource keyClientVS}}"
+                                          IsSynchronizedWithCurrentItem="False">
+                                </ComboBox>
+                                <ComboBox ToolTip="Источник средств" SelectedValue="{Binding Path=legalAccountId, Converter={StaticResource keyNoNullValueBackConverter}, TargetNullValue=0}" SelectedValuePath="accountid" DisplayMemberPath="namelegal"
+                                    Visibility="{Binding Path=opertype, Converter={StaticResource keyBitVisibilityConverterEqual}, ConverterParameter=0, NotifyOnSourceUpdated=True, Mode=OneWay, NotifyOnTargetUpdated=True }" ItemsSource="{Binding Source={StaticResource keyLegalEntityVS}}"
+                                          IsSynchronizedWithCurrentItem="False" Grid.Column="0">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="ComboBoxItem">
+                                            <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                            <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>-->
+                <DataGridComboBoxColumn Header="Источник" SelectedValueBinding="{Binding Path=legalAccountId, NotifyOnValidationError=True, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource keyLegalEntityVS}}" SelectedValuePath="accountid" DisplayMemberPath="namelegal" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="legalName">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=opertype}" Value="1">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Клиент" SelectedValueBinding="{Binding Path=legalAccountId, NotifyOnValidationError=True, TargetNullValue=0}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                                        ItemsSource="{Binding Source={StaticResource keyClientVS}}" SelectedValuePath="account" DisplayMemberPath="customerName">
+                    <DataGridComboBoxColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=opertype}" Value="0">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridComboBoxColumn.CellStyle>
+                </DataGridComboBoxColumn>
+				<DataGridComboBoxColumn Header="Контрагент" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="contractor"
+										SelectedValueBinding="{Binding Path=recipientEx, UpdateSourceTrigger=LostFocus, Converter={StaticResource keyNoNullValueBackConverter}}"
+										ItemsSource="{Binding Source={StaticResource keyRecipientListVS}}" SelectedValuePath="Id" DisplayMemberPath="Name"/>
+				<!--<DataGridTemplateColumn Header="Контрагент" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="recipientEx">
+                                        TextBinding="{Binding Path=contractor, Mode=OneWayToSource, UpdateSourceTrigger=LostFocus}"
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=recipientEx, Mode=OneWay}" Padding="2,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox Text="{Binding Path=recipientEx, UpdateSourceTrigger=LostFocus, Converter={StaticResource keyNoNullValueBackConverter}}" IsEditable="True" IsReadOnly="False"
+                                      ItemsSource="{Binding Source={StaticResource keyRecipientListVS}}" SelectedValuePath="Name" DisplayMemberPath="Name"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>-->
+                <DataGridTextColumn Header="Назначение" Binding="{Binding Path=subjectEx}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Назначение"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}" >
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечание" Binding="{Binding Path=noteEx}" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}" >
+                            <Setter Property="MaxLength" Value="150"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <WrapPanel Grid.Row="2" Margin="2">
+            <DataGrid x:Name="totalDataGrid"  AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" SelectionUnit="Cell" ClipboardCopyMode="IncludeHeader"
+                      CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Валюта" Binding="{Binding Path=Currency,Mode=OneWay}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Сумма затрат" Binding="{Binding Path=Expenditure, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Оплата, вал" Binding="{Binding Path=PayCurrency, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Долг, вал" Binding="{Binding Path=DebtCurrency, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Оплата, руб" Binding="{Binding Path=PayRub, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Grid VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Оплата, руб" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <TextBox x:Name="totalSumPayRubTextBox" Grid.Column="1" Margin="2,0"/>
+            </Grid>
+        </WrapPanel>
+    </Grid>
+</Window>

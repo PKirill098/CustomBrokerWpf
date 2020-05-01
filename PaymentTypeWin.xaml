@@ -1,0 +1,21 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.PaymentTypeWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Виды платежа" x:Name="winPaymentType" Height="200" Width="300" Icon="/CustomBrokerWpf;component/Images/money_envelope.png" Loaded="winPaymentType_Loaded" Closing="winPaymentType_Closing">
+    <Window.Resources>
+        <CollectionViewSource x:Key="tablePaymentTypeVS" Source="{Binding Path=tablePaymentType, Source={StaticResource keyReferenceDS}}" >
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="paytypeName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource tablePaymentTypeVS}">
+        <DataGrid Name="mainDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" HorizontalAlignment="Stretch" VerticalAlignment="Top" HeadersVisibility="Row">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="paytypeNameColumn" Binding="{Binding Path=paytypeName}" Header="Тип" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

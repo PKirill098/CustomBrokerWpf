@@ -1,0 +1,7 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ParcelTransactionWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Отправка-Счет" x:Name="winParcelTransaction" Language="ru-RU" Closing="Window_Closing" Height="667" Width="1200" WindowState="Maximized" Icon="/CustomBrokerWpf;component/Images/cashier.png">
+    <my:ParcelTransactionUC x:Name="ParcelTransactionUC"/>
+</Window>

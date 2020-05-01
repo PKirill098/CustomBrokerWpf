@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="KirillPolyanskiy.CustomBrokerWpf.MainMenuUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="900">
+    <Menu >
+        <MenuItem Header="Отправка" x:Name="parcelMenu" Visibility="{Binding Source={StaticResource keyVisibilityManagersLManagers},Path=Visibility}" VerticalAlignment="Center">
+            <MenuItem Header="Регистр" Click="MenuItemRequest_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/index.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Склад" Click="MenuItemStoreMerge_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="Images/forklifter.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Карточка" Click="MenuItemParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Список" Click="MenuListParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/table_selection_row.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Счет" Click="MenuPayParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/cashier.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Оплаты" Click="MenuPPParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/form_yellow.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </MenuItem>
+        <MenuItem Header="Клиенты" Click="MenuItemClient_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagersLManagers},Path=Visibility}" VerticalAlignment="Center"/>
+        <MenuItem Header="Отчеты" x:Name="reportMenu" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+            <MenuItem Header="Баланс клиента" Click="MenuItemDebtor_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" >
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/businessman2.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Активы" Click="MenuItemLegalBalance_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" >
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Отправки" Click="MenuItemParcelReport_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" >
+                <MenuItem.Icon>
+                    <Image Source="/CustomBrokerWpf;component/Images/cashier.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </MenuItem>
+    </Menu>
+</UserControl>

@@ -1,0 +1,171 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.PaymentListFilterWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Фильтр для платежей" x:Name="winPaymentListFilter" Loaded="winPaymentListFilter_Loaded" Closed="winPaymentListFilter_Closed" Height="300" Width="687" Icon="/CustomBrokerWpf;component/Images/form_yellow.png">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Grid.ColumnSpan="2">
+            <Button ToolTip="Применить фильтр" x:Name="RunFilterButton" Click="RunFilterButton_Click" >
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_down.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Фильтр по умолчанию" x:Name="DefaultFilterButton" Click="DefaultFilterButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_preferences.png" />
+            </Button>
+            <Button ToolTip="Очистить условия" x:Name="ClearFilterButton" Click="ClearFilterButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_new.png" />
+            </Button>
+            <Button ToolTip="Удалить фильтр" x:Name="RemoveFilterButton" Click="RemoveFilterButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Сохранить фильтр как фильтр по умолчанию" x:Name="SaveFilterButton" Click="SaveFilterButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="№ пп c" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <TextBox x:Name="startPPNumberTextBox" Grid.Column="1" Margin="2,0" TextChanged="PPNumberTextBox_TextChanged" />
+                <TextBlock Text="по" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <TextBox x:Name="stopPPNumberTextBox" Grid.Column="3" Margin="2,0" TextChanged="PPNumberTextBox_TextChanged" />
+                <TextBlock Text="Дата зачисления c" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <DatePicker x:Name="startEnterPicker" Grid.Row="0" Grid.Column="5" Margin="2,0" SelectedDateChanged="EnterDatePicker_SelectedDateChanged" />
+                <TextBlock Text="по" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                <DatePicker x:Name="stopEnterPicker" Grid.Row="0" Grid.Column="7" Margin="2,0" SelectedDateChanged="EnterDatePicker_SelectedDateChanged"/>
+                <TextBlock Text="Дата пп c" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <DatePicker x:Name="startPPDatePicker" Grid.Row="1" Grid.Column="1" Margin="2,0" SelectedDateChanged="PPDateDatePicker_SelectedDateChanged" />
+                <TextBlock Text="по" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" />
+                <DatePicker x:Name="stopPPDatePicker" Grid.Row="1" Grid.Column="3" Margin="2,0" SelectedDateChanged="PPDateDatePicker_SelectedDateChanged"/>
+                <TextBlock Text="Проведено c" Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <DatePicker x:Name="startTransDatePicker" Grid.Row="1" Grid.Column="5" Margin="2,0" SelectedDateChanged="TransDatePicker_SelectedDateChanged"/>
+                <TextBlock Text="по" Grid.Row="1" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <DatePicker x:Name="stopTransDatePicker" Grid.Row="1" Grid.Column="7" Margin="2,0" SelectedDateChanged="TransDatePicker_SelectedDateChanged"/>
+            </Grid>
+            <Grid Grid.Row="1" Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Сумма пп" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <ComboBox x:Name="PPSumComboBox" Grid.Row="0" Grid.Column="1" SelectedIndex="0" Margin="2,0,0,0" SelectionChanged="PPSumComboBox_SelectionChanged" HorizontalAlignment="Left" Width="33">
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="="/>
+                        <ComboBoxItem Content="&gt;"/>
+                        <ComboBoxItem Content="&lt;"/>
+                    </ComboBox.Items>
+                </ComboBox>
+                <TextBox x:Name="PPSumTextBox" Grid.Row="0" Grid.Column="2" Margin="2,0" TextChanged="PPSumTextBox_TextChanged" />
+                <TextBlock Text="Проведено" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <ComboBox x:Name="TranComboBox" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="TranComboBox_SelectionChanged" Visibility="Visible">
+                    <ComboBoxItem Content=""/>
+                    <ComboBoxItem Content="Да"/>
+                    <ComboBoxItem Content="Нет"/>
+                </ComboBox>
+                <TextBlock Text="Разнесено" Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <ComboBox x:Name="JoinComboBox" Grid.Row="0" Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="JoinComboBox_SelectionChanged" Visibility="Visible">
+                    <ComboBoxItem Content=""/>
+                    <ComboBoxItem Content="Да"/>
+                    <ComboBoxItem Content="Нет"/>
+                </ComboBox>
+            </Grid>
+            <Grid Grid.Row="2" Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Назначение" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <TextBox x:Name="purposeTextBox" Grid.Column="1" Margin="2,0" TextChanged="purposeTextBox_TextChanged" />
+                <TextBlock Text="Примечание" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0"/>
+                <TextBox x:Name="noteTextBox" Grid.Column="3" Margin="2,0" TextChanged="noteTextBox_TextChanged" />
+            </Grid>
+            <Grid Grid.Row="3" Grid.Column="0" Margin="0,3">
+                <Grid.Resources>
+                    <Style x:Key="CheckBoxListStyle" TargetType="{x:Type ListBox}">
+                        <Setter Property="SelectionMode" Value="Multiple"/>
+                        <Setter Property="ItemContainerStyle">
+                            <Setter.Value>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}" >
+                                                <CheckBox Focusable="False" IsChecked="{Binding Path=IsSelected, RelativeSource={RelativeSource TemplatedParent}}" IsTabStop="False">
+                                                    <ContentPresenter />
+                                                </CheckBox>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                        <EventSetter Event="SelectionChanged" Handler="ListBoxCheckBox_SelectionChanged"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Плательщик" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="payerListBox" Grid.Column="0" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="customerName" IsTextSearchEnabled="True" TextSearch.TextPath="customerName" Margin="3,2,3,0" SelectionChanged="payerListBox_SelectionChanged" IsTabStop="True" />
+                <TextBlock Text="Получатель" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="recipientListBox" Grid.Column="1" Grid.Row="1" DisplayMemberPath="namelegal" IsTextSearchEnabled="True" TextSearch.TextPath="namelegal" Margin="3,2,3,0" SelectionChanged="recipientListBox_SelectionChanged" Style="{StaticResource CheckBoxListStyle}" />
+                <TextBlock Text="Перевозка" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
+                <ListBox x:Name="parcelListBox" Grid.Column="2" Grid.Row="1" DisplayMemberPath="fullnumber" IsTextSearchEnabled="True" TextSearch.TextPath="fullnumber" Margin="3,2,3,0" SelectionChanged="parcelListBox_SelectionChanged" Style="{StaticResource CheckBoxListStyle}" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

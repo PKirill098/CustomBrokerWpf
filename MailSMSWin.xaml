@@ -1,0 +1,31 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.MailSMSWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Language="ru-RU" Height="400" Width="500" SizeToContent="Width" Icon="Images\bell.png" WindowStyle="ToolWindow">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Клиент" TextAlignment="Center"/>
+            <TextBlock Text="Юр. лицо" TextAlignment="Center" Grid.Column="1"/>
+            <TextBlock Text="СМС" TextAlignment="Center" Grid.Column="2"/>
+            <TextBlock Text="Почта" TextAlignment="Center" Grid.Column="3"/>
+            <TextBox Text="{Binding Path=Client, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="1" TextAlignment="Center" Padding="4,0"/>
+            <TextBox Text="{Binding Path=Legal, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="1" Grid.Column="1" TextAlignment="Center" Padding="4,0"/>
+            <TextBox Text="{Binding Path=SMS, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="1" Grid.Column="2" TextAlignment="Center" Padding="4,0"/>
+            <TextBox Text="{Binding Path=Mail, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="1" Grid.Column="3" TextAlignment="Center" Padding="4,0"/>
+        </Grid>
+    </ScrollViewer>
+</Window>

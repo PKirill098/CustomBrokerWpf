@@ -1,0 +1,57 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.DebtorsWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Должники" Name="winDebtors" Loaded="winDebtors_Loaded" Closing="winDebtors_Closing" Language="ru-RU" Height="300" Width="459" Icon="/CustomBrokerWpf;component/Images/dude5.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <TextBlock Text="Счет не позднее:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <DatePicker x:Name="delayPicker" SelectedDateChanged="delayPicker_SelectedDateChanged" />
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="Images/r2Refresh-512" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+        </ToolBar>
+        <DataGrid x:Name="debtorDataGrid" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="Visible" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White" SelectionChanged="debtorDataGrid_SelectionChanged">
+            <DataGrid.Resources>
+                <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=Name, Mode=OneWay}" Width="*" FontWeight="Bold" />
+                <DataGridTextColumn Header="Долг" Binding="{Binding Path=SummDebtor, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" FontWeight="Bold" />
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <DataGrid ItemsSource="{Binding Path=Details}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Отправка" Binding="{Binding Path=ParcelFullNumber, Mode=OneWay}" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                            <DataGridTextColumn Header="Счет" Binding="{Binding Path=Id, Mode=OneWay}" ElementStyle="{StaticResource NumberCenterStyleView}"/>
+                            <DataGridTextColumn Header="Сумма" Binding="{Binding Path=Invoicesum, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+                            <DataGridTextColumn Header="Неразнесено" Binding="{Binding Path=DetailSum, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,5,10">
+            <TextBlock Text="Общая сумма" VerticalAlignment="Center" FontWeight="Bold" />
+            <TextBlock x:Name="totalsumTextBlock" Margin="5,0,0,0" VerticalAlignment="Center" TextAlignment="Right" FontWeight="Bold" />
+        </StackPanel>
+    </Grid>
+</Window>

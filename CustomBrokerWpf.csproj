@@ -1,0 +1,1642 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2B31CD72-B581-40BA-87D0-A661E402C9B4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KirillPolyanskiy.CustomBrokerWpf</RootNamespace>
+    <AssemblyName>CustomBrokerWpf</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Images\truck_blue.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DataModelClassLibrary, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\WPF\DataModelClassLibrary\DataModelClassLibrary\bin\Release\DataModelClassLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit, Version=2.2.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
+      <HintPath>packages\MailKit.2.2.0\lib\net45\MailKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>C:\Windows\assembly\GAC_MSIL\Microsoft.Office.Interop.Excel\14.0.0.0__71e9bce111e9429c\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit, Version=2.2.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
+      <HintPath>packages\MimeKit.2.2.0\lib\net45\MimeKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\System.Windows.Controls.DataVisualization.Toolkit.4.0.0.0\lib\net40-Client\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WpfControlLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\WPF\WpfControlLibrary\WpfControlLibrary\bin\Release\WpfControlLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Classes\Domain\Account\AgentCustomerBalance.cs" />
+    <Compile Include="Classes\Domain\Account\CustomsInvoice.cs" />
+    <Compile Include="Classes\Domain\Account\CustomsInvoicePay.cs" />
+    <Compile Include="Classes\Domain\Account\FinalInvoicePay.cs" />
+    <Compile Include="Classes\Domain\Account\GTDRegister.cs" />
+    <Compile Include="Classes\Domain\Account\PrepayCurrencyPay.cs" />
+    <Compile Include="Classes\Domain\Account\Selling.cs" />
+    <Compile Include="Classes\Domain\AgentAlias.cs" />
+    <Compile Include="Classes\Domain\Manager.cs" />
+    <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
+    <Compile Include="Classes\Domain\StorageData.cs" />
+    <Compile Include="Classes\Specification\SpecificationCustomerInvoiceRate.cs" />
+    <Compile Include="ManagersWin.xaml.cs">
+      <DependentUpon>ManagersWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\AccountMainWin.xaml.cs">
+      <DependentUpon>AccountMainWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AccountWin.xaml.cs">
+      <DependentUpon>AccountWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\CustomsInvoicePayWin.xaml.cs">
+      <DependentUpon>CustomsInvoicePayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\CurrencyPayWin.xaml.cs">
+      <DependentUpon>CurrencyPayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AgentFilterWin.xaml.cs">
+      <DependentUpon>AgentFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AlgorithmWin.xaml.cs">
+      <DependentUpon>AlgorithmWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AllPriceItemWin.xaml.cs">
+      <DependentUpon>AllPriceItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AllPriceWin.xaml.cs">
+      <DependentUpon>AllPriceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\ChartManager.cs" />
+    <Compile Include="Classes\ConcurrencyManager.cs" />
+    <Compile Include="Classes\CountryVM.cs" />
+    <Compile Include="Classes\CurrencyRate.cs" />
+    <Compile Include="Classes\Domain\Account\PaymentRegister.cs" />
+    <Compile Include="Classes\Domain\Account\Prepay.cs" />
+    <Compile Include="Classes\Domain\Account\PrepayCurrencyBuy.cs" />
+    <Compile Include="Classes\Domain\Account\PrepayCustomerRequest.cs" />
+    <Compile Include="Classes\Domain\Account\PrepayRubPay.cs" />
+    <Compile Include="Classes\Domain\Agent.cs" />
+    <Compile Include="Classes\Domain\Algorithm\Algorithm.cs" />
+    <Compile Include="Classes\Domain\Algorithm\AlgorithmFormula.cs" />
+    <Compile Include="Classes\Domain\Algorithm\AlgorithmRequest.cs" />
+    <Compile Include="Classes\Domain\Algorithm\AlgorithmRequestConsolidate.cs" />
+    <Compile Include="Classes\Domain\Algorithm\Formula.cs" />
+    <Compile Include="Classes\Domain\Alias.cs" />
+    <Compile Include="Classes\Domain\AllPrice.cs" />
+    <Compile Include="Classes\Domain\Branch.cs" />
+    <Compile Include="Classes\Domain\BranchCountry.cs" />
+    <Compile Include="Classes\Domain\DeliveryCarry.cs" />
+    <Compile Include="Classes\Domain\DeliveryCarryAddresses.cs" />
+    <Compile Include="Classes\Domain\DeliveryCars.cs" />
+    <Compile Include="Classes\Domain\GTDRegistry.cs" />
+    <Compile Include="Classes\Domain\Importer.cs" />
+    <Compile Include="Classes\Domain\ImporterParcelRequestTotal.cs" />
+    <Compile Include="Classes\Domain\MailTemplate.cs" />
+    <Compile Include="Classes\Domain\ParcelMailState.cs" />
+    <Compile Include="Classes\Domain\Recipient.cs" />
+    <Compile Include="Classes\Domain\ContactPoint.cs" />
+    <Compile Include="Classes\Domain\Customer.cs" />
+    <Compile Include="Classes\Domain\CustomerAddress.cs" />
+    <Compile Include="Classes\Domain\CustomerContact.cs" />
+    <Compile Include="Classes\Domain\CustomerLegal.cs" />
+    <Compile Include="Classes\Domain\DomainBaseClass.cs" />
+    <Compile Include="Classes\Domain\EventLog.cs" />
+    <Compile Include="Classes\Domain\Gender.cs" />
+    <Compile Include="Classes\Domain\Goods.cs" />
+    <Compile Include="Classes\Domain\Parcel.cs" />
+    <Compile Include="Classes\Domain\Participant.cs" />
+    <Compile Include="Classes\Domain\References\Color.cs" />
+    <Compile Include="Classes\Domain\References\Countries.cs" />
+    <Compile Include="Classes\Domain\References\PriceCategory.cs" />
+    <Compile Include="Classes\Domain\Reminder.cs" />
+    <Compile Include="Classes\Domain\Request.cs" />
+    <Compile Include="Classes\Domain\RequestCustomerLegal.cs" />
+    <Compile Include="Classes\Domain\RequestHistory.cs" />
+    <Compile Include="Classes\Domain\RequestItem.cs" />
+    <Compile Include="Classes\Domain\RequestMailState.cs" />
+    <Compile Include="Classes\EventLogType.cs" />
+    <Compile Include="Classes\ExceptionHandler.cs" />
+    <Compile Include="Classes\Domain\References\Principals.cs" />
+    <Compile Include="Classes\Mail.cs" />
+    <Compile Include="Classes\MailSMS.cs" />
+    <Compile Include="Classes\Parameter.cs" />
+    <Compile Include="Classes\Specification\Declaration.cs" />
+    <Compile Include="Classes\Specification\RequestItemNote.cs" />
+    <Compile Include="Classes\Specification\Specification.cs" />
+    <Compile Include="Classes\Specification\SpecificationDetail.cs" />
+    <Compile Include="Classes\Specification\TNVEDGoods.cs" />
+    <Compile Include="Classes\Specification\TNVEDGroup.cs" />
+    <Compile Include="Classes\Specification\VendorCode.cs" />
+    <Compile Include="Classes\StartAsyncProgram.cs" />
+    <Compile Include="ClientLegalWin.xaml.cs">
+      <DependentUpon>ClientLegalWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ClientListWin.xaml.cs">
+      <DependentUpon>ClientListWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\IntColorConverter.cs" />
+    <Compile Include="Classes\Specification\Description.cs" />
+    <Compile Include="Classes\Specification\GoodsSynonym.cs" />
+    <Compile Include="Classes\Specification\Mapping.cs" />
+    <Compile Include="Classes\Specification\MappingGender.cs" />
+    <Compile Include="Classes\Specification\Material.cs" />
+    <Compile Include="Classes\ViewModelBaseClass.cs" />
+    <Compile Include="Classes\WayBill.cs" />
+    <Compile Include="ContractorWin.xaml.cs">
+      <DependentUpon>ContractorWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BooleanClipBoardConverter.cs" />
+    <Compile Include="AccountTransactionsDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\UserRoles.cs" />
+    <Compile Include="Classes\AccountEntry.cs" />
+    <Compile Include="Classes\AmountWords.cs" />
+    <Compile Include="Classes\DataGridColumnManagerVM.cs" />
+    <Compile Include="Classes\DinamicPropertyBinding.cs" />
+    <Compile Include="Classes\Domain\Expenditure.cs" />
+    <Compile Include="Classes\Invoice.cs" />
+    <Compile Include="Classes\ListNotifyChanged.cs" />
+    <Compile Include="Classes\Domain\References\References.cs" />
+    <Compile Include="Classes\RelayCommand.cs" />
+    <Compile Include="Classes\Domain\References\Contractor.cs" />
+    <Compile Include="Converters\AlternationBackground.cs" />
+    <Compile Include="Converters\BitVisibilityConverter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Converters\DataGridDisplayIndexConverter.cs" />
+    <Compile Include="Converters\IsEnabledConverter.cs" />
+    <Compile Include="Converters\IsReadOnlyConverter.cs" />
+    <Compile Include="Converters\LegalClientMultyBinding.cs" />
+    <Compile Include="Converters\NullDateConverter.cs" />
+    <Compile Include="Converters\PaymentPayEnableConverter.cs" />
+    <Compile Include="CountriesWin.xaml.cs">
+      <DependentUpon>CountriesWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\CurrencyBuyWin.xaml.cs">
+      <DependentUpon>CurrencyBuyWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DeliveryWin.xaml.cs">
+      <DependentUpon>DeliveryWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EventLogFilterWin.xaml.cs">
+      <DependentUpon>EventLogFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExcelImportWin.xaml.cs">
+      <DependentUpon>ExcelImportWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GoodsEndingWin.xaml.cs">
+      <DependentUpon>GoodsEndingWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GoodsItemWin.xaml.cs">
+      <DependentUpon>GoodsItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GoodsWin.xaml.cs">
+      <DependentUpon>GoodsWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GoodsСhoiceWin.xaml.cs">
+      <DependentUpon>GoodsСhoiceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ImporterWin.xaml.cs">
+      <DependentUpon>ImporterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceDS.cs">
+      <DependentUpon>InvoiceDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InvoiceDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceListWin.xaml.cs">
+      <DependentUpon>InvoiceListWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceWin.xaml.cs">
+      <DependentUpon>InvoiceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LoginWin.xaml.cs">
+      <DependentUpon>LoginWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MailSMSWin.xaml.cs">
+      <DependentUpon>MailSMSWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MailTemplateWin.xaml.cs">
+      <DependentUpon>MailTemplateWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainMenuUC.xaml.cs">
+      <DependentUpon>MainMenuUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MappingWin.xaml.cs">
+      <DependentUpon>MappingWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialWin.xaml.cs">
+      <DependentUpon>MaterialWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelPaymentsUC.xaml.cs">
+      <DependentUpon>ParcelPaymentsUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelReportChartWin.xaml.cs">
+      <DependentUpon>ParcelReportChartWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionUC.xaml.cs">
+      <DependentUpon>ParcelTransactionUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentlistUC.xaml.cs">
+      <DependentUpon>PaymentlistUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\CustomsInvoiceWin.xaml.cs">
+      <DependentUpon>CustomsInvoiceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\FinalInvoicePayWin.xaml.cs">
+      <DependentUpon>FinalInvoicePayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\GTDRegisterUC.xaml.cs">
+      <DependentUpon>GTDRegisterUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\PaymentRegisterUC.xaml.cs">
+      <DependentUpon>PaymentRegisterUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\PrepayCurrencyBuyWin.xaml.cs">
+      <DependentUpon>PrepayCurrencyBuyWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\PrepayCurrencyPayWin.xaml.cs">
+      <DependentUpon>PrepayCurrencyPayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\PrepayRubPayWin.xaml.cs">
+      <DependentUpon>PrepayRubPayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ProducerSelectWin.xaml.cs">
+      <DependentUpon>ProducerSelectWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestNewWin.xaml.cs">
+      <DependentUpon>RequestNewWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestPrepayWin.xaml.cs">
+      <DependentUpon>RequestPrepayWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SpecificationDetailWin.xaml.cs">
+      <DependentUpon>SpecificationDetailWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SpecificationWin.xaml.cs">
+      <DependentUpon>SpecificationWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TNVEDGroupWin.xaml.cs">
+      <DependentUpon>TNVEDGroupWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserConflictResolutionWin.xaml.cs">
+      <DependentUpon>UserConflictResolutionWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="VendorCodeWin.xaml.cs">
+      <DependentUpon>VendorCodeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewTextWin.xaml.cs">
+      <DependentUpon>ViewTextWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WayBillClientWin.xaml.cs">
+      <DependentUpon>WayBillClientWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerMoveLegalDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerMoveLegalWin.xaml.cs">
+      <DependentUpon>CustomerMoveLegalWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DataGridColumnsJoiner.cs" />
+    <Compile Include="CustomerBalanceFilterWin.xaml.cs">
+      <DependentUpon>CustomerBalanceFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerBalanceWin.xaml.cs">
+      <DependentUpon>CustomerBalanceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DebtorsWin.xaml.cs">
+      <DependentUpon>DebtorsWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FreightDS.cs">
+      <DependentUpon>FreightDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="FreightDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FreightDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="FreightWin.xaml.cs">
+      <DependentUpon>FreightWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceExcelWin.xaml.cs">
+      <DependentUpon>InvoiceExcelWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InvoicePaymentWin.xaml.cs">
+      <DependentUpon>InvoicePaymentWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LegalBalanceDetailsWin.xaml.cs">
+      <DependentUpon>LegalBalanceDetailsWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LegalBalanceWin.xaml.cs">
+      <DependentUpon>LegalBalanceWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LegalEntityWin.xaml.cs">
+      <DependentUpon>LegalEntityWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\NoNullValueConverterClass.cs" />
+    <Compile Include="ParcelCostDS.cs">
+      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ParcelCostDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ParcelDS.cs">
+      <DependentUpon>ParcelDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ParcelDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParcelDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelFilterWin.xaml.cs">
+      <DependentUpon>ParcelFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelListWin.xaml.cs">
+      <DependentUpon>ParcelListWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelReportFilterWin.xaml.cs">
+      <DependentUpon>ParcelReportFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelReportWin.xaml.cs">
+      <DependentUpon>ParcelReportWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionDetailWin.xaml.cs">
+      <DependentUpon>ParcelTransactionDetailWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionDS.cs">
+      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionOtherWin.xaml.cs">
+      <DependentUpon>ParcelTransactionOtherWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelTransactionWin.xaml.cs">
+      <DependentUpon>ParcelTransactionWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelWin.xaml.cs">
+      <DependentUpon>ParcelWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentDoubleWin.xaml.cs">
+      <DependentUpon>PaymentDoubleWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentDS.cs">
+      <DependentUpon>PaymentDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PaymentDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentListFilterWin.xaml.cs">
+      <DependentUpon>PaymentListFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentListWin.xaml.cs">
+      <DependentUpon>PaymentListWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentObjWin.xaml.cs">
+      <DependentUpon>PaymentObjWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentWin.xaml.cs">
+      <DependentUpon>PaymentWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ReferenceDS.cs">
+      <DependentUpon>ReferenceDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ReferenceDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReferenceDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\RequestConflictResolution.cs" />
+    <Compile Include="Windows\Request\RequestItemWin.xaml.cs">
+      <DependentUpon>RequestItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RequestStoagePointValidationRule.cs" />
+    <Compile Include="RequestTotalConverter.cs" />
+    <Compile Include="SQLConnection.cs" />
+    <Compile Include="Classes\SQLFilterClass.cs" />
+    <Compile Include="ClientFilterWin.xaml.cs">
+      <DependentUpon>ClientFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\ContactPointConverter.cs" />
+    <Compile Include="Converters\ChildRelationConverter.cs" />
+    <Compile Include="ClientWin.xaml.cs">
+      <DependentUpon>ClientWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ContactPointTypeWin.xaml.cs">
+      <DependentUpon>ContactPointTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\ContactPointValueConverter.cs" />
+    <Compile Include="ContactTypeWin.xaml.cs">
+      <DependentUpon>ContactTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\UpperCaseFirstConverter.cs" />
+    <Compile Include="ForwarderWin.xaml.cs">
+      <DependentUpon>ForwarderWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GoodsTypeWin.xaml.cs">
+      <DependentUpon>GoodsTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\Interfaces.cs" />
+    <Compile Include="Converters\NoNullValueBackConverter.cs" />
+    <Compile Include="RecipientWin.xaml.cs">
+      <DependentUpon>RecipientWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RequestDS.cs">
+      <DependentUpon>RequestDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="RequestDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RequestDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestFilterWin.xaml.cs">
+      <DependentUpon>RequestFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestHistoryWin.xaml.cs">
+      <DependentUpon>RequestHistoryWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestStatusWin.xaml.cs">
+      <DependentUpon>RequestStatusWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StoreMergeDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="StoreMergeFilterWin.xaml.cs">
+      <DependentUpon>StoreMergeFilterWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StoreMergeWin.xaml.cs">
+      <DependentUpon>StoreMergeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StoreWin.xaml.cs">
+      <DependentUpon>StoreWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TelephoneNumberFormat.cs" />
+    <Compile Include="TownWin.xaml.cs">
+      <DependentUpon>TownWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Request\RequestWin.xaml.cs">
+      <DependentUpon>RequestWin.xaml</DependentUpon>
+    </Compile>
+    <Page Include="ManagersWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\AccountMainWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AccountWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\CustomsInvoicePayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\CurrencyPayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AddressTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AgentFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AgentWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AlgorithmWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AllPriceItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AllPriceWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BrandWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ClientFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ClientLegalWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ClientListWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ClientWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ContactPointTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ContactTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ContractorWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CountriesWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Account\CurrencyBuyWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerMoveLegalWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DeliveryWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EventLogFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ExcelImportWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomerBalanceFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerBalanceWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DebtorsWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DeliveryTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ForwarderWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FreightWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GoodsEndingWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GoodsItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GoodsTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GoodsWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GoodsСhoiceWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GroupMngWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImporterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InvoiceExcelWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InvoicePaymentWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InvoiceListWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InvoiceWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="LegalBalanceDetailsWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LegalBalanceWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LegalEntityWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LoginWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MailSMSWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MailTemplateWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainMenuUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="AddressTypeWin.xaml.cs">
+      <DependentUpon>AddressTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AgentWin.xaml.cs">
+      <DependentUpon>AgentWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BrandWin.xaml.cs">
+      <DependentUpon>BrandWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DeliveryTypeWin.xaml.cs">
+      <DependentUpon>DeliveryTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GroupMngWin.xaml.cs">
+      <DependentUpon>GroupMngWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="MappingWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MaterialWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelListWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelPaymentsUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelReportChartWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelReportFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelReportWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelTransactionDetailWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelTransactionOtherWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelTransactionUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelTransactionWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentDoubleWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentListFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentlistUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentListWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentTypeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentObjWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\CustomsInvoiceWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\FinalInvoicePayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\GTDRegisterUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\PaymentRegisterUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\PrepayCurrencyBuyWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\PrepayCurrencyPayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\PrepayRubPayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProducerSelectWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RecipientWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestHistoryWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestItemWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Request\RequestNewWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestPrepayWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestStatusWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SpecificationDetailWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SpecificationWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StoreMergeFilterWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StoreMergeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StoreWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TNVEDGroupWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TownWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Request\RequestWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserConflictResolutionWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="VendorCodeWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ViewTextWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WayBillClientWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PaymentTypeWin.xaml.cs">
+      <DependentUpon>PaymentTypeWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AccountTransactionsDS.xsc">
+      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
+    </None>
+    <None Include="AccountTransactionsDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>AccountTransactionsDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="AccountTransactionsDS.xss">
+      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
+    </None>
+    <None Include="InvoiceDS.xsc">
+      <DependentUpon>InvoiceDS.xsd</DependentUpon>
+    </None>
+    <None Include="InvoiceDS.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>InvoiceDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="InvoiceDS.xss">
+      <DependentUpon>InvoiceDS.xsd</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Templates\GetAllGoods.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\Заявка на перевозку GTLS GmbH АД.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\Заявка на перевозку GTLS GmbH АТ.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\СФ.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\ТТН.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="CustomerMoveLegalDS.xsc">
+      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
+    </None>
+    <None Include="CustomerMoveLegalDS.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>CustomerMoveLegalDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="CustomerMoveLegalDS.xss">
+      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
+    </None>
+    <None Include="FreightDS.xsc">
+      <DependentUpon>FreightDS.xsd</DependentUpon>
+    </None>
+    <None Include="FreightDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>FreightDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="FreightDS.xss">
+      <DependentUpon>FreightDS.xsd</DependentUpon>
+    </None>
+    <None Include="ParcelCostDS.xsc">
+      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
+    </None>
+    <None Include="ParcelCostDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ParcelCostDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ParcelCostDS.xss">
+      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
+    </None>
+    <None Include="ParcelDS.xsc">
+      <DependentUpon>ParcelDS.xsd</DependentUpon>
+    </None>
+    <None Include="ParcelDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ParcelDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ParcelDS.xss">
+      <DependentUpon>ParcelDS.xsd</DependentUpon>
+    </None>
+    <None Include="Windows\Parcel\ParcelTransactionDS.xsc">
+      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
+    </None>
+    <None Include="Windows\Parcel\ParcelTransactionDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>ParcelTransactionDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Windows\Parcel\ParcelTransactionDS.xss">
+      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
+    </None>
+    <None Include="PaymentDS.xsc">
+      <DependentUpon>PaymentDS.xsd</DependentUpon>
+    </None>
+    <None Include="PaymentDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PaymentDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="PaymentDS.xss">
+      <DependentUpon>PaymentDS.xsd</DependentUpon>
+    </None>
+    <None Include="Properties\DataSources\RequestHistoryEntities.datasource" />
+    <None Include="ReferenceDS.xsc">
+      <DependentUpon>ReferenceDS.xsd</DependentUpon>
+    </None>
+    <None Include="ReferenceDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>ReferenceDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="ReferenceDS.xss">
+      <DependentUpon>ReferenceDS.xsd</DependentUpon>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+    <None Include="RequestDS.xsc">
+      <DependentUpon>RequestDS.xsd</DependentUpon>
+    </None>
+    <None Include="RequestDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>RequestDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="RequestDS.xss">
+      <DependentUpon>RequestDS.xsd</DependentUpon>
+    </None>
+    <None Include="StoreMergeDS.xsc">
+      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
+    </None>
+    <None Include="StoreMergeDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>StoreMergeDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="StoreMergeDS.xss">
+      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
+    </None>
+    <None Include="Templates\Freight.xltx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\Счет.xlt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel_icon4.png" />
+    <Resource Include="Images\refresh.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\truck_blue.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\users_family.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\factory.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\truck_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\money.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\money_envelope.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\helicopter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\businessman.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mail2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\signpost.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\handshake.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\businessman2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\dude4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\index.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mobilephone3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel_preferences.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\disk_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\history.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\index_preferences.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\weight2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\forklifter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\hand_paper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel_new.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\funnel_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\folder_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\branch_view.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\branch_element.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\branch_element_new.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\box_into.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\arrow_down_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\arrow_up_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\form_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\table_selection_row.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\branch_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\AZ.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ZA.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\AZClean.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\creditcards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\printer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cashier.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\paperclip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wallet_open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\form_yellow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\forbidden.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\dude5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\stapler.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\refresh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\folder_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\check2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\arrow_right_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\selection.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\gears_run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column_fix.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column_add_after.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\column_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\table_sql_run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\table_sql_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\save_as.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\save_as_green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\table_sql_check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chart.png" />
+    <Resource Include="Images\column-chart.png" />
+    <Resource Include="Images\line-chart.png" />
+    <Resource Include="Images\pie-chart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\window_split_ver.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\about.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\security_agent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Tasks.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\earth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\currency_euro.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\certificate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\delete2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\add2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel_export.png" />
+    <Resource Include="Images\excel_import.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel_check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\disk_green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\import1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\key1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\replace2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\navigate_close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\navigate_expand.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\clean.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\gauze_bandage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\bell.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\his.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\r2Refresh-512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rRemove-512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Copy-512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rPlus_01-66-512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rshester.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rpoisk2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\plus.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\catalog.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tamoj.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rasschet.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\vexcel4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\print.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\excel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\niz.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\verh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\dates.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\load.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\check26.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\group_1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\group_2.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\inv_1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cat.png" />
+    <Resource Include="Images\doc_1.png" />
+    <Resource Include="Images\doc_2.png" />
+    <Resource Include="Images\excel_1.png" />
+    <Resource Include="Images\excel_2.png" />
+    <Resource Include="Images\inv_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\hourglass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\truck_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\calculator.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 и x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mail_1.png" />
+    <Resource Include="Images\mail_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\redo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mail_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\lock_open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_certificate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_view.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\moneybag_euro.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

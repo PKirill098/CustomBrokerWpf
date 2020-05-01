@@ -1,0 +1,82 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.CustomerBalanceWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Баланс клиента" x:Name="winCustomerBalance" Loaded="winDebtors_Loaded" Closing="winDebtors_Closing" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/businessman2.png" Height="600" Width="460">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <my:MainMenuUC VerticalAlignment="Center"/>
+            <Separator/>
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" Visibility="Visible" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </ToggleButton>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="Images/r2Refresh-512" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click"/>
+        </ToolBar>
+        <DataGrid x:Name="mainDataGrid" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White" SelectionChanged="mainDataGrid_SelectionChanged">
+            <DataGrid.Resources>
+                <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="BalanceInfoButton_Click" Tag="{Binding Path=customerid, Mode=OneWay}" Height="20" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Детали счета" >
+                                <Image Source="/CustomBrokerWpf;component/Images/unknown.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=Name, Mode=OneWay}" Width="*" SortDirection="Ascending" />
+                <DataGridTextColumn Header="Долг" Binding="{Binding Path=SummDebtor, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+                <DataGridTextColumn Header="~Долг" Binding="{Binding Path=SummDebtorNoTran, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма долга с учетом не проведенных платежей"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Не проведено" Binding="{Binding Path=SummNoTran, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <DataGrid ItemsSource="{Binding Path=Details}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Отправка" Binding="{Binding Path=ParcelFullNumber, Mode=OneWay}" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                            <DataGridTextColumn Header="Счет" Binding="{Binding Path=Id, Mode=OneWay}" ElementStyle="{StaticResource NumberCenterStyleView}"/>
+                            <DataGridTextColumn Header="Сумма" Binding="{Binding Path=Invoicesum, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+                            <DataGridTextColumn Header="Неразнесено" Binding="{Binding Path=DetailSum, Mode=OneWay, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+        <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,5,5,10">
+            <TextBlock Text="Общая сумма долга" VerticalAlignment="Center" FontWeight="Bold" />
+            <TextBox x:Name="totalsumTextBlock" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right" FontWeight="Bold" IsReadOnly="True"/>
+            <TextBlock Text="ожидается" VerticalAlignment="Center" FontWeight="Bold" />
+            <TextBox x:Name="totalsuppsumTextBlock" ToolTip="Сумма долга с учетом не проведенных платежей" Margin="5,0,5,0" VerticalAlignment="Center" TextAlignment="Right" FontWeight="Bold" IsReadOnly="True" />
+            <TextBlock Text="не проведено" VerticalAlignment="Center" FontWeight="Bold" />
+            <TextBox x:Name="totalnotranTextBlock" Margin="5,0,0,0" VerticalAlignment="Center" TextAlignment="Right" FontWeight="Bold" IsReadOnly="True" />
+        </WrapPanel>
+    </Grid>
+</Window>

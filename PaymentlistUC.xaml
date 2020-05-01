@@ -1,0 +1,176 @@
+﻿<UserControl x:Class="KirillPolyanskiy.CustomBrokerWpf.PaymentlistUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+             xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+             mc:Ignorable="d" 
+             Language="ru-RU" Loaded="winPaymentList_Loaded" d:DesignHeight="300" d:DesignWidth="986">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <my:MainMenuUC VerticalAlignment="Center" x:Name="MainMenu" Visibility="Collapsed"/>
+            <Separator x:Name="MainMenuSeparator" Visibility="Collapsed"/>
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" Visibility="Visible" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </ToggleButton>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Сохранить изменения в БД" Click="SaveButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="AddButton" ToolTip="Внести платеж" Click="AddButton_Click" IsTabStop="False" >
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button ToolTip="Удалить платеж" Click="DelButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator x:Name="CloseButtonSeparator" Visibility="Collapsed"/>
+            <Button x:Name="CloseButton" Content="Закрыть" Visibility="Collapsed"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False">
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <DataGrid x:Name="PaymentDataGrid" Grid.Row="1" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" SelectionUnit="CellOrRowHeader" RowHeaderWidth="10" CanUserResizeRows="False" Validation.Error="mainDataGrid_Error" RowEditEnding="PaymentDataGrid_RowEditEnding">
+            <DataGrid.Resources>
+                <my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+                <my:TransSunIsReadOnlyConverter x:Key="keyTransSunIsReadOnlyConverter"/>
+                <my:TransSunIsEnabledConverter x:Key="keyTransSunIsEnabledConverter"/>
+                <CollectionViewSource x:Key="keyLegalEntityVS" />
+                <CollectionViewSource x:Key="keyPayerVS" />
+                <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="NumberCenterStyleViewEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+                <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Visibility="{Binding Source={StaticResource keyVisibilityAccountsLAccounts}, Path=Visibility}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="PaymentInfoButton_Click" Tag="{Binding Path=ppid, Mode=OneWay}" Height="20" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Проводка оплаты" >
+                                <Image Source="/CustomBrokerWpf;component/Images/unknown.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Дата пп" Binding="{Binding Path=ppDate, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue='', UpdateSourceTrigger=LostFocus}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата платежного поручения"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="№ пп" Binding="{Binding Path=ppNumber}" Width="SizeToHeader" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Номер платежного поручения"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Плательщик*" SelectedValueBinding="{Binding Path=payerid, NotifyOnValidationError=True}" ItemsSource="{Binding Source={StaticResource keyPayerVS}}" SelectedValuePath="customerID" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="payerName" IsReadOnly="{Binding Path=sumpay, Converter={StaticResource keyTransSunIsReadOnlyConverter}}">
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Получатель*" SelectedValueBinding="{Binding Path=accountid, NotifyOnValidationError=True}" ItemsSource="{Binding Source={StaticResource keyLegalEntityVS}}" SelectedValuePath="accountid" DisplayMemberPath="namelegal" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="legalName" >
+                    <DataGridComboBoxColumn.EditingElementStyle >
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsDropDownOpen" Value="True"/>
+                            <Setter Property="ItemContainerStyle">
+                                <Setter.Value>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Зачислено" Binding="{Binding Path=deducted, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue=''}" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата зачисления средств на счет"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Сумма*" Binding="{Binding Path=ppSum, StringFormat=\{0:N\}, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnExceptions=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма по платежному поручению"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <!--<DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="IsEnabled" Value="{Binding Path=sumpay, Converter={StaticResource keyTransSunIsEnabledConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle> -->
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Проведено" Binding="{Binding Path=sumpay, StringFormat=\{0:N\},Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Проведенная сумма"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Не разнесено" Binding="{Binding Path=freeSum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Не разнесенная сумма оплаты"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Назначение" Binding="{Binding Path=purpose}" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечание" Binding="{Binding Path=note}" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="150"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Изменено" Binding="{Binding Path=updtDate,Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Изменил" Binding="{Binding Path=updtWho,Mode=OneWay}" Width="SizeToHeader" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

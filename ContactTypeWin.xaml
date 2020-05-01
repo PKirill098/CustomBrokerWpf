@@ -1,0 +1,21 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ContactTypeWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Вид контакта" x:Name="winContactType" Height="300" Width="300" Icon="/CustomBrokerWpf;component/Images/handshake.png" Loaded="winContactType_Loaded" Closing="winContactType_Closing">
+    <Window.Resources>
+        <CollectionViewSource x:Key="tableContactTypeViewSource" Source="{Binding Path=tableContactType, Source={StaticResource keyReferenceDS}}">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="ContactTypeName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource tableContactTypeViewSource}">
+        <DataGrid Name="mainDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" HorizontalAlignment="Left" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" VerticalAlignment="Top" HeadersVisibility="Row">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=ContactTypeName}" Header="Вид" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

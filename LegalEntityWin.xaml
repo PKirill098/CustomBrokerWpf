@@ -1,0 +1,31 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.LegalEntityWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Получатели платежа" Name="winLegalEntity" Height="300" Width="300" Loaded="winLegalEntity_Loaded" Closing="winLegalEntity_Closing" Icon="/CustomBrokerWpf;component/Images/wallet_open.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32" IsTabStop="False">
+            <Button ToolTip="Перенос клиентов на другого получателя" Click="MoveCustomerButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/businessman2.png"/>
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click" IsTabStop="False"/>
+        </ToolBar>
+        <DataGrid Name="mainDataGrid" Grid.Row="1" AutoGenerateColumns="False" EnableRowVirtualization="True" HorizontalAlignment="Left"  RowDetailsVisibilityMode="Collapsed" CanUserDeleteRows="False" CanUserResizeRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Наименование" Binding="{Binding Path=namelegal}" Width="*" />
+                <DataGridCheckBoxColumn Header="Активно" Binding="{Binding Path=isActual}">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Может использоваться при добавлении данных"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Path=istop}" Visibility="{Binding Source={StaticResource keyVisibilityTopManagers}, Path=Visibility}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

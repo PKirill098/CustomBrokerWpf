@@ -1,0 +1,175 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ClientListWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        xmlns:libbind="clr-namespace:KirillPolyanskiy.BindingConverters;assembly=DataModelClassLibrary"
+        xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+        mc:Ignorable="d"
+        Title="Клиенты" Name="winClientList" Loaded="Window_Loaded" Closing="Window_Closing" Height="600" Width="1000" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/businessman2.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <lib:BindingProxy x:Key="DataContext" Data="{Binding}"/>
+            <libui:CheckListBoxPopup x:Key="CustomerFilterPopup" DataContext="{Binding  Source={StaticResource DataContext}, Path=Data.CustomerFilter}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+            <libui:CheckListBoxPopup x:Key="CustomerLegalFilterPopup" DataContext="{Binding  Source={StaticResource DataContext}, Path=Data.CustomerLegalFilter}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+        </Grid.Resources>
+        <ToolBar Grid.ColumnSpan="2" IsTabStop="False" Height="32">
+            <Button ToolTip="в Excel" Command="{Binding CreateExcelReport}">
+                <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <DataGrid Grid.Row="1" x:Name="MainDataGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" CanUserAddRows="False" CanUserDeleteRows="False"
+                 EnableRowVirtualization="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" CanUserResizeRows="False" FrozenColumnCount="1">
+            <DataGrid.Resources>
+                <libbind:DataGridCellBorderConverter x:Key="CellBorderConverter"/>
+            </DataGrid.Resources>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
+                    <Setter Property="BorderBrush" Value="RoyalBlue"/>
+                    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+                    <!--<Setter Property="BorderThickness" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=DataGrid}, Path=ItemsSource,Converter={StaticResource CellBorderConverter}}"/>-->
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=Name, Mode=OneWay}" FontWeight="Bold" IsReadOnly="True" Width="300">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomerFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="CustomerFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Width="*">
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" >
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Контакты: тип" Margin="4,0"/>
+                                            <TextBlock Text="лицо" Margin="4,0" Grid.Column="1"/>
+                                            <TextBlock Text="описание" Margin="4,0" Grid.Column="2"/>
+                                            <TextBlock Text="контакт" Margin="4,0" Grid.Column="3" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Path=Contacts}" HeadersVisibility="None" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" Margin="0" Padding="0" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Background="White">
+                                <DataGrid.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
+                                        <Setter Property="BorderBrush" Value="RoyalBlue"/>
+                                        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+                                    </Style>
+                                </DataGrid.CellStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=ContactType, Mode=OneWay}" IsReadOnly="True" Width="150"/>
+                                    <DataGridTextColumn Binding="{Binding Path=FullName, Mode=OneWay}" IsReadOnly="True" Width="200"/>
+                                    <DataGridTemplateColumn Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <DataGrid ItemsSource="{Binding Path=Points}" HeadersVisibility="None" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" Margin="0" Padding="0" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid.CellStyle>
+                                                        <Style TargetType="DataGridCell">
+                                                            <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
+                                                            <Setter Property="BorderBrush" Value="RoyalBlue"/>
+                                                            <Setter Property="BorderThickness" Value="0,1,0,0"/>
+                                                        </Style>
+                                                    </DataGrid.CellStyle>
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Binding="{Binding Path=Name, Mode=OneWay}" IsReadOnly="True" Width="100" />
+                                                        <DataGridTextColumn Binding="{Binding Path=Value, Mode=OneWay}" IsReadOnly="True" Width="*"/>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            <!--<DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="65"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Юр. лица:" Margin="6,0,6,0"/>
+                        <DataGrid Grid.Column="1"  ItemsSource="{Binding Legals}" HeadersVisibility="None" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" SelectionUnit="FullRow" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" 
+                            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
+                                    <Setter Property="BorderBrush" Value="RoyalBlue"/>
+                                    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Path=Name, Mode=OneWay}" IsReadOnly="True" Width="235"/>
+                                <DataGridTemplateColumn Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DataGrid ItemsSource="{Binding Path=Contacts}" HeadersVisibility="None" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" Margin="0" Padding="0" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Binding="{Binding Path=ContactType, Mode=OneWay}" IsReadOnly="True" Width="150" />
+                                                    <DataGridTemplateColumn Width="*" >
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <DataGrid ItemsSource="{Binding Path=Points}" HeadersVisibility="None" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" Margin="0" Padding="0" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                                                                    <DataGrid.Columns>
+                                                                        <DataGridTextColumn Binding="{Binding Path=Name, Mode=OneWay}" IsReadOnly="True" Width="100" />
+                                                                        <DataGridTextColumn Binding="{Binding Path=Value, Mode=OneWay}" IsReadOnly="True"  Width="*"/>
+                                                                    </DataGrid.Columns>
+                                                                </DataGrid>
+                                                            </DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>-->
+        </DataGrid>
+    </Grid>
+</Window>

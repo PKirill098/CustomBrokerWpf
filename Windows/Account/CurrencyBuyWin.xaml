@@ -1,0 +1,85 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.CurrencyBuyWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Покупка валюты" Name="winCurrencyBuy" Height="450" Width="740" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/currency_euro.png" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing">
+    <Grid>
+		<Grid.Resources>
+			<lib:BindingProxy x:Key="DataContext" Data="{Binding}"/>
+		</Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="30">
+            <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию">
+				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+			<Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Grid Grid.Row="1" Margin="2,4" DataContext="{Binding Path=Total}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="20"/>
+				<ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+				<RowDefinition Height="24"/>
+                <RowDefinition Height="6"/>
+				<RowDefinition Height="24"/>
+            </Grid.RowDefinitions>
+			<Grid.Resources>
+				<Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockLabel}"/>
+				<Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentRight}">
+					<Setter Property="VerticalContentAlignment" Value="Center"/>
+					<EventSetter Event="KeyDown" Handler="BindingUpdate"/>
+				</Style>
+			</Grid.Resources>
+            <TextBlock Text="Дата покупки" Margin="0,0,4,0" VerticalAlignment="Center"/>
+            <DatePicker SelectedDate="{Binding BuyDate, Mode=TwoWay, StringFormat=\{0:d\}, ValidatesOnExceptions=True}" Grid.Column="1"/>
+			<TextBlock Text="Курс покупки" Grid.Column="2" Margin="10,0,4,0" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding BuyRate, Mode=TwoWay, StringFormat=\{0:N4\}, ValidatesOnExceptions=True}" Grid.Column="3"/>
+            <TextBlock Text="Сумма RUB" Margin="0,0,4,0" Grid.Row="2"/>
+			<TextBox Text="{Binding TotalCostRUB, Mode=OneWay, StringFormat=\{0:N2\}, ValidatesOnExceptions=True}" IsReadOnly="True" Grid.Column="1" Grid.Row="2"/>
+            <TextBlock Text="Сумма EUR" Grid.Column="2" Margin="10,0,4,0" Grid.Row="2"/>
+			<TextBox Text="{Binding TotalCost, Mode=OneWay, StringFormat=\{0:N2\}, ValidatesOnExceptions=True}" IsReadOnly="True" Grid.Column="3" Grid.Row="2"/>
+			<Button Command="{Binding Source={StaticResource DataContext}, Path=Data.Save}" Grid.Column="5" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Background="#e0f7e3" Foreground="Green" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+					<TextBlock Text="Купить" TextAlignment="Center"/>
+					<TextBlock Text="валюту" Grid.Row="1" TextAlignment="Center"/>
+				</Grid>
+			</Button>
+		</Grid>
+        <DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Binding="{Binding Path=Selected,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False" CanUserSort="False"/>
+				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Prepay.Customer.Name, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="200"/>
+				<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=Prepay.Agent.Name, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="200"/>
+				<DataGridTextColumn Header="Счет ЦБ" Binding="{Binding Path=Prepay.CBRate, StringFormat=\{0:N4\},Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="90"/>
+				<DataGridTextColumn Header="Счет ЦБ+2%" Binding="{Binding Path=Prepay.CBRatep2p, StringFormat=\{0:N4\},Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="90"/>
+                <DataGridTextColumn Header="Сумма EUR" Binding="{Binding Path=CurSum, StringFormat=\{0:N2\},Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"/>
+			</DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

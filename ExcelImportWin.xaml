@@ -1,0 +1,16 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ExcelImportWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Обработка файла Excel" x:Name="winExcelImport" SizeToContent="WidthAndHeight" MaxWidth="1000" Icon="Images/excel_icon4.png" ResizeMode="CanResize" ShowInTaskbar="False" Topmost="True" WindowStartupLocation="CenterScreen">
+    <Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="20"/>
+		</Grid.RowDefinitions>
+		<TextBlock x:Name="MessageTextBlock" Grid.Row="0" TextWrapping="Wrap" Foreground="Red"/>
+        <ProgressBar x:Name="ProgressBar1" Grid.Row="1"/>
+	</Grid>
+</Window>

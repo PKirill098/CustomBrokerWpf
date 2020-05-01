@@ -1,0 +1,292 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.PaymentWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Оплата" Name="winPayment" Loaded="winPayment_Loaded"  Closing="winPayment_Closing" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/money.png" Height="512" Width="535">
+    <Grid x:Name="mainGrid" Validation.Error="Grid_Error">
+        <Grid.Resources>
+            <my:ChildRelationConverter x:Key="keyChildRelationConverter"/>
+            <my:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
+            <my:IsReadOnlyConverter x:Key="keyIsReadOnlyConverter"/>
+            <CollectionViewSource x:Key="keyPayerVS" />
+            <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="Margin" Value="2,0,2,0" />
+            </Style>
+            <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="0,-1,0,-2" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <Button Content="Провести" x:Name="TransButton" ToolTip="Сформировать проводку" Click="TransButton_Click" IsTabStop="False"/>
+            <Button Content="Разнести" x:Name="DCJoinAllButton" ToolTip="Разнести проводки" Click="DCJoinAllButton_Click" IsTabStop="False"/>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
+                <Image Source="Images/r2Refresh-512.png"/>
+            </Button>
+            <Separator/>
+            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <Button x:Name="SaveButton" ToolTip="Сохранить изменения в БД" Click="SaveButton_Click" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Удалить платеж" Click="DelButton_Click" IsEnabled="{Binding Source={StaticResource keyVisibilityAccountVisors}, Path=isMember}">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button x:Name="thisCloseButton" Content="Закрыть" Click="thisCloseButton_Click" IsTabStop="False"/>
+            <Popup Name="popInf" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
+                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Grid Grid.Row="1" Validation.Error="Grid_Error">
+            <Grid.Resources>
+                <my:TransSunIsReadOnlyConverter x:Key="keyIsReadOnly01Converter"/>
+                <my:ExistsFreeSummConverter x:Key="keyExistsFreeSummConverter"/>
+                <my:PaymentPayIsReadOnlyConverter x:Key="keyPaymentPayIsReadOnlyConverter"/>
+                <my:PaymentPayEnableConverter x:Key="keyPaymentPayEnableConverter"/>
+                <my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Плательщик*" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <ComboBox x:Name="payerComboBox" Grid.Column="1" SelectedValue="{Binding Path=payerid, Converter={StaticResource keyNoNullValueBackConverter}}" DisplayMemberPath="customerName" SelectedValuePath="customerID" MouseDoubleClick="payerComboBox_MouseDoubleClick" Margin="3,2,3,0" HorizontalAlignment="Left" IsEnabled="{Binding Path=paysum,Converter={StaticResource keyPaymentPayEnableConverter}}" />
+            <TextBlock Text="Получатель" Margin="5,0,0,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <ComboBox x:Name="accountComboBox" Grid.Row="1" Grid.Column="1" SelectedValue="{Binding Path=accountid, Converter={StaticResource keyNoNullValueBackConverter}}" DisplayMemberPath="namelegal" SelectedValuePath="accountid" Margin="3,2,3,0" SelectionChanged="accountComboBox_SelectionChanged" HorizontalAlignment="Left" IsEnabled="{Binding Path=paysum,Converter={StaticResource keyPaymentPayEnableConverter}}" Loaded="ComboBox_Loaded">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Visibility" Value="{Binding Path=isActual, Converter={StaticResource ResourceKey=keyBitVisibilityConverter}}"/>
+                        <Setter Property="IsEnabled" Value="{Binding Path=isActual}"/>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+            <TextBlock Text="№ пп" Margin="5,0,0,0" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                <TextBox Text="{Binding Path=ppNumber}" Margin="3,2,3,0" TextAlignment="Right"/>
+                <TextBlock Text="Дата пп" Margin="5,0,0,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Text="{Binding Path=ppDate, StringFormat=\{0:d\}, ValidatesOnExceptions=True, NotifyOnValidationError=True, TargetNullValue=''}" MinWidth="50" Margin="3,2,3,0" TextAlignment="Right"/>
+                <TextBlock Text="Дата зачисления" Margin="5,0,0,0" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Text="{Binding Path=deducted, ValidatesOnExceptions=True, NotifyOnValidationError=True, StringFormat=\{0:d\}, TargetNullValue=''}" MinWidth="50" Margin="2,0,0,0" />
+            </StackPanel>
+            <TextBlock Text="Назначение" Margin="5,0,0,0" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <TextBox Text="{Binding Path=purpose}" Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" MaxLength="100"/>
+            <TextBlock Text="Примечание" Margin="5,0,0,0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <TextBox Text="{Binding Path=note}" Grid.Row="4" Grid.Column="1" Margin="3,2,3,0" MaxLength="150"/>
+            <TextBlock Text="Сумма пп*" Grid.Row="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" Margin="3,2,3,0" HorizontalAlignment="Left">
+                <TextBox x:Name="sumTextBox" Text="{Binding Path=ppSum, ValidatesOnExceptions=True, NotifyOnValidationError=True, StringFormat=\{0:N\}}" MinWidth="50" IsReadOnly="{Binding Path=paysum,Converter={StaticResource keyPaymentPayIsReadOnlyConverter}}" />
+                <TextBlock Text="не проведено" Grid.Row="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox x:Name="paysumTextBox" Text="{Binding Path=noPaySum,Mode=OneWay, StringFormat=\{0:N\}}" Margin="5,0,0,0" MinWidth="50" IsReadOnly="True" ToolTip="Не проведенная сумма" />
+                <TextBlock Text="не разнесено" Grid.Row="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox x:Name="freesumTextBox" Text="{Binding Path=freeSum,Mode=OneWay, StringFormat=\{0:N\}}" Margin="5,0,0,0" MinWidth="50" IsReadOnly="True" ToolTip="Свободные средства" />
+            </StackPanel>
+        </Grid>
+        <TextBlock Text="Проводки платежа:" Margin="5,3,0,2" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <DataGrid x:Name="TransDataGrid" Grid.Row="3" AutoGenerateColumns="False" RowDetailsVisibilityMode="Collapsed" SelectionUnit="CellOrRowHeader" RowHeaderWidth="15" CanUserResizeRows="False" BeginningEdit="TransDataGrid_BeginningEdit"
+                  ItemsSource="{Binding Converter={StaticResource keyChildRelationConverter}, ConverterParameter=FK_tablePayment_tableTransaction, NotifyOnValidationError=True}" IsSynchronizedWithCurrentItem="True">
+            <DataGrid.Columns>
+                <DataGridComboBoxColumn Header="Плательщик" SelectedValueBinding="{Binding Path=idC}" ItemsSource="{Binding Source={StaticResource keyPayerVS}}" SelectedValuePath="accountid" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="payerName"/>
+                <DataGridTextColumn Header="Получатель" IsReadOnly="True">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="idD" Mode="OneWay">
+                            <Binding.Converter>
+                                <my:AccountLegalConverter/>
+                            </Binding.Converter>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Дата" Binding="{Binding Path=datetran, StringFormat=\{0:d\}}" />
+                <DataGridTextColumn Header="Сумма" Binding="{Binding Path=dsum, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Cумма проводки"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Не разнесено" Binding="{Binding Path=freesum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Не разнесенная сумма"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Назначение" Binding="{Binding Path=descr}" Width="*" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="100"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock Text="Разноска проводки:" Margin="5,3,0,2" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+        <DataGrid x:Name="JoinsDataGrid" Grid.Row="5" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionUnit="CellOrRowHeader" RowHeaderWidth="15" CanUserResizeRows="False"
+                  ItemsSource="{Binding ElementName=TransDataGrid, Path=CurrentItem, Converter={StaticResource keyChildRelationConverter}, ConverterParameter=tableTransaction_tableDCJoin, NotifyOnValidationError=True}">
+            <DataGrid.Resources>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+                <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                    <Setter Property="IsReadOnly" Value="{Binding Path=status, Converter={StaticResource keyIsReadOnlyConverter}, ConverterParameter=500, Mode=OneWay}"/>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="отправка" Binding="{Binding Path=parcel,Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="счет №" Binding="{Binding Path=docnum,Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="получатель" Binding="{Binding Path=legalname, Mode=OneWay}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Получатель в счете"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="к оплате" Binding="{Binding Path=transum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма счета"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="остаток" Binding="{Binding Path=freesum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Не разнесенная сумма"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="разноска" Binding="{Binding Path=joinsum, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}"
+                                   >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма разноски из платежа"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Orientation="Horizontal" Grid.Row="6">
+            <TextBlock Text="Другие не разнесенные платежи:" Margin="5,3,0,2" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBox x:Name="totalNoJoinTexBox" Margin="5,3,0,2" VerticalAlignment="Center" IsReadOnly="True" Panel.ZIndex="5"/>
+            <Button Content="Разнести" x:Name="totalNoJoinButton" Click="totalNoJoinButton_Click" Margin="5,3,0,2" VerticalAlignment="Center" Panel.ZIndex="5"/>
+        </StackPanel>
+        <DataGrid x:Name="OtherNoJoinPayment" Grid.Row="7" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" SelectionUnit="CellOrRowHeader" HorizontalScrollBarVisibility="Auto">
+            <DataGrid.Resources>
+                <my:TransSunIsReadOnlyConverter x:Key="keyTransSunIsReadOnlyConverter"/>
+                <my:TransSunIsEnabledConverter x:Key="keyTransSunIsEnabledConverter"/>
+                <CollectionViewSource x:Key="keyLegalEntityVS" />
+                <CollectionViewSource x:Key="keyPayerVS" />
+                <Style x:Key="NumberCenterStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+                <Style x:Key="NumberCenterStyleViewEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+                <Style x:Key="MoneyStyleView" TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+                <Style x:Key="MoneyStyleEdit" TargetType="{x:Type TextBox}">
+                    <Setter Property="TextAlignment" Value="Right"/>
+                    <Setter Property="Padding" Value="0,-1,0,-2" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Visibility="{Binding Source={StaticResource keyVisibilityAccountsLAccounts}, Path=Visibility}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="PaymentInfoButton_Click" Tag="{Binding Path=ppid, Mode=OneWay}" Height="20" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Проводка оплаты" >
+                                <Image Source="/CustomBrokerWpf;component/Images/unknown.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Дата пп" Binding="{Binding Path=ppDate, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue='', UpdateSourceTrigger=LostFocus}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата платежного поручения"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="№ пп" Binding="{Binding Path=ppNumber}" Width="SizeToHeader" IsReadOnly="True" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Номер платежного поручения"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Плательщик" Binding="{Binding Path=payerName, NotifyOnValidationError=True}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Получатель" Binding="{Binding Path=legalName, NotifyOnValidationError=True}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Зачислено" Binding="{Binding Path=deducted, StringFormat=\{0:d\}, NotifyOnValidationError=True, TargetNullValue=''}" IsReadOnly="True" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата зачисления средств на счет"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Сумма" Binding="{Binding Path=ppSum, StringFormat=\{0:N\}, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnExceptions=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Сумма по платежному поручению"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Проведено" Binding="{Binding Path=sumpay, StringFormat=\{0:N\},Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Проведенная сумма"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Не разнесено" Binding="{Binding Path=freeSum, StringFormat=\{0:N\}, Mode=OneWay}" ElementStyle="{StaticResource MoneyStyleView}" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Разнесенная сумма"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Назначение" Binding="{Binding Path=purpose}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Примечание" Binding="{Binding Path=note}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Изменено" Binding="{Binding Path=updtDate,Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Изменил" Binding="{Binding Path=updtWho,Mode=OneWay}" Width="SizeToHeader" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <GridSplitter Grid.Row="6" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="3" Opacity="0.3" />
+    </Grid>
+</Window>

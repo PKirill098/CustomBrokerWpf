@@ -1,0 +1,101 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.GoodsСhoiceWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Выбор ДС" Name="winGoodsСhoice" Height="300"  Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/certificate.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="30">
+            <Button Content="Выбрать" Click="СhoiceButton_Click" IsTabStop="False"/>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+        </ToolBar>
+        <DataGrid x:Name="mainDataGrid" Grid.Row="1" ItemsSource="{Binding}" IsSynchronizedWithCurrentItem="False" SelectedIndex="-1" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" SelectionMode="Single" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Товар"  Binding="{Binding Name}" Width="4*" />
+                <DataGridTextColumn Header="Пол" Binding="{Binding Path=Gender.Name}" Width="SizeToHeader" />
+                <DataGridTextColumn Header="Материал" Binding="{Binding Material}" Width="*"/>
+                <DataGridTextColumn Header="Ткань" Binding="{Binding Contexture}" Width="2*"/>
+                <DataGridTextColumn Header="Примечания к составам" Binding="{Binding ContextureNote}" Width="*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Примечания к составам"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Торговая марка" Binding="{Binding Path=Brand}" Width="2*"/>
+                <DataGridTextColumn Header="Производитель" Binding="{Binding Producer}" Width="2*"/>
+                <DataGridTextColumn Header="Титульная страна" Binding="{Binding TitleCountry}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Титульная страна"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Филиалы 1 категории" Binding="{Binding Cat1}" Width="4*" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Австралия, Австрия, Бельгия, Болгария, Великобитания, Великое Герцогство Люксембург, Венгрия, Германия, Греция, Дания, Ирландия, Испания, Италия, Канада, Латвия, Литва, Люксембург, Мальта, Нидерланды, Польша, Португалия, Республика Кипр, Румыния, Словакия, Словения, Соединенное Королевство Великобритании и Северной Ирландии, США, Финляндия, Франция, Хорватия, Чехия, Швейцария, Швеция, Эстония, Япония"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Филиалы 3 категории" Binding="{Binding Cat3}" Width="4*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Албания, Босния и Герцеговина, Израиль, Индонезия, Камбоджа, Лаос, Македония, Малайзия, Монголия, Мьянма, Пакистан, Сербия, Таиланд, Турция, Филиппины, Шри-Ланка"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Филиалы 4 категории" Binding="{Binding Cat4}" Width="4*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Бангладеш, Вьетнам, Гонконг, Индия, Китай, Тайвань"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Филиалы 5 категории" Binding="{Binding Cat5}" Width="4*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Бразилия, Доминиканская республика, Египет, Маврикий, Мадагаскар, Макао, Марокко, Мауритиус, Перу, Тунис, Уругвай, Эфиопия"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Исключения" Binding="{Binding Cat2}" Width="*">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Страны исключения"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Номер ДС" Binding="{Binding CertificateFull, Mode=OneWay}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Номер ДС, СРТ"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Договор" Binding="{Binding ContractNmbr}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Договор на использование"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Договор от" Binding="{Binding Path=ContractDate, StringFormat=\{0:d\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Дата договора на использование"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Артикулы" Binding="{Binding Path=VendorCode}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

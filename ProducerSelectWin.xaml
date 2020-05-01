@@ -1,0 +1,23 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ProducerSelectWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Выбор производителя" Name="winProducerSelect" Loaded="winProducerSelect_Loaded" Height="108" Width="400" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/factory.png" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ComboBox Grid.ColumnSpan="2" SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=SelectProducer}" ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=Producers, Mode=OneWay}" IsSynchronizedWithCurrentItem="False" SelectedIndex="-1"
+                  Margin="10"/>
+        <Button Content="OK" Grid.Row="1" HorizontalAlignment="Center" Width="100" IsDefault="True" Click="OKButton_Click" />
+        <Button Content="Отмена" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" Width="100" IsCancel="True"/>
+    </Grid>
+</Window>

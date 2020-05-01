@@ -1,0 +1,92 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.MaterialWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Материал" Name="winMaterial" Closing="Window_Closing" Height="300" Width="600" Icon="Images\gauze_bandage.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="30">
+            <Button Command="{Binding Path=Delete}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                <Image Source="Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                <Image Source="Images/Save.png" />
+            </Button>
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" Visibility="Collapsed">
+                <Image Source="Images/rRemove-512.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Grid Grid.Row="1" DataContext="{Binding Path=VModel}" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Header"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Наименование" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Название материала"/>
+            <TextBox Grid.Column="1" Text="{Binding Path=Name,NotifyOnValidationError=True,ValidatesOnExceptions=True,ValidatesOnDataErrors=True}" Style="{StaticResource ErrorStyle}" MaxLength="50" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" MinWidth="100" ToolTip="Название материала"/>
+            <TextBlock Text="Поиск" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Уникальное наименование для поиска без падежей"/>
+            <TextBox Grid.Column="3" Text="{Binding Path=ShortName,NotifyOnValidationError=True,ValidatesOnExceptions=True,ValidatesOnDataErrors=True}" Style="{StaticResource ErrorStyle}" MaxLength="50" TextAlignment="Left" Margin="6,6,4,6" FontWeight="Normal" MinWidth="100" ToolTip="Уникальное наименование для поиска без падежей"/>
+            <TextBlock Text="ДС" Grid.Column="4" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="Наименование в справочнике ДС"/>
+            <TextBox Grid.Column="5" Text="{Binding Path=GoodsName,ValidatesOnExceptions=True,ValidatesOnDataErrors=True}" Style="{StaticResource ErrorStyle}" MaxLength="10" TextAlignment="Center" Margin="6,6,4,6" FontWeight="Normal" MinWidth="30" ToolTip="Наименование в справочнике ДС"/>
+        </Grid>
+        <DataGrid x:Name="materialDataGrid" Grid.Row="2" ItemsSource="{Binding Path=VModel.SubProducts}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto"
+                  InitializingNewItem="materialDataGrid_InitializingNewItem" CurrentCellChanged="DataGrid_CurrentCellChanged">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.CommandBindings>
+                <CommandBinding Command="Delete" Executed="DeleteSubMaterial" CanExecute="CanDeleteSubMaterial"/>
+            </DataGrid.CommandBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Материал/Ткань" Binding="{Binding Name}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="MaxLength" Value="50"/>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Поиск"  Binding="{Binding ShortName}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="MaxLength" Value="50"/>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ДС"  Binding="{Binding GoodsName}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Setter Property="MaxLength" Value="10"/>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

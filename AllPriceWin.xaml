@@ -1,0 +1,352 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.AllPriceWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        Title="Цены, $              (Бренд +15% | не бренд +10% | Турция +18%) +0,01с" Name="winAllPrice" Loaded="Window_Loaded" Closing="Window_Closing" Height="300" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/currency_euro.png">
+    <Window.Resources>
+        <CollectionViewSource x:Key="keyUnits" Source="{Binding Path=Units}">
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="30">
+            <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию">
+                <Image Source="Images/r2Refresh-512.png" />
+            </Button>
+            <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                <Image Source="Images/Save.png" />
+            </Button>
+            <Separator/>
+            <Button Click="AddButton_Click" ToolTip="Добавить цену" IsTabStop="False" Visibility="Visible">
+                <Image Source="Images/rPlus_01-66-512.png" />
+            </Button>
+            <Separator/>
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                <Image Source="Images/rRemove-512.png" />
+            </Button>
+            <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=mainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                <Image Source="Images/remove.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                <Image Source="Images/excel_import.png" />
+            </Button>
+            <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                <Image Source="Images/excel_export.png" />
+            </Button>
+            <Separator/>
+            <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
+                <Image Source="Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить" IsTabStop="False">
+                <Image Source="Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <Grid Grid.Row="1" Visibility="Visible" HorizontalAlignment="Left">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Control}">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors).ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition MinWidth="100"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition MinWidth="100"/>
+                <!--<ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>-->
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="ТНВЭД" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,6,0,0"/>
+            <TextBox Text="{Binding Path=FilterCode, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" TextAlignment="Left" Margin="6,6,4,6" KeyDown="TextBox_KeyDown"/>
+            <TextBlock Text="Описание" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Слова разделенные пробелом" />
+            <TextBox Text="{Binding Path=FilterName, UpdateSourceTrigger=PropertyChanged}" KeyDown="TextBox_KeyDown" TextAlignment="Left" Grid.Row="0" Grid.Column="3" Margin="6,6,4,6" ToolTip="Слова разделенные пробелом"/>
+            <!--<TextBlock Text="Заказчик" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,6,0,0"/>
+            <ComboBox SelectedItem="{Binding Path=FilterClient}" ItemsSource="{Binding Clients}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" IsEditable="True" Grid.Row="0" Grid.Column="5" Margin="6,6,4,6"/>
+            <TextBlock Text="Заказ с" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,6,0,0"/>
+            <DatePicker Grid.Row="0" Grid.Column="7" SelectedDate="{Binding Path=FilrterOrderStart}" KeyDown="TextBox_KeyDown" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+            <TextBlock Text="Заказ по" Grid.Row="0" Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,6,0,0"/>
+            <DatePicker Grid.Row="0" Grid.Column="9" SelectedDate="{Binding Path=FilrterOrderStop}" Margin="6,6,4,6" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+            <TextBlock Text="Состояние" Grid.Row="0" Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" />
+            <ComboBox SelectedItem="{Binding Path=FilterState}" ItemsSource="{Binding States}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" IsEditable="True" Grid.Row="0" Grid.Column="11" Margin="6,6,4,6"/>-->
+            <Button Content="Выбрать" Command="{Binding FilterRun}" Grid.Column="4" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightGreen"/>
+            <Button Content="Очистить" Command="{Binding FilterClear}" Grid.Column="13" VerticalAlignment="Center" Margin="10,6,10,0" Background="LightYellow"/>
+        </Grid>
+        <DataGrid x:Name="mainDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors).ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="InfoBatchButton_Click" Tag="{Binding }" Height="26" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
+                                <Image Source="Images/form_blue.png" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Код ТНВЭД"  Binding="{Binding Code}" />
+                <DataGridTextColumn Header="Описание"  Binding="{Binding Name}" Width="4*"/>
+                <DataGridTextColumn Header="Написание" Binding="{Binding Spelling}" Width="2*"/>
+                <DataGridTextColumn Header="Состав" Binding="{Binding Composition}" Width="*"/>
+                <DataGridTextColumn Header="Перевод" Binding="{Binding Translation}" Width="2*"/>
+                <DataGridComboBoxColumn Header="Измерение" SelectedValueBinding="{Binding Path=Unit}" ItemsSource="{Binding Source={StaticResource keyUnits}}" SelectedValuePath="Name" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="SizeToCells">
+                    <!--<DataGridComboBoxColumn.ElementStyle>
+                        <Style >
+                            <Setter Property="TextBlock.Foreground" Value="Coral"/>
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>-->
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="+%" Binding="{Binding AddPer, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}"/>
+                <DataGridTextColumn Header="1К ЕС бренд" Binding="{Binding Category1Brand, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'1К ЕС': Австралия, Австрия, Бельгия, Болгария, Великобитания, Великое Герцогство Люксембург, Венгрия, Германия, Греция, Дания, Ирландия, Испания, Италия, Канада, Латвия, Литва, Люксембург, Мальта, Нидерланды, Польша, Португалия, Республика Кипр, Румыния, Словакия, Словения, Соединенное Королевство Великобритании и Северной Ирландии, США, Финляндия, Франция, Хорватия, Чехия, Швейцария, Швеция, Эстония, Япония"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFD9D9D9"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="1К ЕС не бренд" Binding="{Binding Category1No, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'1К ЕС': Австралия, Австрия, Бельгия, Болгария, Великобитания, Великое Герцогство Люксембург, Венгрия, Германия, Греция, Дания, Ирландия, Испания, Италия, Канада, Латвия, Литва, Люксембург, Мальта, Нидерланды, Польша, Португалия, Республика Кипр, Румыния, Словакия, Словения, Соединенное Королевство Великобритании и Северной Ирландии, США, Финляндия, Франция, Хорватия, Чехия, Швейцария, Швеция, Эстония, Япония"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFD9D9D9"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="3К EA бренд" Binding="{Binding Category3Brand, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'3К ЕА': Албания, Босния и Герцеговина, Израиль, Индонезия, Камбоджа, Лаос, Македония, Малайзия, Монголия, Мьянма, Пакистан, Сербия, Таиланд, Филиппины, Шри-Ланка"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFCCC0DA"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="3К EA не бренд" Binding="{Binding Category3No, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'3К ЕА': Албания, Босния и Герцеговина, Израиль, Индонезия, Камбоджа, Лаос, Македония, Малайзия, Монголия, Мьянма, Пакистан, Сербия, Таиланд, Филиппины, Шри-Ланка"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFCCC0DA"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="4К AZ бренд" Binding="{Binding Category4Brand, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'4К AZ': Бангладеш, Вьетнам, Гонконг, Индия, Китай, Тайвань"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFDA9694"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="4К AZ не бренд" Binding="{Binding Category4No, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'4К AZ': Бангладеш, Вьетнам, Гонконг, Индия, Китай, Тайвань"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFDA9694"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="5К  AF бренд" Binding="{Binding Category5Brand, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'5K AF': Бразилия, Доминиканская республика, Египет, Маврикий, Мадагаскар, Макао, Марокко, Мауритиус, Перу, Тунис, Уругвай, Эфиопия"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFC5D9F1"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="5К  AF не бренд" Binding="{Binding Category5No, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'5K AF': Бразилия, Доминиканская республика, Египет, Маврикий, Мадагаскар, Макао, Марокко, Мауритиус, Перу, Тунис, Уругвай, Эфиопия"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFC5D9F1"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Турция TR бренд" Binding="{Binding Category2Brand, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'TR': Турция"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFEEECE1"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Турция TR не бренд" Binding="{Binding Category2No, StringFormat=\{0:N2\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToCells">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="'TR': Турция"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFEEECE1"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="НДС" Binding="{Binding Path=RateVat, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}"/>
+                <DataGridTextColumn Header="Ставка %" Binding="{Binding Path=RatePer, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Ставки последние"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFC2FDDD"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Ставка евро" Binding="{Binding Path=RateAdd, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Ставки последние евро"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFC2FDDD"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Ставка дата" Binding="{Binding RateDate, StringFormat=\{0:d\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Ставки последние дата"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFC2FDDD"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="2009 %" Binding="{Binding Path=RatePer2009, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Ставки платеж 2009"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFCCFFCC"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="2009 евро" Binding="{Binding Path=RateAdd2009, StringFormat=\{0:0.#####\},TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ToolTip" Value="Ставки платеж 2009 евро"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFCCFFCC"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Риски" Binding="{Binding Path=Risk}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Background" Value="#FFFFC6C6"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечания" Binding="{Binding Path=Note}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Background" Value="#FFFFC6C6"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

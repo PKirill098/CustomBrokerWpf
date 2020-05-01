@@ -1,0 +1,256 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.AgentWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Агент" Height="500" Width="628" Language="ru-RU" FontSize="11" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/businessman.png">
+    <Window.Resources>
+        <my:UpperCaseFirstConverter x:Key="keyUpperCaseFirstConverter" />
+        <my:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
+        <my:ChildRelationConverter x:Key="keyChildRelationConverter"/>
+        <CollectionViewSource x:Key="keyContactPointTypeVS"/>
+        <CollectionViewSource x:Key="keyBrandVS">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="brandName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="keyAddressTypeVS">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="addresstypeName" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="keyTownVS">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="townName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        <CollectionViewSource x:Key="keyContacttypeVS" >
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="ContactTypeName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid Margin="0,0,0,2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition MinHeight="20" />
+			<!--<RowDefinition Height="Auto"/>
+            <RowDefinition MinHeight="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition MinHeight="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition MinHeight="20" />-->
+        </Grid.RowDefinitions>
+        <ToolBar Height="32" Grid.ColumnSpan="2" GotFocus="AgentNameList_GotFocus">
+            <TextBlock Text="Выбор:" Padding="5,0,5,0" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox x:Name="AgentNameList" ItemsSource="{Binding Path=Items}" DisplayMemberPath="Name" 
+                      IsReadOnly="False" IsEditable="True"  IsTextSearchEnabled="True" IsSynchronizedWithCurrentItem="True" MinWidth="50" HorizontalAlignment="Stretch" GotFocus="AgentNameList_GotFocus" />
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" Visibility="Collapsed">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
+            </ToggleButton>
+            <Separator/>
+            <Button ToolTip="Добавить агента" Command="{Binding Add}">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button ToolTip="Удалить агента" Command="{Binding Delete}">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
+            <!--<Button Command="Cut" ToolTip="Вырезать">
+                <Image Source="/CustomBrokerWpf;component/Images/cut.png" />
+            </Button>-->
+            <Button Command="Copy" ToolTip="Копировать">
+                <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+            </Button>
+            <Button Command="Paste" ToolTip="Вставить">
+                <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
+            </Button>
+            <Separator/>
+            <Button ToolTip="Обновить данные" Command="{Binding Refresh}" Margin="10,0,0,0">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Save}">
+                <Image Source="/CustomBrokerWpf;component/Images/disk_blue.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+		<TextBlock Text="Имя*" Margin="5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <TextBox Text="{Binding Path=CurrentItem.Name}" Grid.Row="1" Grid.Column="1"  Margin="3,2,3,0" MaxLength="100" />
+		<TextBlock Text="Наименование" Margin="5,0" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <TextBox Text="{Binding Path=CurrentItem.FullName}" Grid.Row="2" Grid.Column="1" Margin="3,2,3,0" MaxLength="100" />
+		<TextBlock Text="Дата регистрации" Margin="5,0" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <TextBox Text="{Binding Path=CurrentItem.DayEntry, StringFormat=\{0:d\}, Mode=TwoWay}" Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" HorizontalAlignment="Left" MinWidth="60" />
+		<TextBlock Text="Рекомендован" Margin="5,0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <TextBox Text="{Binding Path=CurrentItem.Recommend}" Grid.Row="4" Grid.Column="1" Margin="3,2,3,0" MaxLength="100" />
+		<TextBlock Text="Состояние" Margin="5,0" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        <ComboBox Grid.Row="5" Grid.Column="1" Margin="3,2,3,0" HorizontalAlignment="Left" MinWidth="60"
+                  ItemsSource="{Binding States}" SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding Path=CurrentItem.State, Converter={StaticResource keyNoNullValueBackConverter}, NotifyOnValidationError=True}">
+        </ComboBox>
+		<TextBlock Text="Псевдонимы" Grid.Row="6" Margin="5,0" VerticalAlignment="Center" HorizontalAlignment="Right" />
+		<DataGrid Grid.Row="6" Grid.Column="1" x:Name="AliasDataGrid" Margin="3,2,3,0" AutoGenerateColumns="False"
+                        ItemsSource="{Binding Path=CurrentItem.Aliases, NotifyOnValidationError=True}" HeadersVisibility="None" VerticalScrollBarVisibility="Auto">
+			<DataGrid.CommandBindings>
+				<CommandBinding Command="Delete" CanExecute="Aliases_CanExecute" Executed="Aliases_Executed"/>
+			</DataGrid.CommandBindings>
+			<DataGrid.Columns>
+				<DataGridTextColumn x:Name="aliasNameColumn" Binding="{Binding Path=Alias}" SortMemberPath="Alias" SortDirection="Ascending" Width="*">
+					<DataGridTextColumn.EditingElementStyle>
+						<Style TargetType="{x:Type TextBox}">
+							<Setter Property="MaxLength" Value="100"/>
+							<Setter Property="Padding" Value="0,-1,0,-2" />
+						</Style>
+					</DataGridTextColumn.EditingElementStyle>
+				</DataGridTextColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+		<!--<GridSplitter Grid.Row="7" Grid.ColumnSpan="2" Height="2" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" IsTabStop="False" />
+		<TextBlock Text="Бренды" Grid.Row="8" Margin="5,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <DataGrid Name="BrandDataGrid" Grid.Row="8" Grid.Column="1" Margin="3,2,3,0" AutoGenerateColumns="False" EnableRowVirtualization="True" RowDetailsVisibilityMode="VisibleWhenSelected"
+                  ItemsSource="{Binding Path=CurrentItem.Aliases, NotifyOnValidationError=True}" HeadersVisibility="Row" Validation.Error="AgentBrandDataGrid_Error" BeginningEdit="AgentBrandDataGrid_BeginningEdit">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="*" SortMemberPath="brandName" ClipboardContentBinding="{Binding Path=brandName}" SortDirection="Ascending">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=brandName}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True" IsReadOnly="False" Text="{Binding Path=brandName}" ItemsSource="{Binding Source={StaticResource keyBrandVS}}" DisplayMemberPath="brandName" IsSynchronizedWithCurrentItem="False" Padding="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <GridSplitter Grid.Row="9" Grid.ColumnSpan="2" Height="2" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" IsTabStop="False" />
+		<TextBlock Text="Адреса" Grid.Row="10" Margin="5,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <DataGrid Name="AgentAddressDataGrid" Grid.Row="10" Grid.Column="1" Margin="3,2,3,0" HorizontalAlignment="Left" AutoGenerateColumns="False" EnableRowVirtualization="True"
+                  ItemsSource="{Binding Converter={StaticResource keyChildRelationConverter}, ConverterParameter=FK_tableAgent_tableAgentAddress}" BeginningEdit="AgentBrandDataGrid_BeginningEdit">
+            <DataGrid.Columns>
+                <DataGridComboBoxColumn x:Name="addresstypeIDColumn" SelectedValueBinding="{Binding Path=addresstypeID}" Header="Вид" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                  ItemsSource="{Binding Source={StaticResource keyAddressTypeVS}}" SelectedValuePath="addresstypeID" DisplayMemberPath="addresstypeName" />
+                <DataGridTextColumn x:Name="addressDescrColumn" Binding="{Binding Path=AddressDescr}" Header="Описание" Width="SizeToHeader" >
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="15"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Город" Width="SizeToCells" SortMemberPath="Town" ClipboardContentBinding="{Binding Path=Town}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Town}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="False"
+                                      Text="{Binding Path=Town}" ItemsSource="{Binding Source={StaticResource keyTownVS}}" DisplayMemberPath="townName" Loaded="ComboBox20_Loaded"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn x:Name="localityColumn" Binding="{Binding Path=Locality}" Header="Адрес" Width="*">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="150"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <GridSplitter Grid.Row="11" Grid.ColumnSpan="2" Height="2" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
+		<TextBlock Text="Контакты" Grid.Row="12" Margin="5,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <Grid Grid.Row="12" Grid.Column="1" Margin="3,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition  Width="Auto" />
+                <ColumnDefinition  Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <DataGrid x:Name="AgentContactDataGrid" Grid.Row="0" Grid.Column="0" AutoGenerateColumns="False" 
+                  ItemsSource="{Binding Converter={StaticResource keyChildRelationConverter}, ConverterParameter=FK_tableAgent_tableAgentContact}" BeginningEdit="AgentBrandDataGrid_BeginningEdit">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Описание" SortMemberPath="сontactType" ClipboardContentBinding="{Binding Path=сontactType}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=сontactType}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="False" Padding="0"
+                                      Text="{Binding Path=сontactType}" ItemsSource="{Binding Source={StaticResource keyContacttypeVS}}" DisplayMemberPath="ContactTypeName" Loaded="ComboBox50_Loaded" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Фамилия" Binding="{Binding Path=ContactName, Converter={StaticResource keyUpperCaseFirstConverter}}">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="{x:Type TextBox}">
+                                <Setter Property="MaxLength" Value="100"/>
+                                <Setter Property="Padding" Value="0,-1,0,-2" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Имя" Binding="{Binding Path=surname, Converter={StaticResource keyUpperCaseFirstConverter}}">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="{x:Type TextBox}">
+                                <Setter Property="MaxLength" Value="25"/>
+                                <Setter Property="Padding" Value="0,-1,0,-2" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Отчество" Binding="{Binding Path=thirdname, Converter={StaticResource keyUpperCaseFirstConverter}}">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="{x:Type TextBox}">
+                                <Setter Property="MaxLength" Value="25"/>
+                                <Setter Property="Padding" Value="0,-1,0,-2" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Column="1" Width="2" VerticalAlignment="Stretch" ResizeDirection="Columns" HorizontalAlignment="Center" />
+            <DataGrid x:Name="ContactPointDataGrid" Grid.Column="2" HorizontalAlignment="Left" AutoGenerateColumns="False"
+                                      ItemsSource="{Binding  ElementName=AgentContactDataGrid, Path=SelectedItem, Converter={StaticResource keyChildRelationConverter}, ConverterParameter=FK_tableAgentContact_tableAgentContactPoint}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Описание" SortMemberPath="PointName" ClipboardContentBinding="{Binding Path=PointName}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=PointName}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox IsEditable="True" IsReadOnly="False" Text="{Binding Path=PointName, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Source={StaticResource keyContactPointTypeVS}}" DisplayMemberPath="pointName" Loaded="ComboBox100_Loaded" Padding="0" IsSynchronizedWithCurrentItem="False" IsTabStop="True" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Значение" Binding="{Binding Path=PointValue,UpdateSourceTrigger=LostFocus}">
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="{x:Type TextBox}">
+                                <Setter Property="MaxLength" Value="40"/>
+                                <Setter Property="Padding" Value="0,-1,0,-2" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>-->
+    </Grid>
+</Window>

@@ -1,0 +1,21 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.AddressTypeWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        Title="Вид адреса" x:Name="winAddressType" Height="200" Width="300" Icon="/CustomBrokerWpf;component/Images/mail2.png"  Loaded="Window_Loaded" Closing="winAddressType_Closing">
+    <Window.Resources>
+        <CollectionViewSource x:Key="tableAddressTypeViewSource" Source="{Binding Path=tableAddressType, Source={StaticResource keyReferenceDS}}">
+            <CollectionViewSource.SortDescriptions>
+                <cm:SortDescription PropertyName="addresstypeName"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource tableAddressTypeViewSource}">
+        <DataGrid Name="mainDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}"  RowDetailsVisibilityMode="VisibleWhenSelected"  HeadersVisibility="Row" VerticalAlignment="Top">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="addresstypeNameColumn" Binding="{Binding Path=addresstypeName}" Header="Тип" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

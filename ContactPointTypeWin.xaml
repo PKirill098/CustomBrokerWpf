@@ -1,0 +1,17 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.ContactPointTypeWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Средства контакта" Name="winContactPointType" Height="200" Width="300" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/mobilephone3.png">
+    <Window.Resources>
+        <CollectionViewSource x:Key="contactPointTypeTbViewSource" Source="{Binding Path=ContactPointTypeTb, Source={StaticResource keyReferenceDS}}" />
+        <CollectionViewSource x:Key="keyTemplate" Source="{Binding Source={StaticResource keyReferenceDS},Path=tableContactPointTemplate}" />
+    </Window.Resources>
+    <Grid DataContext="{StaticResource contactPointTypeTbViewSource}">
+        <DataGrid AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}" Name="mainDataGrid" RowDetailsVisibilityMode="VisibleWhenSelected">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Описание" Binding="{Binding Path=pointName}" />
+                <DataGridComboBoxColumn Header="Форматировать как" SelectedValueBinding="{Binding Path=pointtemplate}" ItemsSource="{Binding Source={StaticResource keyTemplate}}" DisplayMemberPath="templateName" SelectedValuePath="templateId" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
