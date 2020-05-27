@@ -417,7 +417,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override GTDRegisterClient CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            CustomerLegal customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon);
+            CustomerLegal customer = reader.IsDBNull(reader.GetOrdinal("customerid")) ? null : CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon);
             GTDRegisterClient item = new GTDRegisterClient(reader.GetInt32(0)
                 , reader.IsDBNull(reader.GetOrdinal("stamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("stamp"))
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated"))
@@ -426,7 +426,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , reader.IsDBNull(reader.GetOrdinal("buyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("buyrate"))
                 , customer
                 , reader.IsDBNull(reader.GetOrdinal("dtsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("dtsum"))
-                , reader.IsDBNull(reader.GetOrdinal("eurosum")) ? 0 : reader.GetDecimal(reader.GetOrdinal("eurosum"))
+                , 0//reader.IsDBNull(reader.GetOrdinal("eurosum")) ? 0 : reader.GetDecimal(reader.GetOrdinal("eurosum"))
                 , mygtd
                 , reader.IsDBNull(reader.GetOrdinal("selling")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("selling"))
                 , reader.IsDBNull(reader.GetOrdinal("sellingdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sellingdate"))

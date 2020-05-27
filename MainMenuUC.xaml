@@ -28,11 +28,11 @@
                     <Image Source="/CustomBrokerWpf;component/Images/table_selection_row.png" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Счет" Click="MenuPayParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+            <!--<MenuItem Header="Счет" Click="MenuPayParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
                 <MenuItem.Icon>
                     <Image Source="/CustomBrokerWpf;component/Images/cashier.png" />
                 </MenuItem.Icon>
-            </MenuItem>
+            </MenuItem>-->
             <MenuItem Header="Оплаты" Click="MenuPPParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
                 <MenuItem.Icon>
                     <Image Source="/CustomBrokerWpf;component/Images/form_yellow.png" />

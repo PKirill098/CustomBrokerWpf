@@ -629,12 +629,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuPayParcel_Click(object sender, RoutedEventArgs e)
-        {
-            ParcelTransactionWin ObjectWin = new ParcelTransactionWin();
-            mychildwindows.Add(ObjectWin);
-            ObjectWin.Show();
-        }
+        //private void MenuPayParcel_Click(object sender, RoutedEventArgs e)
+        //{
+        //    ParcelTransactionWin ObjectWin = new ParcelTransactionWin();
+        //    mychildwindows.Add(ObjectWin);
+        //    ObjectWin.Show();
+        //}
         private void MenuPPParcel_Click(object sender, RoutedEventArgs e)
         {
             PaymentListWin ObjectWin = new PaymentListWin();
@@ -1225,7 +1225,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
                     if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
                     {
-                        path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + item.DomainObject.DocDirPath;
+                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
                         if (Directory.Exists(path))
                         {
                             System.Diagnostics.Process.Start(path);
@@ -1588,11 +1588,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private void OpenNewRequest()
         {
             RequestNewWin newWin = null;
-            foreach (Window item in this.OwnedWindows)
+            foreach (Window item in mychildwindows)
             {
                 if (item.Name == "winRequestNew")
                 {
-                    if ((item.DataContext as Classes.Domain.RequestVMCommand).VModel.Equals(this.RequestDataGrid.CurrentItem))
+                    if ((item.DataContext as Classes.Domain.RequestVMCommand).VModel.DomainObject.Equals((this.RequestDataGrid.CurrentItem as Classes.Domain.RequestVM).DomainObject))
                         newWin = item as RequestNewWin;
                 }
             }
@@ -1906,7 +1906,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //        if (ParcelNumberList.SelectedItem is DataRowView)
         //        {
         //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
-        //            string path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + "Отправки\\" + prow.docdirpath;
+        //            string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath;
         //            if (!Directory.Exists(path))
         //            {
         //                System.IO.Directory.CreateDirectory(path);
@@ -2515,7 +2515,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //        if (i > 2)
         //        {
         //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
-        //            string filename = Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + "Отправки\\" + prow.docdirpath + @"\" + ((ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери":string.Empty)) + ".xlsx";
+        //            string filename = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath + @"\" + ((ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери":string.Empty)) + ".xlsx";
         //            if (File.Exists(filename))
         //                File.Delete(filename);
         //            exWb.SaveAs(Filename: filename);
@@ -2705,7 +2705,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             string path = null, num = null;
             if (myparcelcmd.CurrentItem != null)
             {
-                path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + "Отправки\\" + myparcelcmd.CurrentItem.DocDirPath;
+                path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + myparcelcmd.CurrentItem.DocDirPath;
                 if (!Directory.Exists(path))
                 {
                     System.IO.Directory.CreateDirectory(path);

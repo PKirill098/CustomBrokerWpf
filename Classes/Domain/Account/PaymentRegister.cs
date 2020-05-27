@@ -1140,7 +1140,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override void AddData(object parametr)
         {
-            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0,null,null, lib.DomainObjectState.Added, null, null, null, 0M, 0M,string.Empty, new Prepay(),null, null)));
+            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0,null,null, lib.DomainObjectState.Added, null, null, null, 0M, 0M,string.Empty, new Prepay(), null, null, null)));
         }
         protected override bool CanAddData(object parametr)
         {

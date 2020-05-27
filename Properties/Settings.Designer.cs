@@ -12,7 +12,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.5.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -93,6 +93,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Properties {
         public string CustomBrokerConnectionString3 {
             get {
                 return ((string)(this["CustomBrokerConnectionString3"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Programming\\PROJECTS\\Таможня\\Global\\Doc\\")]
+        public string DocFileRoot {
+            get {
+                return ((string)(this["DocFileRoot"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Документы")]
+        public string DocFileDefault {
+            get {
+                return ((string)(this["DocFileDefault"]));
+            }
+            set {
+                this["DocFileDefault"] = value;
             }
         }
     }

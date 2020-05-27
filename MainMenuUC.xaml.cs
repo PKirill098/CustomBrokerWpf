@@ -92,25 +92,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuPayParcel_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mainwin.ListChildWindow)
-            {
-                if (item.Name == "winParcelTransaction") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new ParcelTransactionWin();
-                mainwin.ListChildWindow.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuPayParcel_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mainwin.ListChildWindow)
+        //    {
+        //        if (item.Name == "winParcelTransaction") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new ParcelTransactionWin();
+        //        mainwin.ListChildWindow.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuPPParcel_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;

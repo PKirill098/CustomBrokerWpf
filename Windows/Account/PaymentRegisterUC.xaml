@@ -568,33 +568,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Таможенный cчет" Binding="{Binding Path=CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
-						<DataGridTextColumn.HeaderStyle>
-							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-								<Setter Property="ToolTip" Value="Сумма таможенного счета выставленного клиенту"/>
-								<Setter Property="HorizontalContentAlignment" Value="Right"/>
-								<Setter Property="ContentTemplate">
-									<Setter.Value>
-										<DataTemplate>
-											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
-												<Grid.RowDefinitions>
-													<RowDefinition/>
-													<RowDefinition/>
-												</Grid.RowDefinitions>
-												<StackPanel Orientation="Horizontal">
-													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceRubSumFilter.IconVisibile, Mode=OneWay}"/>
-													<TextBlock Text="{Binding}" FontWeight="Bold"/>
-												</StackPanel>
-												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.CustomsInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
-											</Grid>
-										</DataTemplate>
-									</Setter.Value>
-								</Setter>
-								<EventSetter Event="MouseRightButtonUp" Handler="CustomsInvoiceRubSumFilterPopup_Open"/>
-							</Style>
-						</DataGridTextColumn.HeaderStyle>
-					</DataGridTextColumn>
-					<DataGridTextColumn Header="% таможенный" Binding="{Binding CustomsInvoice.Percent, Mode=TwoWay, StringFormat=\{0:P0\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}">
+					<DataGridTextColumn Header="Таможенный %" Binding="{Binding CustomsInvoice.Percent, Mode=TwoWay, StringFormat=\{0:P0\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Ставка таможенного счета"/>
@@ -613,7 +587,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Дата счета" Binding="{Binding Path=CustomsInvoice.InvoiceDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+					<DataGridTextColumn Header="Таможенный&#xA;дата счета" Binding="{Binding Path=CustomsInvoice.InvoiceDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Дата выставления таможенного счета клиенту"/>
@@ -622,7 +596,7 @@
 										<DataTemplate>
 											<StackPanel Orientation="Horizontal">
 												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceDateFilter.IconVisibile, Mode=OneWay}"/>
-												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold" TextAlignment="Center"/>
 											</StackPanel>
 										</DataTemplate>
 									</Setter.Value>
@@ -631,7 +605,33 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="CustomsInvoice.PaidDate" ClipboardContentBinding="{Binding CustomsInvoice.PaidDate}">
+					<DataGridTextColumn Header="Таможенный cчет" Binding="{Binding Path=CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Сумма таможенного счета выставленного клиенту"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoiceRubSumFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="CustomsInvoiceRubSumFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTemplateColumn Header="Таможенный счет&#xA;дата оплаты" SortMemberPath="CustomsInvoice.PaidDate" ClipboardContentBinding="{Binding CustomsInvoice.PaidDate}">
 						<DataGridTemplateColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Даты оплаты таможенного счета"/>
@@ -640,7 +640,7 @@
 										<DataTemplate>
 											<StackPanel Orientation="Horizontal">
 												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomsInvoicePaidDateFilter.IconVisibile, Mode=OneWay}"/>
-												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold" TextAlignment="Center"/>
 											</StackPanel>
 										</DataTemplate>
 									</Setter.Value>

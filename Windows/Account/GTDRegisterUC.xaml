@@ -411,7 +411,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Курс ДТ/Курс покупки валюты" Binding="{Binding Path=Specification.Declaration.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="90">
+					<DataGridTextColumn Header="Курс ДТ/Курс покупки валюты" Binding="{Binding Path=Specification.Declaration.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Курс ДТ/Курс покупки валюты"/>

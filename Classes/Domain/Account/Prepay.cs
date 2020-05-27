@@ -39,13 +39,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             //    this.Percent = this.GetPercent();
             //}
         }
-        public Prepay(int id, long stamp, DateTime? updated, string updater, lib.DomainObjectState mstate
-             , int agentid, decimal? cbrate, DateTime? currencypaiddate, int customerid, bool dealpassport, decimal eurosum, Importer importer, decimal initsum, DateTime? invoicedate, string invoicenumber, decimal percent, decimal refund, DateTime shipplandate
-            ) : this(id, stamp, updated, updater, mstate, cbrate, currencypaiddate, dealpassport, eurosum, importer, initsum, invoicedate, invoicenumber, percent, refund, shipplandate)
-        {
-            oblagentid = agentid;
-            oblcustomerid = customerid;
-        }
         public Prepay(int id, long stamp, DateTime? updated,string updater, lib.DomainObjectState mstate
              , Agent agent, decimal? cbrate, DateTime? currencypaiddate, CustomerLegal customer, bool dealpassport, decimal eurosum, Importer importer, decimal initsum, DateTime? invoicedate, string invoicenumber, decimal percent, decimal refund, DateTime shipplandate
             ) : this(id, stamp, updated, updater, mstate, cbrate, currencypaiddate, dealpassport, eurosum, importer, initsum, invoicedate, invoicenumber, percent, refund, shipplandate)
@@ -56,8 +49,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public Prepay(Agent agent, CustomerLegal customer, Importer importer, DateTime shipplandate) : this(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added
             , agent, null, null, customer,true, 0M, importer, 0M, null, null, 0M,0M, shipplandate) { }
         public Prepay() : this(null, null, null, CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10))) { }
-        internal int oblagentid { set; get; }
-        internal int oblcustomerid { set; get; }
 
         private Agent myagent;
         public Agent Agent
@@ -218,7 +209,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     if (fdbm.Errors.Count > 0)
                         KirillPolyanskiy.Common.PopupCreator.GetPopup(fdbm.ErrorMessage, System.Windows.Media.Brushes.LightCoral);
                     else if (fund == null)
-                        myfundsum = -myeurosum;
+                        myfundsum = 0M;
                 }
                 return myfundsum;
             }
@@ -238,6 +229,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             {
                 Action action = () =>
                 {
+                    if (this.UpdateIsOver) return;
                     this.CBRate = null;
                     this.Percent = this.GetPercent();
                     if (myinvoicedate.HasValue)
@@ -372,17 +364,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             Prepay templ = sample as Prepay;
-            this.oblagentid = templ.oblagentid;
-            this.oblcustomerid = templ.oblcustomerid;
             this.Agent = templ.Agent;
             this.CBRate = templ.CBRate;
             this.Customer = templ.Customer;
             this.DealPassport = templ.DealPassport;
             this.EuroSum = templ.EuroSum;
             if (templ.FundSumIsNull) // не запрашивать когда не нужна
-                this.FundSum = null;
+            { 
+                this.FundSum = null; 
+            }
             else
-                this.FundSum = templ.FundSum+templ.EuroSum-this.EuroSum;
+                this.FundSum = templ.FundSum + templ.EuroSum - this.EuroSum;
             this.Importer = templ.Importer;
             this.InitSum = templ.InitSum;
             this.InvoiceDate = templ.InvoiceDate;
@@ -625,10 +617,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override Prepay CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             Prepay item = new Prepay(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), reader.GetDateTime(reader.GetOrdinal("updated")), reader.GetString(reader.GetOrdinal("updater")), lib.DomainObjectState.Unchanged
-                , reader.GetInt32(reader.GetOrdinal("agentid"))
+                , CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon)
                 , reader.IsDBNull(reader.GetOrdinal("cbrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("cbrate"))
                 , reader.IsDBNull(reader.GetOrdinal("paydate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("paydate"))
-                , reader.GetInt32(reader.GetOrdinal("customerid"))
+                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon)
                 ,reader.GetBoolean(reader.GetOrdinal("dealpass"))
                 , reader.GetDecimal(reader.GetOrdinal("eurosum"))
                 , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("importerid")))
@@ -638,7 +630,52 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , reader.GetDecimal(reader.GetOrdinal("percent"))
                 , reader.GetDecimal(reader.GetOrdinal("refund"))
                 , reader.GetDateTime(reader.GetOrdinal("shipplandate")));
-            return CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
+            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
+            
+            myrdbm.Errors.Clear();
+            mycbdbm.Errors.Clear();
+            mycpdbm.Errors.Clear();
+            myrdbm.Command.Connection = addcon;
+            mycbdbm.Command.Connection = addcon;
+            mycpdbm.Command.Connection = addcon;
+            myrdbm.Prepay = item;
+            mycbdbm.Prepay = item;
+            mycpdbm.Prepay = item;
+            if (item.RubPays != null)
+            {
+                myrdbm.Collection = item.RubPays;
+                myrdbm.Fill();
+            }
+            else
+            {
+                myrdbm.Fill();
+                item.RubPays = myrdbm.Collection;
+            }
+            if (item.CurrencyBuys != null)
+            {
+                mycbdbm.Collection = item.CurrencyBuys;
+                mycbdbm.Fill();
+            }
+            else
+            {
+                mycbdbm.Fill();
+                item.CurrencyBuys = mycbdbm.Collection;
+            }
+            if (item.CurrencyPays != null)
+            {
+                mycpdbm.Collection = item.CurrencyPays;
+                mycpdbm.Fill();
+            }
+            else
+            {
+                mycpdbm.Fill();
+                item.CurrencyPays = mycpdbm.Collection;
+            }
+            myrdbm.Collection = null;
+            mycbdbm.Collection = null;
+            mycpdbm.Collection = null;
+
+            return item;
         }
         protected override void GetOutputSpecificParametersValue(Prepay item)
         {
@@ -799,57 +836,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override void LoadObjects(Prepay item)
         {
-            if (item.Agent?.Id != item.oblagentid) item.Agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(item.oblagentid, this.Command.Connection);
-            if (item.Customer == null) item.Customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.oblcustomerid, this.Command.Connection);
-            item.AcceptChanches();
-
-            myrdbm.Errors.Clear();
-            mycbdbm.Errors.Clear();
-            mycpdbm.Errors.Clear();
-            myrdbm.Command.Connection = this.Command.Connection;
-            mycbdbm.Command.Connection = this.Command.Connection;
-            mycpdbm.Command.Connection = this.Command.Connection;
-            myrdbm.Prepay = item;
-            mycbdbm.Prepay = item;
-            mycpdbm.Prepay = item;
-            if (item.RubPays != null)
-            {
-                myrdbm.Collection = item.RubPays;
-                myrdbm.Fill();
-            }
-            else
-            {
-                myrdbm.Fill();
-                item.RubPays = myrdbm.Collection;
-            }
-            if (item.CurrencyBuys != null)
-            {
-                mycbdbm.Collection = item.CurrencyBuys;
-                mycbdbm.Fill();
-            }
-            else
-            {
-                mycbdbm.Fill();
-                item.CurrencyBuys = mycbdbm.Collection;
-            }
-            if (item.CurrencyPays != null)
-            {
-                mycpdbm.Collection = item.CurrencyPays;
-                mycpdbm.Fill();
-            }
-            else
-            {
-                mycpdbm.Fill();
-                item.CurrencyPays = mycpdbm.Collection;
-            }
-            myrdbm.Collection = null;
-            mycbdbm.Collection = null;
-            mycpdbm.Collection = null;
         }
         protected override bool LoadObjects()
         {
-            foreach (Prepay item in this.Collection)
-                LoadObjects(item);
             return this.Errors.Count==0;
         }
     }

@@ -266,7 +266,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
                     if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
                     {
-                        path = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + item.DomainObject.DocDirPath;
+                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
                         if (System.IO.Directory.Exists(path))
                         {
                             System.Diagnostics.Process.Start(path);

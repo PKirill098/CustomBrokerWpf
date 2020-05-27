@@ -355,14 +355,8 @@
     <Compile Include="MaterialWin.xaml.cs">
       <DependentUpon>MaterialWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Parcel\ParcelPaymentsUC.xaml.cs">
-      <DependentUpon>ParcelPaymentsUC.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\Parcel\ParcelReportChartWin.xaml.cs">
       <DependentUpon>ParcelReportChartWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionUC.xaml.cs">
-      <DependentUpon>ParcelTransactionUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="PaymentlistUC.xaml.cs">
       <DependentUpon>PaymentlistUC.xaml</DependentUpon>
@@ -490,23 +484,6 @@
     </Compile>
     <Compile Include="Windows\Parcel\ParcelReportWin.xaml.cs">
       <DependentUpon>ParcelReportWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionDetailWin.xaml.cs">
-      <DependentUpon>ParcelTransactionDetailWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionDS.cs">
-      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionOtherWin.xaml.cs">
-      <DependentUpon>ParcelTransactionOtherWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Parcel\ParcelTransactionWin.xaml.cs">
-      <DependentUpon>ParcelTransactionWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Parcel\ParcelWin.xaml.cs">
       <DependentUpon>ParcelWin.xaml</DependentUpon>
@@ -854,10 +831,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Parcel\ParcelPaymentsUC.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\Parcel\ParcelReportChartWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -867,22 +840,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Parcel\ParcelReportWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\Parcel\ParcelTransactionDetailWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\Parcel\ParcelTransactionOtherWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\Parcel\ParcelTransactionUC.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\Parcel\ParcelTransactionWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1132,17 +1089,6 @@
     </None>
     <None Include="ParcelDS.xss">
       <DependentUpon>ParcelDS.xsd</DependentUpon>
-    </None>
-    <None Include="Windows\Parcel\ParcelTransactionDS.xsc">
-      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
-    </None>
-    <None Include="Windows\Parcel\ParcelTransactionDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>ParcelTransactionDS.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Windows\Parcel\ParcelTransactionDS.xss">
-      <DependentUpon>ParcelTransactionDS.xsd</DependentUpon>
     </None>
     <None Include="PaymentDS.xsc">
       <DependentUpon>PaymentDS.xsd</DependentUpon>

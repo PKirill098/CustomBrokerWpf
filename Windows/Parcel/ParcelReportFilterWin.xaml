@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
         xmlns:lib="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
-        Title="Настройки отчета по отправкам" Name="winParcelReportFilter" Language="ru-RU" Loaded="Filter_Loaded" Closed="Filter_Closed" Height="500" Width="645" Icon="Images/cashier.png">
+        Title="Настройки отчета по отправкам" Name="winParcelReportFilter" Language="ru-RU" Loaded="Filter_Loaded" Closed="Filter_Closed" Height="500" Width="645" Icon="/CustomBrokerWpf;component/Images/cashier.png">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close" Executed="thisCloseButton_Click"/>
     </Window.CommandBindings>

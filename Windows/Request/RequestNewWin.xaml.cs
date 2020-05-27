@@ -18,15 +18,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            Classes.Domain.RequestVMCommand cmd = e.NewValue as Classes.Domain.RequestVMCommand;
-            if (cmd != null)
+            mycmd = e.NewValue as Classes.Domain.RequestVMCommand;
+            if (mycmd != null)
             {
-                cmd.EndEdit = mydischanger.EndEdit;
-                cmd.CancelEdit = mydischanger.CancelEdit;
-                if(cmd.VModel.DomainState==DataModelClassLibrary.DomainObjectState.Unchanged)
-                    cmd.SaveRefresh.Execute(null);
+                mycmd.EndEdit = mydischanger.EndEdit;
+                mycmd.CancelEdit = mydischanger.CancelEdit;
+                if(mycmd.VModel.DomainState==DataModelClassLibrary.DomainObjectState.Unchanged)
+                    mycmd.SaveRefresh.Execute(null);
             }
         }
+
+        private DataModelClassLibrary.BindingDischarger mydischanger;
+        internal DataModelClassLibrary.BindingDischarger BindingDischarger
+        { get { return mydischanger; } }
+        private Classes.Domain.RequestVMCommand mycmd;
 
         private void HistoryOpen_Click(object sender, RoutedEventArgs e)
         {
@@ -90,28 +95,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             win.Show();
         }
 
-        private DataModelClassLibrary.BindingDischarger mydischanger;
-        internal DataModelClassLibrary.BindingDischarger BindingDischarger
-        { get { return mydischanger; } }
-
-        private void CommandBinding_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        private void CommandBindingDelete_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = true;
+            e.CanExecute = mycmd.PrepayDel.CanExecute(null);
             e.Handled = true;
         }
-        private void CommandBinding_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        private void CommandBindingDelete_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
         {
-            //DataGrid grid = sender as DataGrid;
-            //System.Windows.Data.ListCollectionView view = grid.ItemsSource as System.Windows.Data.ListCollectionView;
-            //Classes.Domain.RequestPaymentVM item = grid.SelectedItem as Classes.Domain.RequestPaymentVM;
-            //if (view.IsAddingNew)
-            //    view.CancelNew();
-            //else
-            //{
-            //    view.EditItem(item);
-            //    item.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
-            //    view.CommitEdit();
-            //}
+            if((sender as DataGrid)?.CurrentItem is Classes.Domain.Account.PrepayCustomerRequestVM)
+                mycmd.PrepayDel.Execute((sender as DataGrid).CurrentItem);
+        }
+        private void CommandBindingAdd_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = mycmd.PrepayAddCanExec();
+            e.Handled = true;
+        }
+        private void CommandBindingAdd_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            if ((sender as DataGrid)?.CurrentItem is RequestCustomerLegalVM)
+                mycmd.PrepayAddExec((sender as DataGrid).CurrentItem);
+            else if ((sender as DataGrid)?.CurrentItem is Classes.Domain.Account.PrepayCustomerRequestVM)
+                mycmd.PrepayAddExec(((sender as DataGrid).CurrentItem as Classes.Domain.Account.PrepayCustomerRequestVM).Customer);
         }
 
         private void AlgorithmButton_Click(object sender, RoutedEventArgs e)
@@ -253,5 +257,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
+
     }
 }

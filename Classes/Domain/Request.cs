@@ -399,7 +399,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 {
                     base.PropertyChangedNotification("InsuranceCost");
                     base.PropertyChangedNotification("InsurancePay");
-                    UpdateSingleLegal("Invoice");
+                    //UpdateSingleLegal("Invoice");
                 };
                 base.SetPropertyOnValueChanged<decimal?>(ref myinvoice, value, notify);
             }
@@ -409,16 +409,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetPropertyOnValueChanged<decimal?>(ref myinvoicediscount, value, () =>
-                 {
-                     UpdateSingleLegal("InvoiceDiscount");
-                 });
+                base.SetPropertyOnValueChanged<decimal?>(ref myinvoicediscount, value);
             }
             get { return myinvoicediscount; }
         }
         public bool InvoiceDiscountFill
         { get {
-                return this.CustomerLegals?.Count > 0 && this.CustomerLegals.Count((RequestCustomerLegal legal) => { return legal.Selected; }) > 0 && this.CustomerLegals.Count((RequestCustomerLegal legal) => { return legal.Selected && (legal.Prepays == null || legal.Prepays.Count == 0 || legal.Prepays.Count((PrepayCustomerRequest prepay)=>{ return prepay.EuroSum == 0M; })>0); }) == 0;
+                return this.CustomerLegals?.Count > 0 && this.CustomerLegals.Count((RequestCustomerLegal legal) => { return legal.Selected; }) > 0 /*&& this.CustomerLegals.Count((RequestCustomerLegal legal) => { return legal.Selected && (legal.Prepays == null || legal.Prepays.Count == 0 || legal.Prepays.Count((PrepayCustomerRequest prepay)=>{ return prepay.EuroSum == 0M; })>0); }) == 0*/;
             } }
         public bool IsSpecification
         {
@@ -1932,9 +1929,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         errmsg = "У заявки  " + this.StorePointDate + " нет юр. лиц!";
                         isvalid = false;
                     }
-                    if (((decimal?)value ?? 0M) > 0M && this.InvoiceDiscount!=(decimal?)value && (legals>1 || (this.CustomerLegals?.Where((RequestCustomerLegal item) => { return item.Selected; }).Sum((RequestCustomerLegal item) => { return item.Prepays.Count; })??0) > 1))
+                    if (((decimal?)value ?? 0M) > 0M && this.InvoiceDiscount!=(decimal?)value && legals>1) //( || (this.CustomerLegals?.Where((RequestCustomerLegal item) => { return item.Selected; }).Sum((RequestCustomerLegal item) => { return item.Prepays.Count; })??0) > 1)
                     {
-                        errmsg = "У заявки  "+ this.StorePointDate + " несколько предоплат! Для изменения суммы воспользуйтесь окном предоплат в карточке заявки.";
+                        errmsg = "У заявки  "+ this.StorePointDate + " несколько юр. лиц! Для изменения суммы воспользуйтесь разделом оплат в карточке заявки.";
                         isvalid = false;
                     }
                     break;
@@ -1956,13 +1953,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             return isvalid;
         }
 
-
         internal string CustomerLegalsFill(RequestCustomerLegalDBM ldbm=null)
         {
             lock (mylegalslock)
             {
                 if (mylegals == null && ldbm == null) return string.Empty;
-                if (ldbm == null) { App.Current.Dispatcher.Invoke(() => { ldbm = new RequestCustomerLegalDBM(); }); ldbm.Refreshing = true; }
+                if (ldbm == null) { App.Current.Dispatcher.Invoke(() => { ldbm = new RequestCustomerLegalDBM(); }); ldbm.FillType = lib.FillType.Refresh; }
                 ldbm.Request = this;
                 if (mylegals != null) ldbm.Collection = mylegals;
                 ldbm.Fill();
@@ -2017,21 +2013,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             if (n == 1 & single != null)
             {
-                single.RequestUpdating = true;
                 switch (PropertyName)
                 {
-                    case "Invoice":
-                       single.Invoice = myinvoice;
-                        break;
+                    //case "Invoice":
+                    //   single.Invoice = myinvoice;
+                    //    break;
                     case "InvoiceDiscount":
-                        single.InvoiceDiscount = myinvoicediscount;
+                        single.UpdateInvoiceDiscount(myinvoicediscount,'r');
                         this.InvoiceDiscount = single.InvoiceDiscount; // if update is fail
                         break;
-                    case "OfficialWeight":
-                        single.OfficialWeight = myofficialweight;
-                        break;
+                        //case "OfficialWeight":
+                        //    single.OfficialWeight = myofficialweight;
+                        //    break;
                 }
-                single.RequestUpdating = false;
             }
             else
             {
@@ -2040,24 +2034,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "Invoice":
                         if ((myinvoice??0M) == 0M)
                             foreach (RequestCustomerLegal item in this.CustomerLegals)
-                                if (item.Selected) { item.RequestUpdating = true; item.Invoice = 0M; item.RequestUpdating = false; }
+                                if (item.Selected) { item.Invoice = 0M; }
                         break;
                     case "InvoiceDiscount":
                         if ((myinvoicediscount ?? 0M) == 0M)
                         {
                             decimal? result = 0M;
                             foreach (RequestCustomerLegal item in this.CustomerLegals)
-                                if (item.Selected) { item.RequestUpdating = true; item.InvoiceDiscount = 0M; item.RequestUpdating = false; result += item.InvoiceDiscount; }
+                                if (item.Selected) { item.UpdateInvoiceDiscount(0M,'r'); result += item.InvoiceDiscount; }
                             this.InvoiceDiscount = result;
                         }
                         break;
                     case "OfficialWeight":
                         if ((myofficialweight??0M) == 0M)
                             foreach (RequestCustomerLegal item in this.CustomerLegals)
-                                if (item.Selected) { item.RequestUpdating = true; item.OfficialWeight = 0M; item.RequestUpdating = false; }
+                                if (item.Selected) { item.OfficialWeight = 0M; }
                         break;
                 }
             }
+        }
+        internal void UpdateInvoiceDiscount(decimal? value,byte entry)
+        {
+            decimal? oldvalue = myinvoicediscount;
+            this.InvoiceDiscount = value;
+            if (entry == 0 & oldvalue != myinvoicediscount)
+                UpdateSingleLegal("InvoiceDiscount");
         }
         internal string UpdateDocDirPath()
         {
@@ -2070,10 +2071,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         docdirpath = "Отправки\\" + this.Parcel.DocDirPath + "\\" + this.CustomerName + "_" + (this.ParcelGroup.HasValue ? this.ParcelGroup.ToString() : this.StorePointDate);
                     else
                         docdirpath = "Прямые\\" + this.CustomerName + "_" + (this.ParcelGroup.HasValue ? this.ParcelGroup.ToString() : this.StorePointDate);
-                    path = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + docdirpath;
+                    path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + docdirpath;
                     if (!string.Equals(docdirpath, this.DocDirPath))
                     {
-                        pathfalse = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + this.DocDirPath;
+                        pathfalse = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + this.DocDirPath;
                         if (!string.IsNullOrEmpty(this.DocDirPath) & System.IO.Directory.Exists(pathfalse))
                         {
                             if (System.IO.Directory.Exists(path))
@@ -2499,9 +2500,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             Request request = CustomBrokerWpf.References.RequestStore.UpdateItem(newitem);
             if (this.SpecificationLoad)
             {
-                if (request.SpecificationIsNull != this.Refreshing)
+                if (request.SpecificationIsNull != (this.FillType == lib.FillType.Refresh))
                 {
-                    if(this.Refreshing)
+                    if(this.FillType == lib.FillType.Refresh)
                         request.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.UpdateItem(request.Specification.Id, addcon);
                     else
                         request.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(request, addcon);
@@ -2515,7 +2516,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (!request.MailStateStockIsNull) request.MailStateStock.Update();
                 if (!request.MailStateTakeGoods9IsNull) request.MailStateTakeGoods9.Update();
             }
-            if(this.Refreshing)
+            if(this.FillType == lib.FillType.Refresh)
             {
                 mydispatcher.Invoke(() => {
                     request.AlgorithmCMD?.Refresh.Execute(null);
@@ -2826,7 +2827,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public RequestVM(Request item) : base(item)
         {
-            ValidetingProperties.AddRange(new string[] { nameof(this.AgentId), nameof(this.Importer), nameof(this.InvoiceDiscount),nameof(this.ShipPlanDate), nameof(this.ServiceType) });
+            ValidetingProperties.AddRange(new string[] { nameof(this.AgentId), nameof(this.CustomerLegals), nameof(this.Importer), nameof(this.InvoiceDiscount),nameof(this.ShipPlanDate), nameof(this.ServiceType) });
             DeleteRefreshProperties.AddRange(new string[] { "AdditionalPay", "BringPay", "BrokerPay", "TotalCost", "CustomsPay", "DeliveryPay", "FreightPay", "InsurancePay", "Invoice", "InvoiceDiscount", "PreparatnPay", "SertificatPay", "ServiceType", "TDPay" });
             RejectPropertiesOrder.AddRange(new string[] { "CustomerId", "CustomerLegal" });
             InitProperties();
@@ -3447,7 +3448,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         this.myUnchangedPropertyCollection.Add(name, this.DomainObject.InvoiceDiscount);
                     myinvoicediscount = value;
                     if (this.ValidateProperty(name))
-                    { ChangingDomainProperty = name; this.DomainObject.InvoiceDiscount = value; }
+                    { ChangingDomainProperty = name; this.DomainObject.UpdateInvoiceDiscount(value,0); }
                 }
             }
             get { return this.IsEnabled ? myinvoicediscount : null; }
@@ -4156,13 +4157,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailStateStock.State)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -4827,19 +4828,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "DependentNew":
                     int i = 0;
-                    RequestCustomerLegalVM[] lremoved = new RequestCustomerLegalVM[this.DomainObject.CustomerLegals.Count];
-                    foreach (RequestCustomerLegalVM litem in this.CustomerLegals)
+                    if (mycustomerlegals != null)
                     {
-                        if (litem.DomainState == lib.DomainObjectState.Added)
+                        RequestCustomerLegalVM[] lremoved = new RequestCustomerLegalVM[mylsync.ViewModelCollection.Count];
+                        foreach (RequestCustomerLegalVM litem in mylsync.ViewModelCollection)
                         {
-                            lremoved[i] = litem;
-                            i++;
+                            if (litem.DomainState == lib.DomainObjectState.Added)
+                            {
+                                lremoved[i] = litem;
+                                i++;
+                            }
+                            else
+                            {
+                                this.CustomerLegals.EditItem(litem);
+                                litem.RejectChanges();
+                                this.CustomerLegals.CommitEdit();
+                            }
                         }
-                        else
-                            litem.RejectChanges();
+                        foreach (RequestCustomerLegalVM litem in lremoved)
+                            if (litem != null) mylsync.ViewModelCollection.Remove(litem);
                     }
-                    foreach (RequestCustomerLegalVM litem in lremoved)
-                        if (litem != null) this.CustomerLegals.Remove(litem);
                     //i = 0;
                     //RequestPayment[] removed = new RequestPayment[this.DomainObject.Payments.Count];
                     //foreach (RequestPayment pitem in this.DomainObject.Payments)
@@ -4865,6 +4873,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 case nameof(this.AgentId):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.AgentId, out errmsg);
+                    break;
+                case nameof(this.CustomerLegals):
+                    StringBuilder err = new StringBuilder();
+                    foreach (RequestCustomerLegalVM legal in this.CustomerLegals)
+                    {
+                        if (legal.Errors.Length > 0)
+                        {
+                            err.AppendLine(legal.Errors);
+                            isvalid = false;
+                        }
+                        //valid = (!legal.Selected || legal.Validate(inform));
+                        //if (!valid) err.AppendLine(legal.Errors);
+                        //isvalid &= valid;
+                    }
+                    errmsg = err.ToString();
                     break;
                 case nameof(this.Importer):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.Importer,out errmsg);
@@ -4901,10 +4924,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         docdirpath = "Отправки\\" + this.Parcel.DocDirPath + "\\" + this.CustomerName + "_" + (this.ParcelGroup.HasValue ? this.ParcelGroup.ToString() : (string.IsNullOrEmpty(this.StorePointDate) ? (this.Id.ToString() + " " + this.RequestDate.Value.ToShortDateString()) : this.StorePointDate));
                     else
                         docdirpath = "Прямые\\" + this.CustomerName + "_" + (this.ParcelGroup.HasValue ? this.ParcelGroup.ToString() : (string.IsNullOrEmpty(this.StorePointDate) ? (this.Id.ToString() + " " + this.RequestDate.Value.ToShortDateString()) : this.StorePointDate));
-                    path = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + docdirpath;
+                    path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + docdirpath;
                     if (!string.Equals(docdirpath, this.DomainObject.DocDirPath))
                     {
-                        pathfalse = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + this.DomainObject.DocDirPath;
+                        pathfalse = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + this.DomainObject.DocDirPath;
                         if (!string.IsNullOrEmpty(this.DomainObject.DocDirPath) & System.IO.Directory.Exists(pathfalse))
                         {
                             if (System.IO.Directory.Exists(path))
@@ -4959,6 +4982,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myvm.DomainObject.AlgorithmCMD.IsReadOnly = myvm.IsReadOnly;
             myvm.DomainObject.AlgorithmConCMD.IsReadOnly = myvm.IsReadOnly;
             mydetailsadd = new RelayCommand(DetailsAddExec, DetailsAddCanExec);
+            myprepaydel = new RelayCommand(PrepayDelExec, PrepayDelCanExec);
             myratedbm = new SpecificationCustomerInvoiceRateDBM();
         }
 
@@ -5153,6 +5177,42 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         }
 
+        private RelayCommand myprepaydel;
+        public ICommand PrepayDel
+        {
+            get { return myprepaydel; }
+        }
+        private void PrepayDelExec(object parametr)
+        {
+            PrepayCustomerRequestVM prepay = parametr as PrepayCustomerRequestVM;
+            System.Windows.Data.ListCollectionView view = null;
+            RequestCustomerLegalVM legal = null;
+            foreach (RequestCustomerLegalVM item in myvm.CustomerLegalsSelected)
+                if (item.DomainObject == prepay.Customer.DomainObject)
+                { view = item.Prepays; legal = item; }
+            if (view != null & !prepay.Prepay.InvoiceDate.HasValue)
+            {
+                if (view.IsAddingNew)
+                    view.CancelNew();
+                else
+                {
+                    view.EditItem(prepay);
+                    prepay.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
+                    view.CommitEdit();
+                }
+                legal.DomainObject.PropertyChangedNotification(nameof(legal.PrepaySum));
+            }
+        }
+        private bool PrepayDelCanExec(object parametr)
+        { return !myvm.IsReadOnly; }
+        internal bool PrepayAddCanExec()
+        { return !myvm.IsReadOnly; }
+        internal void PrepayAddExec(object parametr)
+        {
+            RequestCustomerLegalVM legal = parametr as RequestCustomerLegalVM;
+            legal.DomainObject.AddPrepay();
+        }
+
         protected override void RejectChanges(object parametr)
         {
             this.AlgorithmCommand.Reject.Execute(parametr);
@@ -5163,7 +5223,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void RefreshData(object parametr)
         {
             StringBuilder errstr = new StringBuilder();
-            mydbm.Refreshing = true;
+            mydbm.FillType = lib.FillType.Refresh;
             mydbm.GetFirst();
             if (mydbm.Errors.Count > 0) foreach (lib.DBMError err in mydbm.Errors) errstr.AppendLine(err.Message);
             myvm.DomainObject.CustomerLegalsRefresh();
@@ -5176,7 +5236,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 myratedbm.Load();
                 if (myratedbm.Errors.Count > 0) foreach (lib.DBMError err in myratedbm.Errors) errstr.AppendLine(err.Message);
             }
-            mydbm.Refreshing = false;
+            mydbm.FillType = lib.FillType.Initial;
             if (errstr.Length > 0) this.PopupText=errstr.ToString();
         }
         protected override bool CanRefreshData()
@@ -5206,10 +5266,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         docdirpath = "Отправки\\" + myvm.Parcel.DocDirPath + "\\" + myvm.CustomerName + "_" + (myvm.ParcelGroup.HasValue ? myvm.ParcelGroup.ToString() : myvm.StorePointDate);
                     else
                         docdirpath = "Прямые\\" + myvm.CustomerName + "_" + (myvm.ParcelGroup.HasValue ? myvm.ParcelGroup.ToString() : myvm.StorePointDate);
-                    path = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + docdirpath;
+                    path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + docdirpath;
                     if (!string.Equals(docdirpath, myvm.DomainObject.DocDirPath))
                     {
-                        pathfalse = System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).FullName + "\\" + myvm.DomainObject.DocDirPath;
+                        pathfalse = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + myvm.DomainObject.DocDirPath;
                         if (!string.IsNullOrEmpty(myvm.DomainObject.DocDirPath) & System.IO.Directory.Exists(pathfalse))
                         {
                             if (System.IO.Directory.Exists(path))
@@ -5574,7 +5634,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void RefreshData(object parametr)
         {
-            mydbm.Refreshing = true;
+            mydbm.FillType = lib.FillType.Refresh;
             mydbm.Filter = myfilter.FilterWhereId;
             mydbm.FillAsync();
         }

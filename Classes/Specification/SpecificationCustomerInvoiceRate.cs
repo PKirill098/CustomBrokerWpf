@@ -12,8 +12,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     public class SpecificationCustomerInvoiceRate
     {
         public int? CustomerId { get; set; }
-        public decimal? Rate { set; get; }
+        public decimal? DTSum { set; get; }
         public bool Equally { set; get; }
+        public decimal? Rate { set; get; }
+        public decimal? Selling { set; get; }
     }
 
     public class SpecificationCustomerInvoiceRateDBM : lib.DBMSTake<SpecificationCustomerInvoiceRate>

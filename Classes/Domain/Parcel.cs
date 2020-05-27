@@ -1330,10 +1330,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private void RequestsRefresh(Parcel parcel)
         {
-            myrdbm.Refreshing = true;
             myrdbm.Errors.Clear();
             myrdbm.Parcel = parcel.Id;
             //myrdbm.FillAsyncCompleted = () => { if (myrdbm.Errors.Count > 0) foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err); else foreach (Request ritem in myrdbm.Collection) if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem); };
+            myrdbm.FillType = lib.FillType.Refresh;
             myrdbm.Fill();
             if (myrdbm.Errors.Count > 0)
                 foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
@@ -1341,7 +1341,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 foreach (Request ritem in myrdbm.Collection) { ritem.CustomerLegalsRefresh(); if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem); }
             }
-            myrdbm.Refreshing = false;
         }
         internal bool CheckGroup()
         {
@@ -2520,7 +2519,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (this.CurrentItem != null)
                 {
-                    string path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + "Отправки\\" + this.CurrentItem.DocDirPath;
+                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + this.CurrentItem.DocDirPath;
                     if (!Directory.Exists(path))
                     {
                         System.IO.Directory.CreateDirectory(path);
@@ -2693,7 +2692,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 if (i > 2)
                 {
-                    string filename = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "Отправки", this.CurrentItem.DocDirPath, this.CurrentItem.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
+                    string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, "Отправки", this.CurrentItem.DocDirPath, this.CurrentItem.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
                     if (File.Exists(filename))
                         File.Delete(filename);
                     exWb.SaveAs(Filename: filename);
@@ -3155,7 +3154,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         public override bool SaveDataChanges()
         {
-            DirectoryInfo dir = new DirectoryInfo(Directory.GetParent(Directory.GetCurrentDirectory()).FullName + "\\" + "Отправки\\");
+            DirectoryInfo dir = new DirectoryInfo(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\");
             if (!dir.Exists) dir.Create();
             bool isSuccess = true;
             if (myview != null)

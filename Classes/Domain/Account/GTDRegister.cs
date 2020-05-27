@@ -45,7 +45,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? CC
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.CC ?? 0M; }); } }
         public string Client
-        { get { return myclients.Count > 1 ? null : myclients.Min((GTDRegisterClient item) => { return item.Client.Name; }); } }
+        { get { return myclients.Count > 1 ? null : myclients.Min((GTDRegisterClient item) => { return item.Client?.Name; }); } }
         public decimal? CostLogistics
         { get { return this.Specification.Pari + this.SLWithoutRate + this.Specification.GTLS + this.Specification.DDSpidy + this.Specification.WestGateWithoutRate + (this.Specification.MFK ?? 0M); } }
         public decimal? CostPer
@@ -100,7 +100,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? SLWithoutRate
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.SLWithoutRate ?? 0M; }); } }
         public decimal? Selling
-        { get { return myservicetype == "ТД" ? myclients.Sum((GTDRegisterClient item) => { return item.Selling ?? 0M; }) : myclients.FirstOrDefault()?.AlgValue2 * this.Specification?.Declaration.CBRate * this.Specification?.Declaration.TotalSum; } }
+        { get {
+                decimal? selling;
+                if (myservicetype == "ТД")
+                    selling = myclients.Sum((GTDRegisterClient item) => { return item.Selling ?? 0M; });
+                else
+                {
+                    selling = myclients.FirstOrDefault()?.AlgValue2 * this.Specification?.Declaration.CBRate * this.Specification?.Declaration.TotalSum;
+                    if(selling.HasValue) selling = decimal.Round(selling.Value);
+                }
+                return selling;
+            } }
         public DateTime? SellingDate
         {
             set

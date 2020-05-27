@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private decimal? mycbrate;
         public decimal? CBRate
         {
-            private set { SetProperty<decimal?>(ref mycbrate, value);}
+            set { SetProperty<decimal?>(ref mycbrate, value);}
             get { return mycbrate; }
         }
         private decimal? myfee;
