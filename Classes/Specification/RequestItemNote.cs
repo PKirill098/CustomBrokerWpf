@@ -61,7 +61,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             get { return mynote; }
         }
-
     }
 
     internal class RequestItemNoteDBM : lib.DBManager<RequestItemNote>
@@ -108,7 +107,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override RequestItemNote CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -143,9 +142,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[0].Value = item.NoteCode;
             myinsertupdateparams[1].Value = item.Note;
             return true;
-        }
-        protected override void LoadObjects(RequestItemNote item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

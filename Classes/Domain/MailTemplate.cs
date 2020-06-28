@@ -73,9 +73,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class MailTemplateStore : lib.DomainStorageLoad<MailTemplate>
+    internal class MailTemplateStore : lib.DomainStorageLoad<MailTemplate, MailTemplateDBM>
     {
-        public MailTemplateStore(lib.DBManagerId<MailTemplate> dbm) : base(dbm) { }
+        public MailTemplateStore(MailTemplateDBM dbm) : base(dbm) { }
 
         protected override void UpdateProperties(MailTemplate olditem, MailTemplate newitem)
         {
@@ -146,7 +146,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool SetSpecificParametersValue(MailTemplate item)
@@ -162,9 +162,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[4].Value = item.Body;
             myinsertupdateparams[5].Value = item.Delay;
             return true;
-        }
-        protected override void LoadObjects(MailTemplate item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

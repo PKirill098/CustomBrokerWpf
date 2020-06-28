@@ -274,7 +274,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class GTDRegisterStore : lib.DomainStorageLoad<GTDRegister>
+    internal class GTDRegisterStore : lib.DomainStorageLoad<GTDRegister, GTDRegisterDBM>
     {
         public GTDRegisterStore(GTDRegisterDBM dbm) : base(dbm) { }
 
@@ -347,7 +347,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override GTDRegister CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon);
+            List<lib.DBMError> errors;
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon, out errors);
+            this.Errors.AddRange(errors);
             Declaration declaration = null;
             if (!reader.IsDBNull(reader.GetOrdinal("declarationid")))
             {
@@ -356,9 +358,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 mytddbm.ItemId = reader.GetInt32(reader.GetOrdinal("declarationid"));
                 declaration = mytddbm.GetFirst();
             }
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon);
+            errors.Clear();
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon, out errors);
+            this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("requestid"))) request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon);
+            if (!reader.IsDBNull(reader.GetOrdinal("requestid")))
+            {
+                errors.Clear();
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                this.Errors.AddRange(errors);
+            }
 
             Specification.Specification spec = new Specification.Specification(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , agent
@@ -446,7 +455,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mypldbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)
@@ -519,9 +528,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             }
             return true;
-        }
-        protected override void LoadObjects(GTDRegister item)
-        {
         }
         protected override bool LoadObjects()
         {
@@ -744,10 +750,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myagentfilter.ExecCommand2 = () => { myagentfilter.Clear(); };
             myagentfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                     foreach (lib.ReferenceSimpleItem item in CustomBrokerWpf.References.AgentNames)
                         myagentfilter.Items.Add(item);
-                return myfilter.isEmpty;
+                return empty;
             };
             myccfilter = new libui.NumberFilterVM();
             myccfilter.ExecCommand1 = () => { FilterRunExec(null); };
@@ -759,10 +766,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myclientfilter.ExecCommand2 = () => { myclientfilter.Clear(); };
             myclientfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                     foreach (CustomerLegal item in myclientfilter.DefaultList)
                         myclientfilter.Items.Add(item);
-                return myfilter.isEmpty;
+                return empty;
             };
             mycostlogisticsfilter = new libui.NumberFilterVM();
             mycostlogisticsfilter.ExecCommand1 = () => { FilterRunExec(null); };
@@ -828,10 +836,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myparcelfilter.ExecCommand2 = () => { myparcelfilter.Clear(); };
             myparcelfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                     foreach (ParcelNumber item in CustomBrokerWpf.References.ParcelNumbers)
                         myparcelfilter.Items.Add(item);
-                return myfilter.isEmpty;
+                return empty;
             };
             myprofitfilter = new libui.NumberFilterVM();
             myprofitfilter.ExecCommand1 = () => { FilterRunExec(null); };
@@ -851,7 +860,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mysellingfilter.ExecCommand2 = () => { mysellingfilter.Clear(); };
             mysellingdatefilter = new libui.DateFilterVM();
             mysellingdatefilter.IsNull = true;
-            mysellingdatefilter.DateStart = DateTime.Today.AddMonths(-4);
+            //mysellingdatefilter.DateStart = DateTime.Today.AddMonths(-4);
             mysellingdatefilter.ExecCommand1 = () => { FilterRunExec(null); };
             mysellingdatefilter.ExecCommand2 = () => { mysellingdatefilter.Clear(); };
             mysellingratefilter = new libui.NumberFilterVM();
@@ -1330,6 +1339,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     }
             }
             return where;
+        }
+        private bool FilterEmpty
+        {
+            get { return !(myparcelfilter.FilterOn ||
+                    myagentfilter.FilterOn ||
+                    myccfilter.FilterOn ||
+                    myclientfilter.FilterOn ||
+                    mycostlogisticsfilter.FilterOn ||
+                    mycostperfilter.FilterOn ||
+                    mycosttotalfilter.FilterOn ||
+                    myddspidyfilter.FilterOn ||
+                    mydeclarationnumberfilter.FilterOn ||
+                    mydtratefilter.FilterOn ||
+                    mydtsumrubfilter.FilterOn ||
+                    myfeefilter.FilterOn ||
+                    mygtlsfilter.FilterOn ||
+                    mygtlscurfilter.FilterOn ||
+                    mygtlsdatefilter.FilterOn ||
+                    mygtlsratefilter.FilterOn ||
+                    mymarkupalgfilter.FilterOn ||
+                    mymarkupbufilter.FilterOn ||
+                    mymarkuptotalilter.FilterOn ||
+                    mymfkfilter.FilterOn ||
+                    mymfkratefilter.FilterOn ||
+                    mymfkwithoutratefilter.FilterOn ||
+                    myparifilter.FilterOn ||
+                    myprofitfilter.FilterOn ||
+                    myprofitabilityfilter.FilterOn ||
+                    myratefilter.FilterOn ||
+                    mysellingfilter.FilterOn ||
+                    mysellingdatefilter.FilterOn ||
+                    mysellingratefilter.FilterOn ||
+                    mysellingwithoutratefilter.FilterOn ||
+                    myslfilter.FilterOn ||
+                    myslratefilter.FilterOn ||
+                    myslwithoutratefilter.FilterOn ||
+                    mytaxfilter.FilterOn ||
+                    mytotalsumfilter.FilterOn ||
+                    myvatfilter.FilterOn ||
+                    myvatpayfilter.FilterOn ||
+                    myvolumefilter.FilterOn ||
+                    myvolumeprofitfilter.FilterOn ||
+                    mywestgatefilter.FilterOn ||
+                    mywestgateratefilter.FilterOn ||
+                    mywestgatewithoutratefilter.FilterOn); }
         }
         #endregion
 
@@ -1836,11 +1890,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
             mydeclarationnumberfiltergroup = myfilter.GroupAdd(myfilter.FilterWhereId, "decnum", "OR");
             myparcelfiltergroup = myfilter.GroupAdd(myfilter.FilterWhereId, "parcel", "OR");
-            myfilter.SetDatePeriod(myfilter.FilterWhereId, "sellingdate", "sellingdatemin", "sellingdatemax", mysellingdatefilter.DateStart, mysellingdatefilter.DateStop, mysellingdatefilter.IsNull);
+            //myfilter.SetDatePeriod(myfilter.FilterWhereId, "sellingdate", "sellingdatemin", "sellingdatemax", mysellingdatefilter.DateStart, mysellingdatefilter.DateStop, mysellingdatefilter.IsNull);
 
             mymaindbm.Filter = myfilter;
             mymaindbm.Collection = new System.Collections.ObjectModel.ObservableCollection<GTDRegister>();
-            mymaindbm.FillAsync();
+            //mymaindbm.FillAsync();
             mysync.DomainCollection = mymaindbm.Collection;
             return mysync.ViewModelCollection;
         }
@@ -1849,7 +1903,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override void RefreshData(object parametr)
         {
-            if (myfilter.isEmpty)
+            if (this.FilterEmpty)
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             else
             {
@@ -1863,6 +1917,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myclientfilter.ItemsSource = myview.OfType<GTDRegisterVM>();
             mydeclarationnumberfilter.ItemsSource = myview.OfType<GTDRegisterVM>();
             myparcelfilter.ItemsSource = myview.OfType<GTDRegisterVM>();
+
+            this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
         }
     }
 

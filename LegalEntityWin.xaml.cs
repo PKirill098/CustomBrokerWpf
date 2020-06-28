@@ -71,12 +71,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             bool isSuccess = false;
             try
             {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                ReferenceDS thisDS = this.FindResource("keyReferenceDS") as ReferenceDS;
-                CustomBrokerWpf.ReferenceDSTableAdapters.LegalEntityAdapter adapter = new ReferenceDSTableAdapters.LegalEntityAdapter();
-                adapter.Update(thisDS.tableLegalEntity);
-                isSuccess = true;
+                if (mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                {
+                    ReferenceDS thisDS = this.FindResource("keyReferenceDS") as ReferenceDS;
+                    CustomBrokerWpf.ReferenceDSTableAdapters.LegalEntityAdapter adapter = new ReferenceDSTableAdapters.LegalEntityAdapter();
+                    adapter.Update(thisDS.tableLegalEntity);
+                    isSuccess = true;
+                }
             }
             catch (Exception ex)
             {

@@ -14,8 +14,8 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <ToolBar Height="35">
-            <my:MainMenuUC VerticalAlignment="Center"/>
-            <Separator/>
+            <!--<my:MainMenuUC VerticalAlignment="Center"/>
+            <Separator/>-->
             <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click">
                 <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
             </ToggleButton>
@@ -61,7 +61,7 @@
                 <DataGridTextColumn Header="№" Binding="{Binding Path=fullNumber}" IsReadOnly="True" />
                 <DataGridComboBoxColumn Header="Тип*" SelectedValueBinding="{Binding Path=parceltype}" DisplayMemberPath="parceltypename" SelectedValuePath="parceltypeid" ItemsSource="{Binding Source={StaticResource keyTypeVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
                 <DataGridComboBoxColumn Header="Статус*" SelectedValueBinding="{Binding Path=parcelstatus}" DisplayMemberPath="name" SelectedValuePath="rowId" ItemsSource="{Binding Source={StaticResource keyStatusVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
-                <DataGridComboBoxColumn Header="Груз" SelectedValueBinding="{Binding Path=goodstype}" DisplayMemberPath="Nameitem" SelectedValuePath="Iditem" ItemsSource="{Binding Source={StaticResource keyGoodsVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                <DataGridComboBoxColumn Header="Груз" SelectedValueBinding="{Binding Path=goodstype}" DisplayMemberPath="Name" SelectedValuePath="Id" ItemsSource="{Binding Source={StaticResource keyGoodsVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
                 <DataGridTextColumn Header="Отправка" Binding="{Binding Path=shipnumber, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}">
                     <DataGridTextColumn.EditingElementStyle>
                         <Style TargetType="{x:Type TextBox}">

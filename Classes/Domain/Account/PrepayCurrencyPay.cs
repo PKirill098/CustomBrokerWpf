@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using System.Linq;
+using System.Windows.Input;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -19,7 +20,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mycursum = cursum;
             myprepay = prepay;
         }
-        internal int oblprepayid { set; get; }
 
         private DateTime mypaydate;
         public DateTime PayDate
@@ -148,9 +148,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(PrepayCurrencyPay item)
         {
         }
-        protected override void LoadObjects(PrepayCurrencyPay item)
-        {
-        }
         protected override bool LoadObjects()
         {
             return true;
@@ -167,7 +164,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myprepay?.Id;
         }
@@ -186,6 +183,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     {
         internal CurrencyPayDBM()
         {
+            this.NeedAddConnection = true;
             SelectCommandText = "account.CurrencyPay_sp";
             SelectParams = new SqlParameter[] { new SqlParameter("@agentid", System.Data.SqlDbType.Int), new SqlParameter("@importerid", System.Data.SqlDbType.Int) };
         }
@@ -206,10 +204,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override PrepayCurrencyPay CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             return new CurrencyPay(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null
-                , DateTime.Today, reader.GetDecimal(reader.GetOrdinal("paysum")), null, reader.GetDecimal(reader.GetOrdinal("credit")))
-            { oblprepayid=reader.GetInt32(reader.GetOrdinal("prepayid")) };
+                , DateTime.Today, reader.GetDecimal(reader.GetOrdinal("paysum"))
+                , CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon,out _)
+                , reader.GetDecimal(reader.GetOrdinal("credit")));
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)
@@ -222,14 +221,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         break;
                 }
         }
-        protected override void LoadObjects(PrepayCurrencyPay item)
-        {
-            if (item.Prepay == null) item.Prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(item.oblprepayid);
-        }
         protected override bool LoadObjects()
         {
-            foreach (PrepayCurrencyPay item in this.Collection)
-                LoadObjects(item);
             return this.Errors.Count == 0;
         }
     }
@@ -291,7 +284,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         public bool ProcessedIn { set; get; }
         public bool ProcessedOut { set; get; }
-        public bool Selected
+        public virtual bool Selected
         {
             set {}
             get { return true; }
@@ -367,7 +360,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
 
         public decimal Credit { get { return (this.DomainObject as CurrencyPay).Credit; } }
-        public new bool Selected
+        public override bool Selected
         {
             set
             {
@@ -506,6 +499,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mytotal = new CurrencyPayTotal(myview);
             if (mymaindbm.Errors.Count > 0)
                 this.OpenPopup(mymaindbm.ErrorMessage, true);
+        
+            myselectall = new RelayCommand(SelectAllExec, SelectAllCanExec);
         }
 
         CurrencyPayDBM mymaindbm;
@@ -517,7 +512,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-                mymaindbm.Agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(value);
+                mymaindbm.Agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(value,out _);
                 mymaindbm.Fill();
             }
             get { return mymaindbm.Agent?.Id ?? 0; }
@@ -537,6 +532,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         internal Importer Importer
         { get { return mymaindbm.Importer; } }
+
+        private RelayCommand myselectall;
+        public ICommand SelectAll
+        {
+            get { return myselectall; }
+        }
+        private void SelectAllExec(object parametr)
+        {
+            bool select = (bool)parametr;
+            foreach (object item in myview) if (item is ISelectable) (item as ISelectable).Selected = select;
+        }
+        private bool SelectAllCanExec(object parametr)
+        { return true; }
 
         protected override bool CanAddData(object parametr)
         {

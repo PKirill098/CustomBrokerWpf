@@ -227,6 +227,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             Request newitem = new Request(reader.GetInt32(0), 0
                 , reader.IsDBNull(reader.GetOrdinal("UpdateWhen")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("UpdateWhen"))
                 , reader.IsDBNull(reader.GetOrdinal("UpdateWho")) ? null : reader.GetString(reader.GetOrdinal("UpdateWho")), lib.DomainObjectState.Sealed
+                , null
                 , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("status")))
                 , reader.IsDBNull(reader.GetOrdinal("agentId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("agentId"))
                 , reader.IsDBNull(reader.GetOrdinal("customerId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("customerId"))
@@ -315,12 +316,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 );
         }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myrequest?.Id;
-        }
-        protected override void LoadObjects(RequestHistory item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

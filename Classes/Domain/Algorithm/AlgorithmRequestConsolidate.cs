@@ -453,7 +453,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = mycmd.Parcel.Id;
             this.SelectParams[1].Value = mycmd.Group;
@@ -475,9 +475,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[10].Value = item.Value2User.HasValue;
             myinsertupdateparams[11].Value = item.AFStamp;
             return true;
-        }
-        protected override void LoadObjects(AlgorithmValuesRequestCon item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -538,7 +535,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public decimal? InvoiceDiscount
         { get { return DBNull.Value == (this.SelectParams[9].Value ?? DBNull.Value) ? myinvoicediscount : (myinvoicediscount ?? 0M) + (decimal)this.SelectParams[9].Value; } }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myccmd.Group;
             this.SelectParams[1].Value = myccmd.Parcel.Id;
@@ -589,7 +586,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             get { return mygroup; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myparcelid; this.SelectParams[1].Value = mygroup;
         }
@@ -624,9 +621,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void ItemAcceptChanches(Algorithm item)
         {
             item.AcceptChanches();
-        }
-        protected override void LoadObjects(Algorithm item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -1590,7 +1584,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             AlgorithmConsolidateCommand firstitem = this.GetItem(id);
             if (firstitem == default(AlgorithmConsolidateCommand))
             {
-                Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(id.ObjectId);
+                Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(id.ObjectId,out var errors);
                 firstitem = new AlgorithmConsolidateCommand(parcel, id.GroupId);
             }
             return firstitem;

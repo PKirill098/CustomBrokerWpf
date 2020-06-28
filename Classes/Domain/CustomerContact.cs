@@ -192,10 +192,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[3].Value = item.ContactType;
             return true;
         }
-        protected override void SetSelectParametersValue()
-        {
-        }
-        protected override void LoadObjects(CustomerContact item)
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()

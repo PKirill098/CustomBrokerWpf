@@ -190,7 +190,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
            SelectParams[0].Value= myfilter?.FilterWhereId;
         }
@@ -272,9 +272,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             return true;
         }
-        protected override void LoadObjects(VendorCode item)
-        {
-        }
         protected override bool LoadObjects()
         { return true; }
     }
@@ -296,7 +293,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return myspecification; }
         }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value=myspecification?.Id
 ;

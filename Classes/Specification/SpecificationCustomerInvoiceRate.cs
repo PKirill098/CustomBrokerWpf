@@ -38,10 +38,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void LoadObjects(SpecificationCustomerInvoiceRate item)
-        {
-        }
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value = Specification.Id;
         }

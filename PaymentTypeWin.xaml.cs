@@ -65,11 +65,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             bool isSuccess = false;
             try
             {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.PaymentTypeAdapter itemAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.PaymentTypeAdapter();
-                itemAdapter.Update(itemDS.tablePaymentType);
-                isSuccess = true;
+                if (mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                {
+                    KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
+                    KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.PaymentTypeAdapter itemAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.PaymentTypeAdapter();
+                    itemAdapter.Update(itemDS.tablePaymentType);
+                    isSuccess = true;
+                }
             }
             catch (Exception ex)
             {

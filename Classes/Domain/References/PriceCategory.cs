@@ -139,7 +139,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
             mydeletecommandtext = "DELETE FROM spec.PriceCategory_tb WHERE id=@id";
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override PriceCategory CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -183,9 +183,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         protected override void ItemAcceptChanches(PriceCategory item)
         {
             item.AcceptChanches();
-        }
-        protected override void LoadObjects(PriceCategory item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

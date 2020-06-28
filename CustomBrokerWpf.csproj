@@ -153,6 +153,7 @@
     <Compile Include="Classes\Domain\Account\CustomsInvoicePay.cs" />
     <Compile Include="Classes\Domain\Account\FinalInvoicePay.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegister.cs" />
+    <Compile Include="Classes\Domain\Account\InvoiceCurrencyPay.cs" />
     <Compile Include="Classes\Domain\Account\PrepayCurrencyPay.cs" />
     <Compile Include="Classes\Domain\Account\Selling.cs" />
     <Compile Include="Classes\Domain\AgentAlias.cs" />
@@ -193,7 +194,7 @@
     <Compile Include="Classes\CurrencyRate.cs" />
     <Compile Include="Classes\Domain\Account\PaymentRegister.cs" />
     <Compile Include="Classes\Domain\Account\Prepay.cs" />
-    <Compile Include="Classes\Domain\Account\PrepayCurrencyBuy.cs" />
+    <Compile Include="Classes\Domain\Account\CurrencyBuy.cs" />
     <Compile Include="Classes\Domain\Account\PrepayCustomerRequest.cs" />
     <Compile Include="Classes\Domain\Account\PrepayRubPay.cs" />
     <Compile Include="Classes\Domain\Agent.cs" />
@@ -209,7 +210,6 @@
     <Compile Include="Classes\Domain\DeliveryCarry.cs" />
     <Compile Include="Classes\Domain\DeliveryCarryAddresses.cs" />
     <Compile Include="Classes\Domain\DeliveryCars.cs" />
-    <Compile Include="Classes\Domain\GTDRegistry.cs" />
     <Compile Include="Classes\Domain\Importer.cs" />
     <Compile Include="Classes\Domain\ImporterParcelRequestTotal.cs" />
     <Compile Include="Classes\Domain\MailTemplate.cs" />
@@ -354,6 +354,9 @@
     </Compile>
     <Compile Include="MaterialWin.xaml.cs">
       <DependentUpon>MaterialWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\FinalInvoiceCurPayWin.xaml.cs">
+      <DependentUpon>FinalInvoiceCurPayWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Parcel\ParcelReportChartWin.xaml.cs">
       <DependentUpon>ParcelReportChartWin.xaml</DependentUpon>
@@ -822,6 +825,10 @@
     <Page Include="MaterialWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Account\FinalInvoiceCurPayWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Parcel\ParcelFilterWin.xaml">
       <SubType>Designer</SubType>

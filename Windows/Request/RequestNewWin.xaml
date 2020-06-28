@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+		xmlns:libcnv="clr-namespace:KirillPolyanskiy.BindingConverters;assembly=DataModelClassLibrary"
         mc:Ignorable="d"
         Title="Заявка" Name="winRequestNew" Height="950" Width="1360" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/document.png" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing">
     <Grid IsSharedSizeScope="True">
         <Grid.Resources>
             <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
-            <Style TargetType="TextBlock">
+			<libcnv:NoDisplayNewId x:Key="NoDisplayNewIdCNV"/>
+			<Style TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Padding" Value="4,0"/>
             </Style>
@@ -184,7 +186,7 @@
                             <ComboBox SelectedItem="{Binding Path=Importer}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                         </Border>
                         <Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Id, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0">
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Id, Mode=OneWay,Converter={StaticResource NoDisplayNewIdCNV}}" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
                                         <Style.Triggers>
@@ -429,7 +431,7 @@
                             <ComboBox SelectedItem="{Binding Path=ParcelType}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.ParcelTypes}" DisplayMemberPath="Name" IsEnabled="{Binding Path=ParcelTypeEnable}" Background="#e0f7e3" BorderBrush="#e0f7e3" BorderThickness="0" Margin="2"/>
                         </Border>
                         <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Nameitem" DisplayMemberPath="Nameitem" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
+                            <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
                         </Border>
                         <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
                         <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">

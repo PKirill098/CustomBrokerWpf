@@ -608,7 +608,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Goods CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -721,14 +721,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override void LoadObjects(Goods item)
-        {
-        }
         protected override bool LoadObjects()
         { return true; }
     }
 
-    internal class GoodsStore : lib.DomainStorageLoad<Goods>
+    internal class GoodsStore : lib.DomainStorageLoad<Goods, GoodsDBM>
     {
         public GoodsStore(GoodsDBM dbm) : base(dbm) {}
 
@@ -2651,15 +2648,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[] { new SqlParameter("@clientid", clientid) };
         }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
         }
         protected override string CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             return reader.GetString(0);
-        }
-        protected override void LoadObjects(string item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

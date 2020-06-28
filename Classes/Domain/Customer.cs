@@ -576,7 +576,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[i++].Value = item.State;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
 
@@ -630,14 +630,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool LoadObjects()
         { return true; }
-        protected override void LoadObjects(Customer item)
-        {
-        }
     }
 
-    internal class CustomerStore : lib.DomainStorageLoad<Customer>
+    internal class CustomerStore : lib.DomainStorageLoad<Customer, CustomerDBM>
     {
-        public CustomerStore(lib.DBManagerId<Customer> dbm) : base(dbm) { }
+        public CustomerStore(CustomerDBM dbm) : base(dbm) { }
 
         protected override void UpdateProperties(Customer olditem, Customer newitem)
         {

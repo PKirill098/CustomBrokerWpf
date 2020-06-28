@@ -341,6 +341,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public CustomerLegalDBM()
         {
+            base.NeedAddConnection = true;
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
 
             SelectCommandText = "dbo.CustomerLegal_sp";
@@ -423,11 +424,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return (int)base.SelectParams[1].Value; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override CustomerLegal CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
+			System.Collections.Generic.List<lib.DBMError> errors;
+            Customer customer = CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parentid")), addcon, out errors);
+            this.Errors.AddRange(errors);
             CustomerLegal newitem = new CustomerLegal(id: reader.GetInt32(0), stamp: reader.GetInt32(1), updater: reader.IsDBNull(3) ? null : reader.GetString(3), updated: reader.IsDBNull(2) ? (DateTime?)null : reader.GetDateTime(2), dstate: lib.DomainObjectState.Unchanged
                 , account: null
                 , bankaccount: reader.IsDBNull(reader.GetOrdinal("raccount")) ? null : reader.GetString(reader.GetOrdinal("raccount"))
@@ -436,7 +440,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , contractdate: reader.IsDBNull(reader.GetOrdinal("contractdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("contractdate"))
                 , contractnum: reader.IsDBNull(reader.GetOrdinal("contractnum")) ? null : reader.GetString(reader.GetOrdinal("contractnum"))
                 , corraccount: reader.IsDBNull(reader.GetOrdinal("coraccount")) ? null : reader.GetString(reader.GetOrdinal("coraccount"))
-                , customer: CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parentid")), addcon)
+                , customer: customer
                 , dayentry: reader.GetDateTime(reader.GetOrdinal("customerDayEntry"))
                 , deliverytype: reader.IsDBNull(reader.GetOrdinal("deliverytypeID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("deliverytypeID"))
                 , fullname: reader.IsDBNull(reader.GetOrdinal("customerFullName")) ? null : reader.GetString(reader.GetOrdinal("customerFullName"))
@@ -614,10 +618,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        protected override void LoadObjects(CustomerLegal item)
-        {
-            //if (item.Customer == null) item.Customer = CustomBrokerWpf.References.CustomerStore.GetItemLoad(item.mycustomerid,this.Command.Connection);
-        }
         protected override bool LoadObjects()
         {
             //foreach (CustomerLegal item in this.Collection)
@@ -626,9 +626,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class CustomerLegalStore : lib.DomainStorageLoad<CustomerLegal>
+    internal class CustomerLegalStore : lib.DomainStorageLoad<CustomerLegal, CustomerLegalDBM>
     {
-        public CustomerLegalStore(lib.DBManagerId<CustomerLegal> dbm) : base(dbm) { }
+        public CustomerLegalStore(CustomerLegalDBM dbm) : base(dbm) { }
 
         protected override void UpdateProperties(CustomerLegal olditem, CustomerLegal newitem)
         {
@@ -1490,7 +1490,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private void Items_CurrentChanged(object sender, EventArgs e)
         {
             if(myview.CurrentAddItem!=null)
-                (myview.CurrentAddItem as CustomerLegalVM).DomainObject.Customer= CustomBrokerWpf.References.CustomerStore.GetItemLoad(this.CustomerId);
+                (myview.CurrentAddItem as CustomerLegalVM).DomainObject.Customer = CustomBrokerWpf.References.CustomerStore.GetItemLoad(this.CustomerId,out var errors);
         }
     }
 }

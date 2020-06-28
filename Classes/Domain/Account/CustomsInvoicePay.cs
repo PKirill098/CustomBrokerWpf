@@ -224,9 +224,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(CustomsInvoicePay item)
         {
         }
-        protected override void LoadObjects(CustomsInvoicePay item)
-        {
-        }
         protected override bool LoadObjects()
         {
             return true;
@@ -243,7 +240,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myinvoice?.Id;
         }
@@ -440,47 +437,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             bool sucess = base.SaveDataChanges();
             mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.PaySum));
             mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.PaidDate));
-            return sucess;
-        }
-    }
-    public class CustomsInvoicePayFinalCur1ViewCommand : CustomsInvoicePayViewCommand
-    {
-        public CustomsInvoicePayFinalCur1ViewCommand(CustomsInvoice invoice) : base(invoice, new CustomsInvoicePayValidatorFinalCur1())
-        {
-            mymaindbm.SelectCommandText = "account.FinalInvoicePayCur1_sp";
-            mymaindbm.InsertCommandText = "account.FinalInvoicePayCur1Add_sp";
-            mymaindbm.UpdateCommandText = "account.FinalInvoicePayCur1Upd_sp";
-            mymaindbm.DeleteCommandText = "account.FinalInvoicePayCur1Del_sp";
-            mymaindbm.Collection = mymaindbm.Invoice.FinalCurPays1;
-            mysync.DomainCollection = mymaindbm.Invoice.FinalCurPays1;
-            base.Collection = mysync.ViewModelCollection;
-        }
-        public override bool SaveDataChanges()
-        {
-            bool sucess = base.SaveDataChanges();
-            mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.FinalCurPaySum));
-            mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.FinalCurPaidDate1));
-            return sucess;
-        }
-
-    }
-    public class CustomsInvoicePayFinalCur2ViewCommand : CustomsInvoicePayViewCommand
-    {
-        public CustomsInvoicePayFinalCur2ViewCommand(CustomsInvoice invoice) : base(invoice, new CustomsInvoicePayValidatorFinalCur2())
-        {
-            mymaindbm.SelectCommandText = "account.FinalInvoicePayCur2_sp";
-            mymaindbm.InsertCommandText = "account.FinalInvoicePayCur2Add_sp";
-            mymaindbm.UpdateCommandText = "account.FinalInvoicePayCur2Upd_sp";
-            mymaindbm.DeleteCommandText = "account.FinalInvoicePayCur2Del_sp";
-            mymaindbm.Collection = mymaindbm.Invoice.FinalCurPays2;
-            mysync.DomainCollection = mymaindbm.Invoice.FinalCurPays2;
-            base.Collection = mysync.ViewModelCollection;
-        }
-        public override bool SaveDataChanges()
-        {
-            bool sucess = base.SaveDataChanges();
-            mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.FinalCurPaySum2));
-            mymaindbm.Invoice.PropertyChangedNotification(nameof(CustomsInvoice.FinalCurPaidDate2));
             return sucess;
         }
     }

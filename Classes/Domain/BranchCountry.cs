@@ -52,6 +52,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         internal BranchCountryDBM()
         {
+            this.NeedAddConnection = true;
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
             SelectCommandText = "[spec].[BranchCountry_sp]";
             SelectProcedure = true;
@@ -69,17 +70,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     this.Countries[i - 1] = CustomBrokerWpf.References.Countries.FindFirstItem("Code", int.Parse(reader.GetName(i)));
                 }
             }
-            BranchCountry item = new BranchCountry(new GoodsVM(CustomBrokerWpf.References.GoodsStore.GetItemLoad(reader.GetInt32(0))), new BranchVM[reader.FieldCount - 1]);
+            BranchCountry item = new BranchCountry(new GoodsVM(CustomBrokerWpf.References.GoodsStore.GetItemLoad(reader.GetInt32(0), addcon, out var errors)), new BranchVM[reader.FieldCount - 1]);
+            this.Errors.AddRange(errors);
             for (int i = 1; i < reader.FieldCount; i++)
             {
-                item.Branches[i - 1] = reader.IsDBNull(i) ? null : new BranchVM(CustomBrokerWpf.References.BranchStore.GetItemLoad(reader.GetInt32(i)));
+                item.Branches[i - 1] = reader.IsDBNull(i) ? null : new BranchVM(CustomBrokerWpf.References.BranchStore.GetItemLoad(reader.GetInt32(i), addcon, out errors));
+                this.Errors.AddRange(errors);
             }
             return item;
         }
-        protected override void SetParametersValue()
-        {
-        }
-        protected override void LoadObjects(BranchCountry item)
+        protected override void PrepareFill(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()

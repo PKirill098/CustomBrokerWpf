@@ -112,7 +112,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class AgentStore : lib.DomainStorageLoad<Agent>
+    internal class AgentStore : lib.DomainStorageLoad<Agent, AgentDBM>
     {
         public AgentStore(AgentDBM dbm) : base(dbm) { }
 
@@ -208,7 +208,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 myadbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.NeedAddConnection = myadbm != null;
         }
@@ -253,9 +253,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                 }
             return true;
-        }
-        protected override void LoadObjects(Agent item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -512,6 +509,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (object.Equals(current, item.DomainObject))
                         myview.MoveCurrentTo(item);
             }
+            CustomBrokerWpf.References.AgentNames.Refresh();
+            CustomBrokerWpf.References.AgentNames.RefreshViews();
         }
         protected override void SettingView()
         {

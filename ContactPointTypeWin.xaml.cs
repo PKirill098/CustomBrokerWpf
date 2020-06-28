@@ -71,11 +71,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             bool isSuccess = false;
             try
             {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                CustomBrokerWpf.ReferenceDS thisDS = ((CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
-                CustomBrokerWpf.ReferenceDSTableAdapters.ContactPointTypeAdapter thisAdapter = new CustomBrokerWpf.ReferenceDSTableAdapters.ContactPointTypeAdapter();
-                thisAdapter.Update(thisDS.ContactPointTypeTb);
-                isSuccess = true;
+                if (mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                {
+                    CustomBrokerWpf.ReferenceDS thisDS = ((CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
+                    CustomBrokerWpf.ReferenceDSTableAdapters.ContactPointTypeAdapter thisAdapter = new CustomBrokerWpf.ReferenceDSTableAdapters.ContactPointTypeAdapter();
+                    thisAdapter.Update(thisDS.ContactPointTypeTb);
+                    isSuccess = true;
+                }
             }
             catch (Exception ex)
             {

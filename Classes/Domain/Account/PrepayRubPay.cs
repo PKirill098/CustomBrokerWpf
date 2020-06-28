@@ -132,9 +132,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(PrepayRubPay item)
         {
         }
-        protected override void LoadObjects(PrepayRubPay item)
-        {
-        }
         protected override bool LoadObjects()
         {
             return true;
@@ -151,7 +148,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value= myprepay?.Id;
         }

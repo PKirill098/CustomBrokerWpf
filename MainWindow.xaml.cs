@@ -1547,44 +1547,44 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 //    OpenOldRequest();
             }
         }
-        private void OpenOldRequest()
-        {
-            RequestItemWin newWin = null;
-            foreach (Window item in this.OwnedWindows)
-            {
-                if (item.Name == "winRequestItem")
-                {
-                    if ((item as RequestItemWin).mainGrid.DataContext.Equals(this.RequestDataGrid.CurrentItem))
-                        newWin = item as RequestItemWin;
-                }
-            }
-            if (newWin == null)
-            {
-                newWin = new RequestItemWin();
-                newWin.Owner = this;
-                ReferenceDS refDS = this.RequestGrid.FindResource("keyReferenceDS") as ReferenceDS;
-                newWin.statusComboBox.ItemsSource = new System.Data.DataView(refDS.tableRequestStatus, "rowId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-                newWin.statusComboBox.IsDropDownOpen = false;
-                newWin.goodsComboBox.ItemsSource = new System.Data.DataView(refDS.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-                newWin.parceltypeComboBox.ItemsSource = new System.Data.DataView(refDS.tableParcelType);
-                if (!((this.RequestDataGrid.CurrentItem as DataRowView).Row as RequestDS.tableRequestRow).IsfullNumberNull()) { newWin.parceltypeComboBox.IsEnabled = false; }
-                //newWin.forwarderComboBox.ItemsSource = new System.Data.DataView(refDS.tableForwarder, "itemId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-                //newWin.storeComboBox.ItemsSource = new System.Data.DataView(refDS.tableStore, "storeId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+        //private void OpenOldRequest()
+        //{
+        //    RequestItemWin newWin = null;
+        //    foreach (Window item in this.OwnedWindows)
+        //    {
+        //        if (item.Name == "winRequestItem")
+        //        {
+        //            if ((item as RequestItemWin).mainGrid.DataContext.Equals(this.RequestDataGrid.CurrentItem))
+        //                newWin = item as RequestItemWin;
+        //        }
+        //    }
+        //    if (newWin == null)
+        //    {
+        //        newWin = new RequestItemWin();
+        //        newWin.Owner = this;
+        //        ReferenceDS refDS = this.RequestGrid.FindResource("keyReferenceDS") as ReferenceDS;
+        //        newWin.statusComboBox.ItemsSource = new System.Data.DataView(refDS.tableRequestStatus, "rowId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+        //        newWin.statusComboBox.IsDropDownOpen = false;
+        //        newWin.goodsComboBox.ItemsSource = new System.Data.DataView(refDS.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+        //        newWin.parceltypeComboBox.ItemsSource = new System.Data.DataView(refDS.tableParcelType);
+        //        if (!((this.RequestDataGrid.CurrentItem as DataRowView).Row as RequestDS.tableRequestRow).IsfullNumberNull()) { newWin.parceltypeComboBox.IsEnabled = false; }
+        //        //newWin.forwarderComboBox.ItemsSource = new System.Data.DataView(refDS.tableForwarder, "itemId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+        //        //newWin.storeComboBox.ItemsSource = new System.Data.DataView(refDS.tableStore, "storeId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
 
-                RequestDS requestDS = ((RequestDS)(this.RequestGrid.FindResource("requestDS")));
-                newWin.customerComboBox.ItemsSource = new System.Data.DataView(requestDS.tableCustomerName, string.Empty, "customerName", System.Data.DataViewRowState.CurrentRows);
-                newWin.agentComboBox.ItemsSource = new System.Data.DataView(requestDS.tableAgentName, string.Empty, "agentName", System.Data.DataViewRowState.CurrentRows);
-                newWin.mainGrid.DataContext = this.RequestDataGrid.CurrentItem;
-                newWin.RequestItemViewCommand = new Classes.Domain.RequestItemViewCommand(((this.RequestDataGrid.CurrentItem as DataRowView).Row as CustomBrokerWpf.RequestDS.tableRequestRow).requestId);
-                newWin.thisStoragePointValidationRule.RequestId = ((this.RequestDataGrid.CurrentItem as DataRowView).Row as CustomBrokerWpf.RequestDS.tableRequestRow).requestId;
-                newWin.Show();
-            }
-            else
-            {
-                newWin.Activate();
-                if (newWin.WindowState == WindowState.Minimized) newWin.WindowState = WindowState.Normal;
-            }
-        }
+        //        RequestDS requestDS = ((RequestDS)(this.RequestGrid.FindResource("requestDS")));
+        //        newWin.customerComboBox.ItemsSource = new System.Data.DataView(requestDS.tableCustomerName, string.Empty, "customerName", System.Data.DataViewRowState.CurrentRows);
+        //        newWin.agentComboBox.ItemsSource = new System.Data.DataView(requestDS.tableAgentName, string.Empty, "agentName", System.Data.DataViewRowState.CurrentRows);
+        //        newWin.mainGrid.DataContext = this.RequestDataGrid.CurrentItem;
+        //        newWin.RequestItemViewCommand = new Classes.Domain.RequestItemViewCommand(((this.RequestDataGrid.CurrentItem as DataRowView).Row as CustomBrokerWpf.RequestDS.tableRequestRow).requestId);
+        //        newWin.thisStoragePointValidationRule.RequestId = ((this.RequestDataGrid.CurrentItem as DataRowView).Row as CustomBrokerWpf.RequestDS.tableRequestRow).requestId;
+        //        newWin.Show();
+        //    }
+        //    else
+        //    {
+        //        newWin.Activate();
+        //        if (newWin.WindowState == WindowState.Minimized) newWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void OpenNewRequest()
         {
             RequestNewWin newWin = null;
@@ -2953,16 +2953,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return myimporters;
             }
         }
-        private System.Data.DataView myloaddescriptions;
-        public System.Data.DataView LoadDescriptions
+        private ListCollectionView myloaddescriptions;
+        public ListCollectionView LoadDescriptions
         {
             get
             {
                 if (myloaddescriptions == null)
                 {
-                    ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
-                    if (refds.tableGoodsType.Count == 0) refds.GoodsTypeRefresh();
-                    myloaddescriptions = new System.Data.DataView(refds.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+                    myloaddescriptions = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
+                    myloaddescriptions.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
                 return myloaddescriptions;
             }

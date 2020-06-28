@@ -471,18 +471,24 @@
 									<TextBox x:Name="offactWeightTextBox" Text="{Binding Path=RequestTotal.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
-									<TextBlock Text="Стоимость"/>
+										<TextBlock Text="Стоимость\Cкидка"/>
 								</Border>
-								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
 									<TextBox x:Name="goodValueTextBox" Text="{Binding Path=RequestTotal.Invoice, Mode=OneWay, StringFormat=\{0:N2\}}" Foreground="{Binding Path=InvoiceForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
-									<TextBlock Text="Стоимость, скидка"/>
+									<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox x:Name="goodValueDiscountTextBox" Text="{Binding Path=RequestTotal.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
+									<TextBlock Text="Cкидка ТД\ТЭО"/>
 								</Border>
-								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="goodValueDiscountTextBox" Text="{Binding Path=RequestTotal.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=RequestTotal.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox Text="{Binding Path=RequestTotal.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
@@ -545,18 +551,24 @@
 									<TextBox x:Name="DOffactWeightTextBox" Text="{Binding Path=RequestTotalD.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
-									<TextBlock Text="Стоимость"/>
+									<TextBlock Text="Стоимость\Скидка"/>
 								</Border>
-								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
 									<TextBox x:Name="DGoodValueTextBox" Text="{Binding Path=RequestTotalD.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
-									<TextBlock Text="Стоимость, скидка"/>
-								</Border>
-								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
 									<TextBox x:Name="DGoodValueDiscountTextBox" Text="{Binding Path=RequestTotalD.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
+										<TextBlock Text="Cкидка ТД\ТЭО"/>
+								</Border>
+									<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox Text="{Binding Path=RequestTotalD.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox Text="{Binding Path=RequestTotalD.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
@@ -619,18 +631,24 @@
 									<TextBox x:Name="TOffactWeightTextBox" Text="{Binding Path=RequestTotalT.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
-									<TextBlock Text="Стоимость"/>
+										<TextBlock Text="Стоимость\Скидка"/>
 								</Border>
-								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
 									<TextBox x:Name="TGoodValueTextBox" Text="{Binding Path=RequestTotalT.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
-									<TextBlock Text="Стоимость, скидка"/>
+									<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox x:Name="TGoodValueDiscountTextBox" Text="{Binding Path=RequestTotalT.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
+										<TextBlock Text="Cкидка ТД\ТЭО"/>
 								</Border>
-								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TGoodValueDiscountTextBox" Text="{Binding Path=RequestTotalT.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=RequestTotalT.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+										<TextBox Text="{Binding Path=RequestTotalT.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									</Border>
+									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">

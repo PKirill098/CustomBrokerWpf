@@ -87,7 +87,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return mymapping; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override GoodsSynonym CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -123,9 +123,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertparams[1].Value = mymapping.Id;
             myinsertupdateparams[0].Value = item.Name;
             return true;
-        }
-        protected override void LoadObjects(GoodsSynonym item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

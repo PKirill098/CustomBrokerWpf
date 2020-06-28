@@ -709,10 +709,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override void SetSelectParametersValue()
-        {
-        }
-        protected override void LoadObjects(AllPrice item)
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()

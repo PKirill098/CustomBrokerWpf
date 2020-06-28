@@ -2,23 +2,21 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace KirillPolyanskiy.CustomBrokerWpf
+namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
 {
-    public partial class PrepayCurrencyBuyWin : Window
+    public partial class FinalInvoiceCurPayWin : Window
     {
-        public PrepayCurrencyBuyWin()
+        public FinalInvoiceCurPayWin()
         {
             InitializeComponent();
             mydischanger = new DataModelClassLibrary.BindingDischarger(this, new DataGrid[] { MainDataGrid });
         }
 
         private DataModelClassLibrary.BindingDischarger mydischanger;
-        internal DataModelClassLibrary.BindingDischarger BindingDischarger
-        { get { return mydischanger; } }
 
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            PrepayCurrencyBuyViewCommand cmd = e.NewValue as PrepayCurrencyBuyViewCommand;
+            InvoiceCurrencyPayCommand cmd = e.NewValue as InvoiceCurrencyPayCommand;
             if (cmd != null)
             {
                 cmd.EndEdit = mydischanger.EndEdit;
@@ -31,10 +29,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            PrepayCurrencyBuyViewCommand cmd = this.DataContext as PrepayCurrencyBuyViewCommand;
+            InvoiceCurrencyPayCommand cmd = this.DataContext as InvoiceCurrencyPayCommand;
             bool isdirty = !mydischanger.EndEdit();
             if (!isdirty)
-                foreach (CurrencyBuyVM item in cmd.Items)
+                foreach (InvoiceCurrencyPayVM item in cmd.Items)
                     if (item.IsDirty)
                     { isdirty = true; break; }
             if (!isdirty)
@@ -42,30 +40,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (!cmd.SaveDataChanges())
                 {
                     this.Activate();
-                    if (MessageBox.Show("\nИзменения в ДС не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                    if (MessageBox.Show("\nИзменения не сохранены. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
                     {
                         e.Cancel = true;
                     }
-                    else
-                        cmd.Reject.Execute(null);
                 }
             }
             else
             {
                 this.Activate();
-                if (MessageBox.Show("\nИзменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                if (MessageBox.Show("\nИзменения не сохранены. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
                 {
                     e.Cancel = true;
-                }
-                else
-                {
-                    cmd.Reject.Execute(null);
                 }
             }
             if (!e.Cancel)
             {
-                //if (!e.Cancel) (App.Current.MainWindow as MainWindow).ListChildWindow.Remove(this);
-                //App.Current.MainWindow.Activate();
                 this.Owner.Activate();
             }
         }

@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         mc:Ignorable="d"
@@ -16,6 +17,19 @@
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<ToolBar Height="30">
+			<Button Command="{Binding Path=SelectAll}" ToolTip="Выделить все">
+				<Button.CommandParameter>
+					<sys:Boolean>true</sys:Boolean>
+				</Button.CommandParameter>
+				<Image Source="/CustomBrokerWpf;component/Images/check2.png" />
+			</Button>
+			<Button Command="{Binding Path=SelectAll}" ToolTip="Снять выделение">
+				<Button.CommandParameter>
+					<sys:Boolean>false</sys:Boolean>
+				</Button.CommandParameter>
+				<Image Source="/CustomBrokerWpf;component/Images/selection.png"/>
+			</Button>
+			<Separator/>
 			<Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию">
 				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
 			</Button>

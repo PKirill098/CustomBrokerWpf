@@ -119,7 +119,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool SetSpecificParametersValue(Formula item)
@@ -135,9 +135,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[4].Value = item.Formula1;
             myinsertupdateparams[5].Value = item.Formula2;
             return true;
-        }
-        protected override void LoadObjects(Formula item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

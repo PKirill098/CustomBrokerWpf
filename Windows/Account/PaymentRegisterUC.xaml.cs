@@ -87,13 +87,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             Classes.Domain.Importer importer = (this.DataContext as PaymentRegisterViewCommander).Importer;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winCurrencyBuy" && (item.DataContext as CurrencyBuyViewCommand).Importer == importer) ObjectWin = item;
+                if (item.Name == "winCurrencyBuy" && (item.DataContext as CurrencyBuyJointViewCommand).Importer == importer) ObjectWin = item;
             }
             if (ObjectWin == null)
             {
                 ObjectWin = new CurrencyBuyWin();
                 mychildwindows.Add(ObjectWin);
-                ObjectWin.DataContext = new Classes.Domain.Account.CurrencyBuyViewCommand(importer);
+                ObjectWin.DataContext = new Classes.Domain.Account.CurrencyBuyJointViewCommand(importer);
                 ObjectWin.Show();
             }
             else
@@ -198,11 +198,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             if (invoice == null) return;
             foreach (Window item in myhost.OwnedWindows)
             {
-                if (item.Name == "winCustomsInvoicePay" && (item.DataContext as CustomsInvoicePayFinalCur1ViewCommand).Invoice == invoice) ObjectWin = item;
+                if (item.Name == "winFinalInvoiceCurPay" && (item.DataContext as CustomsInvoicePayFinalCur1ViewCommand)?.Invoice == invoice) ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new CustomsInvoicePayWin();
+                ObjectWin = new FinalInvoiceCurPayWin();
                 ObjectWin.Owner = myhost;
                 ObjectWin.DataContext = new Classes.Domain.Account.CustomsInvoicePayFinalCur1ViewCommand(invoice);
                 ObjectWin.WindowState = WindowState.Normal;
@@ -221,11 +221,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             if (invoice == null) return;
             foreach (Window item in myhost.OwnedWindows)
             {
-                if (item.Name == "winCustomsInvoicePay" && (item.DataContext as CustomsInvoicePayFinalCur2ViewCommand).Invoice == invoice) ObjectWin = item;
+                if (item.Name == "winFinalInvoiceCurPay" && (item.DataContext as CustomsInvoicePayFinalCur2ViewCommand)?.Invoice == invoice) ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new CustomsInvoicePayWin();
+                ObjectWin = new FinalInvoiceCurPayWin();
                 ObjectWin.Owner = myhost;
                 ObjectWin.DataContext = new Classes.Domain.Account.CustomsInvoicePayFinalCur2ViewCommand(invoice);
                 ObjectWin.WindowState = WindowState.Normal;
@@ -240,11 +240,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
         private void PrepayCurrencyBuyButton_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
-            Prepay prepay = ((sender as Button).Tag as PrepayCustomerRequestVM).Prepay;
+            lib.DomainBaseStamp prepay;
+            if (((sender as Button).Tag as PrepayCustomerRequestVM).Prepay.CBRate.HasValue)
+                prepay = ((sender as Button).Tag as PrepayCustomerRequestVM).Prepay;
+            else
+                prepay = ((sender as Button).Tag as PrepayCustomerRequestVM).CustomsInvoice;
             foreach (Window item in myhost.OwnedWindows)
-            {
-                if (item.Name == "winPrepayCurrencyBuy" && (item.DataContext as PrepayCurrencyBuyViewCommand).Prepay == prepay) ObjectWin = item;
-            }
+                if (item.Name == "winPrepayCurrencyBuy" && ((item.DataContext as PrepayCurrencyBuyViewCommand).Prepay == prepay || (item.DataContext as PrepayCurrencyBuyViewCommand).Invoice == prepay))
+                        ObjectWin = item;
             if (ObjectWin == null)
             {
                 ObjectWin = new PrepayCurrencyBuyWin();
@@ -616,10 +619,39 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                 foreach (lib.Interfaces.ISelectable item in e.AddedItems.OfType<lib.Interfaces.ISelectable>())
                     item.Selected = true;
         }
-
-        private void DataGridColumnHeader_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private void RequestFolderOpen_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is Button && (sender as Button).Tag is Classes.Domain.Account.PrepayCustomerRequestVM)
+            {
+                try
+                {
+                    string path, err;
+                    Classes.Domain.RequestVM item = ((sender as Button).Tag as PrepayCustomerRequestVM).Request;
+                    if (item.DomainState == lib.DomainObjectState.Unchanged)
+                    {
+                        err = item.MoveFolder();
+                        if (!string.IsNullOrEmpty(err))
+                            MessageBox.Show(err, "Папка документов");
+                    }
+                    else if (string.IsNullOrEmpty(item.DomainObject.DocDirPath) & item.DomainState != lib.DomainObjectState.Unchanged)
+                        MessageBox.Show("Сохраните изменения!", "Папка документов");
 
+                    if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
+                    {
+                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
+                        if (System.IO.Directory.Exists(path))
+                        {
+                            System.Diagnostics.Process.Start(path);
+                        }
+                        else if (MessageBox.Show("Папка документов " + path + " не найдена!/n/nСоздать заново?", "Папка документов", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+                            item.DomainObject.DocDirPath = string.Empty;
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Папка документов");
+                }
+            }
         }
     }
 }

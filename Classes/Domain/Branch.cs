@@ -92,17 +92,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[1].Value = item.Name;
             return true;
         }
-        protected override void SetSelectParametersValue()
-        {
-        }
-        protected override void LoadObjects(Branch item)
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()
         { return true; }
     }
 
-    internal class BranchStore : lib.DomainStorageLoad<Branch>
+    internal class BranchStore : lib.DomainStorageLoad<Branch, BranchDBM>
     {
         public BranchStore(BranchDBM dbm) : base(dbm) {}
 

@@ -27,7 +27,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 
         MailSMSCommand mysmcmd;
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
         }
         protected override MailSMS CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -73,9 +73,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 else
                 { mysmcmd.SMS.AppendLine(item.Value); t++; }
             }
-        }
-        protected override void LoadObjects(MailSMS item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

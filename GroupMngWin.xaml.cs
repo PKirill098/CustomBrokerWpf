@@ -66,11 +66,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             bool isSuccess = false;
             try
             {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemGroupMngDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.ManagerGroupAdapter GroupMngAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.ManagerGroupAdapter();
-                GroupMngAdapter.Update(itemGroupMngDS.tableManagerGroup);
-                isSuccess = true;
+                if (mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                {
+                    KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemGroupMngDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
+                    KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.ManagerGroupAdapter GroupMngAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.ManagerGroupAdapter();
+                    GroupMngAdapter.Update(itemGroupMngDS.tableManagerGroup);
+                    isSuccess = true;
+                }
             }
             catch (Exception ex)
             {

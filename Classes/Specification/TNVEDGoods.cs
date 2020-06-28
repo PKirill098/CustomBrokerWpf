@@ -71,7 +71,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return mygroup; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             SelectParams[0].Value = mygroup.Id;
         }
@@ -108,9 +108,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertparams[1].Value = mygroup.Id;
             myinsertupdateparams[0].Value = item.Name;
             return true;
-        }
-        protected override void LoadObjects(TNVEDGoods item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

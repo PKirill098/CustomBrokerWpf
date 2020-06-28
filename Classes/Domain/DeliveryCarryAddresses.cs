@@ -108,12 +108,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams[0].Value = item.Id;
             return this.Carry.Id > 0;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             base.SelectParams[0].Value = this.Carry?.Id;
-        }
-        protected override void LoadObjects(DeliveryCarryAddresses item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

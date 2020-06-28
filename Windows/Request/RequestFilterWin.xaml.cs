@@ -51,9 +51,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (ds.tableManagerGroup.Count == 0) ds.ManagerGroupRefresh();
             System.Data.DataView managerview = new System.Data.DataView(ds.tableManagerGroup, string.Empty, "[managergroupName]", System.Data.DataViewRowState.CurrentRows);
             managerGroupListBox.ItemsSource = managerview;
-            if (ds.tableGoodsType.Count == 0) ds.GoodsTypeRefresh();
-            System.Data.DataView goodsview = new System.Data.DataView(ds.tableGoodsType, string.Empty, "[Nameitem]", System.Data.DataViewRowState.CurrentRows);
-            goodsListBox.ItemsSource = goodsview;
+            //if (ds.tableGoodsType.Count == 0) ds.GoodsTypeRefresh();
+            //System.Data.DataView goodsview = new System.Data.DataView(ds.tableGoodsType, string.Empty, "[Nameitem]", System.Data.DataViewRowState.CurrentRows);
+            goodsListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             if (ds.tableStore.Count == 0) ds.StoreRefresh();
             System.Data.DataView storeview = new System.Data.DataView(ds.tableStore, string.Empty, "[storeName]", System.Data.DataViewRowState.CurrentRows);
             storeListBox.ItemsSource = storeview;
@@ -177,7 +177,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             filter.PullListBox(filter.FilterWhereId, "status", "rowId", this.statusListBox, true);
             filter.PullListBox(filter.FilterWhereId, "managerGroupId", "managergroupID", this.managerGroupListBox, true);
             filter.PullListBox(filter.FilterWhereId, "customerId", "customerID", this.customerListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "loadDescription", "Nameitem", this.goodsListBox, true);
+            filter.PullListBox(filter.FilterWhereId, "loadDescription", "Name", this.goodsListBox, true);
             filter.PullListBox(filter.FilterWhereId, "agentId", "Id", this.agentListBox, true);
             filter.PullListBox(filter.FilterWhereId, "storeid", "storeId", this.storeListBox, true);
             filter.PullListBox(filter.FilterWhereId, "forwarder", "itemId", this.forwarderListBox, true);
@@ -423,10 +423,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 int i = 0;
                 string[] values = new string[this.goodsListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.goodsListBox.SelectedItems)
+                foreach (DataModelClassLibrary.ReferenceSimpleItem rowview in this.goodsListBox.SelectedItems)
                 {
-                    ReferenceDS.tableGoodsTypeRow row = rowview.Row as ReferenceDS.tableGoodsTypeRow;
-                    values[i] = row.Nameitem.ToString();
+                    values[i] = rowview.Name;
                     i++;
                 }
                 filter.SetList(filter.FilterWhereId, "loadDescription", values);

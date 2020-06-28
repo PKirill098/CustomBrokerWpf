@@ -258,13 +258,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return (int)base.SelectParams[1].Value; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Recipient CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             Recipient newitem = new Recipient(id: reader.GetInt32(0), stamp: reader.GetInt32(reader.GetOrdinal("stamp")), updater: reader.IsDBNull(reader.GetOrdinal("updtWho")) ? null : reader.GetString(reader.GetOrdinal("updtWho")), updated: reader.IsDBNull(reader.GetOrdinal("updtDate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updtDate")), dstate: lib.DomainObjectState.Unchanged
-                , customer: CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(1))
+                , customer: CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(1), out _)
                 , fullname: reader.IsDBNull(3) ? null : reader.GetString(3)
                 , inn: reader.IsDBNull(reader.GetOrdinal("recipientINN")) ? null : reader.GetString(reader.GetOrdinal("recipientINN"))
                 , name: reader.IsDBNull(reader.GetOrdinal("recipientName")) ? null : reader.GetString(reader.GetOrdinal("recipientName"))
@@ -397,16 +397,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        protected override void LoadObjects(Recipient item)
-        {
-        }
         protected override bool LoadObjects()
         { return true; }
     }
 
-    internal class RecipientStore : lib.DomainStorageLoad<Recipient>
+    internal class RecipientStore : lib.DomainStorageLoad<Recipient, RecipientDBM>
     {
-        public RecipientStore(lib.DBManagerId<Recipient> dbm) : base(dbm) { }
+        public RecipientStore(RecipientDBM dbm) : base(dbm) { }
 
         protected override void UpdateProperties(Recipient olditem, Recipient newitem)
         {

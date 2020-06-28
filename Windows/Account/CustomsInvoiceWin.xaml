@@ -119,6 +119,7 @@
 				</DataGridCheckBoxColumn>
 				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Customer.Name, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="200"/>
 				<DataGridTextColumn Header="Сумма EURO" Binding="{Binding Path=Parcel.InvoiceDiscount, StringFormat=\{0:N2\},Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="90"/>
+				<DataGridTextColumn Header="Реализация" Binding="{Binding Path=Selling, StringFormat=\{0:N2\},Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="90"/>
 				<DataGridTextColumn Header="Таможенный&#xA;Дата счета" Binding="{Binding Path=InvoiceDate, StringFormat=\{0:d\},TargetNullValue='',Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}" Width="90"/>
 				<DataGridTextColumn Header="Таможенный&#xA;Курс ЦБ" Binding="{Binding Path=CBRate, StringFormat=\{0:N4\},TargetNullValue='',Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"/>
 				<DataGridTextColumn Header="Таможенный&#xA;Сумма RUB" Binding="{Binding Path=RubSum, StringFormat=\{0:N0\},Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"/>

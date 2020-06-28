@@ -51,12 +51,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 string wpfconstr, datasource;
                 wpfconstr = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
-                datasource = wpfconstr.Substring(wpfconstr.IndexOf("Data Source"), wpfconstr.IndexOf(";", wpfconstr.IndexOf("Initial Catalog")) - wpfconstr.IndexOf("Data Source"));
+                datasource = wpfconstr + "; Use Encryption for Data = False";// wpfconstr.Substring(wpfconstr.IndexOf("Data Source"), wpfconstr.IndexOf(";", wpfconstr.IndexOf("Initial Catalog")) - wpfconstr.IndexOf("Data Source"))
                 Excel.Workbook exWb = exApp.Workbooks.Add(Type.Missing);
                 Excel.Worksheet exWh = exWb.Sheets[1];
                 Excel.PivotCaches caches = exWb.PivotCaches();
                 Excel.PivotCache cache = caches.Create(Excel.XlPivotTableSourceType.xlExternal);
-                cache.Connection = @"OLEDB;Provider=SQLOLEDB;" + datasource + ";Integrated Security=SSPI";
+                cache.Connection = @"OLEDB;Provider=SQLOLEDB.1;" + wpfconstr;// + ";Integrated Security=SSPI"
                 cache.CommandType = Excel.XlCmdType.xlCmdSql;
                 cache.CommandText = "EXEC dbo.ParcelReport_sp " + this.Filter.FilterWhereId.ToString();
                 Excel.PivotTable pivot = cache.CreatePivotTable(exWh.Cells[1, 1], "Parcels", Type.Missing, Type.Missing);

@@ -18,13 +18,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            CurrencyBuyViewCommand cmd = e.NewValue as CurrencyBuyViewCommand;
-            if (cmd != null)
-            {
-                cmd.EndEdit = mydischanger.EndEdit;
-                cmd.CancelEdit = mydischanger.CancelEdit;
-            }
-        }
+			CurrencyBuyJointViewCommand cmd = e.NewValue as CurrencyBuyJointViewCommand;
+			if (cmd != null)
+			{
+				cmd.EndEdit = mydischanger.EndEdit;
+				cmd.CancelEdit = mydischanger.CancelEdit;
+			}
+		}
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();

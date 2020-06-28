@@ -13,28 +13,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             SqlConnection con;
             try
             {
-                con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString1 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=1");
+                con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString1 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=1");
                 con.Open();
                 con.Close();
-                myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString1 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8";
+                myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString1 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8";
             }
             catch
             {
                 try
                 {
-                    con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=1");
+                    con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=1");
                     con.Open();
                     con.Close();
-                    myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8";
+                    myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8";
                 }
                 catch
                 {
                     try
                     {
-                        con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString3 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;");
+                        con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString3 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;");
                         con.Open();
                         con.Close();
-                        myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString3 + ";User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;";
+                        myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString3 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;";
                     }
                     catch
                     {
@@ -361,7 +361,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (mygoodstypeparcel == null)
                 {
                     mygoodstypeparcel = new lib.ReferenceCollectionSimpleItem();
-                    mygoodstypeparcel.CommandText = "SELECT CONVERT(int,[Iditem]),[Nameitem],CONVERT(bit,1) as isactual,CONVERT(bit,0) as isdefault FROM [dbo].[GoodsType_tb] ORDER BY [Iditem]";
+                    mygoodstypeparcel.CommandText = "SELECT id,[Name],isactual,isdefault FROM [dbo].[GoodsType_tb] ORDER BY [Id]";
                     mygoodstypeparcel.TableName = "dbo.GoodsType_tb";
                     mygoodstypeparcel.ConnectionString = References.ConnectionString;
                     mygoodstypeparcel.DataLoad();

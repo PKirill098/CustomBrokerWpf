@@ -154,7 +154,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             SelectParams[0].Value = mytype;
             SelectParams[1].Value = myobject.Id;
@@ -169,9 +169,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             if (myobject.Id <= 0)
                 this.Errors.Add(new lib.DBMError(item, "Объект рассылки не сохранен в БД!", "0"));
             return myobject.Id > 0;
-        }
-        protected override void LoadObjects(MailStateCustomer item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -200,12 +197,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         {
             return new KeyValuePair<int, string>(reader.GetInt32(0), reader.IsDBNull(1) ? null : reader.GetString(1));
         }
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value = myobject.Id;
-        }
-        protected override void LoadObjects(KeyValuePair<int, string> item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -346,7 +340,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                             {
                                                 //ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
                                                 //if (refds.tableCustomerName.Count == 0) refds.CustomerNameRefresh();
-                                                mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty, "1"));
+                                                mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "1"));
                                             }
                                         }
                                     }

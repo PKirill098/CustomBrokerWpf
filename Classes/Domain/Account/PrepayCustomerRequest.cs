@@ -69,9 +69,85 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 return mycustomsinvoicerubsum;
             } 
         }
+        public DateTime? CurrencyBoughtDate
+        {
+            set
+            {
+                if (value.HasValue)
+                {
+                    if(this.Prepay.CBRate.HasValue)
+					{
+                        this.Prepay.CurrencyBuyRate = mycurrencybuyrate;
+                        this.Prepay.CurrencyBoughtDate = value;
+                    }
+                    else if(this.CustomsInvoice != null)
+					{
+                        this.CustomsInvoice.CurrencyBuyRate = mycurrencybuyrate;
+                        this.CustomsInvoice.CurrencyBoughtDate = value;
+                    }
+                }
+                else
+                {
+                    if (this.Prepay.CurrencyPays?.Count > 0)
+                        System.Windows.MessageBox.Show("Невозможно удалить покупку валюты, оплачено поставщику!", "Дата покупки валюты", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
+                    else if (System.Windows.MessageBox.Show("Удалить все покупки валюты ?", "Дата покупки валюты", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+                    {
+                        this.Prepay.CurrencyBoughtDate = null;
+                        if(this.CustomsInvoice!=null) this.CustomsInvoice.CurrencyBoughtDate = null;
+                        this.PropertyChangedNotification(nameof(this.CurrencyBuySumTotal));
+                    }
+                }
+                this.PropertyChangedNotification(nameof(this.CurrencyBoughtDate));
+            }
+            get
+            {
+                return (this.Prepay.CurrencyBoughtDate ?? DateTime.MinValue) > (this.CustomsInvoice?.CurrencyBoughtDate ?? DateTime.MinValue) ? this.Prepay.CurrencyBoughtDate : this.CustomsInvoice?.CurrencyBoughtDate;
+            }
+        }
+        private decimal? mycurrencybuyrate;
+        public decimal? CurrencyBuyRate
+        {
+            set { if (!this.CurrencyBoughtDate.HasValue) mycurrencybuyrate = value; this.PropertyChangedNotification(nameof(this.CurrencyBuyRate)); }
+            get { return mycurrencybuyrate.HasValue ? mycurrencybuyrate : (this.CurrencyBuySumTotal > 0 ? decimal.Multiply(decimal.Divide(this.Prepay.CurrencyBuySum, this.CurrencyBuySumTotal), this.Prepay.CurrencyBuyRate??0M) + decimal.Multiply(decimal.Divide((this.CustomsInvoice?.CurrencyBuySum ?? 0M), this.CurrencyBuySumTotal), this.CustomsInvoice?.CurrencyBuyRate ?? 0M) : (decimal?)null); }
+        }
+        private decimal CurrencyBuySumTotal
+        { get { return this.Prepay.CurrencyBuySum + this.CustomsInvoice?.CurrencyBuySum ?? 0M; } }
+        public decimal CurrencyBuySum
+        { get { return decimal.Multiply(this.Prepay.CurrencyBuySum, decimal.Divide(this.EuroSum, this.Prepay.EuroSum)) + (this.CustomsInvoice!=null ? decimal.Multiply(this.CustomsInvoice.CurrencyBuySum, decimal.Divide((this.DTSum??0M), (this.CustomsInvoice.DTSum??0M))) : 0M); } }
         private decimal? mycurrencypaysum;
+        public DateTime? CurrencyPaidDate
+        {
+            set
+            {
+                if (value.HasValue)
+                {
+                    DateTime maxdate = this.Prepay.CurrencyPays.Count((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted; }) > 0 ? this.Prepay.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.PayDate : DateTime.MinValue; }).Date : DateTime.MinValue.Date;
+                    if (maxdate > value.Value)
+                        System.Windows.MessageBox.Show("Дата оплаты поставщику не может быть меньше даты платежа!", "Дата оплаты поставщику", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
+                    else
+                    {
+                        if (maxdate < value.Value)
+                        {
+                            AgentCustomerBalanceDBM bdbm = new AgentCustomerBalanceDBM() { Agent = this.Prepay.Agent, Customer = this.Prepay.Customer, MinBalance = 0M, Importer = this.Prepay.Importer };
+                            decimal balance = bdbm.GetFirst()?.Balance ?? 0M;
+                            if (myprepay.EuroSum + (this.CustomsInvoice?.FinalCurSum ?? 0M) - this.Prepay.CurrencyPaySum - balance > 0.0099M)
+                            {
+                                PrepayCurrencyPay pay = new PrepayCurrencyPay(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null, value.Value, myprepay.EuroSum + (this.CustomsInvoice?.FinalCurSum ?? 0M) - this.Prepay.CurrencyPaySum - balance, this.Prepay);
+                                this.Prepay.CurrencyPays.Add(pay);
+                                this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+                            }
+                        }
+                    }
+                }
+                this.Prepay.CurrencyPaidDate=value;
+            }
+            get
+            {
+                return this.Prepay.CurrencyPaidDate;
+            }
+        }
         public decimal CurrencyPaySum
-        { get { return myprepay != null && myprepay.EuroSum > 0M ? decimal.Multiply(decimal.Divide(myeurosum, myprepay.EuroSum), myprepay.CurrencyPaySum) : 0M; } }
+        { get { return myprepay != null && myprepay.EuroSum + (this.CustomsInvoice?.FinalCurSum ?? 0M) > 0M ? decimal.Multiply(decimal.Divide(myeurosum + (this.FinalInvoiceCurSum ?? 0M), myprepay.EuroSum + (this.CustomsInvoice?.FinalCurSum ?? 0M)), myprepay.CurrencyPaySum) : 0M; } }
         private RequestCustomerLegal mycustomer;
         public RequestCustomerLegal RequestCustomer
         { set { SetProperty<RequestCustomerLegal>(ref mycustomer, value); } get { return mycustomer; } }
@@ -114,16 +190,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 //}
             }
         }
-        private decimal? mydtsumdistr;
         public decimal? DTSumSet
         {
             set
             {
-                decimal? oldvalue = mydtsum;
-                mydtsum = value;
-                this.PropertyChangedNotification(nameof(this.DTSum));
-                this.OnValueChanged(nameof(this.DTSum), oldvalue, value);
-                DTSumOnValueChanged();
+                if (mydtsum != value)
+                {
+                    decimal? oldvalue = mydtsum;
+                    mydtsum = value;
+                    this.PropertyChangedNotification(nameof(this.DTSum));
+                    this.OnValueChanged(nameof(this.DTSum), oldvalue, value);
+                    DTSumOnValueChanged();
+                }
             }
             get { return mydtsum; } }
         private decimal myeurosum;
@@ -158,16 +236,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         //    && ((myrequest ?? mycustomer.Request).InvoiceDiscount != myeurosum || (myrequest ?? mycustomer.Request).CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal selected) => { return selected.Prepays.Count; }) > 1))
                         //    (myrequest ?? mycustomer.Request).InvoiceDiscount = ((myrequest ?? mycustomer.Request).InvoiceDiscount ?? 0M) + myeurosum - oldvalue;
                         //myrequest?.PropertyChangedNotification(nameof(Request.InvoiceDiscountFill));
-                        mycustomer?.PropertyChangedNotification(nameof(mycustomer.PrepaySum));
-                        RubSumOnValueChanged();
-                        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
-                        CurrencyPaySumOnValueChanged();
-                        mycustomer?.PropertyChangedNotification(nameof(RequestCustomerLegal.InvoiceDiscount));
-                        this.PropertyChangedNotification(nameof(this.CustomerBalance));
-                        this.CustomerBalanceOnValueChanged();
-                        this.OverPayOnValueChanged();
-                        this.RefundOnValueChanged();
-                        this.RubDiffOnValueChanged();
+                        EuroSumChangedNotification();
                     });
                 }
                 else
@@ -178,7 +247,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private decimal? myfinalinvoicerubsum;
         public decimal? FinalInvoiceRubSum
         {
-            get { return this.RubSum.HasValue && this.Selling.HasValue && this.CustomsInvoiceRubSum.HasValue ? this.Selling.Value - this.CustomsInvoiceRubSum.Value - (this.RubSum??0M) : (decimal?)null; }
+            get { return this.Selling.HasValue && this.RubSum.HasValue && (this.CustomsInvoiceRubSum??0M)>0M ? this.Selling.Value - this.CustomsInvoiceRubSum.Value - (this.RubSum??0M) : (decimal?)null; }
         }
         public decimal? FinalInvoiceRubSumPaid
         {
@@ -196,11 +265,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.OnValueChanged(nameof(this.FinalInvoiceCurSum), myfinalinvoicecursum, value);
                 }
             }
-            get { return this.CustomsInvoice != null && (this.CustomsInvoice.DTSum??0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurSum) : (decimal?)null; }
+            get { return !this.Prepay.CBRate.HasValue && this.CustomsInvoice != null && (this.CustomsInvoice.DTSum??0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurSum) : (decimal?)null; }
         }
         public decimal? FinalInvoiceCurSumPaid
         {
-            get { return ((this.CustomsInvoice?.FinalCurSum ?? 0M) > 0M ? decimal.Multiply(decimal.Divide(this.CustomsInvoice.FinalCurPaySum, this.CustomsInvoice.FinalCurSum), (this.FinalInvoiceCurSum ?? 0M)) : (decimal?)null); }
+            get { return (!this.Prepay.CBRate.HasValue && (this.CustomsInvoice?.DTSum ?? 0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurPaySum) : (decimal?)null); }
         }
         private decimal? myfinalinvoicecursum2;
         public decimal? FinalInvoiceCurSum2
@@ -214,11 +283,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.OnValueChanged(nameof(this.FinalInvoiceCurSum2), myfinalinvoicecursum2, value);
                 }
             }
-            get { return this.CustomsInvoice != null && (this.CustomsInvoice.DTSum??0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurSum2) : (decimal?)null; }
+            get { return !this.Prepay.CBRate.HasValue && this.CustomsInvoice != null && (this.CustomsInvoice.DTSum??0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurSum2) : (decimal?)null; }
         }
         public decimal? FinalInvoiceCur2SumPaid
         {
-            get { return ((this.CustomsInvoice?.FinalCurSum2 ?? 0M) > 0M ? decimal.Multiply(decimal.Divide(this.CustomsInvoice.FinalCurPaySum2, this.CustomsInvoice.FinalCurSum2), (this.FinalInvoiceCurSum2 ?? 0M)) : (decimal?)null); }
+            get { return (!this.Prepay.CBRate.HasValue && (this.CustomsInvoice?.DTSum ?? 0M) > 0M && this.DTSum.HasValue ? decimal.Multiply(decimal.Divide(this.DTSum.Value, this.CustomsInvoice.DTSum.Value), this.CustomsInvoice.FinalCurPaySum2) : (decimal?)null); }
         }
         private decimal myinitsum;
         public decimal InitSum
@@ -437,8 +506,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             PrepayCustomerRequest templ = sample as PrepayCustomerRequest;
-            if (templ.DTSum.HasValue) this.DTSum = templ.DTSumSet;
-            this.EuroSum = templ.EuroSum;
+            if (templ.DTSum.HasValue) this.DTSumSet = templ.DTSum;
+            EuroSumUpd(templ.EuroSum);
             this.InitSum = templ.InitSum;
             //this.CustomsInvoice = templ.CustomsInvoice;
             this.Note = templ.Note;
@@ -608,11 +677,30 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             if(self && mycustomer != null & oldvalue != myeurosum & (mycustomer.InvoiceDiscount ?? 0M) == oldvalue)
                 mycustomer.UpdateInvoiceDiscount((mycustomer.InvoiceDiscount ?? 0M) + myeurosum - oldvalue, 'p');
         }
+        private void EuroSumChangedNotification()
+        {
+                        mycustomer?.PropertyChangedNotification(nameof(mycustomer.PrepaySum));
+                        RubSumOnValueChanged();
+                        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+                        CurrencyPaySumOnValueChanged();
+                        mycustomer?.PropertyChangedNotification(nameof(RequestCustomerLegal.InvoiceDiscount));
+                        this.PropertyChangedNotification(nameof(this.CustomerBalance));
+                        this.CustomerBalanceOnValueChanged();
+                        this.OverPayOnValueChanged();
+                        this.RefundOnValueChanged();
+                        this.RubDiffOnValueChanged();
+        }
+        private void EuroSumUpd(decimal eurosum)
+        { 
+            myeurosum = eurosum;
+            this.PropertyChangedNotification(nameof(this.EuroSum));
+            EuroSumChangedNotification();
+        }
     }
 
     public class PrepayCustomerRequestDBM : lib.DBManagerStamp<PrepayCustomerRequest>
     {
-        internal PrepayCustomerRequestDBM()
+        public PrepayCustomerRequestDBM()
         {
             NeedAddConnection = true;
             ConnectionString = CustomBrokerWpf.References.ConnectionString;
@@ -623,7 +711,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             DeleteCommandText = "dbo.RequestCustomerPrepayDel_sp";
 
             SelectParams = new SqlParameter[] { new SqlParameter("@customerid", System.Data.SqlDbType.Int), new SqlParameter("@filterid", System.Data.SqlDbType.Int), new SqlParameter("@importerid", System.Data.SqlDbType.Int), new SqlParameter("@parcelid", System.Data.SqlDbType.Int), new SqlParameter("@prepayid", System.Data.SqlDbType.Int), new SqlParameter("@requestid", System.Data.SqlDbType.Int) };
-            InsertParams = new SqlParameter[] { myinsertparams[0], new SqlParameter("@customerid", System.Data.SqlDbType.Int), new SqlParameter("@prepayid", System.Data.SqlDbType.Int), new SqlParameter("@requestid", System.Data.SqlDbType.Int) };
+            InsertParams = new SqlParameter[] {
+                myinsertparams[0],
+                new SqlParameter("@customerid", System.Data.SqlDbType.Int),
+                new SqlParameter("@prepayid", System.Data.SqlDbType.Int) { Direction=System.Data.ParameterDirection.InputOutput},
+                new SqlParameter("@requestid", System.Data.SqlDbType.Int),
+                new SqlParameter("@index", System.Data.SqlDbType.Int) };
             UpdateParams = new SqlParameter[] { myupdateparams[0], new SqlParameter("@initsumupd", System.Data.SqlDbType.Bit), new SqlParameter("@eurosumupd", System.Data.SqlDbType.Bit), new SqlParameter("@dtsumupd", System.Data.SqlDbType.Bit), new SqlParameter("@noteupd", System.Data.SqlDbType.Bit), new SqlParameter("@sellingdateupd", System.Data.SqlDbType.Bit) };
             InsertUpdateParams = new SqlParameter[] { myinsertupdateparams[0], new SqlParameter("@initsum", System.Data.SqlDbType.Money), new SqlParameter("@eurosum", System.Data.SqlDbType.Money), new SqlParameter("@dtsum", System.Data.SqlDbType.Money), new SqlParameter("@note", System.Data.SqlDbType.NVarChar,300), new SqlParameter("@sellingdate", System.Data.SqlDbType.DateTime2) };
 
@@ -657,22 +750,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 itemold = CustomBrokerWpf.References.PrepayRequestStore.GetItem(reader.GetInt32(0));
             if (itemold == null)
             {
+                List<lib.DBMError> errors;
                 if (mypdbm.FillType == lib.FillType.Refresh)
-                    prepay = CustomBrokerWpf.References.PrepayStore.UpdateItem(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon);
+                    prepay = CustomBrokerWpf.References.PrepayStore.UpdateItem(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon, out errors);
                 else
-                    prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon);
-                if (CustomBrokerWpf.References.PrepayStore.Errors.Count > 0)
-                    foreach (lib.DBMError err in CustomBrokerWpf.References.PrepayStore.Errors) this.Errors.Add(err);
+                    prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon, out errors);
+                this.Errors.AddRange(errors);
                 //CustomsInvoice invoice = null;
                 //if (myrequestcustomer == null)
                 //{
-                Request request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon);
-                if (CustomBrokerWpf.References.RequestStore.Errors.Count > 0)
-                    foreach (lib.DBMError err in CustomBrokerWpf.References.RequestStore.Errors) this.Errors.Add(err);
+                Request request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                if (errors.Count > 0)
+                    this.Errors.AddRange(errors);
                 else
                 {
                     if (request?.SpecificationIsNull ?? true)
-                        request.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(request, addcon);
+                    {
+                        request.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(request, addcon, out errors);
+                        this.Errors.AddRange(errors);
+                    }
                     //if (myrequestcustomer != null)
                     //    invoice = CustomBrokerWpf.References.CustomsInvoiceStore.GetItemLoad(myrequestcustomer, addcon);
                     //else
@@ -683,7 +779,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (myrequestcustomer != null)
                     customer = myrequestcustomer;
                 else
-                    customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(prepay.Customer, request);
+                {
+                    customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(prepay.Customer, request, addcon, out errors);
+                    this.Errors.AddRange(errors);
+                }
 
                 item = new PrepayCustomerRequest(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), reader.GetDateTime(reader.GetOrdinal("updated")), reader.GetString(reader.GetOrdinal("updater")), lib.DomainObjectState.Unchanged
                     , customer
@@ -700,7 +799,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (myrequestcustomer != null) itemold.RequestCustomer = myrequestcustomer;
                 if(myfilter!=null)
                 {
-                    itemold.DTSum = item.DTSum;
+                    itemold.DTSumSet = item.DTSum;
                     itemold.Selling = item.Selling;
                 }
             }
@@ -708,8 +807,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override void GetOutputSpecificParametersValue(PrepayCustomerRequest item)
         {
-            if(item.DomainState==lib.DomainObjectState.Added)
+            if (item.DomainState == lib.DomainObjectState.Added)
+            {
+                int prepayid = (int)InsertParams.First((SqlParameter par) => { return par.ParameterName == "@prepayid"; }).Value;
+                if (item.Prepay.Id != prepayid)
+                {
+                    List<lib.DBMError> errors;
+                    item.Prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(prepayid, this.Command.Connection, out errors);
+                    this.Errors.AddRange(errors);
+                }
                 CustomBrokerWpf.References.PrepayRequestStore.UpdateItem(item);
+            }
         }
         protected override bool SaveChildObjects(PrepayCustomerRequest item)
         {
@@ -776,7 +884,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myrdbm.ParcelDBM.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.Command.CommandTimeout = 1000;
             foreach (SqlParameter par in this.SelectParams)
@@ -846,6 +954,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@customerid":
                         par.Value = item.RequestCustomer?.CustomerLegal?.Id;
                         break;
+                    case "@index":
+                        par.Value = (item.RequestCustomer?.PrepaysIsNull??true) ? 0 : item.RequestCustomer?.Prepays.Count;
+                        break;
                     case "@prepayid":
                         par.Value = item.Prepay?.Id;
                         break;
@@ -855,25 +966,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             return item.Prepay?.Id > 0 & !(item.RequestCustomer?.DomainState == lib.DomainObjectState.Added);
         }
-        protected override void LoadObjects(PrepayCustomerRequest item)
-        {
-            
-            //if (item.RequestCustomer == null)
-            //{
-            //    item.Request = CustomBrokerWpf.References.RequestStore.GetItemLoad(item.myrequestid, this.Command.Connection);
-            //    if (CustomBrokerWpf.References.RequestStore.Errors.Count > 0)
-            //        foreach (lib.DBMError err in CustomBrokerWpf.References.RequestStore.Errors) this.Errors.Add(err);
-            //    else
-            //    {
-            //        if (item.Request.SpecificationIsNull)
-            //            item.Request.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(item.Request, this.Command.Connection);
-            //        if (item.Request?.Parcel != null)
-            //            item.CustomsInvoice = CustomBrokerWpf.References.CustomsInvoiceStore.GetItemLoad(item.Prepay.Customer, item.Prepay.Importer, item.Request.Parcel, this.Command.Connection);
-            //    }
-            //}
-            //item.AcceptChanches();
-            //item.IsLoaded = true;
-        }
         protected override bool LoadObjects()
         {
             //foreach (PrepayCustomerRequest item in this.Collection)
@@ -882,7 +974,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
     
-    public class PrepayCustomerRequestStore : lib.DomainStorageLoad<PrepayCustomerRequest>
+    public class PrepayCustomerRequestStore : lib.DomainStorageLoad<PrepayCustomerRequest, PrepayCustomerRequestDBM>
     {
         public PrepayCustomerRequestStore(PrepayCustomerRequestDBM dbm) : base(dbm) { }
         protected override void UpdateProperties(PrepayCustomerRequest olditem, PrepayCustomerRequest newitem)
@@ -906,6 +998,53 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.CustomsInvoice : null; } }
         public decimal? CustomsInvoiceRubSum
         { get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.CustomsInvoiceRubSum : null; } }
+        public DateTime? CurrencyBoughtDate
+		{
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.CurrencyBoughtDate.HasValue != value.HasValue || (value.HasValue && !DateTime.Equals(this.DomainObject.CurrencyBoughtDate.Value, value.Value))))
+                {
+                    string name = nameof(this.CurrencyBoughtDate);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CurrencyBoughtDate);
+                    ChangingDomainProperty = name; this.DomainObject.CurrencyBoughtDate = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.CurrencyBoughtDate : null; }
+        }
+        public decimal? CurrencyBuyRate
+        {
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.CurrencyBuyRate.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.CurrencyBuyRate.Value, value.Value))))
+                {
+                    string name = nameof(this.CurrencyBuyRate);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CurrencyBuyRate);
+                    if (this.ValidateProperty(name))
+                    { ChangingDomainProperty = name; this.DomainObject.CurrencyBuyRate = value; }
+                }
+            }
+            get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.CurrencyBuyRate : (decimal?)null; }
+        }
+        public decimal? CurrencyBuySum
+		{
+            get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.CurrencyBuySum : (decimal?)null; }
+        }
+        public DateTime? CurrencyPaidDate
+		{
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.CurrencyPaidDate.HasValue != value.HasValue || (value.HasValue && !DateTime.Equals(this.DomainObject.CurrencyPaidDate.Value, value.Value))))
+                {
+                    string name = nameof(this.CurrencyPaidDate);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CurrencyPaidDate);
+                    ChangingDomainProperty = name; this.DomainObject.CurrencyPaidDate = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.CurrencyPaidDate : null; }
+        }
         public decimal? CurrencyPaySum
         { get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.CurrencyPaySum : (decimal?)null; } }
         private RequestCustomerLegalVM mycustomer;
@@ -918,13 +1057,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-                if (value.HasValue && !(this.IsReadOnly || decimal.Equals(this.DomainObject.DTSumSet, value.Value)))
+                if (!this.IsReadOnly && (this.DomainObject.DTSum.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.DTSum.Value, value.Value))))
                 {
                     string name = nameof(this.DTSum);
                     if (!myUnchangedPropertyCollection.ContainsKey(name))
                         this.myUnchangedPropertyCollection.Add(name, this.DomainObject.DTSumSet);
                     if (this.ValidateProperty(name))
-                    { ChangingDomainProperty = name; this.DomainObject.DTSum = value.Value; }
+                    { ChangingDomainProperty = name; this.DomainObject.DTSum = value; }
                 }
             }
             get { return this.IsEnabled & this.IsLoaded ? this.DomainObject.DTSum : (decimal?)null; }
@@ -1131,12 +1270,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 myrequestvm = new RequestVM(this.DomainObject.Request);
             myeurosum = this.DomainObject.EuroSum;
             //mydtsum = this.DomainObject.DtSum;
-            this.DomainObject.ValueChanged += this.Model_ValueChanged;
+            if (this.DomainObject != null) this.DomainObject.ValueChanged += this.Model_ValueChanged;
         }
         protected override void RejectProperty(string property, object value)
         {
             switch (property)
             {
+                case nameof(this.CurrencyBoughtDate):
+                    this.DomainObject.CurrencyBoughtDate = (DateTime?)value;
+                    break;
+                case nameof(this.CurrencyBuyRate):
+                    this.DomainObject.CurrencyBuyRate = (decimal?)value;
+                    break;
+                case nameof(this.CurrencyPaidDate):
+                    this.DomainObject.CurrencyPaidDate = (DateTime?)value;
+                    break;
                 case nameof(this.DTSum):
                     this.DomainObject.DTSum = (decimal)value;
                     break;
@@ -1154,6 +1302,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
                 case nameof(this.InitSum):
                     this.DomainObject.InitSum = (decimal)value;
+                    break;
+                case nameof(this.Note):
+                    this.DomainObject.Note = (string)value;
                     break;
                 case nameof(this.Refund):
                     this.DomainObject.Refund = (decimal)value;
@@ -1253,7 +1404,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override void AddData(object parametr)
         {
-            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, mycustomer,null,null, 0M, 0M, null, new Prepay( CustomBrokerWpf.References.AgentStore.GetItemLoad(mycustomer.Request.AgentId ?? 0), mycustomer.CustomerLegal, mycustomer.Request.Importer, mycustomer.Request.ShipPlanDate?? CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10))),null, null, null)));
+            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, mycustomer,null,null, 0M, 0M, null, new Prepay( CustomBrokerWpf.References.AgentStore.GetItemLoad(mycustomer.Request.AgentId ?? 0,out var errors), mycustomer.CustomerLegal, mycustomer.Request.Importer, mycustomer.Request.ShipPlanDate?? CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10))),null, null, null)));
         }
         protected override bool CanAddData(object parametr)
         {

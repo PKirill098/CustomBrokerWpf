@@ -336,7 +336,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
            return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool SetSpecificParametersValue(DeliveryCar item)
@@ -416,14 +416,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void LoadObjects(DeliveryCar item)
-        {
-        }
         protected override bool LoadObjects()
         { return true; }
     }
 
-    internal class DeliveryCarStore : lib.DomainStorageLoad<DeliveryCar>
+    internal class DeliveryCarStore : lib.DomainStorageLoad<DeliveryCar, DeliveryCarDBM>
     {
         public DeliveryCarStore(DeliveryCarDBM dbm) : base(dbm) { }
 

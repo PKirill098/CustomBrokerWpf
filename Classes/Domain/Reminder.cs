@@ -68,7 +68,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Reminder CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -107,9 +107,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[2].Value = item.Delay;
             myinsertupdateparams[3].Value = item.Stop;
             return true;
-        }
-        protected override void LoadObjects(Reminder item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

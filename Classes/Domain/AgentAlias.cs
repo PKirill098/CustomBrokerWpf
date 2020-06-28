@@ -65,6 +65,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public AgentAliasDBM()
         {
+            this.NeedAddConnection = true;
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
 
             SelectCommandText = "dbo.AgentAlias_sp";
@@ -94,13 +95,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override AgentAlias CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             return new AgentAlias(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
-                ,this.Agent??CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")))
+                ,this.Agent??CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon, out _)
                 ,reader.GetString(reader.GetOrdinal("alias")));
         }
         protected override void GetOutputSpecificParametersValue(AgentAlias item)
-        {
-        }
-        protected override void LoadObjects(AgentAlias item)
         {
         }
         protected override bool LoadObjects()
@@ -119,7 +117,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = this.Agent?.Id;
             this.SelectParams[1].Value = this.Alias;

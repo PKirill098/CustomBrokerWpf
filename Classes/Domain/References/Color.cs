@@ -35,10 +35,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         {
             return new Color(reader.GetString(0), reader.GetString(1));
         }
-        protected override void SetParametersValue()
-        {
-        }
-        protected override void LoadObjects(Color item)
+        protected override void PrepareFill(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()

@@ -67,7 +67,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             get { return (string)this.SelectParams[0].Value; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Parameter CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -100,9 +100,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             this.UpdateParams[0].Value = item.Id;
             this.InsertUpdateParams[0].Value = item.Value;
             return true;
-        }
-        protected override void LoadObjects(Parameter item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

@@ -42,8 +42,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <ToolBar VerticalAlignment="Top" Height="35">
-            <my:MainMenuUC VerticalAlignment="Center"/>
-            <Separator/>
+            <!--<my:MainMenuUC VerticalAlignment="Center"/>
+            <Separator/>-->
             <TextBlock Text="Склад" VerticalAlignment="Center" Margin="0,0,0,2" />
             <ComboBox x:Name="storeComboBox" ItemsSource="{Binding Source={StaticResource keyStoreVS}}" DisplayMemberPath="storeName" SelectedValuePath="storeId" SelectedIndex="-1" MinWidth="30" Padding="1,0,0,1" IsSynchronizedWithCurrentItem="False" />
             <Button ToolTip="Загрузка новых данных со склада" Click="LoadExcelButton_Click" Padding="1">

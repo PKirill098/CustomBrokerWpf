@@ -128,7 +128,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { PropertyChangedNotification("Car" + n + "Cost"); PropertyChangedNotification("TotalCost"); }
     }
 
-    internal class DeliveryCarryStore : lib.DomainStorageLoad<DeliveryCarry>
+    internal class DeliveryCarryStore : lib.DomainStorageLoad<DeliveryCarry, DeliveryCarryDBM>
     {
         public DeliveryCarryStore(DeliveryCarryDBM dbm) : base(dbm) { }
 
@@ -142,6 +142,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public DeliveryCarryDBM()
         {
+            this.NeedAddConnection = true;
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
 
             SelectCommandText = "delivery.DeliveryCarry_sp";
@@ -196,10 +197,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override DeliveryCarry CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             DeliveryCarry newitem = new DeliveryCarry(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
-                , CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestId")))
-                , reader.IsDBNull(reader.GetOrdinal("c1")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c1")))
-                , reader.IsDBNull(reader.GetOrdinal("c2")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c2")))
-                , reader.IsDBNull(reader.GetOrdinal("c3")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c3")))
+                , CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestId")), addcon, out _)
+                , reader.IsDBNull(reader.GetOrdinal("c1")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c1")), addcon, out _)
+                , reader.IsDBNull(reader.GetOrdinal("c2")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c2")), addcon, out _)
+                , reader.IsDBNull(reader.GetOrdinal("c3")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c3")), addcon, out _)
                 , reader.IsDBNull(reader.GetOrdinal("address")) ? null : reader.GetString(reader.GetOrdinal("address"))
                 , reader.IsDBNull(reader.GetOrdinal("note")) ? null : reader.GetString(reader.GetOrdinal("note"))
                 , reader.IsDBNull(reader.GetOrdinal("shipmentdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipmentdate"))
@@ -293,14 +294,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             base.SelectParams[0].Value = mycars?.Id;
             base.SelectParams[1].Value = myisall;
             base.SelectParams[2].Value = myfilter?.FilterWhereId;
-        }
-        protected override void LoadObjects(DeliveryCarry item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -1529,12 +1527,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return new CustomerAddressSelected(reader.GetInt32(2), lib.DomainObjectState.Unchanged, reader.IsDBNull(3) ? null : reader.GetString(3), reader.GetByte(1), reader.GetInt32(0), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
         }
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             myselectparams[0].Value = myrequest.Id;
-        }
-        protected override void LoadObjects(CustomerAddressSelected item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

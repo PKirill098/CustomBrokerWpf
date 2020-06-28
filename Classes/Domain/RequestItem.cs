@@ -736,7 +736,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override RequestItem CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -874,9 +874,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void ItemAcceptChanches(RequestItem item)
         {
             item.AcceptChanches();
-        }
-        protected override void LoadObjects(RequestItem item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

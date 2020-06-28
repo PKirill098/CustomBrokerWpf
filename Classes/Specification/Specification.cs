@@ -18,7 +18,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private Specification(int id, long stamp, lib.DomainObjectState mstate
             , int? parcelgroup, string consolidate, Importer importer, string filepath
             , decimal? pari, decimal? gtls, decimal? gtlscur, decimal? gtlsrate, decimal? ddspidy, decimal? westgate, decimal? mfk
-            , int amount, int cellnumber, decimal clientsumdiff, decimal cost, decimal fondsum, decimal grossweight, decimal netweight
+            , int amount, decimal cellnumber, decimal clientsumdiff, decimal cost, decimal fondsum, decimal grossweight, decimal netweight
             ) : base(id, stamp, null, null, mstate)
         {
             myconsolidate = consolidate;
@@ -46,7 +46,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public Specification(int id, long stamp, lib.DomainObjectState mstate
             , Agent agent, string consolidate, Declaration declaration, string filepath, Importer importer, Parcel parcel, int? parcelgroup, Request request
             , decimal? pari, decimal? gtls, decimal? gtlscur, decimal? gtlsrate, decimal? ddspidy, decimal? westgate, decimal? mfk
-            , int amount, int cellnumber, decimal clientsumdiff, decimal cost, decimal fondsum, decimal grossweight, decimal netweight
+            , int amount, decimal cellnumber, decimal clientsumdiff, decimal cost, decimal fondsum, decimal grossweight, decimal netweight
             ) : this(id, stamp, mstate
                 , parcelgroup, consolidate, importer, filepath
                 , pari, gtls, gtlscur, gtlsrate, ddspidy, westgate, mfk
@@ -58,10 +58,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myrequest = request;
         }
         public Specification(Parcel parcel, string consolidate, int? parcelgroup, Request request, Agent agent, Importer importer) : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , agent, consolidate, null, null, importer, parcel, parcelgroup, request, null, null, null, null, null, null, null, 0, 0, 0M, 0M, 0M, 0M, 0M)
+            , agent, consolidate, null, null, importer, parcel, parcelgroup, request, null, null, null, null, null, null, null, 0, 0M, 0M, 0M, 0M, 0M, 0M)
         { }
         public Specification() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, 0, 0M, 0M, 0M, 0M, 0M)
+            , null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, 0M, 0M, 0M, 0M, 0M, 0M)
         { }
 
         private Agent myagent;
@@ -199,14 +199,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         { get { return mydetails == null; } }
         internal void RefreshTotalDetails()
         {
-            int count;
-            myamount = 0; mycellnumber = 0; mycost = 0M; mygrossweight = 0M; mynetweight = 0M; myfondsum = 0M;
+            decimal count;
+            myamount = 0; mycellnumber = 0M; mycost = 0M; mygrossweight = 0M; mynetweight = 0M; myfondsum = 0M;
             foreach (SpecificationDetail item in mydetails)
             {
                 if (item.DomainState < lib.DomainObjectState.Deleted)
                 {
                     myamount += item.Amount ?? 0;
-                    int.TryParse(item.CellNumber, out count);
+                    decimal.TryParse(item.CellNumber, out count);
                     mycellnumber += count;
                     mycost += item.Cost ?? 0M;
                     myfondsum += item.Client == null ? (item.Cost ?? 0M) : 0M;
@@ -223,8 +223,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         private int myamount;
         public int Amount { set { myamount = value; this.PropertyChangedNotification("Amount"); } get { return myamount; } }
-        private int mycellnumber;
-        public int CellNumber { set { mycellnumber = value; this.PropertyChangedNotification("CellNumber"); } get { return mycellnumber; } }
+        private decimal mycellnumber;
+        public decimal CellNumber { set { mycellnumber = value; this.PropertyChangedNotification("CellNumber"); } get { return mycellnumber; } }
         private decimal? myclientsumdiff;
         public decimal? ClientSumDiff { set { myclientsumdiff = value; this.PropertyChangedNotification("ClientSumDiff"); } get { return myclientsumdiff; } }
         private decimal? mycost;
@@ -260,6 +260,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             Specification newitem = (Specification)sample;
+            this.Agent = newitem.Agent;
             this.FilePath = newitem.FilePath;
             this.Declaration = newitem.Declaration;
             this.DDSpidy = newitem.DDSpidy;
@@ -384,15 +385,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class SpecificationStore : lib.DomainStorageLoad<Specification>
+    internal class SpecificationStore : lib.DomainStorageLoad<Specification, SpecificationDBM>
     {
         public SpecificationStore(SpecificationDBM dbm) : base(dbm) { }
 
-        internal Specification GetItemLoad(Request request)
+        internal Specification GetItemLoad(Request request, SqlConnection conection, out List<lib.DBMError> errors)
         {
-            return Dispatcher.Invoke<Specification>(() =>
-            {
+            //return Dispatcher.Invoke<Specification>(() =>
+            //{
                 Specification firstitem = default(Specification);
+                errors = new List<lib.DBMError>();
                 if (request.Parcel != null)
                 {
                     if(myupdatingcoll>0) System.Threading.Thread.Sleep(20);
@@ -405,18 +407,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     myforcount--;
                     if (firstitem == default(Specification))
                     {
-                        mydbm.Errors.Clear();
-                        (mydbm as SpecificationDBM).Request = request;
-                        firstitem = mydbm.GetFirst();
+                        SpecificationDBM dbm;
+                    dbm = GetDBM();
+                    dbm.Request = request;
+                    dbm.Command.Connection = conection;
+                    firstitem = dbm.GetFirst();
+                    if (firstitem != null) firstitem = UpdateItem(firstitem);
+                    dbm.Command.Connection = null;
+                    errors.AddRange(dbm.Errors);
+                    dbm.Errors.Clear();
+                    mydbmanagers.Enqueue(dbm);
                     }
                 }
                 return firstitem;
-            });
+            //});
         }
-        internal Specification GetItemLoad(Request request, SqlConnection conection)
+        internal Specification GetItemLoad(Request request, out List<lib.DBMError> errors)
         {
-            mydbm.Command.Connection = conection;
-            return this.GetItemLoad(request);
+            return GetItemLoad( request, null, out errors);
         }
         protected override void UpdateProperties(Specification olditem, Specification newitem)
         {
@@ -497,7 +505,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         protected override Specification CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon);
+            List<lib.DBMError> errors;
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon,out errors);
+            this.Errors.AddRange(errors);
             Declaration declaration = null;
             if (!reader.IsDBNull(reader.GetOrdinal("declarationid")))
             {
@@ -506,10 +516,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 mytddbm.ItemId = reader.GetInt32(reader.GetOrdinal("declarationid"));
                 declaration = mytddbm.GetFirst();
             }
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon);
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon, out errors);
+            this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("requestid"))) request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon);
-
+            if (!reader.IsDBNull(reader.GetOrdinal("requestid")))
+            {
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                this.Errors.AddRange(errors);
+            }
             Specification spec = new Specification(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , agent
                 , reader.IsDBNull(reader.GetOrdinal("consolidate")) ? null : reader.GetString(reader.GetOrdinal("consolidate"))
@@ -527,7 +541,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , reader.IsDBNull(reader.GetOrdinal("westgate")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("westgate"))
                 , reader.IsDBNull(reader.GetOrdinal("mfk")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("mfk"))
                 , reader.IsDBNull(reader.GetOrdinal("amount")) ? 0 : reader.GetInt32(reader.GetOrdinal("amount"))
-                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? 0 : (int)reader.GetDecimal(reader.GetOrdinal("cellnumber"))
+                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? 0M : reader.GetDecimal(reader.GetOrdinal("cellnumber"))
                 , reader.IsDBNull(reader.GetOrdinal("clientsumdiff")) ? 0M : reader.GetDecimal(reader.GetOrdinal("clientsumdiff"))
                 , reader.IsDBNull(reader.GetOrdinal("cost")) ? 0M : reader.GetDecimal(reader.GetOrdinal("cost"))
                 , reader.IsDBNull(reader.GetOrdinal("fondsum")) ? 0M : reader.GetDecimal(reader.GetOrdinal("fondsum"))
@@ -599,7 +613,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myddbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)
@@ -718,9 +732,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             return item.Parcel.Id > 0 & (item.Request?.Id ?? 1) > 0;
         }
-        protected override void LoadObjects(Specification item)
-        {
-        }
         protected override bool LoadObjects()
         {
             bool success = true;
@@ -745,7 +756,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public Agent Agent
         { get { return this.DomainObject.Agent; } }
         public int Amount { get { return this.DomainObject.Amount; } }
-        public int CellNumber { get { return this.DomainObject.CellNumber; } }
+        public decimal CellNumber { get { return this.DomainObject.CellNumber; } }
         public string CFPR
         { get { return this.IsEnabled ? this.DomainObject.CFPR : null; } }
         public decimal? ClientSumDiff { get { return this.DomainObject.ClientSumDiff; } }

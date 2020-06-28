@@ -162,11 +162,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             throw new NotImplementedException();
         }
 
-        protected override void LoadObjects(StorageData item)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override bool LoadObjects()
         {
             throw new NotImplementedException();
@@ -192,7 +187,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             throw new NotImplementedException();
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             throw new NotImplementedException();
         }

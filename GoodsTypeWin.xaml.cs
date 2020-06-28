@@ -32,11 +32,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             try
             {
 
-                ReferenceDS ds = this.FindResource("keyReferenceDS") as ReferenceDS;
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter keyReferenceDSGoodsTypeAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter();
-                keyReferenceDSGoodsTypeAdapter.ClearBeforeFill = false;
-                keyReferenceDSGoodsTypeAdapter.Fill(ds.tableGoodsType);
-                this.mainDataGrid.ItemsSource = ds.tableGoodsType.DefaultView;
+                //ReferenceDS ds = this.FindResource("keyReferenceDS") as ReferenceDS;
+                //KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter keyReferenceDSGoodsTypeAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter();
+                //keyReferenceDSGoodsTypeAdapter.ClearBeforeFill = false;
+                //keyReferenceDSGoodsTypeAdapter.Fill(ds.tableGoodsType);
+                this.mainDataGrid.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             }
             catch (Exception ex)
             {
@@ -66,11 +66,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             bool isSuccess = false;
             try
             {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                ReferenceDS itemDS = this.FindResource("keyReferenceDS") as ReferenceDS;
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter adapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
-                adapter.Update(itemDS.tableGoodsType);
-                isSuccess = true;
+                if (mainDataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                {
+                    //ReferenceDS itemDS = this.FindResource("keyReferenceDS") as ReferenceDS;
+                    //KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter adapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
+                    //adapter.Update(itemDS.tableGoodsType);
+                    CustomBrokerWpf.References.GoodsTypesParcel.SaveDataChanges();
+                    isSuccess = true;
+                }
             }
             catch (Exception ex)
             {

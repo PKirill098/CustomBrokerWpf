@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.IO;
 using System.Data;
+using System.ComponentModel;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
 {
@@ -37,14 +38,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             CollectionViewSource typeVS = this.FindResource("keyTypeVS") as CollectionViewSource;
             typeVS.Source = new System.Data.DataView(refDS.tableParcelType);
-            if (refDS.tableGoodsType.Count == 0)
-            {
-                ReferenceDSTableAdapters.GoodsTypeAdapter goodstypeadapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
-                goodstypeadapter.Fill(refDS.tableGoodsType);
-            }
+            //if (refDS.tableGoodsType.Count == 0)
+            //{
+            //    ReferenceDSTableAdapters.GoodsTypeAdapter goodstypeadapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
+            //    goodstypeadapter.Fill(refDS.tableGoodsType);
+            //}
             CollectionViewSource goodsVS = this.FindResource("keyGoodsVS") as CollectionViewSource;
-            goodsVS.Source = new System.Data.DataView(refDS.tableGoodsType, "Iditem>0", "Nameitem", System.Data.DataViewRowState.CurrentRows);
-
+            ListCollectionView goods = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
+            goods.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            goodsVS.Source = CustomBrokerWpf.References.GoodsTypesParcel;
+            goodsVS.View.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
             mainDataRefresh();
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

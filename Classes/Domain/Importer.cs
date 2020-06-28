@@ -67,7 +67,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Importer CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -95,9 +95,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[1].Value = item.HasPropertyOutdatedValue("Name");
             myinsertupdateparams[1].Value = item.Name;
             return true;
-        }
-        protected override void LoadObjects(Importer item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

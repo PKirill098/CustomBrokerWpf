@@ -325,10 +325,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 int i = 0;
                 string[] values = new string[this.goodstypeListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.goodstypeListBox.SelectedItems)
+                foreach (DataModelClassLibrary.ReferenceSimpleItem rowview in this.goodstypeListBox.SelectedItems)
                 {
-                    ReferenceDS.tableGoodsTypeRow row = rowview.Row as ReferenceDS.tableGoodsTypeRow;
-                    values[i] = row.Iditem.ToString();
+                    values[i] = rowview.Id.ToString();
                     i++;
                 }
                 filter.SetList(filter.FilterWhereId, "goodstype", values);
@@ -622,14 +621,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             System.Data.DataView typeview = new System.Data.DataView(refDS.tableParcelType);
             this.parcelTypeListBox.ItemsSource = typeview;
-            if (refDS.tableGoodsType.Count == 0)
-            {
-                ReferenceDSTableAdapters.GoodsTypeAdapter goodstypeadapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
-                goodstypeadapter.Fill(refDS.tableGoodsType);
-            }
-            refDS.tableGoodsType.DefaultView.Sort = "Nameitem";
-            System.Data.DataView goodsview = new System.Data.DataView(refDS.tableGoodsType, string.Empty, "Nameitem", DataViewRowState.CurrentRows);
-            this.goodstypeListBox.ItemsSource = goodsview;
+            //if (refDS.tableGoodsType.Count == 0)
+            //{
+            //    ReferenceDSTableAdapters.GoodsTypeAdapter goodstypeadapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
+            //    goodstypeadapter.Fill(refDS.tableGoodsType);
+            //}
+            //refDS.tableGoodsType.DefaultView.Sort = "Nameitem";
+            //System.Data.DataView goodsview = new System.Data.DataView(refDS.tableGoodsType, string.Empty, "Nameitem", DataViewRowState.CurrentRows);
+            this.goodstypeListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             if (this.Owner is MainWindow & myfilterowner == null)
                 filter = (this.Owner as MainWindow).ParcelFilter;
             else

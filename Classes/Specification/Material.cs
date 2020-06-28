@@ -155,7 +155,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mydeletecommandtext = "DELETE FROM [spec].[Material_tb] WHERE id=@id";
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Material CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -209,9 +209,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[3].Value = item.Substitution != null ? item.Substitution.Id : (object)DBNull.Value;
             myinsertupdateparams[4].Value = string.IsNullOrEmpty(item.TNVEDGroup) ? DBNull.Value : (object)item.TNVEDGroup;
             return item.Upper?.DomainState != lib.DomainObjectState.Added;
-        }
-        protected override void LoadObjects(Material item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

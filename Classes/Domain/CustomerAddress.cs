@@ -160,10 +160,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[4].Value = item.Town;
             return true;
         }
-        protected override void SetSelectParametersValue()
-        {
-        }
-        protected override void LoadObjects(CustomerAddress item)
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()

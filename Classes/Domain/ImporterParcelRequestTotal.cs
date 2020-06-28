@@ -184,7 +184,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                 case "InvoiceDiscount":
                                     newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
                                     myinvoicediscount += newvalue - oldvalue;
+                                    if(request.ServiceType=="ТД") myinvoicediscounttd += newvalue - oldvalue;
+                                    if (request.ServiceType == "ТЭО") myinvoicediscountteo += newvalue - oldvalue;
                                     PropertyChangedNotification("InvoiceDiscount");
+                                    PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+                                    PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
                                     break;
                                 case "OfficialWeight":
                                     newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
@@ -226,6 +230,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             get { return myinvoicediscount; }
         }
+        private decimal myinvoicediscounttd;
+        public decimal InvoiceDiscountTD
+        {
+            get { return myinvoicediscounttd; }
+        }
+        private decimal myinvoicediscountteo;
+        public decimal InvoiceDiscountTEO
+        {
+            get { return myinvoicediscountteo; }
+        }
         private decimal myofficialweight;
         public decimal OfficialWeight
         {
@@ -243,6 +257,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycellnumber = 0M;
             myinvoice = 0M;
             myinvoicediscount = 0M;
+            myinvoicediscounttd = 0M;
+            myinvoicediscountteo = 0M;
             myofficialweight = 0M;
             myvolume = 0M;
             foreach (Request item in myrequests)
@@ -267,6 +283,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycellnumber += item.CellNumber ?? 0;
             myinvoice += item.Invoice ?? 0M;
             myinvoicediscount += item.InvoiceDiscount ?? 0M;
+            if(item.ServiceType=="ТД") myinvoicediscounttd += item.InvoiceDiscount ?? 0M;
+            if (item.ServiceType == "ТЭО") myinvoicediscountteo += item.InvoiceDiscount ?? 0M;
             myofficialweight += item.OfficialWeight ?? 0M;
             myvolume += item.Volume ?? 0M;
 
@@ -278,6 +296,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycellnumber -= item.CellNumber ?? 0;
             myinvoice -= item.Invoice ?? 0M;
             myinvoicediscount -= item.InvoiceDiscount ?? 0M;
+            if (item.ServiceType == "ТД") myinvoicediscounttd -= item.InvoiceDiscount ?? 0M;
+            if (item.ServiceType == "ТЭО") myinvoicediscountteo -= item.InvoiceDiscount ?? 0M;
             myofficialweight -= item.OfficialWeight ?? 0M;
             myvolume -= item.Volume ?? 0M;
 
@@ -290,6 +310,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             PropertyChangedNotification("DifferenceWeight");
             PropertyChangedNotification("Invoice");
             PropertyChangedNotification("InvoiceDiscount");
+            PropertyChangedNotification("InvoiceDiscountTD");
+            PropertyChangedNotification("InvoiceDiscountTEO");
             PropertyChangedNotification("OfficialWeight");
             PropertyChangedNotification("Volume");
         }
@@ -341,6 +363,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             set { myinvoicediscountpre += value ?? 0M; PropertyChangedNotification("InvoiceDiscount"); }
             get { return myparcel.IsEnabled ? mytotal.InvoiceDiscount + myinvoicediscountpre : (decimal?)null; }
         }
+        private decimal myinvoicediscounttdpre;
+        public decimal? InvoiceDiscountTD
+        {
+            set { myinvoicediscounttdpre += value ?? 0M; PropertyChangedNotification("InvoiceDiscountTD"); }
+            get { return myparcel.IsEnabled ? mytotal.InvoiceDiscountTD + myinvoicediscounttdpre : (decimal?)null; }
+        }
+        private decimal myinvoicediscountteopre;
+        public decimal? InvoiceDiscountTEO
+        {
+            set { myinvoicediscountteopre += value ?? 0M; PropertyChangedNotification("InvoiceDiscountTEO"); }
+            get { return myparcel.IsEnabled ? mytotal.InvoiceDiscountTEO + myinvoicediscountteopre : (decimal?)null; }
+        }
         private decimal myofficialweightpre;
         public decimal? OfficialWeight
         {
@@ -367,6 +401,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             PropertyChangedNotification("DifferenceWeight");
             PropertyChangedNotification("Invoice");
             PropertyChangedNotification("InvoiceDiscount");
+            PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+            PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
             PropertyChangedNotification("OfficialWeight");
             PropertyChangedNotification("Volume");
         }

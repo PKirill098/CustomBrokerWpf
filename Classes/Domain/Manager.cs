@@ -93,9 +93,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void LoadObjects(Manager item)
-        {
-        }
         protected override bool SaveChildObjects(Manager item)
         {
             return true;
@@ -117,7 +114,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[2].Value = item.Name;
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
     }

@@ -190,9 +190,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void LoadObjects(Declaration item)
-        {
-        }
         protected override bool SaveChildObjects(Declaration item)
         {
             return true;
@@ -205,7 +202,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool SetSpecificParametersValue(Declaration item)

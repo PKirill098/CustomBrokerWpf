@@ -52,20 +52,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myclient = client;
             myspec = spec;
         }
-        public SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, int clientid, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, int roworder, string sizeen, string sizeru, int myspecid, string tnved, string vendorcode
-            ) : this(id, stamp, mstate, amount, branch, brand, cellnumber, certificate, contexture, cost, countryru, countryen, customer, description, gender, grossweight, netweight, name, note, packing, price, producer, roworder, sizeen, sizeru, tnved, vendorcode)
-        {
-            customerlegalid = clientid;
-            specificationid = myspecid;
-        }
         public SpecificationDetail() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
             , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0, null, null, null, null
             )
         { }
-
-        internal int customerlegalid { private set; get; }
-        internal int specificationid { private set; get; }
 
         private int? myamount;
         public int? Amount
@@ -263,6 +253,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         public SpecificationDetailDBM()
         {
+            this.NeedAddConnection = true;
             ConnectionString = CustomBrokerWpf.References.ConnectionString;
 
             SelectCommandText = "spec.SpecificationDetail_sp";
@@ -337,13 +328,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         protected override SpecificationDetail CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            return new SpecificationDetail(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
+			return new SpecificationDetail(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("amount")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("amount"))
                 , reader.IsDBNull(reader.GetOrdinal("branch")) ? null : reader.GetString(reader.GetOrdinal("branch"))
                 , reader.IsDBNull(reader.GetOrdinal("brand")) ? null : reader.GetString(reader.GetOrdinal("brand"))
                 , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? null : reader.GetString(reader.GetOrdinal("cellnumber"))
                 , reader.IsDBNull(reader.GetOrdinal("certificate")) ? null : reader.GetString(reader.GetOrdinal("certificate"))
-                , reader.IsDBNull(reader.GetOrdinal("customerid")) ? 0 : reader.GetInt32(reader.GetOrdinal("customerid"))
+                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.IsDBNull(reader.GetOrdinal("customerid")) ? 0 : reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out _)
                 , reader.IsDBNull(reader.GetOrdinal("contexture")) ? null : reader.GetString(reader.GetOrdinal("contexture"))
                 , reader.IsDBNull(reader.GetOrdinal("cost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("cost"))
                 , reader.IsDBNull(reader.GetOrdinal("countryru")) ? null : reader.GetString(reader.GetOrdinal("countryru"))
@@ -361,7 +352,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , reader.GetInt32(reader.GetOrdinal("roworder"))
                 , reader.IsDBNull(reader.GetOrdinal("sizeen")) ? null : reader.GetString(reader.GetOrdinal("sizeen"))
                 , reader.IsDBNull(reader.GetOrdinal("sizeru")) ? null : reader.GetString(reader.GetOrdinal("sizeru"))
-                , reader.IsDBNull(reader.GetOrdinal("specificationid")) ? 0 : reader.GetInt32(reader.GetOrdinal("specificationid"))
+                , this.Specification ?? (reader.IsDBNull(reader.GetOrdinal("specificationid")) ? null : CustomBrokerWpf.References.SpecificationStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("specificationid")), addcon, out _))
                 , reader.IsDBNull(reader.GetOrdinal("tnved")) ? null : reader.GetString(reader.GetOrdinal("tnved"))
                 , reader.IsDBNull(reader.GetOrdinal("vendorcode")) ? null : reader.GetString(reader.GetOrdinal("vendorcode"))
             );
@@ -381,7 +372,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             SelectParams[0].Value = myspec?.Id;
             SelectParams[1].Value = this.Filter?.FilterWhereId;
@@ -552,16 +543,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (!(item.Specification.Id > 0)) this.Errors.Add(new lib.DBMError(item, "Спецификация не сохранена", "specnew"));
             return item.Specification.Id > 0;
         }
-        protected override void LoadObjects(SpecificationDetail item)
-        {
-            if(item.customerlegalid>0)
-                item.Client = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.customerlegalid,this.Command.Connection);
-            item.Specification = this.Specification ?? (item.specificationid == 0 ? null : CustomBrokerWpf.References.SpecificationStore.GetItemLoad(item.specificationid, this.Command.Connection));
-        }
         protected override bool LoadObjects()
         {
-            foreach (SpecificationDetail item in this.Collection)
-                LoadObjects(item);
             return this.Errors.Count == 0;
         }
     }

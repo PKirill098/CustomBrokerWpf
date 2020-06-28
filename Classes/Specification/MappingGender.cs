@@ -84,7 +84,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override MappingGender CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -127,9 +127,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             else
                 myupdateparams[0].Value = item.Gender.Id;
             return true;
-        }
-        protected override void LoadObjects(MappingGender item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

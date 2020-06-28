@@ -11,15 +11,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     public class AgentCustomerBalance
     {
         internal AgentCustomerBalance() : base() { }
-        internal AgentCustomerBalance(int agentid, int customerid, decimal balance,Importer importer):this()
+        internal AgentCustomerBalance(Agent agent, CustomerLegal customer, decimal balance,Importer importer):this()
         {
-            myagentid = agentid;
-            mycustomerid = customerid;
+            myagent = agent;
+            mycustomer = customer;
             mybalance = balance;
             myimporter = importer;
         }
-        internal int myagentid;
-        internal int mycustomerid;
 
         private Agent myagent;
         public Agent Agent
@@ -39,6 +37,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     {
         internal AgentCustomerBalanceDBM()
         {
+            this.NeedAddConnection = true;
             ConnectionString = CustomBrokerWpf.References.ConnectionString;
             SelectProcedure = true;
             SelectCommandText = "account.AgentCustomerBalanceDelivered_sp";
@@ -65,8 +64,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override AgentCustomerBalance CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             return new AgentCustomerBalance(
-                reader.GetInt32(reader.GetOrdinal("agentid")),
-                reader.GetInt32(reader.GetOrdinal("customerid")),
+                CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon,out _),
+                CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out _),
                 reader.GetDecimal(reader.GetOrdinal("balance")),
                 myimporter
                 );
@@ -74,17 +73,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override bool LoadObjects()
         {
-            foreach (AgentCustomerBalance item in this.Collection)
-                LoadObjects(item);
             return this.Errors.Count == 0;
         }
-        protected override void LoadObjects(AgentCustomerBalance item)
-        {
-            item.Agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(item.myagentid, this.Command.Connection);
-            item.Customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.mycustomerid, this.Command.Connection);
-        }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             foreach(SqlParameter par in SelectParams)
                 switch (par.ParameterName)

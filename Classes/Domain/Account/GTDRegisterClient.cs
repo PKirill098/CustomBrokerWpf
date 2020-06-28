@@ -1,4 +1,5 @@
 ﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain;
+using KirillPolyanskiy.DataModelClassLibrary;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -404,9 +405,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private GTDRegister mygtd;
         internal GTDRegister GTD
         { set { mygtd = value; } get { return mygtd; } }
-        private lib.SQLFilter.SQLFilter myfilter;
-        internal lib.SQLFilter.SQLFilter Filter
-        { set { myfilter = value; } get { return myfilter; } }
+        //private lib.SQLFilter.SQLFilter myfilter;
+        //internal lib.SQLFilter.SQLFilter Filter
+        //{ set { myfilter = value; } get { return myfilter; } }
         private GTDRegisterDBM mygdtdbm;
         internal GTDRegisterDBM GTDDBM
         { set { mygdtdbm = value; }  get { return mygdtdbm; } }
@@ -417,7 +418,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override GTDRegisterClient CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            CustomerLegal customer = reader.IsDBNull(reader.GetOrdinal("customerid")) ? null : CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon);
+            List<DBMError> errors = new List<DBMError>();
+            CustomerLegal customer = reader.IsDBNull(reader.GetOrdinal("customerid")) ? null : CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out errors);
+            this.Errors.AddRange(errors);
             GTDRegisterClient item = new GTDRegisterClient(reader.GetInt32(0)
                 , reader.IsDBNull(reader.GetOrdinal("stamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("stamp"))
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated"))
@@ -438,10 +441,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(GTDRegisterClient item)
         {
         }
-        protected override void LoadObjects(GTDRegisterClient item)
-        {
-            //if (item.Client == null) item.Client = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.myclientid, this.Command.Connection);
-        }
         protected override bool LoadObjects()
         {
             //foreach (GTDRegisterClient item in this.Collection)
@@ -460,7 +459,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)
@@ -468,9 +467,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@gtdid":
                         par.Value = mygtd?.Id;
                         break;
-                    case "@filterid":
-                        par.Value = myfilter?.FilterWhereId;
-                        break;
+                    //case "@filterid":
+                    //    par.Value = myfilter?.FilterWhereId;
+                    //    break;
                     case "@servicetype":
                         par.Value = myservicetype;
                         break;

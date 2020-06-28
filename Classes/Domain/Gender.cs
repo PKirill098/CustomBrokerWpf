@@ -132,7 +132,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override Gender CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -169,9 +169,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[0].Value = item.Name;
             myinsertupdateparams[1].Value = item.ShortName;
             return item.Over?.DomainState != lib.DomainObjectState.Added;
-        }
-        protected override void LoadObjects(Gender item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }

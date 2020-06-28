@@ -41,10 +41,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myagentfilter.ExecCommand2 = () => { myagentfilter.Clear(); };
             myagentfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                     foreach (lib.ReferenceSimpleItem item in CustomBrokerWpf.References.AgentNames)
                         myagentfilter.Items.Add(item);
-                return myfilter.isEmpty;
+                return empty;
             };
             myconsolidatefilter = new PrepaConsolidateCheckListBoxVMFill();
             myconsolidatefilter.DeferredFill = true;
@@ -57,10 +58,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mycustomerfilter.ExecCommand2 = () => { mycustomerfilter.Clear(); };
             mycustomerfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                     foreach (CustomerLegal item in mycustomerfilter.DefaultList)
                         mycustomerfilter.Items.Add(item);
-                return myfilter.isEmpty;
+                return empty;
             };
             mydealpassportfilter = new WpfControlLibrary.CheckListBoxVM();
             mydealpassportfilter.RefreshIsVisible = false;
@@ -79,13 +81,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mymanagerfilter.ExecCommand2 = () => { mymanagerfilter.Clear(); };
             mymanagerfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool empty = this.FilterEmpty;
+                if (empty)
                 {
                     mymanagerfilter.Items.Add(new Manager(0, lib.DomainObjectState.Sealed, null, string.Empty, 208));
                     foreach (Manager item in CustomBrokerWpf.References.Managers)
                         mymanagerfilter.Items.Add(item);
                 }
-                return myfilter.isEmpty;
+                return empty;
             };
             mynotefilter = new PrepaNoteCheckListBoxVMFill();
             mynotefilter.DeferredFill = true;
@@ -97,14 +100,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myparcelfilter.ExecCommand2 = () => { myparcelfilter.Clear(); };
             myparcelfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                bool fempty = this.FilterEmpty;
+                if (fempty)
                 {
                     ParcelNumber empty = new ParcelNumber() { Sort = "999999" };
                     myparcelfilter.Items.Add(empty);
                     foreach (ParcelNumber item in CustomBrokerWpf.References.ParcelNumbers)
                         myparcelfilter.Items.Add(item);
                 }
-                return myfilter.isEmpty;
+                return fempty;
             };
             mypercentfilter = new PrepayPercentCheckListBoxVMFill();
             mypercentfilter.DeferredFill = true;
@@ -747,6 +751,52 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 filter.Synchronized = true;
             }
         }
+        private bool FilterEmpty
+        { get {
+                return !(myparcelfilter.FilterOn ||
+                myagentfilter.FilterOn ||
+                mycbratefilter.FilterOn ||
+                mycbratep2pfilter.FilterOn ||
+                myconsolidatefilter.FilterOn ||
+                mycurrencypayfilter.FilterOn ||
+                mycurrencyboughtdatefilter.FilterOn ||
+                mycurrencybuyratefilter.FilterOn ||
+                mycurrencypaiddatefilter.FilterOn ||
+                mycustomerfilter.FilterOn ||
+                mycustomerbalancefilter.FilterOn ||
+                mycustomsinvoicedatefilter.FilterOn ||
+                mycustomsinvoicepaiddatefilter.FilterOn ||
+                mycustomsinvoicerubsumfilter.FilterOn ||
+                mycustomsinvoicepercentfilter.FilterOn ||
+                mydealpassportfilter.FilterOn ||
+                mydtsumfilter.FilterOn ||
+                myeurosumfilter.FilterOn ||
+                myexpirydatefilter.FilterOn ||
+                myfincur1paiddatefilter.FilterOn ||
+                myfincur1sumfilter.FilterOn ||
+                myfincur2paiddatefilter.FilterOn ||
+                myfincur2sumfilter.FilterOn ||
+                myfinalpaiddatefilter.FilterOn ||
+                myfinrubsumfilter.FilterOn ||
+                myfinrubsumpaidfilter.FilterOn ||
+                myinvoicedatefilter.FilterOn ||
+                myinvoicenumberfilter.FilterOn ||
+                mymanagerfilter.FilterOn ||
+                mynotefilter.FilterOn ||
+                myoverpayfilter.FilterOn ||
+                mypercentfilter.FilterOn ||
+                myprepayfilter.FilterOn ||
+                myratediffperfilter.FilterOn ||
+                myratediffresultfilter.FilterOn ||
+                myrefundfilter.FilterOn ||
+                myrubdifffilter.FilterOn ||
+                myrubpaiddatefilter.FilterOn ||
+                myrubsumfilter.FilterOn ||
+                mysellingfilter.FilterOn ||
+                mysellingdatefilter.FilterOn ||
+                myspddatefilter.FilterOn);
+            }
+        }
         #endregion
         internal Importer Importer
         { get { return mymaindbm.Importer; } }
@@ -1167,7 +1217,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override void RefreshData(object parametr)
         {
-            if (myfilter.isEmpty)
+            if (this.FilterEmpty)
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             else
             {
@@ -1178,7 +1228,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 PrepayDBM prdbm = new PrepayDBM();
                 RequestDBM rqdbm = new RequestDBM();
                 RequestCustomerLegalDBM ldbm = new RequestCustomerLegalDBM();
-                CustomsInvoiceDBM invdbm = new CustomsInvoiceDBM();
                 SpecificationCustomerInvoiceRateDBM ratedbm = new SpecificationCustomerInvoiceRateDBM();
                 mycanceltasksource = new System.Threading.CancellationTokenSource();
                 mycanceltasktoken = mycanceltasksource.Token;
@@ -1220,14 +1269,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                 specs.Add(item.Request.Specification.Id);
                             }
                         }
-                        if(item.Request.Parcel!=null && item.CustomsInvoice!=null && !invs.Contains(item.CustomsInvoice.Id))
+                        if(item.CustomsInvoice!=null && !invs.Contains(item.CustomsInvoice.Id))
                         {
-                            invdbm.Command.Connection = rqdbm.Command.Connection;
-                            invdbm.Customer = item.Prepay.Customer;
-                            invdbm.Importer = item.Prepay.Importer;
-                            invdbm.Parcel = item.Request.Parcel;
-                            CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(invdbm.GetFirst());
-                            if (invdbm.Errors.Count > 0) foreach (lib.DBMError err in invdbm.Errors) errstr.AppendLine(err.Message);
+                            CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item.CustomsInvoice.Id, rqdbm.Command.Connection,out var errors);
+                            if (errors.Count > 0) foreach (lib.DBMError err in errors) errstr.AppendLine(err.Message);
                             invs.Add(item.CustomsInvoice.Id);
                         }
                     }

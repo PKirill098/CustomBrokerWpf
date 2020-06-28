@@ -182,7 +182,7 @@
                 <TextBlock Text="Статус" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
                 <ListBox x:Name="statusListBox" Grid.Row="1" Grid.Column="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="name" IsTextSearchEnabled="True" TextSearch.TextPath="name" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="StatusListBox_SelectionChanged" />
                 <TextBlock Text="Груз" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
-                <ListBox x:Name="goodstypeListBox" Grid.Row="1" Grid.Column="2" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Nameitem" IsTextSearchEnabled="True" TextSearch.TextPath="Nameitem" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="GoodstypeListBox_SelectionChanged" />
+                <ListBox x:Name="goodstypeListBox" Grid.Row="1" Grid.Column="2" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Name" IsTextSearchEnabled="True" TextSearch.TextPath="Name" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="GoodstypeListBox_SelectionChanged" />
             </Grid>
         </Grid>
     </ScrollViewer>

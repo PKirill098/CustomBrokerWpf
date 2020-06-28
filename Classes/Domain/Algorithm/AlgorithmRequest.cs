@@ -576,7 +576,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myrequest.Id;
             if (myrequest.Status.Id < 500) this.SelectParams[1].Value = myalgorithm.Id; else this.SelectParams[1].Value = null;
@@ -598,9 +598,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[10].Value = item.Value2User.HasValue;
             myinsertupdateparams[11].Value = item.AFStamp;
             return true;
-        }
-        protected override void LoadObjects(AlgorithmValuesRequest item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -639,7 +636,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public decimal? InvoiceDiscount
         { get { return DBNull.Value == this.SelectParams[4].Value ? (myrequest == null ? (decimal?)null : 0M) : (decimal)this.SelectParams[4].Value; } }
 
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams[0].Value = mygroup;
             this.SelectParams[1].Value = myrequest?.Id;
@@ -668,7 +665,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             get { return myrequest; }
         }
 
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myrequest.Id;
         }
@@ -700,9 +697,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void ItemAcceptChanches(Algorithm item)
         {
             item.AcceptChanches();
-        }
-        protected override void LoadObjects(Algorithm item)
-        {
         }
         protected override bool LoadObjects()
         { return true; }
@@ -1166,7 +1160,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     myfdbm.Fill();
                     if (myfdbm.Errors.Count > 0) err.AppendLine(myfdbm.ErrorMessage);
                     myformulasynchronizer.DomainCollection = myfdbm.Collection;
-
                 }
                 else
                 {

@@ -84,8 +84,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             managerGroupListBox.ItemsSource = CustomBrokerWpf.References.ManagerGroups;
 
             ReferenceDS refDS = this.FindResource("keyReferenceDS") as ReferenceDS;
-            if (refDS.tableGoodsType.Count == 0) refDS.GoodsTypeRefresh();
-            this.goodstypeListBox.ItemsSource = refDS.tableGoodsType.DefaultView;
+            //if (refDS.tableGoodsType.Count == 0) refDS.GoodsTypeRefresh();
+            this.goodstypeListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             if (refDS.tableRequestStatus.Count == 0) refDS.RequestStatusRefresh();
             this.statusListBox.ItemsSource = refDS.tableRequestStatus.DefaultView;
             if (refDS.tableParcelType.Count == 0) refDS.ParcelTypeRefresh();
@@ -259,10 +259,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 int i = 0;
                 string[] values = new string[this.goodstypeListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.goodstypeListBox.SelectedItems)
+                foreach (DataModelClassLibrary.ReferenceSimpleItem rowview in this.goodstypeListBox.SelectedItems)
                 {
-                    ReferenceDS.tableGoodsTypeRow row = rowview.Row as ReferenceDS.tableGoodsTypeRow;
-                    values[i] = row.Nameitem;
+                    values[i] = rowview.Name;
                     i++;
                 }
                 filter.SetList(filter.FilterWhereId, "goodstype", values);
@@ -422,7 +421,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
             filter.PullListBox(filter.FilterWhereId, "parceltype", "parceltypeid", this.parcelTypeListBox, true);
             filter.PullListBox(filter.FilterWhereId, "parcelstatus", "rowId", this.statusListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "goodstype", "Nameitem", this.goodstypeListBox, true);
+            filter.PullListBox(filter.FilterWhereId, "goodstype", "Name", this.goodstypeListBox, true);
             filter.PullListBox(filter.FilterWhereId, "manager", "Id", this.ManagerListBox, true);
             filter.PullListBox(filter.FilterWhereId, "managerGroupId", "Id", this.managerGroupListBox, true);
             myclientvm.Clear();

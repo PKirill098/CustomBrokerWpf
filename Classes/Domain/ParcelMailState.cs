@@ -141,7 +141,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue()
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             SelectParams[0].Value = myparcel.Id;
         }
@@ -165,9 +165,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.Errors.Add(new lib.DBMError(item, "Загруска не сохранена в БД!", "0"));
             return myparcel.Id > 0;
         }
-        protected override void LoadObjects(ParcelCustomerMailState item)
-        {
-        }
         protected override bool LoadObjects()
         { return true; }
     }
@@ -190,7 +187,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return new KeyValuePair<int, string>(reader.GetInt32(0), reader.IsDBNull(1) ? null : reader.GetString(1));
         }
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value = myparcel.Id;
         }
@@ -376,7 +373,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.ShipDate = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out var errors)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.AddRange(errors);
                                                     }
                                                 }
                                             }
@@ -413,7 +411,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.Prepared = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty), "1"));
                                                     }
                                                 }
                                             }
@@ -450,7 +448,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.CrossedBorder = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty), "1"));
                                                     }
                                                 }
                                             }
@@ -487,7 +485,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.TerminalIn = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty), "1"));
                                                     }
                                                 }
                                             }
@@ -524,7 +522,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.TerminalOut = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty), "1"));
                                                     }
                                                 }
                                             }
@@ -561,7 +559,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                         item.UnLoaded = DateTime.Now;
                                                     else if (sent == 0)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + (CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId, out var errors)?.Name ?? string.Empty), "1"));
+                                                        mysenderrors.AddRange(errors);
                                                     }
                                                 }
                                             }

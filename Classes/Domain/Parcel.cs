@@ -867,9 +867,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelStore : lib.DomainStorageLoad<Parcel>
+    internal class ParcelStore : lib.DomainStorageLoad<Parcel, ParcelDBM>
     {
-        public ParcelStore(lib.DBManagerId<Parcel> dbm) : base(dbm) { }
+        public ParcelStore(ParcelDBM dbm) : base(dbm) { }
 
         protected override void UpdateProperties(Parcel olditem, Parcel newitem)
         {
@@ -879,7 +879,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
     internal class ParcelDBM : lib.DBManagerStamp<Parcel>
     {
-        internal ParcelDBM()
+        public ParcelDBM()
         {
             this.NeedAddConnection = true;
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
@@ -1319,10 +1319,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void SetSelectParametersValue()
-        {
-        }
-        protected override void LoadObjects(Parcel item)
+        protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
         protected override bool LoadObjects()
@@ -2487,6 +2484,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mysendmail = new RelayCommand(SendMailExec, SendMailCanExec);
             myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
             myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
+            myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
             mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
         }
 
@@ -2519,7 +2517,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (this.CurrentItem != null)
                 {
-                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + this.CurrentItem.DocDirPath;
+                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + this.CurrentItem.DocDirPath??string.Empty;
                     if (!Directory.Exists(path))
                     {
                         System.IO.Directory.CreateDirectory(path);
@@ -2858,7 +2856,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                     consolidate:request.Consolidate,
                                     parcelgroup:string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null,
                                     request:string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null,
-                                    agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId??0),
+                                    agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId??0, out _),
                                     importer:request.Importer);
                                 spec.BuildFileName(request,fd.FileName);
                                 this.CurrentItem.Specifications.AddNewItem(new Specification.SpecificationVM(spec));
@@ -2901,12 +2899,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { return this.CurrentItem != null & (myexceltask == null || !myexceltask.IsBusy); }
         private KeyValuePair<bool, string> OnExcelImport(object parm)
         {
-            int maxr, usedr = 0, r = 10;
+			int maxr, usedr = 0, r = 10;
+            decimal v;
             object[] param = parm as object[];
             string filepath = (string)param[0];
             Specification.Specification spec = (Specification.Specification)param[1];
             Specification.SpecificationDetail detail;
-            CustomerLegal legal = spec.Request?.CustomerLegals?.Count == 1 ? spec.Request.CustomerLegals[0].CustomerLegal : null;
+            CustomerLegal legal = spec.CustomerLegalsList?.Count == 1 ? spec.CustomerLegalsList[0] : null;
 
             Excel.Application exApp = new Excel.Application();
             Excel.Application exAppProt = new Excel.Application();
@@ -2926,15 +2925,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (string.IsNullOrEmpty(exWh.Cells[r, 6].Text as string)) continue;
                     detail = new Specification.SpecificationDetail();
 
-                    detail.Amount = (int?)exWh.Cells[r, 13].Value;
-                    if (detail.Amount < 0 | detail.Amount > 10000000)
-                        throw new Exception("Некорректное значение количества товара: " + detail.Amount.ToString());
+                    if (int.TryParse(exWh.Cells[r, 13].Text as string,out int n) && n < 0 | n > 10000000)
+                        throw new Exception("Некорректное значение количества товара: " + exWh.Cells[r, 6].Text);
+                    else
+                        detail.Amount = n;
                     detail.Branch = exWh.Cells[r, 10].Text;
                     detail.Brand = exWh.Cells[r, 11].Text;
                     detail.CellNumber = (exWh.Cells[r, 16].Value)?.ToString();
                     detail.Certificate = exWh.Cells[r, 22].Text;
                     detail.Contexture = exWh.Cells[r, 5].Text;
-                    detail.Cost = (decimal?)exWh.Cells[r, 19].Value;
+                    if (decimal.TryParse(exWh.Cells[r, 19].Value.ToString(), out v) && v < 0)
+                        throw new Exception("Некорректное значение стоимости товара: " + exWh.Cells[r, 19].Value.ToString());
+                    else
+                        detail.Cost = v;
                     detail.CountryEN = exWh.Cells[r, 21].Text;
                     detail.CountryRU = exWh.Cells[r, 20].Text;
                     detail.Customer = exWh.Cells[r, 28].Text;
@@ -3005,6 +3008,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 exAppProt = null;
             }
         }
+
+        private RelayCommand myspecdel;
+        public ICommand SpecDel
+        {
+            get { return myspecdel; }
+        }
+        private void SpecDelExec(object parametr)
+        {
+            Specification.SpecificationVM item = this.CurrentItem.Specifications.CurrentItem as Specification.SpecificationVM;
+            this.CurrentItem.Specifications.EditItem(item);
+            item.DomainState = lib.DomainObjectState.Deleted;
+            this.CurrentItem.Specifications.CommitEdit();
+        }
+        private bool SpecDelCanExec(object parametr)
+        { return this.CurrentItem != null && this.CurrentItem.Specifications.CurrentItem != null; }
 
         private RelayCommand mytdload;
         public ICommand TDLoad
@@ -3137,16 +3155,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return myservicetypes;
             }
         }
-        private System.Data.DataView myloaddescriptions;
-        public System.Data.DataView LoadDescriptions
+        private ListCollectionView myloaddescriptions;
+        public ListCollectionView LoadDescriptions
         {
             get
             {
                 if (myloaddescriptions == null)
                 {
-                    ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
-                    if (refds.tableGoodsType.Count == 0) refds.GoodsTypeRefresh();
-                    myloaddescriptions = new System.Data.DataView(refds.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+                    myloaddescriptions = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
+                    myloaddescriptions.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
                 return myloaddescriptions;
             }
@@ -3371,7 +3388,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             switch (e.PropertyName)
             {
                 case "CellNumber":
-                    mycellnumber += (Int16)(e.NewValue ?? 0) - (Int16)(e.OldValue ?? 0);
+                    mycellnumber += (Int16)(e.NewValue ?? (Int16)0) - (Int16)(e.OldValue ?? (Int16)0);
                     PropertyChangedNotification("CellNumber");
                     break;
                 case "ActualWeight":
@@ -3464,10 +3481,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void LoadObjects(ParcelNumber item)
-        {
-        }
-        protected override void SetParametersValue()
+        protected override void PrepareFill(SqlConnection addcon)
         {
         }
     }

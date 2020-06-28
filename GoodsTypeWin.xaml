@@ -5,7 +5,7 @@
     <Grid>
         <DataGrid Name="mainDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" RowDetailsVisibilityMode="VisibleWhenSelected" VerticalAlignment="Top" HeadersVisibility="None">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Path=Nameitem}" Width="*" />
+                <DataGridTextColumn Binding="{Binding Path=Name}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
