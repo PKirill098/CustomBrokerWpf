@@ -22,8 +22,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myrecommend = recommend;
             mystate = state;
         }
-        public Agent():this(lib.NewObjectId.NewId,0,lib.DomainObjectState.Added
-            , DateTime.Today, null, null, null, 0) { }
+        public Agent(string fullname, string name) : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
+            , DateTime.Today, fullname, name, null, 0)
+        { }
+        public Agent():this( null, null) { }
 
         private DateTime mydateentry;
         public DateTime DayEntry
@@ -136,6 +138,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[]
             {
                 new SqlParameter("@id", System.Data.SqlDbType.Int),
+                new SqlParameter("@agentname", System.Data.SqlDbType.NVarChar,100)
             };
             myinsertupdateparams = new SqlParameter[]
             {
@@ -160,6 +163,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private AgentAliasDBM myadbm;
         internal AgentAliasDBM AliasDBM
         { set { myadbm = value; } }
+        private string myname;
+        public string Name
+        { set { myname = value; } }
 
         protected override Agent CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
@@ -210,6 +216,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
+            this.SelectParams[1].Value = myname;
             this.NeedAddConnection = myadbm != null;
         }
         protected override bool SetSpecificParametersValue(Agent item)
@@ -488,7 +495,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override AgentVM CreateCurrentViewItem(lib.DomainBaseNotifyChanged domainobject)
         {
-            throw new NotImplementedException();
+            return new AgentVM(domainobject as Agent);
         }
         protected override void OnCurrentItemChanged()
         {

@@ -1,10 +1,12 @@
 ﻿using MailKit.Net.Smtp;
+using MailKit.Net.Imap;
 using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
+using MailKit;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 {
@@ -12,15 +14,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
     {
         internal void Send(string to, string tomail, string subject, string body)
         {
-            string mailbox,host,user,password;
+            string mailbox, smtphost, imaphost, user,password;
 #if DEBUG
             mailbox = "pk73@mail.ru";
-            host = "smtp.mail.ru";
+            smtphost = "smtp.mail.ru";
+            imaphost = "imap.mail.ru";
             user = "pk73@mail.ru";
             password = "1QAZxsw2";
 #else
             mailbox = "order@art-delivery.ru";
-            host = "mail.nic.ru";
+            smtphost = "mail.nic.ru";
+            imaphost = "mail.nic.ru";
             user="order@art-delivery.ru";
             password = "GHJiop67*";
 #endif
@@ -38,14 +42,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             {
                 // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS)
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-
-                client.Connect(host, 587, false); 
-
+                client.Connect(smtphost, 465, true); 
                 // Note: only needed if the SMTP server requires authentication  
                 client.Authenticate(user, password);
-
                 client.Send(message);
                 client.Disconnect(true);
+            }
+            using (var client = new ImapClient())
+			{
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                client.Connect(imaphost, 993);
+                client.Authenticate(user, password);
+                IMailFolder folder = client.GetFolder(MailKit.SpecialFolder.Sent);
+                folder.Append(message, MessageFlags.None);
             }
         }
     }

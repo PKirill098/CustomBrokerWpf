@@ -35,10 +35,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mystate = state;
             mystatus = status;
         }
-        public Customer() : this(id: lib.NewObjectId.NewId, stamp: 0, updater: null, updated: null, dstate: lib.DomainObjectState.Added
-            , account: null, bankaccount: null, bankbic: null, bankname: null, contractdate: null, contractnum: null, corraccount: null, dayentry: DateTime.Now, deliverytype: null, fullname: null, inn: null, managergroup: null, name: null, notespecial: null, payaccount: null, paytypeid: null, recommend: null, state: 0, status: "Заявка"
+        public Customer(string fullname,string name) : this(id: lib.NewObjectId.NewId, stamp: 0, updater: null, updated: null, dstate: lib.DomainObjectState.Added
+            , account: null, bankaccount: null, bankbic: null, bankname: null, contractdate: null, contractnum: null, corraccount: null, dayentry: DateTime.Now, deliverytype: null, fullname: fullname, inn: null, managergroup: null, name: name, notespecial: null, payaccount: null, paytypeid: null, recommend: null, state: 0, status: "Заявка"
             )
         { }
+        public Customer() : this( fullname: null, name: null) { }
 
         private int? myaccount;
         public int? Account
@@ -367,6 +368,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[]
             {
                 new SqlParameter("@param1", System.Data.SqlDbType.Int),
+                new SqlParameter("@param2", System.Data.SqlDbType.Int),
+                new SqlParameter("@param3", System.Data.SqlDbType.NVarChar,100)
             };
             myinsertparams = new SqlParameter[]
            {
@@ -434,29 +437,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private CustomerAddressDBM mycdbm;
         private CustomerContactDBM myccdbm;
         private RecipientDBM myrdbm;
+        private string myname;
+        internal string Name
+        { set { myname = value; } get { return myname; } }
 
         protected override Customer CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            Customer newitem = new Customer(id: reader.GetInt32(0), stamp: reader.GetInt32(reader.GetOrdinal("stamp")), updater: reader.IsDBNull(reader.GetOrdinal("updtWho")) ? null : reader.GetString(reader.GetOrdinal("updtWho")), updated: reader.IsDBNull(reader.GetOrdinal("updtDate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updtDate")), dstate: lib.DomainObjectState.Unchanged
+            Customer newitem = new Customer(id: reader.GetInt32(0), stamp: reader.GetInt32(this.Fields["stamp"]), updater: reader.IsDBNull(this.Fields["updtWho"]) ? null : reader.GetString(this.Fields["updtWho"]), updated: reader.IsDBNull(this.Fields["updtDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["updtDate"]), dstate: lib.DomainObjectState.Unchanged
                 , account: null
-                , bankaccount: reader.IsDBNull(reader.GetOrdinal("raccount")) ? null : reader.GetString(reader.GetOrdinal("raccount"))
-                , bankbic: reader.IsDBNull(reader.GetOrdinal("bankbic")) ? null : reader.GetString(reader.GetOrdinal("bankbic"))
-                , bankname: reader.IsDBNull(reader.GetOrdinal("bankname")) ? null : reader.GetString(reader.GetOrdinal("bankname"))
-                , contractdate: reader.IsDBNull(reader.GetOrdinal("contractdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("contractdate"))
-                , contractnum: reader.IsDBNull(reader.GetOrdinal("contractnum")) ? null : reader.GetString(reader.GetOrdinal("contractnum"))
-                , corraccount: reader.IsDBNull(reader.GetOrdinal("coraccount")) ? null : reader.GetString(reader.GetOrdinal("coraccount"))
-                , dayentry: reader.GetDateTime(reader.GetOrdinal("customerDayEntry"))
-                , deliverytype: reader.IsDBNull(reader.GetOrdinal("deliverytypeID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("deliverytypeID"))
-                , fullname: reader.IsDBNull(reader.GetOrdinal("customerFullName")) ? null : reader.GetString(reader.GetOrdinal("customerFullName"))
-                , inn: reader.IsDBNull(reader.GetOrdinal("inn")) ? null : reader.GetString(reader.GetOrdinal("inn"))
-                , managergroup: reader.IsDBNull(reader.GetOrdinal("managerGroupID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("managerGroupID"))
-                , name: reader.IsDBNull(reader.GetOrdinal("customerName")) ? null : reader.GetString(reader.GetOrdinal("customerName"))
-                , notespecial: reader.IsDBNull(reader.GetOrdinal("customerNoteSpecial")) ? null : reader.GetString(reader.GetOrdinal("customerNoteSpecial"))
-                , payaccount: reader.IsDBNull(reader.GetOrdinal("payaccount")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("payaccount"))
-                , paytypeid: reader.IsDBNull(reader.GetOrdinal("paytypeID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("paytypeID"))
-                , recommend: reader.IsDBNull(reader.GetOrdinal("customerRecommend")) ? null : reader.GetString(reader.GetOrdinal("customerRecommend"))
-                , state: reader.GetByte(reader.GetOrdinal("customerState"))
-                , status: reader.IsDBNull(reader.GetOrdinal("customerStatus")) ? null : reader.GetString(reader.GetOrdinal("customerStatus"))
+                , bankaccount: reader.IsDBNull(this.Fields["raccount"]) ? null : reader.GetString(this.Fields["raccount"])
+                , bankbic: reader.IsDBNull(this.Fields["bankbic"]) ? null : reader.GetString(this.Fields["bankbic"])
+                , bankname: reader.IsDBNull(this.Fields["bankname"]) ? null : reader.GetString(this.Fields["bankname"])
+                , contractdate: reader.IsDBNull(this.Fields["contractdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["contractdate"])
+                , contractnum: reader.IsDBNull(this.Fields["contractnum"]) ? null : reader.GetString(this.Fields["contractnum"])
+                , corraccount: reader.IsDBNull(this.Fields["coraccount"]) ? null : reader.GetString(this.Fields["coraccount"])
+                , dayentry: reader.GetDateTime(this.Fields["customerDayEntry"])
+                , deliverytype: reader.IsDBNull(this.Fields["deliverytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["deliverytypeID"])
+                , fullname: reader.IsDBNull(this.Fields["customerFullName"]) ? null : reader.GetString(this.Fields["customerFullName"])
+                , inn: reader.IsDBNull(this.Fields["inn"]) ? null : reader.GetString(this.Fields["inn"])
+                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? (int?)null : reader.GetInt32(this.Fields["managerGroupID"])
+                , name: reader.IsDBNull(this.Fields["customerName"]) ? null : reader.GetString(this.Fields["customerName"])
+                , notespecial: reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null : reader.GetString(this.Fields["customerNoteSpecial"])
+                , payaccount: reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null : reader.GetInt32(this.Fields["payaccount"])
+                , paytypeid: reader.IsDBNull(this.Fields["paytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["paytypeID"])
+                , recommend: reader.IsDBNull(this.Fields["customerRecommend"]) ? null : reader.GetString(this.Fields["customerRecommend"])
+                , state: reader.GetByte(this.Fields["customerState"])
+                , status: reader.IsDBNull(this.Fields["customerStatus"]) ? null : reader.GetString(this.Fields["customerStatus"])
                 );
             return CustomBrokerWpf.References.CustomerStore.UpdateItem(newitem);
         }
@@ -578,6 +584,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
+            this.SelectParams[2].Value = myname;
         }
 
         internal void RefreshCollection()

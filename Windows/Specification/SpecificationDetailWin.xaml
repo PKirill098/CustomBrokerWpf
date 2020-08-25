@@ -7,7 +7,7 @@
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
         mc:Ignorable="d"
-        Title="Разбивки" Name="winSpecificationDetail" Loaded="Window_Loaded" Closing="Window_Closing" Height="800" Width="1300" Language="ru-RU" FontSize="11" Icon="Images/document_certificate.png">
+        Title="Разбивки" Name="winSpecificationDetail" Loaded="Window_Loaded" Closing="Window_Closing" Height="800" Width="1300" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/document_certificate.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -33,7 +33,7 @@
         </Grid.Resources>
         <ToolBar Height="30">
             <Button ToolTip="Выгрузить в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid}" IsTabStop="False">
-                <Image Source="Images/excel_export.png" />
+				<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
             </Button>
             <Button Command="{Binding VModel.FileOpen}" ToolTip="Открыть файл спецификации">
                 <Image Source="/CustomBrokerWpf;component/Images/vexcel4.png" />
@@ -43,11 +43,11 @@
             </Button>
             <Separator/>
             <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                <Image Source="Images/funnel_delete.png" />
+				<Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
             </Button>
             <Separator/>
             <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию">
-                <Image Source="Images/r2Refresh-512.png" />
+				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Separator/>
             <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -91,7 +91,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ParcelFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ParcelFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -124,6 +124,7 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Юр. лицо" Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Юр. лицо Excel" Binding="{Binding Path=Customer, TargetNullValue='', Mode=OneWay}" />
+				<DataGridTextColumn Header="Заявка" Binding="{Binding Path=StorePoint, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Перевод" Binding="{Binding Path=Name, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Пол" Binding="{Binding Path=Gender, TargetNullValue='', Mode=OneWay}">
                     <DataGridTextColumn.HeaderStyle>
@@ -132,7 +133,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GenderFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GenderFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -154,7 +155,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BranchFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BranchFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -171,7 +172,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -196,7 +197,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CountryRuFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CountryRuFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -214,7 +215,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CertificateFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CertificateFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>

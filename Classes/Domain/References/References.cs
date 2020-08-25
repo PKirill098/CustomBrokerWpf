@@ -66,6 +66,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 }
             }
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            StoreInit();
+            CollectionsInit();
+            ReferencesInit();
             if (CurrentUserRoles.Contains("Accounts"))
             {
                 App.Current.MainWindow = new AccountMainWin();
@@ -76,9 +79,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 mystartAsync = new Classes.StartAsyncProgram();
                 System.Threading.Tasks.Task task = mystartAsync.StartAsync();
             }
-            StoreInit();
-            CollectionsInit();
-            ReferencesInit();
             App.Current.MainWindow.Show();
         }
 
@@ -281,7 +281,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (myagentnames == null)
                 {
                     myagentnames = new lib.ReferenceCollectionSimpleItem();
-                    myagentnames.CommandText = "SELECT [agentID],[agentName],[isactual],[isdefault] FROM [CustomBroker].[dbo].[AgentName_vw] ORDER BY [agentName]";
+                    myagentnames.CommandText = "SELECT agentID,agentName,[isactual],[isdefault] FROM [CustomBroker].[dbo].[AgentName_vw] ORDER BY [agentName]";
                     myagentnames.TableName = "dbo.AgentName_vw";
                     myagentnames.ConnectionString = CustomBrokerWpf.References.ConnectionString;
                     myagentnames.DataLoad();
@@ -298,11 +298,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     mycustomersname = new lib.ReferenceCollectionSimpleItem();
                     mycustomersname.CommandText = "SELECT [customerID],ISNULL(customerName,customerFullName),CONVERT(bit,1),CONVERT(bit,0) FROM [dbo].[CustomerName_vw] ORDER BY [customerID]";
-                    mycustomerrowstates.TableName = "dbo.CustomerName_vw";
-                    mycustomerrowstates.ConnectionString = CustomBrokerWpf.References.ConnectionString;
-                    mycustomerrowstates.DataLoad();
+                    mycustomersname.TableName = "dbo.CustomerName_vw";
+                    mycustomersname.ConnectionString = CustomBrokerWpf.References.ConnectionString;
+                    mycustomersname.DataLoad();
                 }
-                return mycustomerrowstates;
+                return mycustomersname;
             }
         }
         static private lib.ReferenceCollectionSimpleItem mycustomerrowstates;
@@ -470,8 +470,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (mystore == null)
                 {
                     mystore = new lib.ReferenceCollectionSimpleItem();
-                    mystore.CommandText = "SELECT storeId,storeName,CONVERT(bit,1),CONVERT(bit,0) FROM dbo.Store_tb ORDER BY storeId";
-                    mystore.TableName = "dbo.Store_tb";
+					mystore.CommandText = "SELECT id,name,isactual,isdefault FROM dbo.Store_tb ORDER BY id";
+					//mystore.CommandText = "SELECT storeId,storeName,CONVERT(bit,1),CONVERT(bit,0) FROM dbo.Store_tb ORDER BY storeId";
+					mystore.TableName = "dbo.Store_tb";
                     mystore.ConnectionString = CustomBrokerWpf.References.ConnectionString;
                     mystore.DataLoad();
                 }
@@ -501,6 +502,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             myimporters.DataLoad();
             mymanagers = new Classes.Domain.ManagerCollection();
             myparcelnumbers = new Classes.Domain.ParcelNumberCollection();
+            mygenders = new Classes.Domain.GenderCollection();
+            //mygenderlazy = new Lazy<Classes.Domain.GenderCollection>(() => {
+            //    Classes.Domain.GenderCollection genders=null;
+            //    genders = new Classes.Domain.GenderCollection();
+            //    genders.DataLoad(); return genders; });
         }
         private static Classes.Domain.References.ColorCollection mycolors;
         public static Classes.Domain.References.ColorCollection Colors
@@ -509,7 +515,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mycolors == null)
                 {
-                    mycolors = new Classes.Domain.References.ColorCollection();
+                    App.Current.Dispatcher.Invoke(() => { mycolors = new Classes.Domain.References.ColorCollection(); });
                 }
                 return mycolors;
             }
@@ -536,12 +542,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mygenders == null)
-                {
-                    mygenders = new Classes.Domain.GenderCollection();
-                    mygenders.DataLoad();
-                }
-                return mygenders;
+                if (mygenders.Count==0)
+				{
+                            mygenders.DataLoad();
+				}
+				return mygenders;
             }
         }
         static private Classes.Domain.ImporterCollection myimporters;
@@ -576,7 +581,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mymaterials == null)
                 {
-                    mymaterials = new Classes.Specification.MaterialCollection();
+                    App.Current.Dispatcher.Invoke(() => {
+                        mymaterials = new Classes.Specification.MaterialCollection();
+                    });
                     mymaterials.DataLoad();
                 }
                 return mymaterials;

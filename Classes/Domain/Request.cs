@@ -15,6 +15,7 @@ using KirillPolyanskiy.CustomBrokerWpf.Classes.Specification;
 using System.Text;
 using System.Windows.Documents;
 using KirillPolyanskiy.DataModelClassLibrary;
+using System.Collections.Generic;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -33,7 +34,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private Importer myimporter;
 
         public Request() : this(id: lib.NewObjectId.NewId, stamp: 0, updated: null, updater: null, domainstate: lib.DomainObjectState.Added
-            , agent: null, agentid: null, customerid: null, customerlegal: null, freightid: null
+            , agent: null, agentid: null, customer: null, customerid: null, customerlegal: null, freightid: null
             , parcelgroup: null, parcelid: null, parceltype: CustomBrokerWpf.References.ParcelTypes.GetDefault()
             , status: CustomBrokerWpf.References.RequestStates.GetDefault(), storeid: null
             , cellnumber: null, statedoc: null, stateexc: null, stateinv: null
@@ -57,7 +58,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             )
         { }
         public Request(int id, Int64 stamp, DateTime? updated, string updater, lib.DomainObjectState domainstate
-            , Agent agent, lib.ReferenceSimpleItem status, int? agentid, int? customerid, int? customerlegal, int? freightid, int? parcelgroup, int? parcelid, int? storeid
+            , Agent agent, lib.ReferenceSimpleItem status, int? agentid, Customer customer, int? customerid, int? customerlegal, int? freightid, int? parcelgroup, int? parcelid, int? storeid
             , short? cellnumber, byte? statedoc, byte? stateexc, byte? stateinv
             , bool currencypaid, bool isspecification, bool ttlpayinvoice, bool ttlpaycurrency, lib.ReferenceSimpleItem parceltype
             , decimal? additionalcost, decimal? additionalpay
@@ -101,6 +102,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycurrencypaiddate = currencypaiddate;
             mycurrencyrate = currencyrate;
             mycurrencysum = currencysum;
+            mycustomer = customer;
             mycustomerid = customerid;
             mycustomerlegal = customerlegal;
             mycustomernote = customernote;
@@ -173,12 +175,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private Agent myagent;
         public Agent Agent
-        { set { SetProperty<Agent>(ref myagent, value); } get { return myagent; } }
+        { set { SetProperty<Agent>(ref myagent, value,()=> { this.AgentId = value?.Id; }); } get { return myagent; } }
         public int? AgentId
         {
             set
             {
-                base.SetProperty<int?>(ref myagentid, value);
+                base.SetProperty<int?>(ref myagentid, value, () => { this.Agent = myagentid.HasValue ? CustomBrokerWpf.References.AgentStore.GetItemLoad(myagentid.Value, out _) : null; });
             }
             get { return myagentid; }
         }
@@ -278,11 +280,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return mycurrencysum; }
         }
+        private Customer mycustomer;
+        public Customer Customer
+        { set { SetProperty<Customer>(ref mycustomer, value, () => { this.CustomerId = value?.Id; }); } get { return mycustomer; } }
         public int? CustomerId
         {
             set
             {
-                base.SetProperty<int?>(ref mycustomerid, value, () => { mycustomername = null; base.PropertyChangedNotification("CustomerName"); this.CustomerLegalsRefresh(); });
+                base.SetProperty<int?>(ref mycustomerid, value, () => { 
+                    mycustomer = mycustomerid.HasValue ? CustomBrokerWpf.References.CustomerStore.GetItemLoad(mycustomerid.Value, out _) : null;
+                    mycustomername = null;
+                    this.ManagerGroupName = mycustomerid.HasValue && mycustomer.ManagerGroup.HasValue ? CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", mycustomer.ManagerGroup.Value).Name : null;
+                    base.PropertyChangedNotification("Customer");
+                    base.PropertyChangedNotification("CustomerName");
+                    this.CustomerLegalsRefresh(); });
             }
             get { return mycustomerid; }
         }
@@ -422,10 +433,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public string ManagerGroupName
         {
-            internal set
-            {
-                base.SetProperty<string>(ref mymanagergroup, value);
-            }
+            internal set { mymanagergroup = value; this.PropertyChangedNotification(nameof(this.ManagerGroupName)); }
             get { return mymanagergroup; }
         }
         private Manager mymanager;
@@ -1620,6 +1628,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case "AdditionalCost":
                     myadditionalcost = (decimal?)value;
                     break;
+                case nameof(this.Agent):
+                    myagent = (Agent)value;
+                    break;
                 case "AgentId":
                     myagentid = (int?)value;
                     break;
@@ -1661,6 +1672,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "CurrencySum":
                     mycurrencysum = (decimal?)value;
+                    break;
+                case nameof(this.Customer):
+                    mycustomer = (Customer)value;
                     break;
                 case "CustomerId":
                     mycustomerid = (int?)value;
@@ -1842,7 +1856,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (!this.HasPropertyOutdatedValue("CurrencyPaidDate")) this.CurrencyPaidDate = newitem.CurrencyPaidDate;
             if (!this.HasPropertyOutdatedValue("CurrencyRate")) this.CurrencyRate = newitem.CurrencyRate;
             if (!this.HasPropertyOutdatedValue("CurrencySum")) this.CurrencySum = newitem.CurrencySum;
-            if (!this.HasPropertyOutdatedValue("CustomerId")) this.CustomerId = newitem.CustomerId; this.ManagerGroupName = newitem.ManagerGroupName;
+            this.Customer = newitem.Customer;
+            this.CustomerId = newitem.CustomerId;
+            this.ManagerGroupName = newitem.ManagerGroupName;
             if (!this.HasPropertyOutdatedValue("CustomerLegal")) this.CustomerLegal = newitem.CustomerLegal;
             if (!this.HasPropertyOutdatedValue("CustomerNote")) this.CustomerNote = newitem.CustomerNote;
             //if (!this.HasPropertyOutdatedValue("CustomsCost")) this.CustomsCost = newitem.CustomsCost;
@@ -1888,7 +1904,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (!this.HasPropertyOutdatedValue("Status")) this.Status = newitem.Status;
             if (!this.HasPropertyOutdatedValue("StoreDate")) this.StoreDate = newitem.StoreDate;
             if (!this.HasPropertyOutdatedValue("StoreId")) this.StoreId = newitem.StoreId;
-            if (!this.HasPropertyOutdatedValue("StoreInform")) this.StoreInform = newitem.StoreInform;
+            this.StoreInform = newitem.StoreInform;
             if (!this.HasPropertyOutdatedValue("StoreNote")) this.StoreNote = newitem.StoreNote;
             if (!this.HasPropertyOutdatedValue("StorePoint")) this.StorePoint = newitem.StorePoint;
             if (!this.HasPropertyOutdatedValue("TtlPayInvoice")) this.TtlPayInvoice = newitem.TtlPayInvoice;
@@ -2206,12 +2222,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             UpdateCommandText = "dbo.RequestUpd_sp";
             DeleteCommandText = "dbo.RequestDel_sp";
 
-            SelectParams = new SqlParameter[] { new SqlParameter("@id", System.Data.SqlDbType.Int), new SqlParameter("@filterId", System.Data.SqlDbType.Int), new SqlParameter("@parcel", System.Data.SqlDbType.Int), new SqlParameter("@datechanged", System.Data.SqlDbType.DateTime) };
-            base.SelectParams[1].Value = 0;
+            SelectParams = new SqlParameter[] 
+            {
+                new SqlParameter("@id", System.Data.SqlDbType.Int),
+                new SqlParameter("@storagepoint", System.Data.SqlDbType.NChar,6),
+                new SqlParameter("@filterId", System.Data.SqlDbType.Int){ Value = 0},
+                new SqlParameter("@parcel", System.Data.SqlDbType.Int),
+                new SqlParameter("@datechanged", System.Data.SqlDbType.DateTime)
+            };
             myinsertparams[0].ParameterName = "@requestId";
             myupdateparams[0].ParameterName = "@requestId";
-            SqlParameter parstatus = new SqlParameter("@status", System.Data.SqlDbType.Int); parstatus.Direction = System.Data.ParameterDirection.InputOutput;
-            SqlParameter parmngrgr = new SqlParameter("@managerGroup", System.Data.SqlDbType.NVarChar, 20); parmngrgr.Direction = System.Data.ParameterDirection.Output;
             myinsertparams = new SqlParameter[]
            {
                 myinsertparams[0]
@@ -2227,7 +2247,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@storagePointtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storageDatetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@customerIdtrue", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@customerlegaltrue", System.Data.SqlDbType.Bit)
+                //,new SqlParameter("@customerlegaltrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@loadDescriptiontrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@agentIdtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storeidtrue", System.Data.SqlDbType.Bit)
@@ -2297,17 +2317,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@algorithmnote2true", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@shipplandatetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@manageridtrue", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@storageInformtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@old", false)
             };
             myinsertupdateparams = new SqlParameter[]
             {
                 myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
-                ,parmngrgr,parstatus
+                ,new SqlParameter("@status", System.Data.SqlDbType.Int){Direction = System.Data.ParameterDirection.InputOutput}
                 ,new SqlParameter("@specification", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@storagePoint", System.Data.SqlDbType.NChar,6)
                 ,new SqlParameter("@storageDate", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@customerId", System.Data.SqlDbType.Int)
-                ,new SqlParameter("@customerlegal", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@loadDescription", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@agentId", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@storeid", System.Data.SqlDbType.Int)
@@ -2375,6 +2395,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@algorithmnote2", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@shipplandate", System.Data.SqlDbType.DateTime2)
                 ,new SqlParameter("@managerid", System.Data.SqlDbType.Int)
+                ,new SqlParameter("@storageInform", System.Data.SqlDbType.Date)
             };
             mydeleteparams = new SqlParameter[]
             {
@@ -2401,101 +2422,96 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal SpecificationDBM SpecificationDBM
         { set { myspdbm = value; } get { return myspdbm; } }
 
-        internal int Filter
-        { set { base.SelectParams[1].Value = value; } get { return (int)base.SelectParams[1].Value; } }
-        internal int Parcel
-        {
-            set { base.SelectParams[2].Value = value; }
-            get { return (int)base.SelectParams[2].Value; }
-        }
-        internal DateTime? UpdateWhen
-        {
-            set { base.SelectParams[3].Value = value; }
-            get { return (DateTime?)base.SelectParams[3].Value; }
-        }
+        internal int Filter { set; get; }
+        internal int Parcel { set; get; }
+        internal string StorePoint { set; get; }
+        internal DateTime? UpdateWhen { set; get; }
         internal bool SpecificationLoad { set; get; }
 
         protected override Request CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
 			System.Collections.Generic.List<lib.DBMError> errors=new System.Collections.Generic.List<DBMError>();
-            Agent agent = reader.IsDBNull(reader.GetOrdinal("agentId")) ? null : CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentId")), addcon, out errors);
+            Agent agent = reader.IsDBNull(this.Fields["agentId"]) ? null : CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentId"]), addcon, out errors);
             this.Errors.AddRange(errors);
-            Request newitem = new Request(reader.GetInt32(0), reader.GetInt32(reader.GetOrdinal("stamp")), reader.GetDateTime(reader.GetOrdinal("UpdateWhen")), reader.GetString(reader.GetOrdinal("UpdateWho")), lib.DomainObjectState.Unchanged
+            Customer customer = reader.IsDBNull(this.Fields["customerId"]) ? null : CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(this.Fields["customerId"]), addcon, out errors);
+            this.Errors.AddRange(errors);
+            Request newitem = new Request(reader.GetInt32(0), reader.GetInt32(this.Fields["stamp"]), reader.GetDateTime(this.Fields["UpdateWhen"]), reader.GetString(this.Fields["UpdateWho"]), lib.DomainObjectState.Unchanged
                 ,agent
-                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("status")))
-                , reader.IsDBNull(reader.GetOrdinal("agentId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("agentId"))
-                , reader.IsDBNull(reader.GetOrdinal("customerId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("customerId"))
-                , reader.IsDBNull(reader.GetOrdinal("customerlegal")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("customerlegal"))
-                , reader.IsDBNull(reader.GetOrdinal("freight")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("freight"))
-                , reader.IsDBNull(reader.GetOrdinal("parcelgroup")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("parcelgroup"))
-                , reader.IsDBNull(reader.GetOrdinal("parcel")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("parcel"))
-                , reader.IsDBNull(reader.GetOrdinal("storeid")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("storeid"))
-                , reader.IsDBNull(reader.GetOrdinal("cellNumber")) ? (short?)null : reader.GetInt16(reader.GetOrdinal("cellNumber"))
-                , reader.IsDBNull(reader.GetOrdinal("statedoc")) ? (byte?)null : reader.GetByte(reader.GetOrdinal("statedoc"))
-                , reader.IsDBNull(reader.GetOrdinal("stateexc")) ? (byte?)null : reader.GetByte(reader.GetOrdinal("stateexc"))
-                , reader.IsDBNull(reader.GetOrdinal("stateinv")) ? (byte?)null : reader.GetByte(reader.GetOrdinal("stateinv"))
-                , reader.IsDBNull(reader.GetOrdinal("currencypaid")) ? false : reader.GetBoolean(reader.GetOrdinal("currencypaid"))
-                , reader.IsDBNull(reader.GetOrdinal("specloaded")) ? false : reader.GetBoolean(reader.GetOrdinal("specloaded"))
-                , reader.IsDBNull(reader.GetOrdinal("ttlpayinvoice")) ? false : reader.GetBoolean(reader.GetOrdinal("ttlpayinvoice"))
-                , reader.IsDBNull(reader.GetOrdinal("ttlpaycurrency")) ? false : reader.GetBoolean(reader.GetOrdinal("ttlpaycurrency"))
-                , reader.IsDBNull(reader.GetOrdinal("parceltype")) ? null : CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(reader.GetOrdinal("parceltype")))
-                , reader.IsDBNull(reader.GetOrdinal("additionalcost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("additionalcost"))
-                , reader.IsDBNull(reader.GetOrdinal("additionalpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("additionalpay"))
-                , reader.IsDBNull(reader.GetOrdinal("actualWeight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("actualWeight"))
-                , reader.IsDBNull(reader.GetOrdinal("bringcost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("bringcost"))
-                , reader.IsDBNull(reader.GetOrdinal("bringpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("bringpay"))
-                , reader.IsDBNull(reader.GetOrdinal("brokercost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("brokercost"))
-                , reader.IsDBNull(reader.GetOrdinal("brokerpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("brokerpay"))
-                , reader.IsDBNull(reader.GetOrdinal("currencyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("currencyrate"))
-                , reader.IsDBNull(reader.GetOrdinal("currencysum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("currencysum"))
-                , reader.IsDBNull(reader.GetOrdinal("customscost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("customscost"))
-                , reader.IsDBNull(reader.GetOrdinal("customspay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("customspay"))
-                , reader.IsDBNull(reader.GetOrdinal("deliverycost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("deliverycost"))
-                , reader.IsDBNull(reader.GetOrdinal("deliverypay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("deliverypay"))
-                , reader.IsDBNull(reader.GetOrdinal("dtrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("dtrate"))
-                , reader.IsDBNull(reader.GetOrdinal("goodValue")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("goodValue"))
-                , reader.IsDBNull(reader.GetOrdinal("freightcost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("freightcost"))
-                , reader.IsDBNull(reader.GetOrdinal("freightpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("freightpay"))
-                , reader.IsDBNull(reader.GetOrdinal("insurancecost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("insurancecost"))
-                , reader.IsDBNull(reader.GetOrdinal("insurancepay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("insurancepay"))
-                , reader.IsDBNull(reader.GetOrdinal("invoice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("invoice"))
-                , reader.IsDBNull(reader.GetOrdinal("invoicediscount")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("invoicediscount"))
-                , reader.IsDBNull(reader.GetOrdinal("officialWeight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("officialWeight"))
-                , reader.IsDBNull(reader.GetOrdinal("preparatncost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("preparatncost"))
-                , reader.IsDBNull(reader.GetOrdinal("preparatnpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("preparatnpay"))
-                , reader.IsDBNull(reader.GetOrdinal("selling")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("selling"))
-                , reader.IsDBNull(reader.GetOrdinal("sellingmarkup")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sellingmarkup"))
-                , reader.IsDBNull(reader.GetOrdinal("sellingmarkuprate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sellingmarkuprate"))
-                , reader.IsDBNull(reader.GetOrdinal("sertificatcost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sertificatcost"))
-                , reader.IsDBNull(reader.GetOrdinal("sertificatpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sertificatpay"))
-                , reader.IsDBNull(reader.GetOrdinal("tdcost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("tdcost"))
-                , reader.IsDBNull(reader.GetOrdinal("tdpay")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("tdpay"))
-                , reader.IsDBNull(reader.GetOrdinal("volume")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("volume"))
-                , reader.IsDBNull(reader.GetOrdinal("currencydate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("currencydate"))
-                , reader.IsDBNull(reader.GetOrdinal("currencypaiddate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("currencypaiddate"))
-                , reader.IsDBNull(reader.GetOrdinal("gtddate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("gtddate"))
-                , reader.GetDateTime(reader.GetOrdinal("requestDate"))
-                , reader.IsDBNull(reader.GetOrdinal("shipplandate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipplandate"))
-                , reader.IsDBNull(reader.GetOrdinal("specification")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("specification"))
-                , reader.IsDBNull(reader.GetOrdinal("storageDate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("storageDate"))
-                , reader.IsDBNull(reader.GetOrdinal("storageInform")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("storageInform"))
-                , reader.IsDBNull(reader.GetOrdinal("algorithmnote1")) ? null : reader.GetString(reader.GetOrdinal("algorithmnote1"))
-                , reader.IsDBNull(reader.GetOrdinal("algorithmnote2")) ? null : reader.GetString(reader.GetOrdinal("algorithmnote2"))
-                , reader.IsDBNull(reader.GetOrdinal("loadDescription")) ? null : reader.GetString(reader.GetOrdinal("loadDescription"))
-                , reader.IsDBNull(reader.GetOrdinal("colorMark")) ? null : reader.GetString(reader.GetOrdinal("colorMark"))
-                , reader.IsDBNull(reader.GetOrdinal("consolidate")) ? null : reader.GetString(reader.GetOrdinal("consolidate"))
-                , reader.IsDBNull(reader.GetOrdinal("currencynote")) ? null : reader.GetString(reader.GetOrdinal("currencynote"))
-                , reader.IsDBNull(reader.GetOrdinal("customerNote")) ? null : reader.GetString(reader.GetOrdinal("customerNote"))
-                , reader.IsDBNull(reader.GetOrdinal("docdirpath")) ? null : reader.GetString(reader.GetOrdinal("docdirpath"))
-                , reader.IsDBNull(reader.GetOrdinal("gtd")) ? null : reader.GetString(reader.GetOrdinal("gtd"))
-                , reader.IsDBNull(reader.GetOrdinal("fullnumber")) ? null : reader.GetString(reader.GetOrdinal("fullnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("managergroupName")) ? null : reader.GetString(reader.GetOrdinal("managergroupName"))
-                , reader.IsDBNull(reader.GetOrdinal("managerNote")) ? null : reader.GetString(reader.GetOrdinal("managerNote"))
-                , reader.IsDBNull(reader.GetOrdinal("servicetype")) ? null : reader.GetString(reader.GetOrdinal("servicetype"))
-                , reader.IsDBNull(reader.GetOrdinal("storageNote")) ? null : reader.GetString(reader.GetOrdinal("storageNote"))
-                , reader.IsDBNull(reader.GetOrdinal("storagePoint")) ? null : reader.GetString(reader.GetOrdinal("storagePoint"))
-                , reader.IsDBNull(reader.GetOrdinal("importer")) ? null : CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("importer")))
-                , reader.IsDBNull(reader.GetOrdinal("managerid")) ? null : CustomBrokerWpf.References.Managers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("managerid")))
+                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(this.Fields["status"]))
+                , reader.IsDBNull(this.Fields["agentId"]) ? (int?)null : reader.GetInt32(this.Fields["agentId"])
+                ,customer
+                , reader.IsDBNull(this.Fields["customerId"]) ? (int?)null : reader.GetInt32(this.Fields["customerId"])
+                , (int?)null
+                , reader.IsDBNull(this.Fields["freight"]) ? (int?)null : reader.GetInt32(this.Fields["freight"])
+                , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                , reader.IsDBNull(this.Fields["parcel"]) ? (int?)null : reader.GetInt32(this.Fields["parcel"])
+                , reader.IsDBNull(this.Fields["storeid"]) ? (int?)null : reader.GetInt32(this.Fields["storeid"])
+                , reader.IsDBNull(this.Fields["cellNumber"]) ? (short?)null : reader.GetInt16(this.Fields["cellNumber"])
+                , reader.IsDBNull(this.Fields["statedoc"]) ? (byte?)null : reader.GetByte(this.Fields["statedoc"])
+                , reader.IsDBNull(this.Fields["stateexc"]) ? (byte?)null : reader.GetByte(this.Fields["stateexc"])
+                , reader.IsDBNull(this.Fields["stateinv"]) ? (byte?)null : reader.GetByte(this.Fields["stateinv"])
+                , reader.IsDBNull(this.Fields["currencypaid"]) ? false : reader.GetBoolean(this.Fields["currencypaid"])
+                , reader.IsDBNull(this.Fields["specloaded"]) ? false : reader.GetBoolean(this.Fields["specloaded"])
+                , reader.IsDBNull(this.Fields["ttlpayinvoice"]) ? false : reader.GetBoolean(this.Fields["ttlpayinvoice"])
+                , reader.IsDBNull(this.Fields["ttlpaycurrency"]) ? false : reader.GetBoolean(this.Fields["ttlpaycurrency"])
+                , reader.IsDBNull(this.Fields["parceltype"]) ? null : CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(this.Fields["parceltype"]))
+                , reader.IsDBNull(this.Fields["additionalcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalcost"])
+                , reader.IsDBNull(this.Fields["additionalpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalpay"])
+                , reader.IsDBNull(this.Fields["actualWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualWeight"])
+                , reader.IsDBNull(this.Fields["bringcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringcost"])
+                , reader.IsDBNull(this.Fields["bringpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringpay"])
+                , reader.IsDBNull(this.Fields["brokercost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokercost"])
+                , reader.IsDBNull(this.Fields["brokerpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokerpay"])
+                , reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
+                , reader.IsDBNull(this.Fields["currencysum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencysum"])
+                , reader.IsDBNull(this.Fields["customscost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customscost"])
+                , reader.IsDBNull(this.Fields["customspay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customspay"])
+                , reader.IsDBNull(this.Fields["deliverycost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverycost"])
+                , reader.IsDBNull(this.Fields["deliverypay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverypay"])
+                , reader.IsDBNull(this.Fields["dtrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtrate"])
+                , reader.IsDBNull(this.Fields["goodValue"]) ? (decimal?)null : reader.GetDecimal(this.Fields["goodValue"])
+                , reader.IsDBNull(this.Fields["freightcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightcost"])
+                , reader.IsDBNull(this.Fields["freightpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightpay"])
+                , reader.IsDBNull(this.Fields["insurancecost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancecost"])
+                , reader.IsDBNull(this.Fields["insurancepay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancepay"])
+                , reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
+                , reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
+                , reader.IsDBNull(this.Fields["officialWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialWeight"])
+                , reader.IsDBNull(this.Fields["preparatncost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatncost"])
+                , reader.IsDBNull(this.Fields["preparatnpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatnpay"])
+                , reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
+                , reader.IsDBNull(this.Fields["sellingmarkup"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkup"])
+                , reader.IsDBNull(this.Fields["sellingmarkuprate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkuprate"])
+                , reader.IsDBNull(this.Fields["sertificatcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatcost"])
+                , reader.IsDBNull(this.Fields["sertificatpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatpay"])
+                , reader.IsDBNull(this.Fields["tdcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdcost"])
+                , reader.IsDBNull(this.Fields["tdpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdpay"])
+                , reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"])
+                , reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
+                , reader.IsDBNull(this.Fields["currencypaiddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencypaiddate"])
+                , reader.IsDBNull(this.Fields["gtddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["gtddate"])
+                , reader.GetDateTime(this.Fields["requestDate"])
+                , reader.IsDBNull(this.Fields["shipplandate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipplandate"])
+                , reader.IsDBNull(this.Fields["specification"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["specification"])
+                , reader.IsDBNull(this.Fields["storageDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageDate"])
+                , reader.IsDBNull(this.Fields["storageInform"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageInform"])
+                , reader.IsDBNull(this.Fields["algorithmnote1"]) ? null : reader.GetString(this.Fields["algorithmnote1"])
+                , reader.IsDBNull(this.Fields["algorithmnote2"]) ? null : reader.GetString(this.Fields["algorithmnote2"])
+                , reader.IsDBNull(this.Fields["loadDescription"]) ? null : reader.GetString(this.Fields["loadDescription"])
+                , reader.IsDBNull(this.Fields["colorMark"]) ? null : reader.GetString(this.Fields["colorMark"])
+                , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                , reader.IsDBNull(this.Fields["currencynote"]) ? null : reader.GetString(this.Fields["currencynote"])
+                , reader.IsDBNull(this.Fields["customerNote"]) ? null : reader.GetString(this.Fields["customerNote"])
+                , reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
+                , reader.IsDBNull(this.Fields["gtd"]) ? null : reader.GetString(this.Fields["gtd"])
+                , reader.IsDBNull(this.Fields["fullnumber"]) ? null : reader.GetString(this.Fields["fullnumber"])
+                , reader.IsDBNull(this.Fields["managergroupName"]) ? null : reader.GetString(this.Fields["managergroupName"])
+                , reader.IsDBNull(this.Fields["managerNote"]) ? null : reader.GetString(this.Fields["managerNote"])
+                , reader.IsDBNull(this.Fields["servicetype"]) ? null : reader.GetString(this.Fields["servicetype"])
+                , reader.IsDBNull(this.Fields["storageNote"]) ? null : reader.GetString(this.Fields["storageNote"])
+                , reader.IsDBNull(this.Fields["storagePoint"]) ? null : reader.GetString(this.Fields["storagePoint"])
+                , reader.IsDBNull(this.Fields["importer"]) ? null : CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importer"]))
+                , reader.IsDBNull(this.Fields["managerid"]) ? null : CustomBrokerWpf.References.Managers.FindFirstItem("Id", reader.GetInt32(this.Fields["managerid"]))
                 );
             Request request = CustomBrokerWpf.References.RequestStore.UpdateItem(newitem);
             if (this.SpecificationLoad)
@@ -2527,9 +2543,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void GetOutputSpecificParametersValue(Request item)
         {
-            if (myinsertupdateparams[4].Value != null)
-                item.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", (int)myinsertupdateparams[4].Value);
-            item.ManagerGroupName = (string)(DBNull.Value == myinsertupdateparams[3].Value ? null : myinsertupdateparams[3].Value);
+            SqlParameter status = myinsertupdateparams.First((SqlParameter par) => { return par.ParameterName == "@status"; });
+            if (status.Value != null)
+                item.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", (int)status.Value);
+            //item.ManagerGroupName = (string)(DBNull.Value == myinsertupdateparams[3].Value ? null : myinsertupdateparams[3].Value);
             if(item.DomainState==lib.DomainObjectState.Added)
                 CustomBrokerWpf.References.RequestStore.UpdateItem(item);
         }
@@ -2596,14 +2613,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertparams[1].Value = item.RequestDate;
             int i = 1;
             myupdateparams[++i].Value = item.IsSpecification;
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("Status");
+            ++i;
             myupdateparams[++i].Value = false;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("StorePoint");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("StoreDate");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerId");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerLegal");
-            ++i;
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("AgentId");
+            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerId") || item.HasPropertyOutdatedValue("Customer");
+            ++i; ++i;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("StoreId");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CellNumber");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("OfficialWeight");
@@ -2668,6 +2683,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             foreach (SqlParameter par in myupdateparams)
                 switch (par.ParameterName)
                 {
+                    case "@agentIdtrue":
+                        par.Value = item.HasPropertyOutdatedValue("AgentId") || item.HasPropertyOutdatedValue("Agent");
+                        break;
                     case "@algorithmnote1":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.AlgorithmNote1));
                         break;
@@ -2695,16 +2713,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@shipplandatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.ShipPlanDate));
                         break;
+                    case "@storageInformtrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.StoreInform));
+                        break;
+                    case "@statustrue":
+                        par.Value = item.HasPropertyOutdatedValue("Status");
+                        break;
                 }
-            i = 4;
-            myinsertupdateparams[i++].Value = item.Status?.Id;
-            myinsertupdateparams[i++].Value = null;
-            myinsertupdateparams[i++].Value = item.StorePoint;
-            myinsertupdateparams[i++].Value = item.StoreDate;
-            myinsertupdateparams[i++].Value = item.CustomerId;
-            myinsertupdateparams[i++].Value = item.CustomerLegal;
-            i++;
-            myinsertupdateparams[i++].Value = item.AgentId;
+            i = 10;
             myinsertupdateparams[i++].Value = item.StoreId;
             myinsertupdateparams[i++].Value = item.CellNumber;
             myinsertupdateparams[i++].Value = item.OfficialWeight;
@@ -2767,6 +2783,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             foreach(SqlParameter par in myinsertupdateparams)
                 switch(par.ParameterName)
                 {
+                    case "@agentId":
+                        par.Value = item.Agent?.Id??item.AgentId;
+                        break;
                     case "@algorithmnote1":
                         par.Value = item.AlgorithmNote1;
                         break;
@@ -2775,6 +2794,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     case "@consolidate":
                         par.Value = item.Consolidate;
+                        break;
+                    case "@customerId":
+                        par.Value = item.Customer?.Id??item.CustomerId;
                         break;
                     case "@importer":
                         par.Value = item.Importer?.Id;
@@ -2788,12 +2810,40 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@shipplandate":
                         par.Value = item.ShipPlanDate;
                         break;
+                    case "@status":
+                        par.Value = item.Status?.Id;
+                        break;
+                    case "@storageDate":
+                        par.Value = item.StoreDate;
+                        break;
+                    case "@storageInform":
+                        par.Value = item.StoreInform;
+                        break;
+                    case "@storagePoint":
+                        par.Value = item.StorePoint;
+                        break;
                 }
             mydeleteparams[1].Value = myinsertupdateparams[0].Value;
             return true;
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
+            foreach(SqlParameter par in this.SelectParams)
+                switch(par.ParameterName)
+				{
+                    case "@filterId":
+                        par.Value = this.Filter;
+                        break;
+                    case "@parcel":
+                        par.Value = this.Parcel;
+                        break;
+                    case "@datechanged":
+                        par.Value = this.UpdateWhen;
+                        break;
+                    case "@storagepoint":
+                        par.Value = this.StorePoint;
+                        break;
+                }
         }
         protected override bool LoadObjects()
         {
@@ -2808,6 +2858,30 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void UpdateProperties(Request olditem, Request newitem)
         {
             olditem.UpdateProperties(newitem);
+        }
+
+        public Request GetItemLoad(string storepoint, out List<DBMError> errors)
+        {
+            return GetItemLoad(storepoint, null, out errors);
+        }
+        internal Request GetItemLoad(string storepoint, SqlConnection conection, out List<lib.DBMError> errors)
+		{
+            errors = new List<DBMError>();
+            Request firstitem = mycollection.Values.FirstOrDefault<Request>((Request item) => { return item.StorePoint== storepoint; });
+            if (firstitem == default(Request))
+            {
+                RequestDBM dbm = GetDBM();
+                dbm.ItemId = null;
+                dbm.StorePoint = storepoint;
+                dbm.Command.Connection = conection;
+                firstitem = dbm.GetFirst();
+                if (firstitem != null) firstitem = UpdateItem(firstitem);
+                dbm.Command.Connection = null;
+                errors.AddRange(dbm.Errors);
+                dbm.Errors.Clear();
+                mydbmanagers.Enqueue(dbm);
+            }
+            return firstitem;
         }
     }
 
@@ -2879,6 +2953,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
             get { return this.IsEnabled ? myadditionalpay : null; }
+        }
+        public Agent Agent
+        {
+            set
+            {
+                if (!(this.IsReadOnly || object.Equals(this.DomainObject.Agent, value)))
+                {
+                    string name = nameof(this.Agent);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Agent);
+                    ChangingDomainProperty = name; this.DomainObject.Agent = value;
+                    this.ValidateProperty(name, true); // for indication
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.Agent : null; }
         }
         public int? AgentId
         {
@@ -3044,7 +3133,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     ChangingDomainProperty = name; this.DomainObject.ColorMark = value;
                 }
             }
-            get { return this.IsEnabled ? this.DomainObject.ColorMark : null; }
+            get { return this.DomainObject.ColorMark??"Transparent"; }
         }
         public string Consolidate
         {
@@ -3172,6 +3261,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.CurrencySum = this.DomainObject.InvoiceDiscount * this.CurrencyRate : null; }
+        }
+        public Customer Customer
+        {
+            set
+            {
+                if (!(this.IsReadOnly || object.Equals(this.DomainObject.Customer, value)))
+                {
+                    string name = nameof(this.Customer);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Customer);
+                    ChangingDomainProperty = name; this.DomainObject.Customer = value;
+                    this.ValidateProperty(name, true); // for indication
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.Customer : null; }
         }
         public int? CustomerId
         {
@@ -4527,6 +4631,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mycustomerlegals = null;
                     this.PropertyChangedNotification("CustomerLegals");
                     break;
+                case nameof(RequestVM.CustomerNote):
+                case nameof(RequestVM.ManagerNote):
+                case nameof(RequestVM.StoreNote):
+                    this.PropertyChangedNotification(nameof(this.Notes));
+                    break;
                 case "CustomsPay":
                     this.PropertyChangedNotification("CustomsPayInvoice");
                     this.PropertyChangedNotification("CustomsPayPer");
@@ -4637,6 +4746,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     else
                         this.AdditionalPay = (decimal?)value;
                     break;
+                case "Agent":
+                    this.DomainObject.Agent = (Agent)value;
+                    break;
                 case "AgentId":
                     this.DomainObject.AgentId = (int?)value;
                     break;
@@ -4693,6 +4805,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "CurrencySum":
                     this.DomainObject.CurrencySum = (decimal?)value;
+                    break;
+                case nameof(this.Customer):
+                    this.DomainObject.Customer = (Customer)value;
                     break;
                 case "CustomerId":
                     this.DomainObject.CustomerId = (int?)value;

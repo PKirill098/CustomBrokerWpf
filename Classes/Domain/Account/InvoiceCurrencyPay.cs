@@ -27,7 +27,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private decimal mycbrate;
         public decimal CBRate
         {
-            set { SetProperty<decimal>(ref mycbrate, value, () => {
+            set {
+                mycbrate = value;
                 if (!this.UpdateIsOver)
                 {
                     this.PropertyChangedNotification(nameof(this.CBRatep2p));
@@ -42,7 +43,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         this.PropertyChangedNotification(nameof(this.PaySum));
                     }
                 }
-            }); }
+            }
             get { return mycbrate; }
         }
         public decimal CBRatep2p

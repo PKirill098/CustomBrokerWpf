@@ -13,6 +13,7 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
 using Excel = Microsoft.Office.Interop.Excel;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
+using System.Windows;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -21,6 +22,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal PaymentRegisterViewCommander(Importer importer) : base()
         {
             mymaindbm = new PrepayCustomerRequestDBM();
+            mymaindbm.SetRequestDBM();
             mydbm = mymaindbm;
             mymaindbm.Importer = importer;
             mymaindbm.FillAsyncCompleted = () => {
@@ -28,9 +30,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             };
             mysync = new PrepayCustomerRequestSynchronizer();
 
-            mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
             myexcelexport = new RelayCommand(ExcelExportExec, ExcelExportCanExec);
+            mysplitup = new RelayCommand(SplitUpExec, SplitUpCanExec);
+            mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
             mymanagers = new ListCollectionView(CustomBrokerWpf.References.Managers);
+
             #region Filter
             myfilterrun = new RelayCommand(FilterRunExec, FilterRunCanExec);
             myfilterclear = new RelayCommand(FilterClearExec, FilterClearCanExec);
@@ -236,6 +240,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         private PrepayCustomerRequestDBM mymaindbm;
         private PrepayCustomerRequestSynchronizer mysync;
+        private System.Threading.Tasks.Task myrefreshtask;
         private System.Threading.Tasks.Task myloadtask;
         private System.Threading.CancellationTokenSource mycanceltasksource;
         private System.Threading.CancellationToken mycanceltasktoken;
@@ -802,10 +807,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return mymaindbm.Importer; } }
         public bool IsEditable
         {
-            get { return true; }
+            get { return !this.IsReadOnly; }
         }
         public bool IsReadOnly
-        { get { return !true; } }
+        { set; get; }
         private PaymentRegisterTotal mytotal;
         public PaymentRegisterTotal Total { get { return mytotal; } }
 
@@ -1188,9 +1193,64 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
 
+        private RelayCommand mysplitup;
+        public ICommand SplitUp
+        {
+            get { return mysplitup; }
+        }
+        private void SplitUpExec(object parametr)
+        {
+            if (parametr is PrepayCustomerRequestVM prepay && prepay.EuroSum > prepay.DTSum && MessageBox.Show("Разделить предоплату на две по сумме ДТ?","Разделение предоплаты",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.Yes)
+            {
+                PrepayFundDBM pfdbm = new PrepayFundDBM() { ItemId = prepay.Prepay.Id };
+                if (!pfdbm.GetFirst().IsPrepay.Value)
+                {
+                    Request request = new Request()
+                    {
+                        Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 0),
+                        Agent = prepay.Request.Agent,
+                        Customer = prepay.Request.Customer,
+                        Importer = prepay.Request.Importer,
+                        Manager = prepay.Request.Manager,
+                        ParcelType = prepay.Request.ParcelType,
+                        ServiceType = prepay.Request.ServiceType,
+                    };
+                    RequestCustomerLegal legal = request.CustomerLegals.First((RequestCustomerLegal item) => { return item.CustomerLegal == prepay.Customer.CustomerLegal.DomainObject; });
+                    legal.Selected = true;
+                    legal.Prepays.Add(new PrepayCustomerRequest(legal, null, prepay.Prepay, request));
+                    RequestCustomerLegalDBM ldbm = new RequestCustomerLegalDBM();
+                    RequestDBM rqdbm = new RequestDBM();
+                    rqdbm.LegalDBM = ldbm;
+                    rqdbm.SaveItemChanches(request);
+                    if (rqdbm.Errors.Count > 0)
+                    {
+                        this.OpenPopup(rqdbm.ErrorMessage, true);
+                        return;
+                    }
+                    CustomBrokerWpf.References.RequestStore.UpdateItem(request);
+                    CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(request.CustomerLegals[0]);
+                    CustomBrokerWpf.References.PrepayRequestStore.UpdateItem(request.CustomerLegals[0].Prepays[0]);
+                    pfdbm.GetFirst();
+                    mysync.DomainCollection.Add(request.CustomerLegals[0].Prepays[0]);
+                }
+                prepay.EuroSum = prepay.DTSum;
+                mymaindbm.SaveItemChanches(prepay.DomainObject);
+                foreach(PrepayCustomerRequest item in mysync.DomainCollection)
+                    if(item.Prepay== prepay.Prepay && item.Request.Status.Id==0)
+					{
+                        mymaindbm.ItemId = item.Id;
+                        mymaindbm.GetFirst();
+                        mymaindbm.ItemId = null;
+                        break;
+					}
+            }
+        }
+        private bool SplitUpCanExec(object parametr)
+        { return parametr is PrepayCustomerRequestVM prepay && prepay.EuroSum > prepay.DTSum; }
+
         protected override void AddData(object parametr)
         {
-            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0,null,null, lib.DomainObjectState.Added, null, null, null, 0M, 0M,string.Empty, new Prepay(), null, null, null)));
+            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest( null, null, new Prepay(), null)));
         }
         protected override bool CanAddData(object parametr)
         {
@@ -1202,7 +1262,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override bool CanRefreshData()
         {
-            return true;
+            return myloadtask == null || !(myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation);
         }
         protected override bool CanRejectChanges()
         {
@@ -1221,17 +1281,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             else
             {
-                LoadAsyncStop();
+                this.RefreshSuccessMessageHide = true;
+                if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation)) return;
+                //LoadAsyncStop();
                 //foreach (PrepayCustomerRequest item in mymaindbm.Collection)
                 //    item.UnSubscribe();
                 StringBuilder errstr = new StringBuilder();
+                //mymaindbm.FillAsyncCompleted = () => {
+                //    if (mycanceltasktoken == null || mycanceltasktoken.IsCancellationRequested) return;
+                //    if (mymaindbm.Errors.Count > 0)
+                //        foreach (lib.DBMError err in mymaindbm.Errors) errstr.AppendLine(err.Message);
+                //    if (errstr.Length > 0)
+                //        this.OpenPopup(errstr.ToString(), true);
+                //    else
+                //        this.OpenPopup("Даннные обновлены", false);
+                //};
                 PrepayDBM prdbm = new PrepayDBM();
                 RequestDBM rqdbm = new RequestDBM();
                 RequestCustomerLegalDBM ldbm = new RequestCustomerLegalDBM();
                 SpecificationCustomerInvoiceRateDBM ratedbm = new SpecificationCustomerInvoiceRateDBM();
                 mycanceltasksource = new System.Threading.CancellationTokenSource();
                 mycanceltasktoken = mycanceltasksource.Token;
-                myloadtask = Task.Factory.StartNew(() => {
+                myrefreshtask = new Task(() => {
                     rqdbm.SpecificationLoad = true;
                     List<int> prepays = new List<int>();
                     List<int> requests = new List<int>();
@@ -1248,36 +1319,57 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                 foreach (lib.DBMError err in prdbm.Errors) errstr.AppendLine(err.Message);
                             prepays.Add(item.Prepay.Id);
                         }
+                        if (mycanceltasktoken.IsCancellationRequested) return;
                         if (!requests.Contains(item.Request.Id))
                         {
                             rqdbm.Command.Connection = prdbm.Command.Connection;
                             rqdbm.ItemId = item.Request.Id;
                             CustomBrokerWpf.References.RequestStore.UpdateItem(rqdbm.GetFirst());
+                            if (mycanceltasktoken.IsCancellationRequested) return;
                             if (rqdbm.Errors.Count > 0)
                                 foreach (lib.DBMError err in rqdbm.Errors) errstr.AppendLine(err.Message);
                             ldbm.Command.Connection = rqdbm.Command.Connection;
-                            App.Current.Dispatcher.Invoke(()=> { item.Request.CustomerLegalsRefresh(ldbm); });
+                            App.Current.Dispatcher.Invoke(() => { item.Request.CustomerLegalsRefresh(ldbm); });
+                            if (mycanceltasktoken.IsCancellationRequested) return;
                             if (ldbm.Errors.Count > 0) foreach (lib.DBMError err in ldbm.Errors) errstr.AppendLine(err.Message);
                             requests.Add(item.Request.Id);
-                            if (item.Request.Specification != null &&!specs.Contains(item.Request.Specification.Id))
+                            if (mycanceltasktoken.IsCancellationRequested) return;
+                            if (item.Request.Specification != null && !specs.Contains(item.Request.Specification.Id))
                             {
                                 item.Request.Specification.InvoiceDTRates.Clear();
                                 ratedbm.Command.Connection = rqdbm.Command.Connection;
                                 ratedbm.Specification = item.Request.Specification;
                                 ratedbm.Load();
+                                if (mycanceltasktoken.IsCancellationRequested) return;
                                 if (ratedbm.Errors.Count > 0) foreach (lib.DBMError err in ratedbm.Errors) errstr.AppendLine(err.Message);
                                 specs.Add(item.Request.Specification.Id);
                             }
                         }
-                        if(item.CustomsInvoice!=null && !invs.Contains(item.CustomsInvoice.Id))
+                        if (mycanceltasktoken.IsCancellationRequested) return;
+                        if (item.CustomsInvoice != null && !invs.Contains(item.CustomsInvoice.Id))
                         {
-                            CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item.CustomsInvoice.Id, rqdbm.Command.Connection,out var errors);
+                            CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item.CustomsInvoice.Id, rqdbm.Command.Connection, out var errors);
+                            if (mycanceltasktoken.IsCancellationRequested) return;
                             if (errors.Count > 0) foreach (lib.DBMError err in errors) errstr.AppendLine(err.Message);
                             invs.Add(item.CustomsInvoice.Id);
                         }
+                        if (mycanceltasktoken.IsCancellationRequested) return;
                     }
-                }, mycanceltasktoken).ContinueWith((task)=> { mymaindbm.Errors.Clear(); mymaindbm.Fill(); if (mymaindbm.Errors.Count > 0) foreach (lib.DBMError err in mymaindbm.Errors) errstr.AppendLine(err.Message); if(errstr.Length>0) this.OpenPopup(errstr.ToString(),true);});
-                //if (mymaindbm.Collection.Count == 0) myview.AddNewItem(null); 
+                }, mycanceltasktoken);
+                myloadtask = myrefreshtask.ContinueWith((task)=> {
+                    if (myrefreshtask.IsCanceled) return;
+                    mymaindbm.Errors.Clear();
+                    if (mycanceltasktoken.IsCancellationRequested) return;
+                    mymaindbm.Fill();
+                    if (mycanceltasktoken.IsCancellationRequested) return;
+                    if (mymaindbm.Errors.Count > 0)
+                        foreach (lib.DBMError err in mymaindbm.Errors) errstr.AppendLine(err.Message);
+                    if (errstr.Length > 0)
+                        this.OpenPopup(errstr.ToString(), true);
+                    else
+                        this.OpenPopup("Даннные обновлены", false);
+                }, mycanceltasktoken);
+                myrefreshtask.Start();
             }
         }
         protected override void SettingView()
@@ -1312,11 +1404,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         public void LoadAsyncStop()
         {
-            if (myloadtask != null && myloadtask.Status == System.Threading.Tasks.TaskStatus.Running)
+            if (myrefreshtask != null && (myrefreshtask.Status == System.Threading.Tasks.TaskStatus.Running || myrefreshtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation))
             {
                 mycanceltasksource.Cancel();
-                myloadtask.Wait();
+                if (myrefreshtask.Status == System.Threading.Tasks.TaskStatus.Running)
+                    myrefreshtask.Wait(500);
                 mycanceltasksource.Dispose();
+            }
+            if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation))
+            {
+                mycanceltasksource.Cancel();
+                if (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running)
+                    myloadtask.Wait(500);
+                if (@myrefreshtask.IsCanceled) mycanceltasksource.Dispose();
             }
         }
     }
@@ -1427,7 +1527,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 name = CustomBrokerWpf.References.ParcelNumbers.FindFirstItem("Id", item.Request.Parcel.Id);
                 if (!Items.Contains(name)) Items.Add(name);
             }
-}
+        }
     }
     public class PrepayPercentCheckListBoxVMFill : libui.CheckListBoxVMFill<PrepayCustomerRequestVM, string>
     {

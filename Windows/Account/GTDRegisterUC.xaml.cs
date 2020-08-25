@@ -72,6 +72,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                             case "Rate":
                                 if(mycmd.ServiceType == "ТЭО") column.Visibility = Visibility.Collapsed;
                                 break;
+                            case "ProfitAlgE":
+                            case "ProfitAlgR":
+                            case "ProfitDiff":
+                                if (mycmd.ServiceType == "ТЭО") column.Visibility = Visibility.Collapsed;
+                                break;
                             case "SellingRate":
                                 if (mycmd.ServiceType == "ТЭО") column.Visibility = Visibility.Collapsed;
                                 break;
@@ -290,6 +295,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
 
         }
         private void ProfitabilityFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        private void ProfitAlgEFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        private void ProfitAlgRFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        private void ProfitDiffFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
 
         }
@@ -537,6 +554,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                 }
             }
         }
-        #endregion
-    }
+		#endregion
+
+	}
 }

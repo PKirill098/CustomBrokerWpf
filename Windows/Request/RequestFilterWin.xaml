@@ -237,7 +237,7 @@
                 <ListBox x:Name="agentListBox" Grid.Column="5" Grid.Row="1" DisplayMemberPath="agentName" IsTextSearchEnabled="True" TextSearch.TextPath="agentName" Margin="3,2,0,0" SelectionChanged="agentListBox_SelectionChanged" Style="{StaticResource CheckBoxListStyle}" />
                 <GridSplitter Grid.Column="6" Grid.Row="1"  ResizeDirection="Columns" Width="6" VerticalAlignment="Stretch" HorizontalAlignment="Left" IsTabStop="False" Opacity="0"/>
                 <TextBlock Text="Склад" Grid.Column="7" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
-                <ListBox x:Name="storeListBox" Grid.Column="7" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="storeName" IsTextSearchEnabled="True" TextSearch.TextPath="storeName" Margin="0,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="storeListBox_SelectionChanged" />
+                <ListBox x:Name="storeListBox" Grid.Column="7" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="Name" IsTextSearchEnabled="True" TextSearch.TextPath="Name" Margin="0,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="storeListBox_SelectionChanged" />
                 <TextBlock Text="Экспедитор" Grid.Column="8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2"/>
                 <ListBox x:Name="forwarderListBox" Grid.Column="8" Grid.Row="1" Style="{StaticResource CheckBoxListStyle}" DisplayMemberPath="itemName" IsTextSearchEnabled="True" TextSearch.TextPath="itemName" Margin="3,2,3,0"  VerticalAlignment="Top" HorizontalAlignment="Left" SelectionChanged="forwarderListBox_SelectionChanged" />
             </Grid>

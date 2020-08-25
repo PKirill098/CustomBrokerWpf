@@ -12,20 +12,20 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <ToolBar Height="30">
-            <Button Command="{Binding Path=Add}" ToolTip="Добавить оплату" IsTabStop="False" Visibility="Visible">
+            <Button Command="{Binding Path=Add}" ToolTip="Добавить оплату" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
                 <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
             </Button>
-            <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+            <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
                 <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
             </Button>
             <Separator/>
-            <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+            <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
-            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
                 <Image Source="/CustomBrokerWpf;component/Images/save.png" />
             </Button>
-            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
                 <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
             </Button>
             <Separator/>
@@ -36,7 +36,7 @@
                 </Border>
             </Popup>
         </ToolBar>
-        <DataGrid x:Name="MainDataGrid" Grid.Row="1" ItemsSource="{Binding Path=Items}" IsReadOnly="{Binding Path=IsReadOnly}">
+        <DataGrid x:Name="MainDataGrid" Grid.Row="1" ItemsSource="{Binding Path=Items}" IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider, Mode=OneTime}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Дата" Binding="{Binding Path=PayDate, StringFormat=\{0:d\},Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}" Width="80"/>
                 <DataGridTextColumn Header="Сумма RUB" Binding="{Binding Path=RubPaySum, StringFormat=\{0:N2\},Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"/>

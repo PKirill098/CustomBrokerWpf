@@ -70,7 +70,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myrater = new CurrencyRateProxy(CustomBrokerWpf.References.CurrencyRate);
             myrater.PropertyChanged += Rater_PropertyChanged;
         }
-        public Parcel() : this(id: 0, stamp: 0, updated: null, updater: null, domainstate: lib.DomainObjectState.Added
+        public Parcel() : this(id: lib.NewObjectId.NewId, stamp: 0, updated: null, updater: null, domainstate: lib.DomainObjectState.Added
             , parcelnumber: null, status: CustomBrokerWpf.References.RequestStates.FindFirstItem("Name", "Загрузка"), parceltype: CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", 2)
             , shipplandate: DateTime.Today, shipdate: null, prepared: null, crossedborder: null, terminalin: null, terminalout: null, unloaded: null
             , carrier: null, carrierperson: null, carriertel: null, declaration: null, docdirpath: null, goodstype: null
@@ -203,7 +203,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { get { return (myparcelnumber ?? string.Empty) + '-' + ((mylorry?.Trim()) ?? string.Empty) + '-' + myshipplandate.ToString("yy"); } }
         public string ParcelNumberOrder
         {
-            get { return this.ShipPlanDate.Year.ToString() + this.ParcelNumber.PadLeft(4, '0'); }
+            get { return this.ShipPlanDate.Year.ToString() + (this.ParcelNumber??"9999").PadLeft(4, '0'); }
         }
         public lib.ReferenceSimpleItem ParcelType
         {
@@ -997,39 +997,39 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override Parcel CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            Parcel newitem = new Parcel(reader.GetInt32(0), reader.GetInt32(reader.GetOrdinal("stamp")), reader.IsDBNull(reader.GetOrdinal("UpdateWho")) ? null : reader.GetString(reader.GetOrdinal("UpdateWho")), reader.IsDBNull(reader.GetOrdinal("UpdateWhen")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("UpdateWhen")), lib.DomainObjectState.Unchanged
-                , reader.GetString(reader.GetOrdinal("parcelnumber"))
-                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("parcelstatus")))
-                , CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(reader.GetOrdinal("parceltype")))
-                , reader.GetDateTime(reader.GetOrdinal("shipplandate"))
-                , reader.IsDBNull(reader.GetOrdinal("shipdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipdate"))
-                , reader.IsDBNull(reader.GetOrdinal("preparation")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("preparation"))
-                , reader.IsDBNull(reader.GetOrdinal("borderdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("borderdate"))
-                , reader.IsDBNull(reader.GetOrdinal("terminalin")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("terminalin"))
-                , reader.IsDBNull(reader.GetOrdinal("terminalout")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("terminalout"))
-                , reader.IsDBNull(reader.GetOrdinal("unloaded")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("unloaded"))
-                , reader.IsDBNull(reader.GetOrdinal("carrier")) ? null : reader.GetString(reader.GetOrdinal("carrier"))
-                , reader.IsDBNull(reader.GetOrdinal("carrierperson")) ? null : reader.GetString(reader.GetOrdinal("carrierperson"))
-                , reader.IsDBNull(reader.GetOrdinal("carriertel")) ? null : reader.GetString(reader.GetOrdinal("carriertel"))
-                , reader.IsDBNull(reader.GetOrdinal("declaration")) ? null : reader.GetString(reader.GetOrdinal("declaration"))
-                , reader.IsDBNull(reader.GetOrdinal("docdirpath")) ? null : reader.GetString(reader.GetOrdinal("docdirpath"))
-                , reader.IsDBNull(reader.GetOrdinal("goodstype")) ? null : CustomBrokerWpf.References.GoodsTypesParcel.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("goodstype")))
-                , reader.IsDBNull(reader.GetOrdinal("lorry")) ? null : reader.GetString(reader.GetOrdinal("lorry"))
-                , reader.IsDBNull(reader.GetOrdinal("lorryregnum")) ? null : reader.GetString(reader.GetOrdinal("lorryregnum"))
-                , reader.IsDBNull(reader.GetOrdinal("lorrytonnage")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("lorrytonnage"))
-                , reader.IsDBNull(reader.GetOrdinal("lorryvolume")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("lorryvolume"))
-                , reader.IsDBNull(reader.GetOrdinal("lorryvin")) ? null : reader.GetString(reader.GetOrdinal("lorryvin"))
-                , reader.IsDBNull(reader.GetOrdinal("shipmentnumber")) ? null : reader.GetString(reader.GetOrdinal("shipmentnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("trailerregnum")) ? null : reader.GetString(reader.GetOrdinal("trailerregnum"))
-                , reader.IsDBNull(reader.GetOrdinal("trailervin")) ? null : reader.GetString(reader.GetOrdinal("trailervin"))
-                , reader.IsDBNull(reader.GetOrdinal("trucker")) ? null : reader.GetString(reader.GetOrdinal("trucker"))
-                , reader.IsDBNull(reader.GetOrdinal("truckertel")) ? null : reader.GetString(reader.GetOrdinal("truckertel"))
-                , reader.IsDBNull(reader.GetOrdinal("deliveryprice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("deliveryprice"))
-                , reader.IsDBNull(reader.GetOrdinal("insuranceprice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("insuranceprice"))
-                , reader.IsDBNull(reader.GetOrdinal("tdeliveryprice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("tdeliveryprice"))
-                , reader.IsDBNull(reader.GetOrdinal("tinsuranceprice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("tinsuranceprice"))
-                , reader.IsDBNull(reader.GetOrdinal("usdrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("usdrate"))
-                , reader.IsDBNull(reader.GetOrdinal("ratedate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("ratedate"))
+            Parcel newitem = new Parcel(reader.GetInt32(0), reader.GetInt32(this.Fields["stamp"]), reader.IsDBNull(this.Fields["UpdateWho"]) ? null : reader.GetString(this.Fields["UpdateWho"]), reader.IsDBNull(this.Fields["UpdateWhen"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["UpdateWhen"]), lib.DomainObjectState.Unchanged
+                , reader.GetString(this.Fields["parcelnumber"])
+                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(this.Fields["parcelstatus"]))
+                , CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(this.Fields["parceltype"]))
+                , reader.GetDateTime(this.Fields["shipplandate"])
+                , reader.IsDBNull(this.Fields["shipdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipdate"])
+                , reader.IsDBNull(this.Fields["preparation"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["preparation"])
+                , reader.IsDBNull(this.Fields["borderdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["borderdate"])
+                , reader.IsDBNull(this.Fields["terminalin"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalin"])
+                , reader.IsDBNull(this.Fields["terminalout"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalout"])
+                , reader.IsDBNull(this.Fields["unloaded"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["unloaded"])
+                , reader.IsDBNull(this.Fields["carrier"]) ? null : reader.GetString(this.Fields["carrier"])
+                , reader.IsDBNull(this.Fields["carrierperson"]) ? null : reader.GetString(this.Fields["carrierperson"])
+                , reader.IsDBNull(this.Fields["carriertel"]) ? null : reader.GetString(this.Fields["carriertel"])
+                , reader.IsDBNull(this.Fields["declaration"]) ? null : reader.GetString(this.Fields["declaration"])
+                , reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
+                , reader.IsDBNull(this.Fields["goodstype"]) ? null : CustomBrokerWpf.References.GoodsTypesParcel.FindFirstItem("Id", reader.GetInt32(this.Fields["goodstype"]))
+                , reader.IsDBNull(this.Fields["lorry"]) ? null : reader.GetString(this.Fields["lorry"])
+                , reader.IsDBNull(this.Fields["lorryregnum"]) ? null : reader.GetString(this.Fields["lorryregnum"])
+                , reader.IsDBNull(this.Fields["lorrytonnage"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorrytonnage"])
+                , reader.IsDBNull(this.Fields["lorryvolume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorryvolume"])
+                , reader.IsDBNull(this.Fields["lorryvin"]) ? null : reader.GetString(this.Fields["lorryvin"])
+                , reader.IsDBNull(this.Fields["shipmentnumber"]) ? null : reader.GetString(this.Fields["shipmentnumber"])
+                , reader.IsDBNull(this.Fields["trailerregnum"]) ? null : reader.GetString(this.Fields["trailerregnum"])
+                , reader.IsDBNull(this.Fields["trailervin"]) ? null : reader.GetString(this.Fields["trailervin"])
+                , reader.IsDBNull(this.Fields["trucker"]) ? null : reader.GetString(this.Fields["trucker"])
+                , reader.IsDBNull(this.Fields["truckertel"]) ? null : reader.GetString(this.Fields["truckertel"])
+                , reader.IsDBNull(this.Fields["deliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliveryprice"])
+                , reader.IsDBNull(this.Fields["insuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insuranceprice"])
+                , reader.IsDBNull(this.Fields["tdeliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdeliveryprice"])
+                , reader.IsDBNull(this.Fields["tinsuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tinsuranceprice"])
+                , reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
+                , reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
                 );
             newitem = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem);
             if (!newitem.RequestsIsNull)
@@ -2686,6 +2686,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (itemRow.InvoiceDiscount.HasValue) exWh.Cells[i, 14] = itemRow.InvoiceDiscount.Value;
                     if (!string.IsNullOrEmpty(itemRow.ServiceType)) exWh.Cells[i, 15] = itemRow.ServiceType;
                     if (!string.IsNullOrEmpty(itemRow.ManagerNote)) exWh.Cells[i, 16] = itemRow.ManagerNote;
+                    itemRow.StoreInform = DateTime.Now;
                     i++;
                 }
                 if (i > 2)
@@ -2697,7 +2698,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     exApp.Visible = true;
                 }
                 else
+                {
                     exWb.Close(false);
+                    this.OpenPopup("Нет новых заявок", false);
+                }
                 exWh = null;
             }
             catch (Exception ex)
@@ -2858,10 +2862,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                     request:string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null,
                                     agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId??0, out _),
                                     importer:request.Importer);
-                                spec.BuildFileName(request,fd.FileName);
+                                spec.CustomersLegalsRefresh();
                                 this.CurrentItem.Specifications.AddNewItem(new Specification.SpecificationVM(spec));
                                 this.CurrentItem.Specifications.CommitNew();
                             }
+                            if(string.IsNullOrEmpty(spec.FilePath)) spec.BuildFileName(fd.FileName);
                             path.Append(System.IO.Path.Combine(rootdir, spec.FilePath));
                             if (System.IO.File.Exists(path.ToString()))
                             {
@@ -2956,6 +2961,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     detail.Specification = spec;
                     detail.TNVED = (exWh.Cells[r, 12].Value)?.ToString();
                     detail.VendorCode = (exWh.Cells[r, 9].Value)?.ToString();
+                    if((exWh.Cells[r, 29].Value)?.ToString().Length > 0)
+					{
+                        //Request request = CustomBrokerWpf.References.RequestStore.GetItemLoad((exWh.Cells[r, 29].Value)?.ToString(), out List<lib.DBMError> errors);
+                        Request request = spec.Requests.FirstOrDefault((Request req) => { return req.StorePoint == (exWh.Cells[r, 29].Value)?.ToString(); });
+                        //if (errors.Count>0)
+                        //    throw new Exception(errors[0].Message);
+                        //else 
+                        if (request == null)
+                            throw new Exception("Позиция по складу " + (exWh.Cells[r, 29].Value)?.ToString() + " не соответствует ни одной заявке в разбивке!");
+                        //    throw new Exception("Не найдена заявка с позицией по складу " + (exWh.Cells[r, 29].Value)?.ToString());
+                        //else if(request.Parcel != spec.Parcel)
+                        //    throw new Exception("Заявка с позицией по складу " + (exWh.Cells[r, 29].Value)?.ToString() + " не найдена в заявках разбивки!");
+                        else
+                            detail.Request = request;
+                    }
                     detail.Client = legal;
                     App.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action<Specification.SpecificationDetail>(spec.Details.Add), detail);
                     //return new KeyValuePair<bool, string>(true, "Сертификат " + sert + " (ячейка Excel " + exWh.Cells[r, 1].Address(false, false) + ") не найден!");
@@ -3356,6 +3376,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (base.CurrentItem.DomainState == lib.DomainObjectState.Added)
                     myview.Remove(base.CurrentItem);
             }
+        }
+        protected override void SettingView()
+        {
+            base.SettingView();
+            myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
         }
     }
 

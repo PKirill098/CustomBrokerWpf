@@ -220,10 +220,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void Aliases_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            AgentAliasVM item = this.AliasDataGrid.SelectedItem as AgentAliasVM;
-            mycmd.CurrentItem.Aliases.EditItem(item);
-            item.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
-            mycmd.CurrentItem.Aliases.CommitEdit();
+            if (MessageBox.Show("Удалить псевдоним?", "Удаление псевдонима", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                AgentAliasVM item = this.AliasDataGrid.SelectedItem as AgentAliasVM;
+                mycmd.CurrentItem.Aliases.EditItem(item);
+                item.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
+                mycmd.CurrentItem.Aliases.CommitEdit();
+            }
         }
     }
 }

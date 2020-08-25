@@ -25,22 +25,26 @@
 			<Button ToolTip="Копировать" Command="Copy" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/copy.png" />
 			</Button>
-			<Separator/>
+            <Separator Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}"/>
 			<Button Command="{Binding Path=Add}" ToolTip="Добавить предоплату" IsTabStop="False" Visibility="Collapsed">
 				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
 			</Button>
-			<Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+            <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/remove.png" />
 			</Button>
-			<Separator/>
-			<Button ToolTip="Покупка валюты" Click="CurrencyBuyButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Green" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+            <Separator Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}"/>
+            <Button ToolTip="Покупка валюты" Click="CurrencyBuyButton_Click" Tag="2" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}" Foreground="Green" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
 				Покупка валюты
 			</Button>
-			<Button ToolTip="Оплата поставщику" Click="CurrencyPayButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Blue" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+            <Button ToolTip="Оплата поставщику" Click="CurrencyPayButton_Click" Tag="2" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}" Foreground="Blue" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
 				Оплата поставщику
 			</Button>
-			<Button ToolTip="Таможенный и финальные счета по машине" Click="CustomsInvoiceButton_Click" Tag="2" IsTabStop="False" Visibility="Visible" Foreground="Brown" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
+            <Button ToolTip="Таможенный и финальные счета по машине" Click="CustomsInvoiceButton_Click" Tag="2" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}" Foreground="Brown" FontWeight="Bold" TextOptions.TextHintingMode="Animated">
 				Счета по машине
+			</Button>
+            <Separator Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}"/>
+            <Button Command="{Binding Path=SplitUp}" CommandParameter="{Binding ElementName=MainDataGrid, Path=CurrentItem, Mode=OneWay}" ToolTip="Разделить предоплату по инвойсу" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
+				<Image Source="/CustomBrokerWpf;component/Images/branch_element.png" />
 			</Button>
 			<Separator/>
 			<Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
@@ -50,10 +54,10 @@
 			<Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
 				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
 			</Button>
-			<Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/save.png" />
 			</Button>
-			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
 			</Button>
 			<Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
@@ -72,7 +76,7 @@
 					</Style.Triggers>
 				</Style>
 			</ScrollViewer.Style>
-			<DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" FrozenColumnCount="1"
+            <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" IsReadOnly="{Binding IsReadOnly,Mode=OneTime}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" FrozenColumnCount="1"
 							  SelectionChanged="DataGrid_SelectionChanged" ScrollViewer.ScrollChanged="Scrol_ScrollChanged">
 				<DataGrid.Resources>
 					<libui:CheckListBoxPopup x:Key="AgentFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.AgentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
@@ -186,7 +190,7 @@
 							</Style>
 						</DataGridCheckBoxColumn.HeaderStyle>
 					</DataGridCheckBoxColumn>
-					<DataGridTextColumn Header="%" Binding="{Binding Prepay.Percent, Mode=TwoWay, StringFormat=\{0:P0\}}">
+					<DataGridTextColumn Header="%" Binding="{Binding Prepay.Percent, Mode=TwoWay, StringFormat=\{0:P0\},UpdateSourceTrigger=LostFocus}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ContentTemplate">
@@ -720,7 +724,7 @@
 										<ColumnDefinition Width="Auto"/>
 									</Grid.ColumnDefinitions>
 									<TextBlock Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
-									<Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
+                                    <Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}"/>
 								</Grid>
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>

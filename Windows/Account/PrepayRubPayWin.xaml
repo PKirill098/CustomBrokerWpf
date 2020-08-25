@@ -13,20 +13,20 @@
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<ToolBar Height="30" Grid.ColumnSpan="8">
-			<Button Command="{Binding Path=Add}" ToolTip="Добавить предоплату" IsTabStop="False" Visibility="Visible">
+            <Button Command="{Binding Path=Add}" ToolTip="Добавить предоплату" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
 			</Button>
-			<Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+            <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/remove.png" />
 			</Button>
 			<Separator/>
-			<Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+			<Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
 			</Button>
-			<Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/save.png" />
 			</Button>
-			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
 			</Button>
 			<Separator/>
@@ -49,7 +49,7 @@
 			<TextBlock Text="Долг" Margin="6,4" Grid.Column="2"/>
 			<TextBlock Text="{Binding Path=Prepay.RubDebt, StringFormat=\{0:N0\}}" Grid.Column="3" Margin="0,4" Foreground="Red"/>
 		</Grid>
-		<DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}" IsReadOnly="{Binding Path=IsReadOnly}">
+        <DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}" IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider, Mode=OneTime}">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Дата" Binding="{Binding Path=PayDate, StringFormat=\{0:d\},Mode=Default}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}" Width="80"/>
 				<DataGridTextColumn Header="Сумма" Binding="{Binding Path=PaySum, StringFormat=\{0:N2\},Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"/>

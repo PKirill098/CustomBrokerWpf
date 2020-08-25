@@ -6,7 +6,7 @@
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
         mc:Ignorable="d"
-        Title="Спецификация" Name="winSpecification" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing" Height="800" Width="1300" Language="ru-RU" FontSize="11" Icon="Images/document_certificate.png">
+        Title="Спецификация" Name="winSpecification" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing" Height="800" Width="1300" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/document_certificate.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -44,7 +44,7 @@
             </Button>-->
             <Separator/>
             <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                <Image Source="Images/r2Refresh-512.png" />
+				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
                 <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
@@ -174,6 +174,7 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Юр. лицо Excel" Binding="{Binding Path=Customer, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
+				<DataGridTextColumn Header="Заявка" Binding="{Binding Path=StorePoint, TargetNullValue='', Mode=TwoWay, ValidatesOnNotifyDataErrors=True}"/>
                 <DataGridTextColumn Header="Перевод" Binding="{Binding Path=Name, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Пол" Binding="{Binding Path=Gender, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Состав" Binding="{Binding Path=Contexture, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />

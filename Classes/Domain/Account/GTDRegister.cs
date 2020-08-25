@@ -85,9 +85,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
         public decimal? Profit
-        { get { return this.SellingWithoutRate - (this.Specification.Importer.Id == 1 ? this.CostLogistics : this.CostTotal); } }
+        { get { return this.SellingWithoutRate - this.CostTotal; } }
         public decimal? Profitability
         { get { return this.Profit.HasValue & this.SellingWithoutRate.HasValue ? decimal.Divide(this.Profit.Value, this.SellingWithoutRate.Value) : (decimal?)null; } }
+        public decimal? ProfitAlgE
+        { get { return myservicetype == "ТД" ? myclients.Sum((GTDRegisterClient item) => { return item.ProfitAlgE; }) : (decimal?)null; } }
+        public decimal? ProfitAlgR
+        { get { return myservicetype == "ТД" && this.Specification.Declaration?.CBRate != null ? myclients.Sum((GTDRegisterClient item) => { return item.ProfitAlgR; }) : (decimal?)null; } }
+        public decimal? ProfitDiff
+        { get { return myservicetype == "ТД" ? this.Profit - this.ProfitAlgR : (decimal?)null; } }
         public int Rate
         { get { return myclients.Count > 1 ? 2 : myclients.Count; } }
         public decimal? SL
@@ -118,7 +124,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 foreach (GTDRegisterClient item in myclients)
                     item.SellingDate = value;
             }
-            get { return myclients.Count > 1 ? null : myclients.Max((GTDRegisterClient item) => { return item.SellingDate; }); }
+            get { return myclients.Count == 0 ? null : myclients.Max((GTDRegisterClient item) => { return item.SellingDate; }); }
         }
         public decimal? SellingRate
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.SellingRate ?? 0M; }); } }
@@ -170,6 +176,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.Profitability));
                     this.PropertyChangedNotification(nameof(this.VATPay));
                     break;
+                case nameof(Declaration.CBRate):
+                    this.PropertyChangedNotification(nameof(this.CostPer));
+                    this.PropertyChangedNotification(nameof(this.DTSumRub));
+                    this.PropertyChangedNotification(nameof(this.MarkupAlg));
+                    this.PropertyChangedNotification(nameof(this.MarkupBU));
+                    this.PropertyChangedNotification(nameof(this.MarkupTotal));
+                    this.PropertyChangedNotification(nameof(this.Profit));
+                    this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgE));
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgR));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
+                    this.PropertyChangedNotification(nameof(this.Selling));
+                    this.PropertyChangedNotification(nameof(this.SellingWithoutRate));
+                    this.PropertyChangedNotification(nameof(this.VolumeProfit));
+                    break;
+                case nameof(Declaration.TotalSum):
+                    this.PropertyChangedNotification(nameof(this.CostPer));
+                    this.PropertyChangedNotification(nameof(this.DTSumRub));
+                    this.PropertyChangedNotification(nameof(this.MarkupAlg));
+                    this.PropertyChangedNotification(nameof(this.MarkupBU));
+                    this.PropertyChangedNotification(nameof(this.MarkupTotal));
+                    this.PropertyChangedNotification(nameof(this.Profit));
+                    this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
+                    this.PropertyChangedNotification(nameof(this.Selling));
+                    this.PropertyChangedNotification(nameof(this.SellingWithoutRate));
+                    this.PropertyChangedNotification(nameof(this.VolumeProfit));
+                    break;
                 case nameof(Declaration.VAT):
                     this.PropertyChangedNotification(nameof(this.VATPay));
                     break;
@@ -210,6 +244,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.MarkupTotal));
                     this.PropertyChangedNotification(nameof(this.Profit));
                     this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgE));
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgR));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
                     this.PropertyChangedNotification(nameof(this.VATPay));
                     break;
             }
@@ -227,9 +264,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.MarkupTotal));
                     this.PropertyChangedNotification(nameof(this.Profit));
                     this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
                     break;
                 case nameof(GTDRegisterClient.DTSum):
                     this.PropertyChangedNotification(nameof(this.DTSum));
+                    break;
+                case nameof(GTDRegisterClient.ProfitAlgE):
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgE));
+                    this.PropertyChangedNotification(nameof(this.ProfitAlgR));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
                     break;
                 case nameof(GTDRegisterClient.Selling):
                     this.PropertyChangedNotification(nameof(this.CostPer));
@@ -241,6 +284,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.SellingWithoutRate));
                     this.PropertyChangedNotification(nameof(this.Profit));
                     this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
                     this.PropertyChangedNotification(nameof(this.VATPay));
                     break;
                 case nameof(GTDRegisterClient.SL):
@@ -253,6 +297,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.SLWithoutRate));
                     this.PropertyChangedNotification(nameof(this.Profit));
                     this.PropertyChangedNotification(nameof(this.Profitability));
+                    this.PropertyChangedNotification(nameof(this.ProfitDiff));
                     this.PropertyChangedNotification(nameof(this.VATPay));
                     break;
                 case nameof(GTDRegisterClient.Volume):
@@ -581,6 +626,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         public decimal? Profit
         { get { return this.DomainObject.Profit; } }
+        public decimal? ProfitAlgE
+        { get { return this.IsEnabled ? this.DomainObject.ProfitAlgE : (decimal?)null; } }
+        public decimal? ProfitAlgR
+        { get { return this.IsEnabled ? this.DomainObject.ProfitAlgR : (decimal?)null; } }
+        public decimal? ProfitDiff
+        { get { return this.IsEnabled ? this.DomainObject.ProfitDiff : (decimal?)null; } }
         public decimal? Profitability
         { get { return this.DomainObject.Profitability; } }
         public int Rate
@@ -848,6 +899,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myprofitabilityfilter = new libui.NumberFilterVM();
             myprofitabilityfilter.ExecCommand1 = () => { FilterRunExec(null); };
             myprofitabilityfilter.ExecCommand2 = () => { myprofitabilityfilter.Clear(); };
+            myprofitalgefilter = new libui.NumberFilterVM();
+            myprofitalgefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myprofitalgefilter.ExecCommand2 = () => { myprofitalgefilter.Clear(); };
+            myprofitalgrfilter = new libui.NumberFilterVM();
+            myprofitalgrfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myprofitalgrfilter.ExecCommand2 = () => { myprofitalgrfilter.Clear(); };
+            myprofitdifffilter = new libui.NumberFilterVM();
+            myprofitdifffilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myprofitdifffilter.ExecCommand2 = () => { myprofitdifffilter.Clear(); };
             myratefilter = new libui.CheckListBoxVM();
             myratefilter.RefreshIsVisible = false;
             myratefilter.AreaFilterIsVisible = false;
@@ -1001,6 +1061,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private libui.NumberFilterVM myprofitabilityfilter;
         public libui.NumberFilterVM ProfitabilityFilter
         { get { return myprofitabilityfilter; } }
+        private libui.NumberFilterVM myprofitalgefilter;
+        public libui.NumberFilterVM ProfitAlgEFilter
+        { get { return myprofitalgefilter; } }
+        private libui.NumberFilterVM myprofitalgrfilter;
+        public libui.NumberFilterVM ProfitAlgRFilter
+        { get { return myprofitalgrfilter; } }
+        private libui.NumberFilterVM myprofitdifffilter;
+        public libui.NumberFilterVM ProfitDiffFilter
+        { get { return myprofitdifffilter; } }
         private libui.CheckListBoxVM myratefilter;
         public libui.CheckListBoxVM RateFilter
         { get { return myratefilter; } }
@@ -1100,7 +1169,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "parcel", new string[0]);
-            myfilter.SetDatePeriod(myfilter.FilterWhereId, "sellingdate", "sellingdatemin", "sellingdatemax", mysellingdatefilter.DateStart, mysellingdatefilter.DateStop, mysellingdatefilter.IsNull);
+            //myfilter.SetDatePeriod(myfilter.FilterWhereId, "sellingdate", "sellingdatemin", "sellingdatemax", mysellingdatefilter.DateStart, mysellingdatefilter.DateStop, mysellingdatefilter.IsNull);
+            DatePeriodFilterSet(mysellingdatefilter, "sellingdate", "sellingdatemin", "sellingdatemax");
             RefreshData(null);
         }
         private bool FilterRunCanExec(object parametr)
@@ -1318,9 +1388,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         private void DatePeriodFilterSet(libui.DateFilterVM filter, string group, string propertystart, string propertystop)
         {
+                this.DatePeriodFilterSet(filter, myfilter.FilterWhereId, group, propertystart, propertystop);
+        }
+        private void DatePeriodFilterSet(libui.DateFilterVM filter, int parentgroupid, string groupname, string propertystart, string propertystop)
+        {
             if (!filter.Synchronized)
             {
-                myfilter.SetDatePeriod(myfilter.FilterWhereId, group, propertystart, propertystop, filter.DateStart, filter.DateStop, filter.IsNull);
+                myfilter.SetDatePeriod(parentgroupid, groupname, propertystart, propertystop, filter.DateStart, filter.DateStop, filter.IsNull);
                 filter.Synchronized = true;
             }
         }

@@ -51,12 +51,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (ds.tableManagerGroup.Count == 0) ds.ManagerGroupRefresh();
             System.Data.DataView managerview = new System.Data.DataView(ds.tableManagerGroup, string.Empty, "[managergroupName]", System.Data.DataViewRowState.CurrentRows);
             managerGroupListBox.ItemsSource = managerview;
-            //if (ds.tableGoodsType.Count == 0) ds.GoodsTypeRefresh();
-            //System.Data.DataView goodsview = new System.Data.DataView(ds.tableGoodsType, string.Empty, "[Nameitem]", System.Data.DataViewRowState.CurrentRows);
             goodsListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
-            if (ds.tableStore.Count == 0) ds.StoreRefresh();
-            System.Data.DataView storeview = new System.Data.DataView(ds.tableStore, string.Empty, "[storeName]", System.Data.DataViewRowState.CurrentRows);
-            storeListBox.ItemsSource = storeview;
+            storeListBox.ItemsSource = CustomBrokerWpf.References.Stores;
             if (ds.tableForwarder.Count == 0)
             {
                 ReferenceDSTableAdapters.ForwarderAdapter adapter = new ReferenceDSTableAdapters.ForwarderAdapter();
@@ -179,7 +175,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             filter.PullListBox(filter.FilterWhereId, "customerId", "customerID", this.customerListBox, true);
             filter.PullListBox(filter.FilterWhereId, "loadDescription", "Name", this.goodsListBox, true);
             filter.PullListBox(filter.FilterWhereId, "agentId", "Id", this.agentListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "storeid", "storeId", this.storeListBox, true);
+            filter.PullListBox(filter.FilterWhereId, "storeid", "Id", this.storeListBox, true);
             filter.PullListBox(filter.FilterWhereId, "forwarder", "itemId", this.forwarderListBox, true);
  
             isChanchedRequestId = false;
@@ -447,10 +443,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 int i = 0;
                 string[] values = new string[this.storeListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.storeListBox.SelectedItems)
+                foreach (DataModelClassLibrary.ReferenceSimpleItem item in this.storeListBox.SelectedItems)
                 {
-                    ReferenceDS.tableStoreRow row = rowview.Row as ReferenceDS.tableStoreRow;
-                    values[i] = row.storeId.ToString();
+                    values[i] = item.Id.ToString();
                     i++;
                 }
                 filter.SetList(filter.FilterWhereId, "storeid", values);

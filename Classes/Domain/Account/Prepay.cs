@@ -252,7 +252,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set; get; }
         private decimal mypercent;
         public decimal Percent
-        { set { SetProperty<decimal>(ref mypercent, value, () => { this.PropertyChangedNotification(nameof(this.RubSum)); }); } get { return mypercent; } }
+        { 
+            set { if(value >= 1M) value = value / 100M; SetProperty<decimal>(ref mypercent, value, () => { this.PropertyChangedNotification(nameof(this.RubSum)); }); }
+            get { return mypercent; }
+        }
         public decimal? RateDiffPer
         { get { return this.CBRatep2p.HasValue && this.CurrencyBoughtDate.HasValue && this.CurrencyBuyRate.HasValue ? decimal.Divide(this.CurrencyBuyRate.Value, this.CBRatep2p.Value) - 1M : (decimal?)null; } }
         public bool? RateDiffResult
@@ -601,7 +604,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                ,new SqlParameter("@invoicedate",System.Data.SqlDbType.DateTime2)
                ,new SqlParameter("@invoicenumber", System.Data.SqlDbType.NVarChar,10)
                ,new SqlParameter("@paydate",System.Data.SqlDbType.DateTime2)
-               ,new SqlParameter("@percent",System.Data.SqlDbType.Money)
+               ,new SqlParameter("@percent",System.Data.SqlDbType.Decimal){Scale=9,Precision=9}
                ,new SqlParameter("@refund",System.Data.SqlDbType.Money)
                ,new SqlParameter("@shipplandate",System.Data.SqlDbType.DateTime2)
              };
@@ -617,24 +620,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override Prepay CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon, out errors);
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
             this.Errors.AddRange(errors);
-            CustomerLegal customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out errors);
+            CustomerLegal customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["customerid"]), addcon, out errors);
             this.Errors.AddRange(errors);
-            Prepay item = new Prepay(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), reader.GetDateTime(reader.GetOrdinal("updated")), reader.GetString(reader.GetOrdinal("updater")), lib.DomainObjectState.Unchanged
+            Prepay item = new Prepay(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), reader.GetDateTime(this.Fields["updated"]), reader.GetString(this.Fields["updater"]), lib.DomainObjectState.Unchanged
                 , agent
-                , reader.IsDBNull(reader.GetOrdinal("cbrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("cbrate"))
-                , reader.IsDBNull(reader.GetOrdinal("paydate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("paydate"))
+                , reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
+                , reader.IsDBNull(this.Fields["paydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["paydate"])
                 , customer
-                , reader.GetBoolean(reader.GetOrdinal("dealpass"))
-                , reader.GetDecimal(reader.GetOrdinal("eurosum"))
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("importerid")))
-                , reader.GetDecimal(reader.GetOrdinal("initsum"))
-                , reader.IsDBNull(reader.GetOrdinal("invoicedate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("invoicedate"))
-                , reader.IsDBNull(reader.GetOrdinal("invoicenumber")) ? null : reader.GetString(reader.GetOrdinal("invoicenumber"))
-                , reader.GetDecimal(reader.GetOrdinal("percent"))
-                , reader.GetDecimal(reader.GetOrdinal("refund"))
-                , reader.GetDateTime(reader.GetOrdinal("shipplandate")));
+                , reader.GetBoolean(this.Fields["dealpass"])
+                , reader.GetDecimal(this.Fields["eurosum"])
+                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
+                , reader.GetDecimal(this.Fields["initsum"])
+                , reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
+                , reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
+                , reader.GetDecimal(this.Fields["percent"])
+                , reader.GetDecimal(this.Fields["refund"])
+                , reader.GetDateTime(this.Fields["shipplandate"]));
             item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
             
             myrdbm.Errors.Clear();

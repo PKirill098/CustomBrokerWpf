@@ -160,9 +160,13 @@
     <Compile Include="Classes\Domain\Manager.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
     <Compile Include="Classes\Domain\StorageData.cs" />
+    <Compile Include="Classes\Domain\Storage\StorageData.cs" />
     <Compile Include="Classes\Specification\SpecificationCustomerInvoiceRate.cs" />
     <Compile Include="ManagersWin.xaml.cs">
       <DependentUpon>ManagersWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Storage\StorageAgentIdentify.xaml.cs">
+      <DependentUpon>StorageAgentIdentify.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Account\AccountMainWin.xaml.cs">
       <DependentUpon>AccountMainWin.xaml</DependentUpon>
@@ -394,10 +398,10 @@
     <Compile Include="Windows\Request\RequestPrepayWin.xaml.cs">
       <DependentUpon>RequestPrepayWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SpecificationDetailWin.xaml.cs">
+    <Compile Include="Windows\Specification\SpecificationDetailWin.xaml.cs">
       <DependentUpon>SpecificationDetailWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SpecificationWin.xaml.cs">
+    <Compile Include="Windows\Specification\SpecificationWin.xaml.cs">
       <DependentUpon>SpecificationWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="TNVEDGroupWin.xaml.cs">
@@ -574,19 +578,14 @@
     <Compile Include="Windows\Request\RequestStatusWin.xaml.cs">
       <DependentUpon>RequestStatusWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StoreMergeDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="StoreMergeFilterWin.xaml.cs">
+    <Compile Include="Windows\Storage\StoreMergeFilterWin.xaml.cs">
       <DependentUpon>StoreMergeFilterWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StoreMergeWin.xaml.cs">
+    <Compile Include="Windows\Storage\StoreMergeWin.xaml.cs">
       <DependentUpon>StoreMergeWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StoreWin.xaml.cs">
-      <DependentUpon>StoreWin.xaml</DependentUpon>
+    <Compile Include="Windows\ReferenceSympleItem.xaml.cs">
+      <DependentUpon>ReferenceSympleItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="TelephoneNumberFormat.cs" />
     <Compile Include="TownWin.xaml.cs">
@@ -596,6 +595,10 @@
       <DependentUpon>RequestWin.xaml</DependentUpon>
     </Compile>
     <Page Include="ManagersWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Storage\StorageAgentIdentify.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -623,7 +626,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AgentWin.xaml">
+    <Page Include="Windows\AgentWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -798,7 +801,7 @@
     <Compile Include="AddressTypeWin.xaml.cs">
       <DependentUpon>AddressTypeWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AgentWin.xaml.cs">
+    <Compile Include="Windows\AgentWin.xaml.cs">
       <DependentUpon>AgentWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
@@ -942,23 +945,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SpecificationDetailWin.xaml">
+    <Page Include="Windows\Specification\SpecificationDetailWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SpecificationWin.xaml">
+    <Page Include="Windows\Specification\SpecificationWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StoreMergeFilterWin.xaml">
+    <Page Include="Windows\Storage\StoreMergeFilterWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StoreMergeWin.xaml">
+    <Page Include="Windows\Storage\StoreMergeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StoreWin.xaml">
+    <Page Include="Windows\ReferenceSympleItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1134,17 +1137,6 @@
     </None>
     <None Include="RequestDS.xss">
       <DependentUpon>RequestDS.xsd</DependentUpon>
-    </None>
-    <None Include="StoreMergeDS.xsc">
-      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
-    </None>
-    <None Include="StoreMergeDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>StoreMergeDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="StoreMergeDS.xss">
-      <DependentUpon>StoreMergeDS.xsd</DependentUpon>
     </None>
     <None Include="Templates\Freight.xltx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1584,6 +1576,7 @@
   <ItemGroup>
     <Resource Include="Images\moneybag_euro.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

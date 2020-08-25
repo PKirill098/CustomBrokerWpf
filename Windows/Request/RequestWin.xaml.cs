@@ -109,13 +109,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 }
                 CollectionViewSource goodsVS = this.FindResource("keyGoodsTypeVS") as CollectionViewSource;
                 goodsVS.Source = new System.Data.DataView(refDS.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-                if (refDS.tableStore.Count == 0)
-                {
-                    ReferenceDSTableAdapters.StoreAdapter adapterStore = new ReferenceDSTableAdapters.StoreAdapter();
-                    adapterStore.Fill(refDS.tableStore);
-                }
                 CollectionViewSource storeVS = this.FindResource("keyStoreVS") as CollectionViewSource;
-                storeVS.Source = new System.Data.DataView(refDS.tableStore, "storeId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
+                storeVS.Source = new ListCollectionView(KirillPolyanskiy.CustomBrokerWpf.References.Stores);
                 if (refDS.tableForwarder.Count == 0)
                 {
                     ReferenceDSTableAdapters.ForwarderAdapter adapterStore = new ReferenceDSTableAdapters.ForwarderAdapter();

@@ -237,18 +237,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public decimal Invoice { get { return this.Requests?.Sum((item) => { return item.InvoiceDiscount; }) ?? 0M; } }
         public decimal NetWeight { set { mynetweight = value; this.PropertyChangedNotification("NetWeight"); } get { return mynetweight; } }
 
-        internal string BuildFileName(RequestVM request, string sourcepath)
+        internal string BuildFileName(string sourcepath)
         {
             System.Text.StringBuilder name = new System.Text.StringBuilder();
-            if (string.IsNullOrEmpty(request.Consolidate))
+            name.Append(this.Parcel.ParcelNumber);
+            if (string.IsNullOrEmpty(this.Consolidate))
             {
-                if (request.ParcelGroup.HasValue)
-                    name.Append(request.Parcel.ParcelNumber).Append("_gr").Append(request.ParcelGroup.ToString()).Append('_').Append(request.CustomerName).Append('_').Append(request.AgentName);
+                if (this.ParcelGroup.HasValue)
+                    name.Append("_gr").Append(this.ParcelGroup.ToString());
                 else
-                    name.Append(request.Parcel.ParcelNumber).Append("_s").Append(request.StorePoint).Append('_').Append(request.CustomerName).Append('_').Append(request.AgentName);
+                    name.Append("_s").Append(this.Request.StorePoint);
+                name.Append('_').Append((this.Request??this.Requests.First()).CustomerName);
             }
             else
-                name.Append(request.Parcel.ParcelNumber).Append("_").Append(request.Consolidate).Append('_').Append(request.AgentName);
+                name.Append("_").Append(this.Consolidate);
+            name.Append('_').Append(this.Agent.Name);
             name.Append(System.IO.Path.GetExtension(sourcepath));
             this.FilePath = name.ToString();
             return this.FilePath;
@@ -395,30 +398,40 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             //{
                 Specification firstitem = default(Specification);
                 errors = new List<lib.DBMError>();
+            try
+            {
                 if (request.Parcel != null)
                 {
-                    if(myupdatingcoll>0) System.Threading.Thread.Sleep(20);
+                    if (myupdatingcoll > 0) System.Threading.Thread.Sleep(20);
                     myforcount++;
                     foreach (Specification item in mycollection.Values)
                         if (item.Parcel == request.Parcel && string.Equals(item.Consolidate, request.Consolidate)
                             && (!string.IsNullOrEmpty(request.Consolidate) || (item.ParcelGroup == request.ParcelGroup
-                            && (request.ParcelGroup.HasValue || item.Request.Id == request.Id))))
+                            && (request.ParcelGroup.HasValue || item.Request?.Id == request.Id))))
                         { firstitem = item; break; }
                     myforcount--;
                     if (firstitem == default(Specification))
                     {
                         SpecificationDBM dbm;
-                    dbm = GetDBM();
-                    dbm.Request = request;
-                    dbm.Command.Connection = conection;
-                    firstitem = dbm.GetFirst();
-                    if (firstitem != null) firstitem = UpdateItem(firstitem);
-                    dbm.Command.Connection = null;
-                    errors.AddRange(dbm.Errors);
-                    dbm.Errors.Clear();
-                    mydbmanagers.Enqueue(dbm);
+                        dbm = GetDBM();
+                        dbm.Parcel = null;
+                        dbm.Importer = null;
+                        dbm.Filter = null;
+                        dbm.Request = request;
+                        dbm.Command.Connection = conection;
+                        firstitem = dbm.GetFirst();
+                        if (firstitem != null) firstitem = UpdateItem(firstitem);
+                        dbm.Command.Connection = null;
+                        errors.AddRange(dbm.Errors);
+                        dbm.Errors.Clear();
+                        mydbmanagers.Enqueue(dbm);
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                errors.Add(new lib.DBMError(request, ex.Message, "SpecificationStore.GetItemLoad"));
+            }
                 return firstitem;
             //});
         }

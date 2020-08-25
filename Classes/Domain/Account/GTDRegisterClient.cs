@@ -15,9 +15,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     public class GTDRegisterClient : lib.DomainStampValueChanged
     {
         public GTDRegisterClient(int id, long stamp, DateTime? updatewhen, string updatewho, lib.DomainObjectState state
-            , decimal? algvalue2, decimal? buyrate,CustomerLegal client, decimal? dtsum, decimal eurosum, GTDRegister gtd, decimal? selling,DateTime? sellingdate, decimal? sl,decimal? volume
+            , decimal? algvalue1, decimal? algvalue2, decimal? buyrate,CustomerLegal client, decimal? dtsum, decimal eurosum, GTDRegister gtd, decimal? selling,DateTime? sellingdate, decimal? sl,decimal? volume
             ) : base(id, stamp, updatewhen, updatewho, state)
         {
+            myprofitalge = algvalue1;
             myalgvalue2 = algvalue2;
             mybuyrate = buyrate;
             myclient = client;
@@ -63,11 +64,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public Domain.CustomerLegal Client
         { internal set { SetProperty<Domain.CustomerLegal>(ref myclient, value); } get { return myclient; } }
         public decimal? CostLogistics
-        { get { return this.DDSpidy + this.GTLS + this.MFK + this.Pari + this.SLWithoutRate + this.WestGateWithoutRate; } }
+        { get { return (this.DDSpidy??0M) + (this.GTLS??0M) + (this.MFK??0M) + (this.Pari??0M) + (this.SLWithoutRate??0M) + (this.WestGateWithoutRate??0); } }
         public decimal? CostPer
         { get { return (this.SellingWithoutRate ?? 0) > 0M ? this.CostTotal / this.SellingWithoutRate : null; } }
         public decimal? CostTotal
-        { get { return this.Fee + this.Tax + this.CC + this.CostLogistics; } }
+        { get { return (this.Fee??0M) + (this.Tax??0M) + (this.CC??0M) + (this.CostLogistics??0M); } }
         public decimal? DDSpidy
         {
             get { return this.Rate.HasValue & this.GTD.Specification.DDSpidy.HasValue ? decimal.Multiply(this.Rate.Value, this.GTD.Specification.DDSpidy.Value) : (decimal?)null; }
@@ -138,6 +139,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.SellingWithoutRate - this.CostTotal; } }
         public decimal? Profitability
         { get { return this.Profit.HasValue & this.SellingWithoutRate.HasValue ? decimal.Divide(this.Profit.Value, this.SellingWithoutRate.Value) : (decimal?)null; } }
+        private decimal? myprofitalge;
+        public decimal? ProfitAlgE
+        { get { return myprofitalge; } }
+        public decimal? ProfitAlgR
+        { get { return this.ProfitAlgE * this.GTD.Specification?.Declaration.CBRate; } }
+        public decimal? ProfitDiff
+        { get { return this.Profit - this.ProfitAlgR; } }
         public decimal? Rate
         { get { return mygtd.DTSum.HasValue ? mydtsum / mygtd.DTSum : null; } }
         private decimal? mysl;
@@ -193,7 +201,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? VAT
         { get { return this.Rate * this.GTD.Specification.Declaration.VAT; } }
         public decimal? VATPay
-        { get { return this.SellingRate - this.VAT - this.SLRate - this.WestGateRate - this.MFKRate; } }
+        { get { return this.SellingRate - this.VAT - (this.SLRate??0M) - (this.WestGateRate??0M) - (this.MFKRate??0M); } }
         private decimal? myvolume;
         public decimal? Volume
         { set { SetPropertyOnValueChanged<decimal?>(ref myvolume, value,()=> {this.PropertyChangedNotification(nameof(this.VolumeProfit));}); } get { return myvolume; } }
@@ -207,7 +215,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.WestGate * 20M / 120M; } }
         public decimal? WestGateWithoutRate
         { get { return this.WestGate - this.WestGateRate; } }
-
 
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
@@ -425,6 +432,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , reader.IsDBNull(reader.GetOrdinal("stamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("stamp"))
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated"))
                 , reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater")), lib.DomainObjectState.Unchanged
+                , reader.IsDBNull(reader.GetOrdinal("algvalue1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("algvalue1"))
                 , reader.IsDBNull(reader.GetOrdinal("algvalue2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("algvalue2"))
                 , reader.IsDBNull(reader.GetOrdinal("buyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("buyrate"))
                 , customer
@@ -581,6 +589,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsEnabled ? this.DomainObject.Profit : (decimal?)null; } }
         public decimal? Profitability
         { get { return this.DomainObject.Profitability; } }
+        public decimal? ProfitAlgE
+        { get { return this.IsEnabled ? this.DomainObject.ProfitAlgE : (decimal?)null; } }
+        public decimal? ProfitAlgR
+        { get { return this.IsEnabled ? this.DomainObject.ProfitAlgR : (decimal?)null; } }
+        public decimal? ProfitDiff
+        { get { return this.IsEnabled ? this.DomainObject.ProfitDiff : (decimal?)null; } }
         public decimal? Rate
         { get { return this.IsEnabled ? this.DomainObject.Rate : (decimal?)null; } }
         public decimal? SL

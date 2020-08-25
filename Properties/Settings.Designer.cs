@@ -58,8 +58,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=31.173.79.161;Initial Catalog=CustomBroker;Integrated Security=False;" +
-            "")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=212.233.108.170;Initial Catalog=CustomBroker;Integrated Security=Fals" +
+            "e;")]
         public string CustomBrokerConnectionString2 {
             get {
                 return ((string)(this["CustomBrokerConnectionString2"]));

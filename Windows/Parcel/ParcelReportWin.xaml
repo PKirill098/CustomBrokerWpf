@@ -54,10 +54,10 @@
                 <Image Source="/CustomBrokerWpf;component/Images/table_sql_delete.png" />
             </Button>
             <Separator Visibility="Visible"/>
-            <Button ToolTip="Анализ в Excel" Click="toExcelButton_Click" Visibility="Visible" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
+            <Button ToolTip="Анализ в Excel" Click="toExcelButton_Click" Visibility="Collapsed" IsTabStop="False" MaxHeight="{Binding RelativeSource={RelativeSource AncestorType=ToolBar}, Path=Height}">
                 <Image Source="/CustomBrokerWpf;component/Images/excel_icon4.png" />
             </Button>
-            <Separator Visibility="Visible"/>
+			<Separator Visibility="Collapsed"/>
             <StackPanel x:Name="StackPanelChart" Orientation="Horizontal" Margin="0" Visibility="Collapsed" >
                 <Button IsTabStop="False" BorderThickness="1,1,0,1">
                     <Button.BorderBrush>

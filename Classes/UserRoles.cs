@@ -11,7 +11,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         public bool IsMember(string parm)
         {
             bool ismember = false;
-            CurrentUserRoleList rolelist = References.CurrentUserRoles;
             if (References.CurrentUserRoles != null)
             {
                 string role = References.CurrentUserRoles.FindFirstItem(string.Empty, parm);
@@ -41,6 +40,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         { get { return myismember ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible; } }
         public bool IsMember
         { get { return myismember; } }
+        public bool IsOutsider
+        { get { return !myismember; } }
     }
     class VisibilityManagers: VisibilityRole
     {

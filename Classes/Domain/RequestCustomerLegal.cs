@@ -134,7 +134,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private bool myselected;
         public bool Selected
         {
-            set { SetProperty<bool>(ref myselected, value, () => {  }); } // PaymentsDelete();if (value) SingleSelected();
+            set { SetProperty<bool>(ref myselected, value, () => { if (value) SingleSelected(); }); } // PaymentsDelete();
             get { return myselected; }
         }
         decimal? myinvoice;
@@ -232,7 +232,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private void PrepaysRefresh()
         {
             PrepayCustomerRequestDBM pdbm = new PrepayCustomerRequestDBM();
-            if (myprepays != null && myprepays.Count > 0)
+            if (myprepays != null) // не заменять созданную коллекцию - разрыв связи с VM
                 pdbm.Collection = myprepays;
             else
                 pdbm.FillType = lib.FillType.PrefExist;
@@ -241,34 +241,37 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 pdbm.RequestCustomer = this;
                 pdbm.Fill();
             }
-            bool find = false;
-            PrepayFundDBM pfdbm = new PrepayFundDBM();
-            pfdbm.Customer = this;
-            pfdbm.Command.Connection = pdbm.Command.Connection;
-            pfdbm.Fill();
-            foreach (Prepay pay in pfdbm.Collection)
+            if (this.Request.Status.Id > 0)
             {
-                foreach (PrepayCustomerRequest item in pdbm.Collection)
-                    if (item.Prepay.Id == pay.Id)
-                    {
-                        find = true;
-                        break;
-                    }
-                if (!find)
-                    Application.Current.Dispatcher.Invoke(() =>
-                    { this.Prepays.Add(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this, null, null, 0M, 0M, string.Empty, pay, null, null, null)); });
+                bool find = false;
+                PrepayFundDBM pfdbm = new PrepayFundDBM();
+                pfdbm.Customer = this;
+                pfdbm.Command.Connection = pdbm.Command.Connection;
+                pfdbm.Fill();
+                foreach (Prepay pay in pfdbm.Collection)
+                {
+                    foreach (PrepayCustomerRequest item in pdbm.Collection)
+                        if (item.Prepay.Id == pay.Id)
+                        {
+                            find = true;
+                            break;
+                        }
+                    if (!find)
+                        Application.Current.Dispatcher.Invoke(() =>
+                        { this.Prepays.Add(new PrepayCustomerRequest(this, null, pay, null)); });
+                }
+                if (pdbm.Errors.Count > 0 | pfdbm.Errors.Count > 0)
+                    Common.PopupCreator.GetPopup(text: pdbm.ErrorMessage+"/n"+ pfdbm.ErrorMessage
+                         , background: System.Windows.Media.Brushes.LightPink
+                         , foreground: System.Windows.Media.Brushes.Red
+                         , staysopen: false
+                         ).IsOpen=true;
             }
             if (myprepays == null)
                 this.Prepays = pdbm.Collection;
             this.PropertyChangedNotification(nameof(this.Prepays));// this.PropertyChangedNotification(nameof(this.InvoiceDiscount));
             foreach (PrepayCustomerRequest item in myprepays)
             { item.PropertyChangedNotification(nameof(PrepayCustomerRequest.FinalInvoiceRubSumPaid)); item.PropertyChangedNotification(nameof(PrepayCustomerRequest.CustomerBalance)); }
-            if (pdbm.Errors.Count > 0 | pfdbm.Errors.Count > 0)
-                Common.PopupCreator.GetPopup(text: pdbm.ErrorMessage+"/n"+ pfdbm.ErrorMessage
-                     , background: System.Windows.Media.Brushes.LightPink
-                     , foreground: System.Windows.Media.Brushes.Red
-                     , staysopen: false
-                     ).IsOpen=true;
         }
 
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
@@ -375,9 +378,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 if (n == 1 & single != null)
                 {
-                    single.Invoice = myrequest.Invoice;
-                    single.InvoiceDiscount = myrequest.InvoiceDiscount;
-                    single.OfficialWeight = myrequest.OfficialWeight;
+                    //single.Invoice = myrequest.Invoice;
+                    single.UpdateInvoiceDiscount(myrequest.InvoiceDiscount, 'r');
+                    //single.OfficialWeight = myrequest.OfficialWeight;
                     //if (myrequest.Payments.Count == 0)
                     //{
                     //    RequestPayment payment = new RequestPayment(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, single, 1, 0, null, 0M, DateTime.Today, null, null);
@@ -474,7 +477,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                 agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(this.Request.AgentId ?? 0, out _),
                                 cbrate: null, currencypaiddate:null, customer:this.CustomerLegal,dealpassport:true, eurosum:0M, importer:this.Request.Importer, initsum:myinvoice ?? 0M, invoicedate:null, invoicenumber:null, percent:0M, refund:0M,
                                 shipplandate: this.Request.ShipPlanDate ?? CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10)) )
-                                , null, null, null);
+                                , null, null, null,1M);
         }
         private bool UpdatePrepay(decimal? value, decimal oldvalue)
         {
@@ -620,6 +623,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (firstitem == default(RequestCustomerLegal))
                     {
                     dbm = GetDBM();
+                    dbm.ItemId = null;
                     dbm.CustomerLegal = customer;
                     dbm.Request = request;
                     dbm.Command.Connection = conection;
@@ -712,7 +716,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.Errors.AddRange(errors);
             Request request = myrequest ?? CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
             this.Errors.AddRange(errors);
-            RequestCustomerLegal item = new RequestCustomerLegal(reader.IsDBNull(0) ? 0 : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), lib.DomainObjectState.Unchanged
+            RequestCustomerLegal item = new RequestCustomerLegal(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), lib.DomainObjectState.Unchanged
                 , request
                 , customerlegal
                 , reader.GetBoolean(reader.GetOrdinal("selected"))
@@ -762,11 +766,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void GetOutputParametersValue(RequestCustomerLegal item)
         {
-            if (item.Id <= 0)
-            {
-                //item.Id = (int)myinsertparams[0].Value;
-                //CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(item);
-            }
+            //if (item.Id <= 0)
+            //{
+            //    item.Id = (int)myinsertparams[0].Value;
+            //    CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(item);
+            //}
         }
         protected override void ItemAcceptChanches(RequestCustomerLegal item)
         {
@@ -807,7 +811,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SaveReferenceObjects()
         {
             mycidbm.Command.Connection = this.Command.Connection;
+            mycidbm.Transaction = this.Transaction;
             mypdbm.Command.Connection = this.Command.Connection;
+            mypdbm.Transaction = this.Transaction;
             return true;
         }
         protected override bool SetParametersValue(RequestCustomerLegal item)
@@ -888,6 +894,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void RefreshFund(RequestCustomerLegal requestlegal,List<lib.DBMError> errors, SqlConnection con)
         {
+            if (requestlegal.Request.Status.Id == 0) return;
             bool find = false;
             mypfdbm.Errors.Clear();
             mypfdbm.Customer = requestlegal;
@@ -909,7 +916,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                 if (!find)
                     this.mydispatcher.Invoke(() =>
-                    { requestlegal.Prepays.Add(new PrepayCustomerRequest(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, requestlegal, null, null, 0M, 0M, string.Empty, pay, null, null, null)); });
+                    { requestlegal.Prepays.Add(new PrepayCustomerRequest(requestlegal, null, pay, null)); });
             }
         }
     }

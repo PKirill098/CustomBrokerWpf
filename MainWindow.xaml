@@ -5,6 +5,7 @@
         xmlns:coll="clr-namespace:System.Collections;assembly=mscorlib"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        xmlns:account="clr-namespace:KirillPolyanskiy.CustomBrokerWpf.WindowsAccount"
         Icon="/CustomBrokerWpf;component/Images/truck_blue.png" Loaded="Window_Loaded" Closing="Window_Closing" Language="ru-RU" Top="5" Left="10" WindowState="Maximized" FontSize="11">
 	<Grid>
 		<Grid.RowDefinitions>
@@ -75,7 +76,7 @@
 				<MenuItem Header="Карточка" Click="MenuItemClient_Click"/>
 				<MenuItem Header="Контакты" Click="MenuItemClientList_Click"/>
 			</MenuItem>
-			<MenuItem Header="Агенты" Click="MenuItemAgent_Click"/>
+			<MenuItem Header="Поставщики" Click="MenuItemAgent_Click"/>
 			<MenuItem Header="Справочники" x:Name="referenceMenu">
 				<MenuItem Header="Алгоритмы" Click="MenuItemAlgorithm_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="Visible">
 					<MenuItem.Icon>
@@ -2458,13 +2459,31 @@
 					</StackPanel>
 				</Grid>
 			</TabItem>
-			<!--<TabItem Header="ПЛАТЕЖИ" Visibility="Collapsed">
+            <TabItem Header="Реестр заявок на оплату Арт Деливери" GotFocus="TabItem1_GotFocus" Background="#f7e0e0">
+                <account:PaymentRegisterUC x:Name="PaymentDeliveryGrid"/>
+            </TabItem>
+            <TabItem Header="Реестр заявок на оплату Арт Трейд" GotFocus="TabItem2_GotFocus" Background="#f7e0e0">
+                <account:PaymentRegisterUC x:Name="PaymentTradeGrid"/>
+            </TabItem>
+            <TabItem Header="Реестр ГТД Арт Деливери" GotFocus="TabItem3_GotFocus" Background="#f7e0e0">
+                <account:GTDRegisterUC x:Name="GTDDeliveryGrid"/>
+            </TabItem>
+            <TabItem Header="Реестр ГТД Арт Трейд" GotFocus="TabItem4_GotFocus" Background="#f7e0e0">
+                <account:GTDRegisterUC x:Name="GTDTradeGrid"/>
+            </TabItem>
+            <TabItem Header="Реестр ТЭО ГТД Арт Деливери" GotFocus="TabItem5_GotFocus" Background="#f7e0e0">
+                <account:GTDRegisterUC x:Name="TEODeliveryGrid"/>
+            </TabItem>
+            <TabItem Header="Реестр ТЭО ГТД Арт Трейд" GotFocus="TabItem6_GotFocus" Background="#f7e0e0">
+                <account:GTDRegisterUC x:Name="TEOTradeGrid"/>
+            </TabItem>
+            <!--<TabItem Header="ПЛАТЕЖИ" Visibility="Collapsed">
 				<my:ParcelPaymentsUC x:Name="ParcelPaymentsUC"/>
 			</TabItem>
 			<TabItem Header="ОПЛАТЫ" Visibility="Collapsed">
 				<my:PaymentlistUC x:Name="PaymentlistUC"/>
 			</TabItem>-->
-			<TabItem Header="События" x:Name="EventLogTab">
+            <TabItem Header="События" x:Name="EventLogTab" Visibility="{Binding Source={StaticResource keyVisibilityTopManagers}, Path=Visibility, Mode=OneTime}">
 				<Grid x:Name="EventLogGrid">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto"/>

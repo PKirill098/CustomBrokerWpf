@@ -26,7 +26,10 @@
 			<Button ToolTip="Добавить" Command="New">
 				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
 			</Button>
-			<Separator/>
+            <Button Command="Delete" ToolTip="Удалить" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+            </Button>
+            <Separator/>
             <Button Click="HistoryOpen_Click" Tag="{Binding Path=VModel}" Margin="0,0,10,0" >
                 <Image Source="/CustomBrokerWpf;component/Images/his.png" />
             </Button>
@@ -1574,7 +1577,7 @@
                                 </DataGrid.Resources>
 								<DataGrid.RowDetailsTemplate>
 									<DataTemplate>
-										<DataGrid ItemsSource="{Binding Prepays}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+										<DataGrid ItemsSource="{Binding Prepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
 								            <DataGrid.CommandBindings>
 									            <CommandBinding Command="Delete" CanExecute="CommandBindingDelete_CanExecute" Executed="CommandBindingDelete_Executed" />
 								            </DataGrid.CommandBindings>

@@ -17,7 +17,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     public class SpecificationDetail : lib.DomainBaseStamp
     {
         private SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
+            int? amount, string branch, string brand, string cellnumber, string certificate, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
             ) : base(id, stamp, null, null, mstate)
         {
             myamount = amount;
@@ -39,6 +39,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mypacking = packing;
             myprice = price;
             myproducer = producer;
+            myrequest = request;
             myroworder = roworder;
             mysizeen = sizeen;
             mysizeru = sizeru;
@@ -46,14 +47,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myvendorcode = vendorcode;
         }
         public SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
-            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,contexture,cost,countryru,countryen,customer,description,gender,grossweight,netweight,name,note,packing,price,producer,roworder,sizeen,sizeru,tnved,vendorcode)
+            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
+            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,contexture,cost,countryru,countryen,customer,description,gender,grossweight,netweight,name,note,packing,price,producer,request, roworder,sizeen,sizeru,tnved,vendorcode)
         {
             myclient = client;
             myspec = spec;
         }
         public SpecificationDetail() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0, null, null, null, null
+            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null
             )
         { }
 
@@ -177,6 +178,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             set { SetProperty<string>(ref myproducer, value); }
             get { return myproducer; }
         }
+        private Request myrequest;
+        public Request Request
+        {
+            set { SetProperty<Request>(ref myrequest, value); }
+            get { return myrequest; }
+        }
         private int myroworder;
         public int RowOrder
         {
@@ -237,6 +244,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.Packing = sample.Packing;
             this.Price = sample.Price;
             this.Producer = sample.Producer;
+            this.Request = sample.Request;
             this.RowOrder = sample.RowOrder;
             this.SizeEN = sample.SizeEN;
             this.SizeRU = sample.SizeRU;
@@ -286,6 +294,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@packingtrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@pricetrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@producertrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@requesttrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@rowordertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@sizeentrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@sizerutrue", System.Data.SqlDbType.Bit)
@@ -313,6 +322,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@packing", System.Data.SqlDbType.NVarChar,50)
                 , new SqlParameter("@price", System.Data.SqlDbType.Money)
                 , new SqlParameter("@producer", System.Data.SqlDbType.NVarChar,100)
+                , new SqlParameter("@request", System.Data.SqlDbType.Int)
                 , new SqlParameter("@roworder", System.Data.SqlDbType.Int)
                 , new SqlParameter("@sizeen", System.Data.SqlDbType.NVarChar,10)
                 , new SqlParameter("@sizeru", System.Data.SqlDbType.NVarChar,100)
@@ -324,37 +334,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private Specification myspec;
         public Specification Specification
         { set { myspec = value; } get { return myspec; } }
-        public SQLFilter Filter { set; get; }
+        public lib.SQLFilter.SQLFilter Filter { set; get; }
 
         protected override SpecificationDetail CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-			return new SpecificationDetail(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
-                , reader.IsDBNull(reader.GetOrdinal("amount")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("amount"))
-                , reader.IsDBNull(reader.GetOrdinal("branch")) ? null : reader.GetString(reader.GetOrdinal("branch"))
-                , reader.IsDBNull(reader.GetOrdinal("brand")) ? null : reader.GetString(reader.GetOrdinal("brand"))
-                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? null : reader.GetString(reader.GetOrdinal("cellnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("certificate")) ? null : reader.GetString(reader.GetOrdinal("certificate"))
-                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.IsDBNull(reader.GetOrdinal("customerid")) ? 0 : reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out _)
-                , reader.IsDBNull(reader.GetOrdinal("contexture")) ? null : reader.GetString(reader.GetOrdinal("contexture"))
-                , reader.IsDBNull(reader.GetOrdinal("cost")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("cost"))
-                , reader.IsDBNull(reader.GetOrdinal("countryru")) ? null : reader.GetString(reader.GetOrdinal("countryru"))
-                , reader.IsDBNull(reader.GetOrdinal("countryen")) ? null : reader.GetString(reader.GetOrdinal("countryen"))
-                , reader.IsDBNull(reader.GetOrdinal("customer")) ? null : reader.GetString(reader.GetOrdinal("customer"))
-                , reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description"))
-                , reader.IsDBNull(reader.GetOrdinal("gender")) ? null : reader.GetString(reader.GetOrdinal("gender"))
-                , reader.IsDBNull(reader.GetOrdinal("grossweight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("grossweight"))
-                , reader.IsDBNull(reader.GetOrdinal("netweight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("netweight"))
-                , reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"))
-                , reader.IsDBNull(reader.GetOrdinal("note")) ? null : reader.GetString(reader.GetOrdinal("note"))
-                , reader.IsDBNull(reader.GetOrdinal("packing")) ? null : reader.GetString(reader.GetOrdinal("packing"))
-                , reader.IsDBNull(reader.GetOrdinal("price")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("price"))
-                , reader.IsDBNull(reader.GetOrdinal("producer")) ? null : reader.GetString(reader.GetOrdinal("producer"))
-                , reader.GetInt32(reader.GetOrdinal("roworder"))
-                , reader.IsDBNull(reader.GetOrdinal("sizeen")) ? null : reader.GetString(reader.GetOrdinal("sizeen"))
-                , reader.IsDBNull(reader.GetOrdinal("sizeru")) ? null : reader.GetString(reader.GetOrdinal("sizeru"))
-                , this.Specification ?? (reader.IsDBNull(reader.GetOrdinal("specificationid")) ? null : CustomBrokerWpf.References.SpecificationStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("specificationid")), addcon, out _))
-                , reader.IsDBNull(reader.GetOrdinal("tnved")) ? null : reader.GetString(reader.GetOrdinal("tnved"))
-                , reader.IsDBNull(reader.GetOrdinal("vendorcode")) ? null : reader.GetString(reader.GetOrdinal("vendorcode"))
+			return new SpecificationDetail(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
+                , reader.IsDBNull(this.Fields["amount"]) ? (int?)null : reader.GetInt32(this.Fields["amount"])
+                , reader.IsDBNull(this.Fields["branch"]) ? null : reader.GetString(this.Fields["branch"])
+                , reader.IsDBNull(this.Fields["brand"]) ? null : reader.GetString(this.Fields["brand"])
+                , reader.IsDBNull(this.Fields["cellnumber"]) ? null : reader.GetString(this.Fields["cellnumber"])
+                , reader.IsDBNull(this.Fields["certificate"]) ? null : reader.GetString(this.Fields["certificate"])
+                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.IsDBNull(this.Fields["customerid"]) ? 0 : reader.GetInt32(this.Fields["customerid"]), addcon, out _)
+                , reader.IsDBNull(this.Fields["contexture"]) ? null : reader.GetString(this.Fields["contexture"])
+                , reader.IsDBNull(this.Fields["cost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cost"])
+                , reader.IsDBNull(this.Fields["countryru"]) ? null : reader.GetString(this.Fields["countryru"])
+                , reader.IsDBNull(this.Fields["countryen"]) ? null : reader.GetString(this.Fields["countryen"])
+                , reader.IsDBNull(this.Fields["customer"]) ? null : reader.GetString(this.Fields["customer"])
+                , reader.IsDBNull(this.Fields["description"]) ? null : reader.GetString(this.Fields["description"])
+                , reader.IsDBNull(this.Fields["gender"]) ? null : reader.GetString(this.Fields["gender"])
+                , reader.IsDBNull(this.Fields["grossweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["grossweight"])
+                , reader.IsDBNull(this.Fields["netweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["netweight"])
+                , reader.IsDBNull(this.Fields["name"]) ? null : reader.GetString(this.Fields["name"])
+                , reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
+                , reader.IsDBNull(this.Fields["packing"]) ? null : reader.GetString(this.Fields["packing"])
+                , reader.IsDBNull(this.Fields["price"]) ? (decimal?)null : reader.GetDecimal(this.Fields["price"])
+                , reader.IsDBNull(this.Fields["producer"]) ? null : reader.GetString(this.Fields["producer"])
+                , reader.IsDBNull(this.Fields["request"]) ? null : CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["request"]), addcon, out _)
+                , reader.GetInt32(this.Fields["roworder"])
+                , reader.IsDBNull(this.Fields["sizeen"]) ? null : reader.GetString(this.Fields["sizeen"])
+                , reader.IsDBNull(this.Fields["sizeru"]) ? null : reader.GetString(this.Fields["sizeru"])
+                , this.Specification ?? (reader.IsDBNull(this.Fields["specificationid"]) ? null : CustomBrokerWpf.References.SpecificationStore.GetItemLoad(reader.GetInt32(this.Fields["specificationid"]), addcon, out _))
+                , reader.IsDBNull(this.Fields["tnved"]) ? null : reader.GetString(this.Fields["tnved"])
+                , reader.IsDBNull(this.Fields["vendorcode"]) ? null : reader.GetString(this.Fields["vendorcode"])
             );
         }
         protected override void GetOutputSpecificParametersValue(SpecificationDetail item)
@@ -444,6 +455,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@producertrue":
                         par.Value = item.HasPropertyOutdatedValue("Producer");
                         break;
+                    case "@requesttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.Request));
+                        break;
                     case "@rowordertrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.RowOrder));
                         break;
@@ -526,6 +540,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                     case "@roworder":
                         par.Value = item.RowOrder;
+                        break;
+                    case "@request":
+                        par.Value = item.Request?.Id;
                         break;
                     case "@sizeen":
                         par.Value = item.SizeEN;
@@ -837,6 +854,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             get { return this.IsEnabled ? this.DomainObject.Producer : null; }
         }
+        public Request Request
+        {
+            set
+            {
+                if (!(this.IsReadOnly || object.Equals(this.DomainObject.Request, value)))
+                {
+                    string name = "Request";
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Request);
+                    ChangingDomainProperty = name; this.DomainObject.Request = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.Request : null; }
+        }
         public int? RowOrder
         { get { return this.IsEnabled ? this.DomainObject.RowOrder : (int?)null; } }
         private bool myselected;
@@ -890,6 +921,37 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.Specification : null; }
+        }
+        public string StorePoint
+		{
+            set
+            {
+                if (!(this.IsReadOnly || string.Equals(this.DomainObject.Request.StorePoint, value)))
+                {
+                    string name = "Request";
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        if (!myUnchangedPropertyCollection.ContainsKey(name))
+                            this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Request);
+                        ChangingDomainProperty = name; this.DomainObject.Request = null;
+                    }
+                    else
+                    {
+                        Request request = CustomBrokerWpf.References.RequestStore.GetItemLoad(value, out List<lib.DBMError> errors);
+                        if (errors.Count > 0)
+                            AddErrorMessageForProperty(nameof(this.StorePoint), errors[0].Message);
+                        if (request == null)
+                            AddErrorMessageForProperty(nameof(this.StorePoint), "Не найдена заявка с позицией по складу " + value);
+                        else
+                        {
+                            if (!myUnchangedPropertyCollection.ContainsKey(name))
+                                this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Request);
+                            ChangingDomainProperty = name; this.DomainObject.Request = request;
+                        }
+                    }
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.Request?.StorePoint : null; }
         }
         public string TNVED
         {
@@ -981,7 +1043,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         internal SpecificationDetailViewCommand()
         {
-            myfilter = new SQLFilter("specdetail", "AND");
+            myfilter = new lib.SQLFilter.SQLFilter("specdetail", "AND", CustomBrokerWpf.References.ConnectionString);
             mysddbm = new SpecificationDetailDBM() { Filter = myfilter };
             mydbm = mysddbm;
             mysddbm.Collection = new System.Collections.ObjectModel.ObservableCollection<SpecificationDetail>();
@@ -1025,7 +1087,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myparcelfilter.FillDefault = () =>
             {
                 if (myfilter.isEmpty)
-                    foreach (Parcel item in myparcelfilter.DefaultList)
+                    foreach (ParcelNumber item in CustomBrokerWpf.References.ParcelNumbers)
                         myparcelfilter.Items.Add(item);
                 return myfilter.isEmpty;
             };
@@ -1088,8 +1150,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         private SpecificationDetailDBM mysddbm;
         private SpecificationDetailSynchronizer mysync;
-        private SQLFilter myfilter;
-        internal SQLFilter Filter
+        private lib.SQLFilter.SQLFilter myfilter;
+        internal lib.SQLFilter.SQLFilter Filter
         { get { return myfilter; } }
         private SpecificationDetailBranchFilter mybranchfilter;
         public SpecificationDetailBranchFilter BranchFilter
@@ -1191,7 +1253,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             {
                 string[] parcels = new string[myparcelfilter.SelectedItems.Count];
                 for (int i = 0; i < myparcelfilter.SelectedItems.Count; i++)
-                    parcels[i] = (myparcelfilter.SelectedItems[i] as Parcel).Id.ToString();
+                    parcels[i] = (myparcelfilter.SelectedItems[i] as ParcelNumber).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "parcel", parcels);
             }
             else
@@ -1219,7 +1281,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (!(mybranchfilter.FilterOn | mybrandfilter.FilterOn | myparcelfilter.FilterOn | myclientfilter.FilterOn | mycountryrufilter.FilterOn | mygenderfilter.FilterOn | mycertificatefilter.FilterOn))
                 this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора грузов!", false);
             else
-                mysddbm.FillAsync();
+                this.RefreshData(null);
         }
         private bool FilterRunCanExec(object parametr)
         { return true; }
@@ -1572,7 +1634,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (myfilter.isEmpty)
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             else
-                mysddbm.FillAsync();
+            { mysddbm.Errors.Clear(); mysddbm.FillAsync(); }
         }
         protected override void RejectChanges(object parametr)
         { }
@@ -1696,35 +1758,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (!Items.Contains(item.CountryRU)) Items.Add(item.CountryRU);
         }
     }
-    public class SpecificationDetailParcelNumberEntireFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, Parcel>
+    public class SpecificationDetailParcelNumberEntireFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, ParcelNumber>
     {
         internal SpecificationDetailParcelNumberEntireFilter() : base()
         {
-            this.DisplayPath = "ParcelNumberEntire";
-            this.SearchPath = "ParcelNumberEntire";
-            this.GetDisplayPropertyValueFunc = (item) => { return ((Parcel)item).ParcelNumberEntire; };
-        }
-
-        private List<Parcel> mydefaultlist;
-        internal List<Parcel> DefaultList
-        {
-            get
-            {
-                if (mydefaultlist == null)
-                {
-                    SQLFilter pfilter = new SQLFilter("parcel", "AND");
-                    ParcelDBM pdbm = new ParcelDBM();
-                    pdbm.Filter = pfilter.FilterWhereId;
-                    pdbm.Fill();
-                    mydefaultlist = pdbm.Collection.ToList<Parcel>();
-                }
-                return mydefaultlist;
-            }
+            this.DisplayPath = "FullNumber";
+            this.SearchPath = "Sort";
+            this.SortDescriptions.Add(new System.ComponentModel.SortDescription("Sort", System.ComponentModel.ListSortDirection.Descending));
+            this.GetDisplayPropertyValueFunc = (item) => { return ((ParcelNumber)item).FullNumber; };
         }
 
         protected override void AddItem(SpecificationDetailVM item)
         {
-            if (!Items.Contains(item.Specification.Parcel)) Items.Add(item.Specification.Parcel);
+            ParcelNumber name;
+            name = CustomBrokerWpf.References.ParcelNumbers.FindFirstItem("Id", item.Specification.Parcel.Id);
+            if (!Items.Contains(name)) Items.Add(name);
         }
     }
 }

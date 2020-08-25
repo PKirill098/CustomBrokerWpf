@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using excel = Microsoft.Office.Interop.Excel;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
+using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
 {
@@ -348,11 +349,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winStore") ObjectWin = item;
+                if (item.Name == "winReferenceSympleItem" && item.Title == "Склад") ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new StoreWin();
+                ObjectWin = new ReferenceSympleItemWin();
+                ObjectWin.Title = "Склад";
+                ObjectWin.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/CustomBrokerWpf;component/Images/forklifter.png"));
+                (ObjectWin as ReferenceSympleItemWin).CanAddRows = false;
+                (ObjectWin as ReferenceSympleItemWin).CanDeleteRows = false;
+                (ObjectWin as ReferenceSympleItemWin).SetDataContext(CustomBrokerWpf.References.Stores, false);
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -2055,7 +2061,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                             myparcelcmd.CurrentItem.Requests.EditItem(row);
                             row.DomainObject.Parcel = null;
                             row.DomainObject.Parcel = myparcelcmd.CurrentItem.DomainObject;
-                            row.Status = myparcelcmd.CurrentItem.Status;
+                            row.DomainObject.Status = myparcelcmd.CurrentItem.Status;
                             myparcelcmd.CurrentItem.Requests.CommitEdit();
                             myparcelcmd.CurrentItem.ParcelRequests.CommitEdit();
                         }
@@ -2092,7 +2098,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                             myparcelcmd.CurrentItem.Requests.EditItem(row);
                             row.DomainObject.ParcelId = null; // не устанавливать через Parcel не обновляется после Refresh
                             row.StoreInform = null;
-                            row.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 40);
+                            row.DomainObject.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 40);
                             myparcelcmd.CurrentItem.Requests.CommitEdit();
                             myparcelcmd.CurrentItem.ParcelRequests.CommitEdit();
                         }
@@ -2999,6 +3005,66 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     }
                 }
                 e.Handled = true;
+            }
+        }
+        #endregion
+
+        #region Account
+        private PaymentRegisterViewCommander mypaydcmd;
+        private PaymentRegisterViewCommander mypaytcmd;
+        private GTDRegisterViewCommander mygtddcmd;
+        private GTDRegisterViewCommander mygtdtcmd;
+        private GTDRegisterViewCommander myteodcmd;
+        private GTDRegisterViewCommander myteotcmd;
+
+        private void TabItem1_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (mypaydcmd == null)
+            {
+                mypaydcmd = new PaymentRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                mypaydcmd.IsReadOnly = true;
+                this.PaymentDeliveryGrid.DataContext = mypaydcmd;
+            }
+        }
+        private void TabItem2_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (mypaytcmd == null)
+            {
+                mypaytcmd = new PaymentRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                mypaytcmd.IsReadOnly = true;
+                this.PaymentTradeGrid.DataContext = mypaytcmd;
+            }
+        }
+        private void TabItem3_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (mygtddcmd == null)
+            {
+                mygtddcmd = new GTDRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2), "ТД");
+                this.GTDDeliveryGrid.DataContext = mygtddcmd;
+            }
+        }
+        private void TabItem4_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (mygtdtcmd == null)
+            {
+                mygtdtcmd = new GTDRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1), "ТД");
+                this.GTDTradeGrid.DataContext = mygtdtcmd;
+            }
+        }
+        private void TabItem5_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (myteodcmd == null)
+            {
+                myteodcmd = new GTDRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2), "ТЭО");
+                this.TEODeliveryGrid.DataContext = myteodcmd;
+            }
+        }
+        private void TabItem6_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (myteotcmd == null)
+            {
+                myteotcmd = new GTDRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1), "ТЭО");
+                this.TEOTradeGrid.DataContext = myteotcmd;
             }
         }
         #endregion

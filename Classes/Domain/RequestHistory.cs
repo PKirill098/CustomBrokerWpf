@@ -230,6 +230,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , null
                 , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("status")))
                 , reader.IsDBNull(reader.GetOrdinal("agentId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("agentId"))
+                , null
                 , reader.IsDBNull(reader.GetOrdinal("customerId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("customerId"))
                 , null
                 , reader.IsDBNull(reader.GetOrdinal("freight")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("freight"))
