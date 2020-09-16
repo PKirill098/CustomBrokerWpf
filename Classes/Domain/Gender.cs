@@ -170,8 +170,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[1].Value = item.ShortName;
             return item.Over?.DomainState != lib.DomainObjectState.Added;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        {}
     }
 
     public class GenderCollection : lib.ReferenceCollectionDomainBase<Gender>

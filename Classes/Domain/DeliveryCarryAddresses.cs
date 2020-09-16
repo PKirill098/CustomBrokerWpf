@@ -112,7 +112,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             base.SelectParams[0].Value = this.Carry?.Id;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 }

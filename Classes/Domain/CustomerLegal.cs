@@ -582,6 +582,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.Errors.Clear();
             this.Fill();
+            if (this.CancelingLoad) return;
             foreach (CustomerLegal item in this.Collection)
             {
                 if (!item.AliasesIsNull)
@@ -589,7 +590,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myadbm.Errors.Clear();
                     myadbm.ItemId = item.Id;
                     myadbm.Collection = item.Aliases;
-                    myadbm.Fill();
+                    if (!this.CancelingLoad) myadbm.Fill();
                     foreach (lib.DBMError err in myadbm.Errors) this.Errors.Add(err);
                 }
                 if (!item.CustomerAddressesIsNull)
@@ -597,7 +598,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mycdbm.Errors.Clear();
                     mycdbm.ItemId = item.Id;
                     mycdbm.Collection = item.Addresses;
-                    mycdbm.Fill();
+                    if (!this.CancelingLoad) mycdbm.Fill();
                     foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
                 }
                 if (!item.CustomerContactsIsNull)
@@ -605,7 +606,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myccdbm.Errors.Clear();
                     myccdbm.ItemId = item.Id;
                     myccdbm.Collection = item.Contacts;
-                    myccdbm.Fill();
+                    if (!this.CancelingLoad) myccdbm.Fill();
                     foreach (lib.DBMError err in myccdbm.Errors) this.Errors.Add(err);
                 }
                 if (!item.RecipientsIsNull)
@@ -613,16 +614,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myrdbm.Errors.Clear();
                     myrdbm.CustomerId = item.Id;
                     myrdbm.Collection = item.Recipients;
-                    myrdbm.Fill();
+                    if (!this.CancelingLoad) myrdbm.Fill();
                     foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
                 }
             }
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            //foreach (CustomerLegal item in this.Collection)
-            //    LoadObjects(item);
-            return this.Errors.Count == 0;
+            myadbm.CancelingLoad = this.CancelingLoad;
+            mycdbm.CancelingLoad = this.CancelingLoad;
+            myccdbm.CancelingLoad = this.CancelingLoad;
+            myrdbm.CancelingLoad = this.CancelingLoad;
         }
     }
 

@@ -745,14 +745,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             return item.Parcel.Id > 0 & (item.Request?.Id ?? 1) > 0;
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            bool success = true;
-            //foreach (Specification item in this.Collection)
-            //{
-            //    LoadObjects(item);
-            //}
-            return success;
         }
     }
 

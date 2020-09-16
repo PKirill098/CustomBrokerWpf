@@ -101,7 +101,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             this.InsertUpdateParams[0].Value = item.Value;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 }

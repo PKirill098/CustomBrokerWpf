@@ -620,25 +620,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             myagentstore = new Classes.Domain.AgentStore(new Classes.Domain.AgentDBM());
             myalgorithmconsolidatestore = new Classes.Domain.Algorithm.AlgorithmFormulaRequestConCommandStore();
+            mybranchstore = new Classes.Domain.BranchStore(new Classes.Domain.BranchDBM());
+            mycustomerstore = new Classes.Domain.CustomerStore(new Classes.Domain.CustomerDBM());
             mycustomerlegalstore = new Classes.Domain.CustomerLegalStore(new Classes.Domain.CustomerLegalDBM());
             mycustomsinvoicestore = new Classes.Domain.Account.CustomsInvoiceStore(new Classes.Domain.Account.CustomsInvoiceDBM());
             mydeliverycarrystore = new Classes.Domain.DeliveryCarryStore(new Classes.Domain.DeliveryCarryDBM());
             mydeliverycarstore = new Classes.Domain.DeliveryCarStore(new Classes.Domain.DeliveryCarDBM());
             myformulastorage = new Classes.Domain.Algorithm.FormulaStorage();
+            mygoodsstore = new Classes.Domain.GoodsStore(new Classes.Domain.GoodsDBM());
             myparcelstore = new Classes.Domain.ParcelStore(new Classes.Domain.ParcelDBM());
             myprepaystore = new Classes.Domain.Account.PrepayStore(new Classes.Domain.Account.PrepayDBM());
-            myrequestcustomerlegalstore = new Classes.Domain.RequestCustomerLegalStore(new Classes.Domain.RequestCustomerLegalDBM());
-            myrequeststore = new Classes.Domain.RequestStore(new Classes.Domain.RequestDBM());
-            myspecificationstore = new Classes.Specification.SpecificationStore(new Classes.Specification.SpecificationDBM());
             myprepayrequeststore=new Classes.Domain.Account.PrepayCustomerRequestStore(new Classes.Domain.Account.PrepayCustomerRequestDBM());
+            myrecipientstore = new Classes.Domain.RecipientStore(new Classes.Domain.RecipientDBM());
+            myrequeststore = new Classes.Domain.RequestStore(new Classes.Domain.RequestDBM());
+            myrequestcustomerlegalstore = new Classes.Domain.RequestCustomerLegalStore(new Classes.Domain.RequestCustomerLegalDBM());
+            myspecificationstore = new Classes.Specification.SpecificationStore(new Classes.Specification.SpecificationDBM());
         }
         static private Classes.Domain.AgentStore myagentstore;
         static internal Classes.Domain.AgentStore AgentStore
         {
             get
             {
-                if (myagentstore == null)
-                    myagentstore = new Classes.Domain.AgentStore(new Classes.Domain.AgentDBM());
                 return myagentstore;
             }
         }
@@ -647,8 +649,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myalgorithmconsolidatestore == null)
-                    myalgorithmconsolidatestore = new Classes.Domain.Algorithm.AlgorithmFormulaRequestConCommandStore();
                 return myalgorithmconsolidatestore;
             }
         }
@@ -657,23 +657,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mybranchstore == null)
-                {
-                    mybranchstore = new Classes.Domain.BranchStore(new Classes.Domain.BranchDBM());
-                }
                 return mybranchstore;
-            }
-        }
-        static private Classes.Domain.CustomerLegalStore mycustomerlegalstore;
-        static internal Classes.Domain.CustomerLegalStore CustomerLegalStore
-        {
-            get
-            {
-                if (mycustomerlegalstore == null)
-                {
-                    mycustomerlegalstore = new Classes.Domain.CustomerLegalStore(new Classes.Domain.CustomerLegalDBM());
-                }
-                return mycustomerlegalstore;
             }
         }
         static private Classes.Domain.CustomerStore mycustomerstore;
@@ -681,11 +665,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mycustomerstore == null)
-                {
-                    mycustomerstore = new Classes.Domain.CustomerStore(new Classes.Domain.CustomerDBM());
-                }
                 return mycustomerstore;
+            }
+        }
+        static private Classes.Domain.CustomerLegalStore mycustomerlegalstore;
+        static internal Classes.Domain.CustomerLegalStore CustomerLegalStore
+        {
+            get
+            {
+                return mycustomerlegalstore;
             }
         }
         static private Classes.Domain.Account.CustomsInvoiceStore mycustomsinvoicestore;
@@ -693,10 +681,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mycustomsinvoicestore == null)
-                {
-                    mycustomsinvoicestore = new Classes.Domain.Account.CustomsInvoiceStore(new Classes.Domain.Account.CustomsInvoiceDBM());
-                }
                 return mycustomsinvoicestore;
             }
         }
@@ -705,10 +689,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mydeliverycarrystore == null)
-                {
-                    mydeliverycarrystore = new Classes.Domain.DeliveryCarryStore(new Classes.Domain.DeliveryCarryDBM());
-                }
                 return mydeliverycarrystore;
             }
         }
@@ -717,10 +697,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mydeliverycarstore == null)
-                {
-                    mydeliverycarstore = new Classes.Domain.DeliveryCarStore(new Classes.Domain.DeliveryCarDBM());
-                }
                 return mydeliverycarstore;
             }
         }
@@ -729,10 +705,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myformulastorage == null)
-                {
-                    myformulastorage = new Classes.Domain.Algorithm.FormulaStorage();
-                }
                 return myformulastorage;
             }
         }
@@ -741,10 +713,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (mygoodsstore == null)
-                {
-                    mygoodsstore = new Classes.Domain.GoodsStore(new Classes.Domain.GoodsDBM());
-                }
                 return mygoodsstore;
             }
         }
@@ -753,10 +721,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myparcelstore == null)
-                {
-                    myparcelstore = new Classes.Domain.ParcelStore(new Classes.Domain.ParcelDBM());
-                }
                 return myparcelstore;
             }
         }
@@ -765,10 +729,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myprepaystore == null)
-                {
-                    myprepaystore = new Classes.Domain.Account.PrepayStore(new Classes.Domain.Account.PrepayDBM());
-                }
                 return myprepaystore;
             }
         }
@@ -777,10 +737,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myprepayrequeststore == null)
-                {
-                    myprepayrequeststore = new Classes.Domain.Account.PrepayCustomerRequestStore(new Classes.Domain.Account.PrepayCustomerRequestDBM());
-                }
                 return myprepayrequeststore;
             }
         }
@@ -789,10 +745,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myrecipientstore == null)
-                {
-                    myrecipientstore = new Classes.Domain.RecipientStore(new Classes.Domain.RecipientDBM());
-                }
                 return myrecipientstore;
             }
         }
@@ -801,10 +753,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myrequeststore == null)
-                {
-                    myrequeststore = new Classes.Domain.RequestStore(new Classes.Domain.RequestDBM());
-                }
                 return myrequeststore;
             }
         }
@@ -813,10 +761,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myrequestcustomerlegalstore == null)
-                {
-                    myrequestcustomerlegalstore = new Classes.Domain.RequestCustomerLegalStore(new Classes.Domain.RequestCustomerLegalDBM());
-                }
                 return myrequestcustomerlegalstore;
             }
         }
@@ -825,10 +769,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             get
             {
-                if (myspecificationstore == null)
-                {
-                    myspecificationstore = new Classes.Specification.SpecificationStore(new Classes.Specification.SpecificationDBM());
-                }
                 return myspecificationstore;
             }
         }

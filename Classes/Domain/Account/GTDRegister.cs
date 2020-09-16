@@ -13,6 +13,8 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using Microsoft.Win32;
+using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
+using System.Windows.Navigation;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -85,9 +87,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
         public decimal? Profit
-        { get { return this.SellingWithoutRate - this.CostTotal; } }
+        { get { return this.SellingWithoutRate - (myservicetype == "ТД" ? this.CostTotal : this.CostLogistics); } }
         public decimal? Profitability
-        { get { return this.Profit.HasValue & this.SellingWithoutRate.HasValue ? decimal.Divide(this.Profit.Value, this.SellingWithoutRate.Value) : (decimal?)null; } }
+        { get { return this.Profit.HasValue && (this.SellingWithoutRate??0M) != 0M ? decimal.Divide(this.Profit.Value, this.SellingWithoutRate.Value) : (decimal?)null; } }
         public decimal? ProfitAlgE
         { get { return myservicetype == "ТД" ? myclients.Sum((GTDRegisterClient item) => { return item.ProfitAlgE; }) : (decimal?)null; } }
         public decimal? ProfitAlgR
@@ -153,6 +155,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     item.PropertyChanged += this.Client_PropertyChanged;
             }
             get { return myclients; }
+        }
+        
+        public override bool IsDirty
+        {
+            get
+            {
+                bool dirty = base.IsDirty;
+                if (!dirty && myspec != null)
+                    dirty |= myspec.IsDirty;
+                if (!dirty && myclients != null)
+                    foreach (GTDRegisterClient item in myclients)
+                        if (item.IsDirty)
+                        { dirty = true; break; }
+                return dirty;
+            }
         }
 
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
@@ -393,50 +410,50 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override GTDRegister CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon, out errors);
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
             this.Errors.AddRange(errors);
             Declaration declaration = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("declarationid")))
+            if (!reader.IsDBNull(this.Fields["declarationid"]))
             {
                 mytddbm.Errors.Clear();
                 mytddbm.Command.Connection = addcon;
-                mytddbm.ItemId = reader.GetInt32(reader.GetOrdinal("declarationid"));
+                mytddbm.ItemId = reader.GetInt32(this.Fields["declarationid"]);
                 declaration = mytddbm.GetFirst();
             }
             errors.Clear();
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon, out errors);
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
             this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("requestid")))
+            if (!reader.IsDBNull(this.Fields["requestid"]))
             {
                 errors.Clear();
-                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors);
                 this.Errors.AddRange(errors);
             }
 
-            Specification.Specification spec = new Specification.Specification(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
+            Specification.Specification spec = new Specification.Specification(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
                 , agent
-                , reader.IsDBNull(reader.GetOrdinal("consolidate")) ? null : reader.GetString(reader.GetOrdinal("consolidate"))
+                , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
                 , declaration
-                , reader.IsDBNull(reader.GetOrdinal("filepath")) ? null : reader.GetString(reader.GetOrdinal("filepath"))
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("importerid")))
+                , reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
+                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
                 , parcel
-                , reader.IsDBNull(reader.GetOrdinal("parcelgroup")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("parcelgroup"))
+                , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
                 , request
-                , reader.IsDBNull(reader.GetOrdinal("pari")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("pari"))
-                , reader.IsDBNull(reader.GetOrdinal("gtls")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtls"))
-                , reader.IsDBNull(reader.GetOrdinal("gtlscur")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtlscur"))
-                , reader.IsDBNull(reader.GetOrdinal("gtlsrate")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtlsrate"))
-                , reader.IsDBNull(reader.GetOrdinal("ddspidy")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("ddspidy"))
-                , reader.IsDBNull(reader.GetOrdinal("westgate")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("westgate"))
-                , reader.IsDBNull(reader.GetOrdinal("mfk")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("mfk"))
-                , reader.IsDBNull(reader.GetOrdinal("amount")) ? 0 : reader.GetInt32(reader.GetOrdinal("amount"))
-                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? 0 : (int)reader.GetDecimal(reader.GetOrdinal("cellnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("clientsumdiff")) ? 0M : reader.GetDecimal(reader.GetOrdinal("clientsumdiff"))
-                , reader.IsDBNull(reader.GetOrdinal("cost")) ? 0M : reader.GetDecimal(reader.GetOrdinal("cost"))
-                , reader.IsDBNull(reader.GetOrdinal("fondsum")) ? 0M : reader.GetDecimal(reader.GetOrdinal("fondsum"))
-                , reader.IsDBNull(reader.GetOrdinal("grossweight")) ? 0M : reader.GetDecimal(reader.GetOrdinal("grossweight"))
-                , reader.IsDBNull(reader.GetOrdinal("netweight")) ? 0M : reader.GetDecimal(reader.GetOrdinal("netweight"))
+                , reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
+                , reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
+                , reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
+                , reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
+                , reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
+                , reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
+                , reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
+                , reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
+                , reader.IsDBNull(this.Fields["cellnumber"]) ? 0 : (int)reader.GetDecimal(this.Fields["cellnumber"])
+                , reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
+                , reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
+                , reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
+                , reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
+                , reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
                 );
             spec = CustomBrokerWpf.References.SpecificationStore.UpdateItem(spec);
             spec.InvoiceDTRates.Clear();
@@ -446,13 +463,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             if (myratedbm.Errors.Count > 0) foreach (lib.DBMError err in myratedbm.Errors) this.Errors.Add(err);
             GTDRegister gtd = new GTDRegister(spec.Id, spec.Stamp, spec.UpdateWhen, spec.UpdateWho, spec.DomainState, spec, myservicetype, true);
             //foreach (GTDRegisterClient client in gtd.Clients) client.Unbind();
-            if (mycdbm != null)
+            if (!this.CancelingLoad & mycdbm != null)
             {
                 mycdbm.Errors.Clear();
                 mycdbm.Command.Connection = addcon;
                 mycdbm.GTD = gtd;
                 mycdbm.Collection = gtd.Clients;
-                mycdbm.Fill();
+                if (!this.CancelingLoad) mycdbm.Fill();
                 mycdbm.Collection = null;
                 if (mycdbm.Errors.Count > 0) foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
             }
@@ -574,18 +591,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             return true;
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            bool success = true;
-            //foreach (GTDRegister item in this.Collection)
-            //{
-            //    LoadObjects(item);
-            //}
-            return success;
+            if(mycdbm!=null) mycdbm.CancelingLoad = this.CancelingLoad;
+            mypldbm.CancelingLoad = this.CancelingLoad;
+            mysdbm.CancelingLoad = this.CancelingLoad;
+            mytddbm.CancelingLoad = this.CancelingLoad;
+            myratedbm.CancelingLoad = this.CancelingLoad;
         }
     }
 
-    public class GTDRegisterVM : lib.ViewModelErrorNotifyItem<GTDRegister>
+    public class GTDRegisterVM : lib.ViewModelErrorNotifyItem<GTDRegister>, ITotalValuesItem
     {
         internal GTDRegisterVM(GTDRegister model) : base(model)
         {
@@ -699,6 +715,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return myclients; } }
         internal Predicate<object> ClientsFilter
         { set { myclients.Filter = value; } }
+
+        public bool ProcessedIn { get; set; }
+        public bool ProcessedOut { get; set; }
+        private bool myselected;
+        public bool Selected 
+        {
+            set
+            {
+                bool oldvalue = myselected; myselected = value; this.OnValueChanged("Selected", oldvalue, value);
+                this.PropertyChangedNotification(nameof(this.Selected));
+            }
+            get { return myselected; }
+        }
 
         protected override bool DirtyCheckProperty()
         {
@@ -975,6 +1004,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         private GTDRegisterDBM mymaindbm;
         private GTDRegisterSynchronizer mysync;
+        private Task myrefreshtask;
         internal Importer Importer
         { get { return mymaindbm.Importer; } }
         internal string ServiceType
@@ -1401,10 +1431,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public bool ClientsFilter(object item)
         {
             bool where = true;
-            GTDRegisterClientVM client = item as GTDRegisterClientVM;
             if (where & myclientfilter.FilterOn)
             {
                 where = false;
+                GTDRegisterClientVM client = item as GTDRegisterClientVM;
                 foreach (CustomerLegal nameitem in myclientfilter.SelectedItems)
                     if (client.Client.DomainObject == nameitem)
                     {
@@ -1948,7 +1978,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override bool CanRefreshData()
         {
-            return true;
+            return myrefreshtask!=null && myrefreshtask.IsCompleted;
         }
         protected override bool CanRejectChanges()
         {
@@ -1982,7 +2012,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             else
             {
                 foreach (GTDRegister item in mymaindbm.Collection) item.Unbind();
-                mymaindbm.FillAsync();
+                myrefreshtask=mymaindbm.FillAsync();
             }
         }
         protected override void SettingView()
@@ -2071,4 +2101,186 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
     }
+
+    //public class GTDRegisterTotal : lib.TotalCollectionValues<GTDRegisterVM>
+    //{
+    //    internal GTDRegisterTotal(ListCollectionView view) : base(view)
+    //    {
+    //        //myinitselected = 2; // if not selected - sum=0
+    //    }
+
+    //    private int myitemcount;
+    //    public int ItemCount { set { myitemcount = value; } get { return myitemcount; } }
+    //    private decimal myprepayrubsum;
+    //    public decimal PrepayRubSum { set { myprepayrubsum = value; } get { return myprepayrubsum; } }
+    //    private decimal myprepayeurosum;
+    //    public decimal PrepayEuroSum { set { myprepayeurosum = value; } get { return myprepayeurosum; } }
+    //    private decimal mycurrencypaysum;
+    //    public decimal CurrencyPaySum { set { mycurrencypaysum = value; } get { return mycurrencypaysum; } }
+    //    private decimal mydtsum;
+    //    public decimal DTSum { set { mydtsum = value; } get { return mydtsum; } }
+    //    private decimal mycustomsinvoicerubsum;
+    //    public decimal CustomsInvoiceRubSum { set { mycustomsinvoicerubsum = value; } get { return mycustomsinvoicerubsum; } }
+    //    private decimal myfinalinvoicerubsum;
+    //    public decimal FinalInvoiceRubSum { set { myfinalinvoicerubsum = value; } get { return myfinalinvoicerubsum; } }
+    //    private decimal myfinalinvoicerubsumpaid;
+    //    public decimal FinalInvoiceRubSumPaid { set { myfinalinvoicerubsumpaid = value; } get { return myfinalinvoicerubsumpaid; } }
+    //    private decimal myfinalinvoicecursum;
+    //    public decimal FinalInvoiceCurSum { set { myfinalinvoicecursum = value; } get { return myfinalinvoicecursum; } }
+    //    private decimal myfinalinvoicecur2sum;
+    //    public decimal FinalInvoiceCur2Sum { set { myfinalinvoicecur2sum = value; } get { return myfinalinvoicecur2sum; } }
+    //    private decimal mycustomerbalance;
+    //    public decimal CustomerBalance { set { mycustomerbalance = value; } get { return mycustomerbalance; } }
+    //    private decimal myoverpay;
+    //    public decimal OverPay { set { myoverpay = value; } get { return myoverpay; } }
+    //    private decimal myrefund;
+    //    public decimal Refund { set { myrefund = value; } get { return myrefund; } }
+    //    private decimal myrubdiff;
+    //    public decimal RubDiff { set { myrubdiff = value; } get { return myrubdiff; } }
+    //    private decimal myselling;
+    //    public decimal Selling { set { myselling = value; } get { return myselling; } }
+    //    public decimal SellingRate { get { return myselling * 20M / 120M; } }
+    //    public decimal SellingWithoutRate { get { return myselling - this.SellingRate; } }
+
+    //    protected override void Item_ValueChangedHandler(GTDRegisterVM sender, ValueChangedEventArgs<object> e)
+    //    {
+    //        decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M);
+    //        switch (e.PropertyName)
+    //        {
+    //            case nameof(PrepayCustomerRequestVM.CurrencyPaySum):
+    //                mycurrencypaysum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.CurrencyPaySum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.CustomerBalance):
+    //                mycustomerbalance += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.CustomerBalance));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.CustomsInvoiceRubSum):
+    //                mycustomsinvoicerubsum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.CustomsInvoiceRubSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.DTSum):
+    //                mydtsum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.DTSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.EuroSum):
+    //                myprepayeurosum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.PrepayEuroSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.FinalInvoiceRubSum):
+    //                myfinalinvoicerubsum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.FinalInvoiceRubSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.FinalInvoiceRubSumPaid):
+    //                myfinalinvoicerubsumpaid += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.FinalInvoiceRubSumPaid));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.FinalInvoiceCurSum):
+    //                myfinalinvoicecursum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.FinalInvoiceCurSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.FinalInvoiceCurSum2):
+    //                myfinalinvoicecur2sum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.FinalInvoiceCur2Sum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.OverPay):
+    //                myoverpay += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.OverPay));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.Refund):
+    //                myrefund += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.Refund));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.RubDiff):
+    //                myrubdiff += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.RubDiff));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.RubSum):
+    //                myprepayrubsum += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.PrepayRubSum));
+    //                break;
+    //            case nameof(PrepayCustomerRequestVM.Selling):
+    //                myselling += newvalue - oldvalue;
+    //                PropertyChangedNotification(nameof(this.Selling));
+    //                PropertyChangedNotification(nameof(this.SellingRate));
+    //                PropertyChangedNotification(nameof(this.SellingWithoutRate));
+    //                break;
+    //        }
+    //    }
+    //    protected override void ValuesReset()
+    //    {
+    //        myitemcount = 0;
+    //        myprepayrubsum = 0M;
+    //        myprepayeurosum = 0M;
+    //        mycurrencypaysum = 0M;
+    //        mydtsum = 0M;
+    //        mycustomsinvoicerubsum = 0M;
+    //        myselling = 0M;
+    //        myfinalinvoicerubsum = 0M;
+    //        myfinalinvoicerubsumpaid = 0M;
+    //        myfinalinvoicecursum = 0M;
+    //        myfinalinvoicecur2sum = 0M;
+    //        mycustomerbalance = 0M;
+    //        myoverpay = 0M;
+    //        myrefund = 0M;
+    //        myrubdiff = 0M;
+    //    }
+    //    protected override void ValuesPlus(GTDRegisterVM item)
+    //    {
+    //        myitemcount++;
+    //        mycurrencypaysum += item.CurrencyPaySum ?? 0M;
+    //        mycustomerbalance += item.CustomerBalance ?? 0M;
+    //        mycustomsinvoicerubsum += item.CustomsInvoiceRubSum ?? 0M;
+    //        mydtsum += item.DTSum ?? 0M;
+    //        myfinalinvoicecursum += item.FinalInvoiceCurSum ?? 0M;
+    //        myfinalinvoicecur2sum += item.FinalInvoiceCurSum2 ?? 0M;
+    //        myfinalinvoicerubsum += item.FinalInvoiceRubSum ?? 0M;
+    //        myfinalinvoicerubsumpaid += item.FinalInvoiceRubSumPaid ?? 0M;
+    //        myoverpay += item.OverPay ?? 0M;
+    //        myprepayeurosum += item.EuroSum ?? 0M;
+    //        myprepayrubsum += item.RubSum ?? 0M;
+    //        myrefund += item.Refund ?? 0M;
+    //        myrubdiff += item.RubDiff ?? 0M;
+    //        myselling += item.Selling ?? 0M;
+    //    }
+    //    protected override void ValuesMinus(GTDRegisterVM item)
+    //    {
+    //        myitemcount--;
+    //        mycurrencypaysum -= item.CurrencyPaySum ?? 0M;
+    //        mycustomerbalance -= item.CustomerBalance ?? 0M;
+    //        mycustomsinvoicerubsum -= item.CustomsInvoiceRubSum ?? 0M;
+    //        mydtsum -= item.DTSum ?? 0M;
+    //        myfinalinvoicecursum -= item.FinalInvoiceCurSum ?? 0M;
+    //        myfinalinvoicecur2sum -= item.FinalInvoiceCurSum2 ?? 0M;
+    //        myfinalinvoicerubsum -= item.FinalInvoiceRubSum ?? 0M;
+    //        myfinalinvoicerubsumpaid -= item.FinalInvoiceRubSumPaid ?? 0M;
+    //        myoverpay -= item.OverPay ?? 0M;
+    //        myprepayeurosum -= item.EuroSum ?? 0M;
+    //        myprepayrubsum -= item.RubSum ?? 0M;
+    //        myrefund -= item.Refund ?? 0M;
+    //        myrubdiff -= item.RubDiff ?? 0M;
+    //        myselling -= item.Selling ?? 0M;
+    //    }
+    //    protected override void PropertiesChangedNotifycation()
+    //    {
+    //        this.PropertyChangedNotification("ItemCount");
+    //        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+    //        this.PropertyChangedNotification(nameof(this.CustomerBalance));
+    //        this.PropertyChangedNotification(nameof(this.CustomsInvoiceRubSum));
+    //        this.PropertyChangedNotification(nameof(this.DTSum));
+    //        this.PropertyChangedNotification(nameof(this.FinalInvoiceCurSum));
+    //        this.PropertyChangedNotification(nameof(this.FinalInvoiceCur2Sum));
+    //        this.PropertyChangedNotification(nameof(this.FinalInvoiceRubSum));
+    //        this.PropertyChangedNotification(nameof(this.FinalInvoiceRubSumPaid));
+    //        this.PropertyChangedNotification(nameof(this.OverPay));
+    //        this.PropertyChangedNotification(nameof(this.PrepayEuroSum));
+    //        this.PropertyChangedNotification(nameof(this.PrepayRubSum));
+    //        this.PropertyChangedNotification(nameof(this.Refund));
+    //        this.PropertyChangedNotification(nameof(this.RubDiff));
+    //        this.PropertyChangedNotification(nameof(this.Selling));
+    //        PropertyChangedNotification(nameof(this.SellingRate));
+    //        PropertyChangedNotification(nameof(this.SellingWithoutRate));
+    //    }
+    //}
+
 }

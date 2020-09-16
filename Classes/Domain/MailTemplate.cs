@@ -163,8 +163,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[5].Value = item.Delay;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class MailTemplateVM : lib.ViewModelErrorNotifyItem<MailTemplate>

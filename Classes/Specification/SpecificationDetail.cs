@@ -560,9 +560,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (!(item.Specification.Id > 0)) this.Errors.Add(new lib.DBMError(item, "Спецификация не сохранена", "specnew"));
             return item.Specification.Id > 0;
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return this.Errors.Count == 0;
         }
     }
 

@@ -148,9 +148,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(PrepayCurrencyPay item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(PrepayCurrencyPay item)
         {
@@ -221,9 +220,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         break;
                 }
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return this.Errors.Count == 0;
         }
     }
 
@@ -468,7 +466,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     if (mymaindbm.Prepay.EuroSum - mymaindbm.Prepay.CurrencyPaySum - balance < 0.0099M)
                     {
                         DateTime maxdate = mymaindbm.Prepay.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.PayDate : DateTime.MinValue; }).Date;
-                        mymaindbm.Prepay.CurrencyPaidDate = maxdate;
+                        if(maxdate != DateTime.MinValue) mymaindbm.Prepay.CurrencyPaidDate = maxdate;
                     }
                 }
             }
@@ -591,7 +589,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         if (item.DomainObject.Prepay.EuroSum - item.DomainObject.Prepay.CurrencyPaySum - (item.DomainObject as CurrencyPay).Credit < 0.0099M)
                         {
                             DateTime maxdate = item.DomainObject.Prepay.CurrencyPays.Max((PrepayCurrencyPay pay) => { return pay.DomainState < lib.DomainObjectState.Deleted ? pay.PayDate : DateTime.MinValue; }).Date;
-                            item.DomainObject.Prepay.CurrencyPaidDate = maxdate;
+                            if (maxdate != DateTime.MinValue) item.DomainObject.Prepay.CurrencyPaidDate = maxdate;
                         }
                     }
                     item.DomainObject.Prepay.PropertyChangedNotification(nameof(Prepay.CurrencyPaidDate));

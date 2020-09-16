@@ -38,8 +38,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class ColorCollection : lib.ReferenceCollectionDomainBase<Color>

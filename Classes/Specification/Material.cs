@@ -210,8 +210,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[4].Value = string.IsNullOrEmpty(item.TNVEDGroup) ? DBNull.Value : (object)item.TNVEDGroup;
             return item.Upper?.DomainState != lib.DomainObjectState.Added;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class MaterialCollection : lib.ReferenceCollectionDomainBase<Material>

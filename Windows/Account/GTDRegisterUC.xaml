@@ -119,7 +119,7 @@
 								<DataGridTextColumn Binding="{Binding Path=VAT, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 								<DataGridTextColumn Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 								<DataGridTextColumn Binding="{Binding Path=BuyRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
-								<DataGridTextColumn SortMemberPath="DTSumRub"/>
+                                <DataGridTextColumn SortMemberPath="DTSumRub" IsReadOnly="True"/>
 								<DataGridTextColumn Binding="{Binding Path=CC, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 								<DataGridTextColumn Binding="{Binding Path=Pari, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 								<DataGridTextColumn Binding="{Binding Path=SL, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}"/>

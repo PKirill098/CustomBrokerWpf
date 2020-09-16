@@ -259,8 +259,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void GetOutputSpecificParametersValue(Mapping item)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class MappingVM : lib.ViewModelErrorNotifyItem<Mapping>

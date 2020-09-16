@@ -627,6 +627,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         #endregion
 
+        RequestDBM myrdbm;
         private ObservableCollection<Request> myrequests;
         public ObservableCollection<Request> Requests
         {
@@ -634,14 +635,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (myrequests == null)
                 {
-                    RequestDBM rdbm = new RequestDBM();
-                    rdbm.Parcel = this.Id;
+                    myrdbm = new RequestDBM();
+                    myrdbm.Parcel = this.Id;
+                    myrdbm.FillType = lib.FillType.PrefExist;
                     myrequestsloaded = false;
-                    rdbm.FillAsyncCompleted = () =>
+                    myrdbm.FillAsyncCompleted = () =>
                     {
-                        if (rdbm.Errors.Count > 0) throw new Exception(rdbm.ErrorMessage);
+                        if (myrdbm.Errors.Count > 0) throw new Exception(myrdbm.ErrorMessage);
                         else
                         {
+                            myrdbm = null;
                             myrequests.CollectionChanged += Requests_CollectionChanged;
                             Count();
                             ForegroundNotifyChanged();
@@ -651,10 +654,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             myrequestsloaded = true;
                             this.PropertyChangedNotification(nameof(this.Requests));
                             this.PropertyChangedNotification(nameof(this.RequestsIsNull));
+                            this.PropertyChangedNotification(nameof(this.RequestsIsLoaded));
                         }
                     };
-                    rdbm.FillAsync();
-                    myrequests = rdbm.Collection;
+                    myrdbm.FillAsync();
+                    myrequests = myrdbm.Collection;
                 }
                 return myrequests;
             }
@@ -833,37 +837,37 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             this.Carrier = newitem.Carrier;
             this.CarrierPerson = newitem.CarrierPerson;
-            if (!this.HasPropertyOutdatedValue("CarrierTel")) this.CarrierTel = newitem.CarrierTel;
-            if (!this.HasPropertyOutdatedValue("CrossedBorder")) this.CrossedBorder = newitem.CrossedBorder;
-            if (!this.HasPropertyOutdatedValue("Declaration")) this.Declaration = newitem.Declaration;
-            if (!this.HasPropertyOutdatedValue("DocDirPath")) this.DocDirPath = newitem.DocDirPath;
-            if (!this.HasPropertyOutdatedValue("GoodsType")) this.GoodsType = newitem.GoodsType;
-            if (!this.HasPropertyOutdatedValue("Lorry")) this.Lorry = newitem.Lorry;
-            if (!this.HasPropertyOutdatedValue("LorryRegNum")) this.LorryRegNum = newitem.LorryRegNum;
-            if (!this.HasPropertyOutdatedValue("LorryTonnage")) this.LorryTonnage = newitem.LorryTonnage;
-            if (!this.HasPropertyOutdatedValue("LorryVIN")) this.LorryVIN = newitem.LorryVIN;
-            if (!this.HasPropertyOutdatedValue("LorryVolume")) this.LorryVolume = newitem.LorryVolume;
+            this.CarrierTel = newitem.CarrierTel;
+            this.CrossedBorder = newitem.CrossedBorder;
+            this.Declaration = newitem.Declaration;
+            this.DocDirPath = newitem.DocDirPath;
+            this.GoodsType = newitem.GoodsType;
+            this.Lorry = newitem.Lorry;
+            this.LorryRegNum = newitem.LorryRegNum;
+            this.LorryTonnage = newitem.LorryTonnage;
+            this.LorryVIN = newitem.LorryVIN;
+            this.LorryVolume = newitem.LorryVolume;
             this.ParcelNumber = newitem.ParcelNumber;
-            if (!this.HasPropertyOutdatedValue("ParcelType")) this.ParcelType = newitem.ParcelType;
-            if (!this.HasPropertyOutdatedValue("RateDate")) this.RateDate = newitem.RateDate;
-            if (!this.HasPropertyOutdatedValue("Prepared")) this.Prepared = newitem.Prepared;
-            if (!this.HasPropertyOutdatedValue("ShipDate")) this.ShipDate = newitem.ShipDate;
-            if (!this.HasPropertyOutdatedValue("ShipPlanDate")) this.ShipPlanDate = newitem.ShipPlanDate;
-            if (!this.HasPropertyOutdatedValue("ShipmentNumber")) this.ShipmentNumber = newitem.ShipmentNumber;
-            if (!this.HasPropertyOutdatedValue("Status")) this.Status = newitem.Status;
-            if (!this.HasPropertyOutdatedValue("TerminalIn")) this.TerminalIn = newitem.TerminalIn;
-            if (!this.HasPropertyOutdatedValue("TerminalOut")) this.TerminalOut = newitem.TerminalOut;
-            if (!this.HasPropertyOutdatedValue("TrailerRegNum")) this.TrailerRegNum = newitem.TrailerRegNum;
-            if (!this.HasPropertyOutdatedValue("TrailerVIN")) this.TrailerVIN = newitem.TrailerVIN;
-            if (!this.HasPropertyOutdatedValue("Trucker")) this.Trucker = newitem.Trucker;
-            if (!this.HasPropertyOutdatedValue("TruckerTel")) this.TruckerTel = newitem.TruckerTel;
-            if (!this.HasPropertyOutdatedValue("Unloaded")) this.Unloaded = newitem.Unloaded;
-            if (!this.HasPropertyOutdatedValue("UsdRate")) this.UsdRate = newitem.UsdRate;
+            this.ParcelType = newitem.ParcelType;
+            this.RateDate = newitem.RateDate;
+            this.Prepared = newitem.Prepared;
+            this.ShipDate = newitem.ShipDate;
+            this.ShipPlanDate = newitem.ShipPlanDate;
+            this.ShipmentNumber = newitem.ShipmentNumber;
+            this.Status = newitem.Status;
+            this.TerminalIn = newitem.TerminalIn;
+            this.TerminalOut = newitem.TerminalOut;
+            this.TrailerRegNum = newitem.TrailerRegNum;
+            this.TrailerVIN = newitem.TrailerVIN;
+            this.Trucker = newitem.Trucker;
+            this.TruckerTel = newitem.TruckerTel;
+            this.Unloaded = newitem.Unloaded;
+            this.UsdRate = newitem.UsdRate;
 
-            if (!this.HasPropertyOutdatedValue("DeliveryPrice")) this.DeliveryPrice = newitem.DeliveryPrice;
-            if (!this.HasPropertyOutdatedValue("InsurancePrice")) this.InsurancePrice = newitem.InsurancePrice;
-            if (!this.HasPropertyOutdatedValue("TDeliveryPrice")) this.TDeliveryPrice = newitem.TDeliveryPrice;
-            if (!this.HasPropertyOutdatedValue("TInsurancePrice")) this.TInsurancePrice = newitem.TInsurancePrice;
+            this.DeliveryPrice = newitem.DeliveryPrice;
+            this.InsurancePrice = newitem.InsurancePrice;
+            this.TDeliveryPrice = newitem.TDeliveryPrice;
+            this.TInsurancePrice = newitem.TInsurancePrice;
         }
     }
 
@@ -1031,8 +1035,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
                 , reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
                 );
-            newitem = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem);
-            if (!newitem.RequestsIsNull)
+            newitem = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem,this.FillType==lib.FillType.Refresh);
+            if (!(newitem.RequestsIsNull | this.CancelingLoad))
             {
                 myrdbm.Command.Connection = addcon;
                 if (mydispatcher.Thread.ManagedThreadId == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
@@ -1322,15 +1326,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { myrdbm.CancelingLoad = this.CancelingLoad; }
 
         private void RequestsRefresh(Parcel parcel)
         {
             myrdbm.Errors.Clear();
             myrdbm.Parcel = parcel.Id;
+            myrdbm.FillType = this.FillType;
             //myrdbm.FillAsyncCompleted = () => { if (myrdbm.Errors.Count > 0) foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err); else foreach (Request ritem in myrdbm.Collection) if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem); };
-            myrdbm.FillType = lib.FillType.Refresh;
             myrdbm.Fill();
             if (myrdbm.Errors.Count > 0)
                 foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
@@ -2191,7 +2195,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 return myrequests;
             }
-
         }
         private ListCollectionView myparcelrequests;
         public ListCollectionView ParcelRequests
@@ -2292,6 +2295,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "MailStateUnLoaded":
                     PropertyChangedNotification("UnloadedMailImage");
+                    break;
+                case nameof(Parcel.Requests):
+                    PropertyChangedNotification(nameof(this.ParcelRequests));
                     break;
             }
         }
@@ -2472,11 +2478,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mypdbm = new ParcelDBM();
             mydbm = mypdbm;
             mypdbm.Filter = myfilter.FilterWhereId;
-            mypdbm.Fill();
+            mypdbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); else mypdbm.FillType = lib.FillType.Refresh; SettingView(); };
+            mypdbm.FillAsync();
             base.Collection = mypdbm.Collection;
             base.DeleteQuestionHeader = "Удалить перевозку?";
-            myview.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Descending));
-            myview.MoveCurrentToFirst();
+            
             myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
             mysetstoreinform = new RelayCommand(SetStoreInformExec, SetStoreInformCanExec);
             mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
@@ -3042,7 +3048,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.CurrentItem.Specifications.CommitEdit();
         }
         private bool SpecDelCanExec(object parametr)
-        { return this.CurrentItem != null && this.CurrentItem.Specifications.CurrentItem != null; }
+        { return false/* this.CurrentItem != null && this.CurrentItem.Specifications.CurrentItem != null*/; }
 
         private RelayCommand mytdload;
         public ICommand TDLoad
@@ -3253,7 +3259,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 mypdbm.Errors.Clear();
                 if (!mypdbm.CheckGroup())
-                    foreach (lib.DBMError erm in mydbm.Errors)
+                    foreach (lib.DBMError erm in mypdbm.Errors)
                     {
                         err.AppendLine(erm.Message);
                         if (erm.Code != "group")
@@ -3288,7 +3294,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     err.AppendLine(mydbm.ErrorMessage);
                 }
                 if (!mypdbm.CheckGroup())
-                    foreach (lib.DBMError erm in mydbm.Errors)
+                    foreach (lib.DBMError erm in mypdbm.Errors)
                     {
                         err.AppendLine(erm.Message);
                         if (erm.Code != "group")
@@ -3381,6 +3387,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             base.SettingView();
             myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
+            myview.MoveCurrentToFirst();
         }
     }
 
@@ -3502,9 +3509,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return new ParcelNumber() { Id=reader.GetInt32(0),Status=reader.GetInt32(1),FullNumber=reader.GetString(2),Sort=reader.GetString(3)};
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override void PrepareFill(SqlConnection addcon)
         {

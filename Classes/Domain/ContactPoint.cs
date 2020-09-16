@@ -213,8 +213,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class ContactPointVM : lib.ViewModelErrorNotifyItem<ContactPoint>

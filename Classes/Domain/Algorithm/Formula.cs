@@ -136,8 +136,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[5].Value = item.Formula2;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class FormulaVM : lib.ViewModelErrorNotifyItem<Formula>

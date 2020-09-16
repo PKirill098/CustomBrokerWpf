@@ -17,7 +17,7 @@
 		<Menu FontSize="16" Margin="4">
 			<MenuItem Header="Закрыть все" Click="CloseButton_Click"/>
 		</Menu>
-		<TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" x:Name="MainTabControl">
 			<TabControl.Resources>
 				<Style TargetType="{x:Type DataGridColumnHeader}">
 					<Setter Property="ContentTemplate">

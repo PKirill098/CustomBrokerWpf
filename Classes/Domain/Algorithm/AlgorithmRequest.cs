@@ -38,7 +38,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public override decimal? Value1
         { set
             {
-                if (this.Formula.Code != "П9" || myrequest.ValidateProperty(nameof(Request.InvoiceDiscount), this.Value1User, out myvalue1err))
+                if (this.Formula.Code != "П9" || myrequest.ValidateProperty(nameof(Request.InvoiceDiscount), this.Value1User, out myvalue1err, out _))
                     SetProperty<decimal?>(ref myvalue1user, value, () => {
                     this.PropertyChangedNotification("Value1Err");
                     RequestSync1();
@@ -71,7 +71,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 switch (this.Formula.Code)
                 {
                     case "П9":
-                        if (this.Value1User.HasValue && !(myrequest.ParcelGroup.HasValue || myrequest.InvoiceDiscount == this.Value1) && myrequest.ValidateProperty(nameof(Request.InvoiceDiscount), this.Value1User, out myvalue1err))
+                        if (this.Value1User.HasValue && !(myrequest.ParcelGroup.HasValue || myrequest.InvoiceDiscount == this.Value1) && myrequest.ValidateProperty(nameof(Request.InvoiceDiscount), this.Value1User, out myvalue1err, out _))
                             myrequest.InvoiceDiscount = this.Value1User;
                         if (!string.IsNullOrEmpty(myrequest.Consolidate) & this.Value1.HasValue & myrequest.AlgorithmConCMD?.Algorithm != null)
                         {
@@ -168,12 +168,50 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     case "П10":
                         if (this.Value1User.HasValue && !(myrequest.ParcelGroup.HasValue || myrequest.OfficialWeight == this.Value1))
                             myrequest.OfficialWeight = this.Value1;
+                        if (!string.IsNullOrEmpty(myrequest.Consolidate) & this.Value1.HasValue & myrequest.AlgorithmConCMD?.Algorithm != null)
+                        {
+                            int i = 0;
+                            decimal? cx13 = null, cx22 = null;
+                            foreach (AlgorithmValuesRequest values in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                            {
+                                if (values.Formula.Code == "W13")
+                                {
+                                    cx13 = values.Value1;
+                                    i++;
+                                    if (i > 1) break;
+                                }
+                                if (values.Formula.Code == "W22")
+                                {
+                                    cx22 = values.Value1;
+                                    i++;
+                                    if (i > 1) break;
+                                }
+                            }
+                            if (cx13.HasValue)
+                            {
+                                foreach (AlgorithmValuesRequest values in this.Algorithm.Formulas)
+                                    if (values.Formula.Code == "П13" & !values.Value1User.HasValue)
+                                    {
+                                        values.Value1Templ = this.Value1.Value * cx13.Value;
+                                        break;
+                                    }
+                            }
+                            if (cx22.HasValue)
+                            {
+                                foreach (AlgorithmValuesRequest values in this.Algorithm.Formulas)
+                                    if (values.Formula.Code == "П22" & !values.Value1User.HasValue)
+                                    {
+                                        values.Value1Templ = this.Value1.Value * cx22.Value;
+                                        break;
+                                    }
+                            }
+                        }
                         break;
                     case "П12":
                         if (myrequest.CustomsCost != this.Value1) myrequest.CustomsCost = this.Value1;
                         break;
                     case "П13":
-                        myrequest.BrokerCost = this.Value1;
+                        if (myrequest.BrokerCost != this.Value1) myrequest.BrokerCost = this.Value1;
                         break;
                     case "П14":
                         myrequest.DeliveryCost = this.Value1;
@@ -200,7 +238,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         if (myrequest.ServiceType == "ТЭО") myrequest.TotalCost = this.Value1; else myrequest.TotalCost = null;
                         break;
                     case "П22":
-                        myrequest.BrokerPay = this.Value1;
+                        if (myrequest.BrokerPay != this.Value1) myrequest.BrokerPay = this.Value1;
                         break;
                     case "П23":
                         myrequest.DeliveryPay = this.Value1;
@@ -426,7 +464,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         internal void UpdateProperties(AlgorithmValuesRequest newitem)
         {
-            this.UpdateIsOver = true;
+            this.UpdatingSample = true;
             if (!base.Value1IsReadOnly) this.Value1 = newitem.Value1User;
             if (!base.Value2IsReadOnly) this.Value2 = newitem.Value2User;
             if (this.DomainState == lib.DomainObjectState.Unchanged // если наши расчетные значения отличны от в базе
@@ -438,7 +476,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 this.DomainState = lib.DomainObjectState.Modified;
             mydbvalue1 = newitem.Value1;
             mydbvalue2 = newitem.Value2;
-            this.UpdateIsOver = false;
+            this.UpdatingSample = false;
         }
 
         public void Dispose()
@@ -599,8 +637,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[11].Value = item.AFStamp;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class AlgorithmGroupWeightDBM : lib.DBMExec
@@ -698,8 +736,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class AlgorithmValuesRequestVM : AlgorithmValuesVM

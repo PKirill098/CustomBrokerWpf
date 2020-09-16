@@ -162,9 +162,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             throw new NotImplementedException();
         }
 
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            throw new NotImplementedException();
         }
 
         protected override bool SaveChildObjects(StorageData item)

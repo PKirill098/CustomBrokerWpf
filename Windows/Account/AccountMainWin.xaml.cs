@@ -107,10 +107,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (mychildwindows.Count > 0) e.Cancel = true;
             else
             {
-                mypaydcmd?.Filter.Dispose();
-                mypaytcmd?.Filter.Dispose();
-                mygtddcmd?.Filter.Dispose();
-                mygtdtcmd?.Filter.Dispose();
+                e.Cancel = this.PaymentDeliveryGrid.HostWindow_Close() || this.PaymentTradeGrid.HostWindow_Close() || this.GTDDeliveryGrid.HostWindow_Close() || this.GTDTradeGrid.HostWindow_Close() || this.TEODeliveryGrid.HostWindow_Close() || this.TEOTradeGrid.HostWindow_Close();
+                if (!e.Cancel)
+                {
+                    mypaydcmd?.Filter.Dispose();
+                    mypaytcmd?.Filter.Dispose();
+                    mygtddcmd?.Filter.Dispose();
+                    mygtdtcmd?.Filter.Dispose();
+                    myteodcmd?.Filter.Dispose();
+                    myteotcmd?.Filter.Dispose();
+                }
             }
         }
         

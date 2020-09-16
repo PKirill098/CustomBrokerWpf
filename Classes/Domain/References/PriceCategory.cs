@@ -184,8 +184,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class PriceCategoryCollection : lib.ReferenceCollectionDomainBase<PriceCategory>

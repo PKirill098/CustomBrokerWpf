@@ -179,8 +179,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class TNVEDGroupVM : lib.ViewModelErrorNotifyItem<TNVEDGroup>

@@ -875,8 +875,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class RequestItemVM : lib.ViewModelErrorNotifyItem<RequestItem>

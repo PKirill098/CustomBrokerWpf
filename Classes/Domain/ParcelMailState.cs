@@ -165,8 +165,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.Errors.Add(new lib.DBMError(item, "Загруска не сохранена в БД!", "0"));
             return myparcel.Id > 0;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class ParcelCustomerMailDBM : MailCustomerDBM

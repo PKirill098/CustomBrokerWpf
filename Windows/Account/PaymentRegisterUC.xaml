@@ -1068,7 +1068,7 @@
 							</Style>
 						</DataGridCheckBoxColumn.HeaderStyle>
 					</DataGridCheckBoxColumn>
-					<DataGridTextColumn Header="Ожидаемый срок" Binding="{Binding Path=Prepay.ExpiryDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=OneWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
+					<DataGridTextColumn Header="Ожидаемый срок" Binding="{Binding Path=ExpiryDate, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Дата истечения срока поставки товаров"/>

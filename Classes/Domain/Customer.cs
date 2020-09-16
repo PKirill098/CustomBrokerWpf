@@ -331,26 +331,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             Customer newitem = (Customer)sample;
-            if (!this.HasPropertyOutdatedValue("Account")) this.Account = newitem.Account;
-            if (!this.HasPropertyOutdatedValue("BankAccount")) this.BankAccount = newitem.BankAccount;
-            if (!this.HasPropertyOutdatedValue("BankBIC")) this.BankBIC = newitem.BankBIC;
-            if (!this.HasPropertyOutdatedValue("BankName")) this.BankName = newitem.BankName;
-            if (!this.HasPropertyOutdatedValue("ContractDate")) this.ContractDate = newitem.ContractDate;
-            if (!this.HasPropertyOutdatedValue("ContractNumber")) this.ContractNumber = newitem.ContractNumber;
-            if (!this.HasPropertyOutdatedValue("CorrAccount")) this.CorrAccount = newitem.CorrAccount;
-            if (!this.HasPropertyOutdatedValue("DayEntry")) this.DayEntry = newitem.DayEntry;
-            if (!this.HasPropertyOutdatedValue("DeliveryType")) this.DeliveryType = newitem.DeliveryType;
-            if (!this.HasPropertyOutdatedValue("FullName")) this.FullName = newitem.FullName;
-            if (!this.HasPropertyOutdatedValue("INN")) this.INN = newitem.INN;
-            if (!this.HasPropertyOutdatedValue("ManagerGroup")) this.ManagerGroup = newitem.ManagerGroup;
-            if (!this.HasPropertyOutdatedValue("Name")) this.Name = newitem.Name;
-            if (!this.HasPropertyOutdatedValue("NoteSpecial")) this.NoteSpecial = newitem.NoteSpecial;
-            if (!this.HasPropertyOutdatedValue("PayAccount")) this.PayAccount = newitem.PayAccount;
-            if (!this.HasPropertyOutdatedValue("PayType")) this.PayType = newitem.PayType;
-            if (!this.HasPropertyOutdatedValue("Recommend")) this.Recommend = newitem.Recommend;
-            if (!this.HasPropertyOutdatedValue("Status")) this.Status = newitem.Status;
-            if (!this.HasPropertyOutdatedValue("State")) this.State = newitem.State;
-            this.UpdateIsOver = false;
+            this.Account = newitem.Account;
+            this.BankAccount = newitem.BankAccount;
+            this.BankBIC = newitem.BankBIC;
+            this.BankName = newitem.BankName;
+            this.ContractDate = newitem.ContractDate;
+            this.ContractNumber = newitem.ContractNumber;
+            this.CorrAccount = newitem.CorrAccount;
+            this.DayEntry = newitem.DayEntry;
+            this.DeliveryType = newitem.DeliveryType;
+            this.FullName = newitem.FullName;
+            this.INN = newitem.INN;
+            this.ManagerGroup = newitem.ManagerGroup;
+            this.Name = newitem.Name;
+            this.NoteSpecial = newitem.NoteSpecial;
+            this.PayAccount = newitem.PayAccount;
+            this.PayType = newitem.PayType;
+            this.Recommend = newitem.Recommend;
+            this.Status = newitem.Status;
+            this.State = newitem.State;
         }
     }
 
@@ -635,8 +634,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class CustomerStore : lib.DomainStorageLoad<Customer, CustomerDBM>

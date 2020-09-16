@@ -300,8 +300,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.SelectParams[1].Value = myisall;
             base.SelectParams[2].Value = myfilter?.FilterWhereId;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class DeliveryCarryVM : lib.ViewModelErrorNotifyItem<DeliveryCarry>, lib.Interfaces.ITotalValuesItem
@@ -1531,8 +1531,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             myselectparams[0].Value = myrequest.Id;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class DeliveryCarryTotal : lib.TotalCollectionValues<DeliveryCarryVM>

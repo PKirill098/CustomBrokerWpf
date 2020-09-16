@@ -261,8 +261,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { if (myadbm != null) myadbm.CancelingLoad=this.CancelingLoad; }
     }
 
     public class AgentVM : lib.ViewModelErrorNotifyItem<Agent>

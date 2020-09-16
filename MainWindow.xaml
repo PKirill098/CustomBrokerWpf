@@ -705,8 +705,8 @@
 									</Style>
 								</DataGridComboBoxColumn.CellStyle>
 							</DataGridComboBoxColumn>
-							<DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer,UpdateSourceTrigger=PropertyChanged}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
-                                    ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" SortMemberPath="Name"  Width="100">
+                            <DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer,UpdateSourceTrigger=PropertyChanged}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="Importer.Name"
+                                    ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name"  Width="100">
 								<DataGridComboBoxColumn.CellStyle>
 									<Style TargetType="DataGridCell">
 										<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
@@ -1545,7 +1545,6 @@
                               my:DataGridColumnsJoiner.SecondDisplayIndex="{Binding ElementName=isSpecColumn, Path=DisplayIndex, Mode=TwoWay}"
                               HorizontalAlignment="Left" ColumnDisplayIndexChanged="ParcelRequestDataGrid_ColumnDisplayIndexChanged"
                               Background="#e0f7e3" MouseDoubleClick="ParcelDataGrid_MouseDoubleClick" >
-							<!-- RowEditEnding="ParcelRequestDataGrid_RowEditEnding"-->
 							<DataGrid.RowStyle>
 								<Style TargetType="{x:Type DataGridRow}">
 									<Style.Triggers>
@@ -1600,17 +1599,6 @@
 													</ComboBoxItem>
 												</ComboBox>
 												<Image Grid.Column="3" ToolTip="Спецификация_Разбивка" Source="{Binding Path=StateExcImagePath,Mode=OneWay}" Height="14"  Margin="2,0"/>
-												<!--<ComboBox Grid.Column="3" SelectedIndex="{Binding Path=StateExc,TargetNullValue=0,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Спецификация_Разбивка" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
-													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-														<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
-													</ComboBoxItem>
-													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-														<Image Source="/CustomBrokerWpf;component/Images/excel_1.png" Height="14" Margin="0"/>
-													</ComboBoxItem>
-													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-														<Image Source="/CustomBrokerWpf;component/Images/excel_2.png" Height="14" Margin="0"/>
-													</ComboBoxItem>
-												</ComboBox>-->
 												<ComboBox Grid.Column="4" SelectedIndex="{Binding Path=StateDoc,TargetNullValue=0,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Сопроводительные документы" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
 													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 														<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
@@ -1696,30 +1684,6 @@
 								<DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80" />
 								<DataGridComboBoxColumn Header="Услуга" SelectedValueBinding="{Binding Path=ServiceType, TargetNullValue=''}" ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.ServiceTypes}" SelectedValuePath="Name" DisplayMemberPath="Name"/>
 								<DataGridComboBoxColumn Header="Тип груза" SelectedValueBinding="{Binding Path=Cargo}" ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
-								<!--<DataGridTextColumn Header="Расход" Binding="{Binding Path=TotalCost, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" Width="80">
-									<DataGridTextColumn.CellStyle>
-										<Style TargetType="{x:Type DataGridCell}">
-											<Style.Triggers>
-												<Trigger Property="IsSelected" Value="False">
-													<Setter Property="Background" Value="#f7ede0" />
-												</Trigger>
-											</Style.Triggers>
-										</Style>
-									</DataGridTextColumn.CellStyle>
-									<DataGridTextColumn.HeaderStyle>
-										<Style TargetType="{x:Type DataGridColumnHeader}">
-											<Setter Property="ContentTemplate">
-												<Setter.Value>
-													<DataTemplate>
-														<StackPanel Orientation="Horizontal">
-															<TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
-														</StackPanel>
-													</DataTemplate>
-												</Setter.Value>
-											</Setter>
-										</Style>
-									</DataGridTextColumn.HeaderStyle>
-								</DataGridTextColumn>-->
 								<DataGridTextColumn Header="Счет" Binding="{Binding Path=TotalPay, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" Width="80">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="{x:Type DataGridCell}">
@@ -1835,116 +1799,6 @@
 										</DataTemplate>
 									</DataGridTemplateColumn.CellTemplate>
 								</DataGridTemplateColumn>
-								<!--<DataGridTemplateColumn>
-                                <DataGridTemplateColumn.Header>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-                                        <Rectangle Fill="Green" Grid.Row="0" Width="6" Height="6" />
-                                        <Rectangle Fill="Red" Grid.Column="1" Width="6" Height="6" />
-                                        <Rectangle Fill="Blue" Grid.Row="1" Width="6" Height="6" />
-                                        <Rectangle Fill="Yellow" Grid.Row="1" Grid.Column="1" Width="6" Height="6" />
-                                    </Grid>
-                                </DataGridTemplateColumn.Header>
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Rectangle Fill="{Binding Path=colmark}" RadiusX="2" RadiusY="2" Width="15" Height="15" Margin="1" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
-                                        <ComboBox SelectedValue="{Binding Path=colmark}" SelectedValuePath="Fill" TextSearch.TextPath="Fill" SelectionChanged="ParcelColmarkComboBox_SelectionChanged" >
-                                            <ComboBox.ItemsSource>
-                                                <coll:ArrayList>
-                                                    <Rectangle Fill="Transparent" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                    <Rectangle Fill="Green" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                    <Rectangle Fill="Red" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                    <Rectangle Fill="Blue" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                    <Rectangle Fill="Yellow" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                    <Rectangle Fill="Black" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
-                                                </coll:ArrayList>
-                                            </ComboBox.ItemsSource>
-                                        </ComboBox>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="№" Binding="{Binding Path=requestId}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Группа" Binding="{Binding Path=parcelgroup, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}" SortMemberPath="pgroupsort" IsReadOnly="True">
-                                <DataGridTextColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip" Value="Группа загрузки"/>
-                                    </Style>
-                                </DataGridTextColumn.HeaderStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="Дата заявки" Binding="{Binding Path=requestDate, StringFormat=\{0:d\}}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Статус" Binding="{Binding Path=status}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Спецификация" Binding="{Binding Path=specification, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" IsReadOnly="True" x:Name="ParcelSpecificationColumn">
-                                <DataGridTextColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip" Value="Дата получения спецификации"/>
-                                    </Style>
-                                </DataGridTextColumn.HeaderStyle>
-                            </DataGridTextColumn>
-                            <DataGridCheckBoxColumn Binding="{Binding Path=isspecification, Mode=OneWay}" CanUserSort="True" SortMemberPath="isspecification" CanUserReorder="False" CanUserResize="False" IsReadOnly="True" ClipboardContentBinding="{Binding Path=isspecification, Converter={StaticResource BooleanClipBoardConverter1}}" x:Name="ParcelIsSpecColumn">
-                                <DataGridCheckBoxColumn.ElementStyle>
-                                    <Style TargetType="CheckBox">
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        <Setter Property="VerticalAlignment" Value="Center"/>
-                                        <Setter Property="IsHitTestVisible" Value="False"/>
-                                    </Style>
-                                </DataGridCheckBoxColumn.ElementStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridTextColumn Header="Позиция по складу" Binding="{Binding Path=storagePoint}" ElementStyle="{StaticResource NumberCenterStyleView}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Дата поступления" Binding="{Binding Path=storageDate, StringFormat=\{0:d\}}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Группа менеджеров" Binding="{Binding Path=managerGroup}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Клиент" SortMemberPath="customerFullName" Width="SizeToHeader" ClipboardContentBinding="{Binding Path=customerFullName}" >
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Label Content="{Binding Path=customerFullName}" Tag="{Binding Path=customerFullName,Mode=OneWay}" Cursor="Hand" MouseLeftButtonUp="Label_MouseLeftButtonUp" Padding="0">
-                                            <Label.Style>
-                                                <Style TargetType="{x:Type Label}">
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" Value="Blue"/>
-                                                            <Setter Property="FontStyle" Value="Italic"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Label.Style>
-                                        </Label>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Поставщик" Binding="{Binding Path=agentFullName}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Описание груза" Binding="{Binding Path=loadDescription}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Склад" Binding="{Binding Path=store, NotifyOnValidationError=True, ValidatesOnExceptions=true}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridCheckBoxColumn Header="Фрахт" Binding="{Binding Path=isfreight, Mode=OneWay}" ClipboardContentBinding="{Binding Path=isfreight, Converter={StaticResource BooleanClipBoardConverter1}}" Width="SizeToHeader" />
-                            <DataGridTextColumn Header="Экспедитор" Binding="{Binding Path=itemName}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Кол-во мест" Binding="{Binding Path=cellNumber}" ElementStyle="{StaticResource NumberCenterStyleView}" />
-                            <DataGridTextColumn Header="Вес по док, кг" Binding="{Binding officialWeight, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
-                            <DataGridTextColumn Header="Объем, м3" Binding="{Binding Path=volume, StringFormat=\{0:N3\}}" Width="SizeToHeader" ElementStyle="{StaticResource MoneyStyleView}" />
-                            <DataGridTextColumn Header="Вес факт, кг" Binding="{Binding Path=actualWeight, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
-                            <DataGridTextColumn Header="Стоимость товара, Е" Binding="{Binding Path=goodValue, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" />
-                            <DataGridTextColumn Header="Примечание склада" Binding="{Binding Path=storageNote}" Width="SizeToHeader" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Примечание менеджера" Binding="{Binding Path=managerNote}" Width="SizeToHeader" />
-                            <DataGridTextColumn Header="Инфо" Binding="{Binding Path=storageInform, StringFormat=\{0:d\},Mode=OneWay, TargetNullValue=''}" IsReadOnly="True" >
-                                <DataGridTextColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip" Value="Дата отправки информации на склад о загрузке заявки."/>
-                                    </Style>
-                                </DataGridTextColumn.HeaderStyle>
-                            </DataGridTextColumn>
-                            <DataGridCheckBoxColumn Binding="{Binding Path=specloaded, Mode=OneWay}" ClipboardContentBinding="{Binding Path=specloaded, Converter={StaticResource BooleanClipBoardConverter1}}" Width="SizeToHeader">
-                                <DataGridCheckBoxColumn.Header>
-                                    <Image Source="/CustomBrokerWpf;component/Images/import1.png" Height="20" ToolTip="Спецификация загружена" Margin="0"/>
-                                </DataGridCheckBoxColumn.Header>
-                            </DataGridCheckBoxColumn>-->
 							</DataGrid.Columns>
 						</DataGrid>
 						<StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
@@ -2041,17 +1895,6 @@
 												</ComboBoxItem>
 											</ComboBox>
 											<Image Grid.Column="3" ToolTip="Спецификация_Разбивка" Source="{Binding Path=StateExcImagePath,Mode=OneWay}" Height="14"  Margin="2,0"/>
-											<!--<ComboBox Grid.Column="3" SelectedIndex="{Binding Path=StateExc,TargetNullValue=0,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Спецификация_Разбивка" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
-												<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-													<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
-												</ComboBoxItem>
-												<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-													<Image Source="/CustomBrokerWpf;component/Images/excel_1.png" Height="14" Margin="0"/>
-												</ComboBoxItem>
-												<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-													<Image Source="/CustomBrokerWpf;component/Images/excel_2.png" Height="14" Margin="0"/>
-												</ComboBoxItem>
-											</ComboBox>-->
 											<ComboBox Grid.Column="4" SelectedIndex="{Binding Path=StateDoc,TargetNullValue=0,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Сопроводительные документы" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
 												<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 													<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
@@ -2134,30 +1977,6 @@
 							<DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80" />
 							<DataGridComboBoxColumn Header="Услуга" SelectedValueBinding="{Binding Path=ServiceType, TargetNullValue=''}" ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.ServiceTypes}" SelectedValuePath="Name" DisplayMemberPath="Name"/>
 							<DataGridComboBoxColumn Header="Тип груза" SelectedValueBinding="{Binding Path=Cargo}" ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
-							<!--<DataGridTextColumn Header="Расход" Binding="{Binding Path=TotalCost, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" Width="80">
-								<DataGridTextColumn.CellStyle>
-									<Style TargetType="{x:Type DataGridCell}">
-										<Style.Triggers>
-											<Trigger Property="IsSelected" Value="False">
-												<Setter Property="Background" Value="#f7ede0" />
-											</Trigger>
-										</Style.Triggers>
-									</Style>
-								</DataGridTextColumn.CellStyle>
-								<DataGridTextColumn.HeaderStyle>
-									<Style TargetType="{x:Type DataGridColumnHeader}">
-										<Setter Property="ContentTemplate">
-											<Setter.Value>
-												<DataTemplate>
-													<StackPanel Orientation="Horizontal">
-														<TextBlock Text="{Binding}" Background="#f7ede0" FontWeight="Bold" Padding="4,0" />
-													</StackPanel>
-												</DataTemplate>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</DataGridTextColumn.HeaderStyle>
-							</DataGridTextColumn>-->
 							<DataGridTextColumn Header="Счет" Binding="{Binding Path=TotalPay, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" Width="80">
 								<DataGridTextColumn.CellStyle>
 									<Style TargetType="{x:Type DataGridCell}">

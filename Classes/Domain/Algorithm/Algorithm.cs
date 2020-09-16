@@ -142,8 +142,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        {  }
     }
 
     public class AlgorithmWeightDBM : lib.DBMExec
@@ -716,8 +716,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             }
             return isSuccess;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class AlgorithmValuesVM : lib.ViewModelErrorNotifyItem<AlgorithmValues>

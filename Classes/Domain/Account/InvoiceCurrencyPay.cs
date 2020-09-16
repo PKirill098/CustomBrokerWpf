@@ -29,18 +29,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set {
                 mycbrate = value;
-                if (!this.UpdateIsOver)
+                if (!this.UpdatingSample)
                 {
                     this.PropertyChangedNotification(nameof(this.CBRatep2p));
                     if (this.PaySum > 0M)
                     {
                         this.CurSum = mycbrate > 0M ? decimal.Round(decimal.Divide(this.PaySum, this.CBRatep2p), 2) : 0M;
-                        this.PropertyChangedNotification(nameof(this.CurSum));
+                        //this.PropertyChangedNotification(nameof(this.CurSum));
                     }
                     else if (this.CurSum > 0M)
                     {
                         this.PaySum = decimal.Round(decimal.Multiply(this.CurSum, this.CBRatep2p), 2);
-                        this.PropertyChangedNotification(nameof(this.PaySum));
+                        //this.PropertyChangedNotification(nameof(this.PaySum));
                     }
                 }
             }
@@ -48,7 +48,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         public decimal CBRatep2p
         {
-			set { this.CBRate = decimal.Round(decimal.Divide(mycbrate, 1.02M), 4); }
+			set { this.CBRate = decimal.Round(decimal.Divide(value, 1.02M), 4); }
             get { return decimal.Round(this.CBRate * 1.02M, 4); } }
         private decimal mycursum;
 		public decimal CurSum
@@ -66,7 +66,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         
         private void Base_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if (this.UpdateIsOver) return;
+			if (this.UpdatingSample) return;
             switch(e.PropertyName)
 			{
                 case nameof(CustomsInvoicePay.PayDate):
@@ -141,9 +141,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(InvoiceCurrencyPay item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(InvoiceCurrencyPay item)
         {

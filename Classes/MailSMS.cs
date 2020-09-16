@@ -74,8 +74,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 { mysmcmd.SMS.AppendLine(item.Value); t++; }
             }
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        {}
     }
 
     public class MailSMSCommand : lib.DomainBaseClass

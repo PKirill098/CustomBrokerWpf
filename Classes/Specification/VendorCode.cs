@@ -272,8 +272,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class VendorCodesDBM : lib.DBMExec

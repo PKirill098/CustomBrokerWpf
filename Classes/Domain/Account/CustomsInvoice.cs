@@ -16,11 +16,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     public class CustomsInvoice : lib.DomainStampValueChanged
     {
         public CustomsInvoice(int id, long stamp, DateTime? updated, string updater, lib.DomainObjectState mstate
-            , decimal? cbrate, decimal? dtsum, CustomerLegal customer, Importer importer, DateTime? invoicedate, string invoicenumber,decimal finalcursum, decimal finalcursum2, RequestCustomerLegal request, decimal percent, decimal rubsum
+            , decimal? cbrate, decimal? custmcursum, decimal? custmrubsum, CustomerLegal customer, decimal finalcursum, decimal finalcursum2, Importer importer, DateTime? invoicedate, string invoicenumber, decimal percent, RequestCustomerLegal request
             ) : base(id, stamp, updated, updater, mstate)
         {
             mycbrate = cbrate;
-            mydtsum = dtsum;
             mycustomer = customer;
             myimporter = importer;
             myinvoicedate = invoicedate;
@@ -29,13 +28,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfinalcursum2 = finalcursum2;
             myclient = request;
             mypercent = percent;//0.27M
-            myrubsum = rubsum;
+            mycustmcursum = custmcursum;
+            mycustmrubsum = custmrubsum;
             //myparcel.PropertyChanged += this.Parcel_PropertyChanged;
             myrater = new CurrencyRateProxy(CustomBrokerWpf.References.CurrencyRate);
             myrater.PropertyChanged += Rater_PropertyChanged;
             mycurrencybuys = new ObservableCollection<CurrencyBuyInvoice>();
         }
-        public CustomsInvoice(RequestCustomerLegal request) :this(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, null,0M, request.CustomerLegal, request.Request.Importer, null,null,0M, 0M, request, 0.27M, 0M)
+        public CustomsInvoice(RequestCustomerLegal request) : this(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, null, null, null, request.CustomerLegal, 0M, 0M, request.Request.Importer, null, null, 0.27M, request)
         {
             mypays = new ObservableCollection<CustomsInvoicePay>();
             myfinalpays = new ObservableCollection<FinalInvoicePay>();
@@ -48,18 +48,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             internal set
             {
-                if (this.UpdateIsOver)
+                if (this.UpdatingSample)
                     SetProperty<decimal?>(ref mycbrate, value);
                 else
                 {
                     Action action = () =>
                       {
-                          if (mycbrate.HasValue && myclient.InvoiceDiscount.HasValue)
-                              this.RubSum = decimal.Round(decimal.Multiply(decimal.Multiply(mycbrate.Value, myclient.InvoiceDiscount.Value), mypercent));
+                          if (mycbrate.HasValue)
+                          {
+                              if (mycustmcursum.HasValue || this.CustmCurSumPre > 0M)
+                                  this.SetCustmRubSum();
+                              else if (mycustmrubsum.HasValue)
+                                  this.CustmCurSum = decimal.Round(decimal.Divide(decimal.Divide(mycustmrubsum.Value, mycbrate.Value), mypercent), 2);
+                          }
                           else
-                              this.RubSum = 0M;
+                              this.CustmRubSum = null;
                       };
-                    if ((mypays?.Count ?? 0M) == 0)
+                    if ((mypays?.Count ?? 0M) == 0 && (mycustmcursum.HasValue || this.CustmCurSumPre > 0M))
                         SetProperty<decimal?>(ref mycbrate, value, action);
                 }
             }
@@ -100,15 +105,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     //    System.Windows.MessageBox.Show("Невозможно удалить покупку валюты, оплачено поставщику!", "Дата покупки валюты", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
                     //else if (System.Windows.MessageBox.Show("Удалить все покупки валюты ?", "Дата покупки валюты", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
                     //{
-                        List<CurrencyBuyInvoice> del = new List<CurrencyBuyInvoice>();
-                        foreach (CurrencyBuyInvoice item in this.CurrencyBuys)
-                            if (item.DomainState == lib.DomainObjectState.Added)
-                                del.Add(item);
-                            else
-                                item.DomainState = lib.DomainObjectState.Deleted;
-                        foreach (CurrencyBuyInvoice item in del)
-                            this.CurrencyBuys.Remove(item);
-                        this.PropertyChangedNotification(nameof(this.CurrencyBuySum));
+                    List<CurrencyBuyInvoice> del = new List<CurrencyBuyInvoice>();
+                    foreach (CurrencyBuyInvoice item in this.CurrencyBuys)
+                        if (item.DomainState == lib.DomainObjectState.Added)
+                            del.Add(item);
+                        else
+                            item.DomainState = lib.DomainObjectState.Deleted;
+                    foreach (CurrencyBuyInvoice item in del)
+                        this.CurrencyBuys.Remove(item);
+                    this.PropertyChangedNotification(nameof(this.CurrencyBuySum));
                     //}
                 }
                 this.PropertyChangedNotification(nameof(this.CurrencyBoughtDate));
@@ -126,24 +131,48 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         public decimal CurrencyBuySum
         { get { return mycurrencybuys?.Sum<CurrencyBuyInvoice>((CurrencyBuyInvoice item) => { return item.CurSum; }) ?? 0M; } }
+        private decimal? mycustmcursum;
+        public decimal? CustmCurSum
+        {
+            set { SetPropertyOnValueChanged<decimal?>(ref mycustmcursum, value,()=> { 
+                if (mycustmcursum.HasValue && mycbrate.HasValue)
+                    this.CustmRubSum = decimal.Round(decimal.Multiply(decimal.Multiply(mycbrate.Value, mycustmcursum.Value), mypercent));
+                else 
+                    this.InvoiceDate = null;
+            }); }
+            get { return mycustmcursum; }
+        }
+        public decimal CustmCurSumPre
+        { get { return myclient.Prepays.Sum((PrepayCustomerRequest prepay) => { return (prepay.RubSum??0M) > 0M ? (prepay.DTSum??0M) : 0M; }); } }
+        private decimal? mycustmrubsum;
+        public decimal? CustmRubSum
+        {
+            set
+            {
+                Action action = () =>
+                {
+                    if (!mycustmcursum.HasValue && mycustmrubsum.HasValue & mycbrate.HasValue) this.CustmCurSum = decimal.Round(decimal.Divide(decimal.Divide(mycustmrubsum.Value, mycbrate.Value),mypercent), 2);
+                    this.PropertyChangedNotification(nameof(this.PaidDate));
+                    this.PropertyChangedNotification(nameof(this.FinalRubSum));
+                    this.PropertyChangedNotification(nameof(this.FinalRubPaidDate));
+                    this.PrepayDistribute(nameof(PrepayCustomerRequest.CustomsInvoiceRubSum), 0);
+                };
+                SetPropertyOnValueChanged<decimal?>(ref mycustmrubsum, value, action);
+            }
+            get { return mycustmrubsum; }
+        }
         private CustomerLegal mycustomer;
         public CustomerLegal Customer
         { set { SetProperty<CustomerLegal>(ref mycustomer, value); } get { return mycustomer; } }
-        private decimal? mydtsum;
-        public decimal? DTSum
-        {
-            internal set { SetPropertyOnValueChanged<decimal?>(ref mydtsum, value); }
-            get { return !mydtsum.HasValue & (mycbrate??0M)>0M ? decimal.Divide(decimal.Divide(myrubsum, mycbrate.Value),mypercent) : mydtsum; }
-        }
         private Importer myimporter; // delete
         public Importer Importer
         { set { SetProperty<Importer>(ref myimporter, value); } get { return myimporter; } }
         private DateTime? myinvoicedate;
         public DateTime? InvoiceDate
-        { 
-            set 
+        {
+            set
             {
-                if (this.UpdateIsOver)
+                if (this.UpdatingSample)
                     SetProperty<DateTime?>(ref myinvoicedate, value);
                 else
                 {
@@ -157,14 +186,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             myrater.RateDate = myinvoicedate;
                         }
                     };
-                    if ((mypays?.Count ?? 0M) == 0)
+                    if ((mypays?.Count ?? 0M) == 0 && (mycustmcursum.HasValue || this.CustmCurSumPre > 0M))
                         SetProperty<DateTime?>(ref myinvoicedate, value, action);
                 }
             }
-            get { return myinvoicedate; } }
+            get { return myinvoicedate; }
+        }
         private string myinvoicenumber;
         public string InvoiceNumber
-        { set { SetProperty<string>(ref myinvoicenumber, value); } get { return myinvoicenumber; } }
+        { set { if (mycustmcursum.HasValue || this.CustmCurSumPre > 0M)  SetProperty<string>(ref myinvoicenumber, value); } get { return myinvoicenumber; } }
         public decimal? FinalCurCBRate
         {
             get
@@ -187,8 +217,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (this.FinalCurPays1?.Count > 0)
                 {
                     decimal sum = this.FinalCurPays1.Sum((InvoiceCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.CurSum : 0M; });
-                    if(sum>0M)
-                        rate = this.FinalCurPays1.Sum((InvoiceCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? decimal.Multiply(item.CBRatep2p, decimal.Divide(item.CurSum,sum)) : 0M; });
+                    if (sum > 0M)
+                        rate = this.FinalCurPays1.Sum((InvoiceCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? decimal.Multiply(item.CBRatep2p, decimal.Divide(item.CurSum, sum)) : 0M; });
                 }
                 return rate;
             }
@@ -196,14 +226,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private decimal myfinalcursum;
         public decimal FinalCurSum
         {
-            set { SetProperty<decimal>(ref myfinalcursum, value); }
-            get { return myfinalcursum>0M? myfinalcursum: (this.RubSum == 0M ? myclient.Prepays.Sum((prepay) => { return prepay.Prepay.CBRate.HasValue ? 0M : (prepay.DTSum ?? 0M); }) : 0M); }
+            set { SetProperty<decimal>(ref myfinalcursum, value,()=> { this.PrepayDistribute(nameof(this.FinalCurSum), 2); }); }
+            get { return myfinalcursum > 0M ? myfinalcursum : (this.CustmRubSum.HasValue ? 0M : myclient.Prepays.Sum((prepay) => { return prepay.Prepay.CBRate.HasValue ? 0M : (prepay.DTSum ?? 0M); })); }
         }
         private decimal myfinalcursum2;
         public decimal FinalCurSum2
         {
-            set { SetProperty<decimal>(ref myfinalcursum2, value); }
-            get { return myfinalcursum2 > 0M ? myfinalcursum2 : (this.RubSum == 0M ? myclient.Prepays.Sum((prepay) => { return prepay.Prepay.CBRate.HasValue ? 0M : (prepay.Selling-prepay.DTSum ?? 0M); }) : 0M); }
+            set { SetProperty<decimal>(ref myfinalcursum2, value, () => { this.PrepayDistribute(nameof(this.FinalCurSum2), 2); }); }
+            get { return myfinalcursum2 > 0M ? myfinalcursum2 : (this.CustmRubSum.HasValue ? 0M : myclient.Prepays.Sum((prepay) => { return prepay.Prepay.CBRate.HasValue ? 0M : (prepay.Selling - prepay.DTSum ?? 0M); })); }
         }
         public decimal FinalCurPaySum
         { get { return this.FinalCurPays1?.Sum((InvoiceCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.CurSum : 0M; }) ?? 0M; } }
@@ -271,7 +301,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 {
                     if (this.FinalCurSum2 - this.FinalCurPaySum2 > 0.99M)
                     {
-                        InvoiceCurrencyPay pay = new InvoiceCurrencyPay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this.FinalCurSum2 - this.FinalCurPaySum2, this, value.Value,0M, new CustomsInvoicePayValidatorFinalCur2());
+                        InvoiceCurrencyPay pay = new InvoiceCurrencyPay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this.FinalCurSum2 - this.FinalCurPaySum2, this, value.Value, 0M, new CustomsInvoicePayValidatorFinalCur2());
                         this.FinalCurPays2.Add(pay);
                         this.PropertyChangedNotification(nameof(this.FinalCurPaySum2));
                     }
@@ -325,7 +355,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 {
                     if (this.FinalRubSum - this.FinalRubPaySum > 0.0099M)
                     {
-                        FinalInvoicePay pay = new FinalInvoicePay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this, value.Value, 0M, value.Value, this.RubSum - this.PaySum);
+                        FinalInvoicePay pay = new FinalInvoicePay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this, value.Value, 0M, value.Value, this.FinalRubSum.Value - this.FinalRubPaySum);
                         this.FinalRubPays.Add(pay);
                         this.PropertyChangedNotification(nameof(this.FinalRubPaySum));
                     }
@@ -364,23 +394,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             get
             {
-                return this.FinalRubPays.Count>0 && this.FinalRubSum.HasValue && (this.FinalRubSum ?? 0M) - this.FinalRubPaySum < 0.9M ? DateTime.FromOADate(this.FinalRubPays.Max<FinalInvoicePay>((FinalInvoicePay item) => { return item.PayDate.ToOADate(); })) : (DateTime?)null;
+                return this.FinalRubPays.Count > 0 && this.FinalRubSum.HasValue && (this.FinalRubSum ?? 0M) - this.FinalRubPaySum < 0.9M ? DateTime.FromOADate(this.FinalRubPays.Max<FinalInvoicePay>((FinalInvoicePay item) => { return item.PayDate.ToOADate(); })) : (DateTime?)null;
             }
         }
         public decimal FinalRubPaySum
         { get { return this.FinalRubPays?.Sum<FinalInvoicePay>((FinalInvoicePay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.RubPaySum : 0M; }) ?? 0M; } }
         public decimal? FinalRubSum
-        { get { return this.RubSum>0M ? myclient.Prepays.Sum((prepay)=> { return prepay.FinalInvoiceRubSum??0M; }) : (decimal?)null; } }
+        { get { return this.CustmRubSum.HasValue && this.Selling.HasValue ? this.Selling.Value - this.CustmRubSum.Value - myclient.Prepays.Sum((PrepayCustomerRequest prepay) => { return (prepay.RubSum ?? 0M); }) : (decimal?)null; } }
         private RequestCustomerLegal myclient;
-        public RequestCustomerLegal Parcel
-        { set {
+        public RequestCustomerLegal RequestCustomer
+        {
+            set
+            {
                 //if (myparcel!=null)
                 //    myparcel.PropertyChanged -= this.Parcel_PropertyChanged;
                 SetProperty<RequestCustomerLegal>(ref myclient, value);
                 //if (myparcel != null)
                 //    myparcel.PropertyChanged += this.Parcel_PropertyChanged;
             }
-            get { return myclient; } }
+            get { return myclient; }
+        }
         public decimal PaySum
         { get { return this.Pays?.Sum<CustomsInvoicePay>((CustomsInvoicePay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.PaySum : 0M; }) ?? 0M; } }
         public DateTime? PaidDate
@@ -389,73 +422,57 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             {
                 if (value.HasValue)
                 {
-                    //if (this.InvoiceDate.HasValue)
-                    //{
-                    if (this.RubSum - this.PaySum > 0.99M)
+                    if (this.CustmRubSum.HasValue)
                     {
-                        CustomsInvoicePay pay = new CustomsInvoicePay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this, value.Value, this.RubSum - this.PaySum,new CustomsInvoicePayValidatorRub());
-                        this.Pays.Add(pay);
-                        this.PropertyChangedNotification(nameof(this.PaySum));
+                        if (this.CustmRubSum.Value - this.PaySum > 0.99M)
+                        {
+                            CustomsInvoicePay pay = new CustomsInvoicePay(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, this, value.Value, this.CustmRubSum.Value - this.PaySum, new CustomsInvoicePayValidatorRub());
+                            this.Pays.Add(pay);
+                            this.PropertyChangedNotification(nameof(this.PaySum));
+                        }
+                        else
+                        {
+                            DateTime maxdate = DateTime.MinValue;
+                            CustomsInvoicePay pay = null;
+                            foreach (CustomsInvoicePay item in this.Pays)
+                                if (item.PayDate > maxdate)
+                                { maxdate = item.PayDate; pay = item; }
+                            pay.PayDate = value.Value;
+                        }
                     }
                     else
-                    {
-                        DateTime maxdate = DateTime.MinValue;
-                        CustomsInvoicePay pay = null;
-                        foreach (CustomsInvoicePay item in this.Pays)
-                            if (item.PayDate > maxdate)
-                            { maxdate = item.PayDate; pay = item; }
-                        pay.PayDate = value.Value;
-                    }
-                    //}
-                    //else
-                    //    System.Windows.MessageBox.Show("Перед внесением платежей необходимо указать дату выставления счета!", "Дата оплаты", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
+                        System.Windows.MessageBox.Show("Перед внесением платежей необходимо выставить счет!", "Дата оплаты", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
                 }
-                else
+                else if (this.Pays?.Count > 0 && System.Windows.MessageBox.Show("Удалить все оплаты ?", "Дата оплаты", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
                 {
-                    //if (this.CurrencyBuys?.Count > 0)
-                    //    System.Windows.MessageBox.Show("Невозможно удалить платежи, куплена валюта!", "Дата оплаты", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
-                    //else
-                    if (System.Windows.MessageBox.Show("Удалить все оплаты ?", "Дата оплаты", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
-                    {
-                        List<CustomsInvoicePay> del = new List<CustomsInvoicePay>();
-                        foreach (CustomsInvoicePay item in this.Pays)
-                            if (item.DomainState == lib.DomainObjectState.Added)
-                                del.Add(item);
-                            else
-                                item.DomainState = lib.DomainObjectState.Deleted;
-                        foreach (CustomsInvoicePay item in del)
-                            this.Pays.Remove(item);
-                        this.PropertyChangedNotification(nameof(this.PaySum));
-                    }
+                    List<CustomsInvoicePay> del = new List<CustomsInvoicePay>();
+                    foreach (CustomsInvoicePay item in this.Pays)
+                        if (item.DomainState == lib.DomainObjectState.Added)
+                            del.Add(item);
+                        else
+                            item.DomainState = lib.DomainObjectState.Deleted;
+                    foreach (CustomsInvoicePay item in del)
+                        this.Pays.Remove(item);
+                    this.PropertyChangedNotification(nameof(this.PaySum));
                 }
                 this.PropertyChangedNotification(nameof(this.PaidDate));
             }
             get
             {
-                return this.Pays.Count > 0 && this.RubSum - this.PaySum < 0.99M ? DateTime.FromOADate(this.Pays.Max<CustomsInvoicePay>((CustomsInvoicePay item) => { return item.PayDate.ToOADate(); })) : (DateTime?)null;
+                return this.Pays.Count > 0 && this.CustmRubSum - this.PaySum < 0.99M ? DateTime.FromOADate(this.Pays.Max<CustomsInvoicePay>((CustomsInvoicePay item) => { return item.PayDate.ToOADate(); })) : (DateTime?)null;
             }
         }
         private decimal mypercent;
         public decimal Percent
-        { set { SetProperty<decimal>(ref mypercent, value, () => { this.PropertyChangedNotification(nameof(this.RubSum)); }); } get { return mypercent; } }
-        private decimal myrubsum;
-        public decimal RubSum
-        {
-            set {
-                Action action = () =>
-                {
-                    this.PropertyChangedNotification(nameof(this.PaidDate));
-                    this.PropertyChangedNotification(nameof(this.FinalRubSum));
-                    this.PropertyChangedNotification(nameof(this.FinalRubPaidDate));
-                };
-                SetPropertyOnValueChanged<decimal>(ref myrubsum, value, action); }
-            get { return myrubsum; }
-        }
+        { set {
+                if (value > 1M) value = value / 100M;
+                SetProperty<decimal>(ref mypercent, value, () => { this.SetCustmRubSum(); }); }
+            get { return mypercent; } }
         private decimal? myselling;
         public decimal? Selling
         {
             internal set { myselling = value; this.PropertyChangedNotification(nameof(this.Selling)); }
-            get { return myselling==0M ? myclient.Prepays.Sum((prepay) => { return prepay.Selling ?? 0M; }) : myselling; }
+            get { return myselling == 0M ? myclient.Prepays.Sum((prepay) => { return prepay.Selling ?? 0M; }) : myselling; }
         }
 
         internal bool Selected { set; get; }
@@ -475,7 +492,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             set
             {
                 myfinalpays = value;
-                foreach(FinalInvoicePay pay in myfinalpays)
+                foreach (FinalInvoicePay pay in myfinalpays)
                     pay.PropertyChanged += this.FinalRubPay_PropertyChanged;
                 myfinalpays.CollectionChanged += this.FinalRubPays_CollectionChanged;
                 this.PropertyChangedNotification(nameof(this.FinalRubPays));
@@ -487,13 +504,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         private void FinalRubPays_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if(e.Action== System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                foreach(FinalInvoicePay pay in e.NewItems)
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                foreach (FinalInvoicePay pay in e.NewItems)
                     pay.PropertyChanged += this.FinalRubPay_PropertyChanged;
         }
         private void FinalRubPay_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-           if(e.PropertyName==nameof(FinalInvoicePay.RubPaySum)) this.PropertyChangedNotification(nameof(this.FinalRubPaySum));
+            if (e.PropertyName == nameof(FinalInvoicePay.RubPaySum)) this.PropertyChangedNotification(nameof(this.FinalRubPaySum));
         }
 
         private ObservableCollection<InvoiceCurrencyPay> myfinalcurpays1; //created at boot
@@ -535,14 +552,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             CustomsInvoice templ = sample as CustomsInvoice;
             this.CBRate = templ.CBRate;
-            this.DTSum = templ.DTSum;
+            this.CustmCurSum = templ.CustmCurSum;
+            this.CustmRubSum = templ.CustmRubSum;
             this.InvoiceDate = templ.InvoiceDate;
             this.InvoiceNumber = templ.InvoiceNumber;
             this.FinalCurSum = templ.FinalCurSum;
             this.FinalCurSum2 = templ.FinalCurSum2;
             this.Percent = templ.Percent;
-            this.RubSum = templ.RubSum;
-            if(templ.Selling>0M) this.Selling = templ.Selling;
+            if (templ.Selling > 0M) this.Selling = templ.Selling;
         }
         protected override void RejectProperty(string property, object value)
         {
@@ -569,14 +586,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 case nameof(this.FinalCurSum2):
                     this.FinalCurSum2 = (decimal)value;
                     break;
-                case nameof(this.Parcel):
-                    this.Parcel = (RequestCustomerLegal)value;
+                case nameof(this.RequestCustomer):
+                    this.RequestCustomer = (RequestCustomerLegal)value;
                     break;
                 case nameof(this.Percent):
                     this.Percent = (decimal)value;
                     break;
-                case nameof(this.RubSum):
-                    this.RubSum = (decimal)value;
+                case nameof(this.CustmCurSum):
+                    this.CustmCurSum = (decimal?)value;
+                    break;
+                case nameof(this.CustmRubSum):
+                    this.CustmRubSum = (decimal?)value;
                     break;
                 case "DependentNew":
                     if (mypays != null)
@@ -660,37 +680,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         //            break;
         //    }
         //}
-        private PrepayCustomerRequestDBM myrpdbm;
-        internal void PrepayDistribute(string property,int decimals)
+        //private PrepayCustomerRequestDBM myrpdbm;
+        internal void PrepayDistribute(string property, int decimals)
         {
-            if (!myclient.InvoiceDiscount.HasValue) return;
-            if(myrpdbm==null)
+            switch (property)
             {
-                myrpdbm = new PrepayCustomerRequestDBM() { RequestCustomer=this.Parcel };//, Importer = this.ImporterCustomer = this.Customer, Requ = this.Parcel
-                myrpdbm.Fill();
+                case nameof(PrepayCustomerRequest.CustomsInvoiceRubSum):
+                    if (!this.CustmRubSum.HasValue) return;
+                    break;
             }
-            if (myrpdbm.Collection.Count == 1)
+            //if (myrpdbm == null)
+            //{
+            //    myrpdbm = new PrepayCustomerRequestDBM() { RequestCustomer = this.RequestCustomer };//, Importer = this.ImporterCustomer = this.Customer, Requ = this.Parcel
+            //    myrpdbm.Fill();
+            //}
+            if (myclient.Prepays.Count == 1)
                 switch (property)
                 {
                     case nameof(PrepayCustomerRequest.CustomsInvoiceRubSum):
-                        myrpdbm.Collection[0].CustomsInvoiceRubSum = this.RubSum;
+                        myclient.Prepays[0].CustomsInvoiceRubSum = this.CustmRubSum;
+                        break;
+                    case nameof(this.FinalCurSum):
+                        myclient.Prepays[0].FinalInvoiceCurSumSet = this.FinalCurSum;
+                        break;
+                    case nameof(this.FinalCurSum2):
+                        myclient.Prepays[0].FinalInvoiceCurSum2Set = this.FinalCurSum2;
                         break;
                 }
             else
             {
                 decimal? val;
                 decimal d = 0M, d1 = 0M, d2 = 0M, sd = 0M, s = 0M, sr = 0M, sdr = 0M;
-                decimal total = myrpdbm.Collection.Sum((PrepayCustomerRequest prepay) => { return prepay.DTSum ?? 0M; });
+                decimal total = myclient.Prepays.Sum((PrepayCustomerRequest prepay) => { return prepay.DTSum ?? 0M; });
                 if (total == 0M) return;
                 switch (property)
                 {
                     case nameof(PrepayCustomerRequest.CustomsInvoiceRubSum):
-                        total = decimal.Divide(decimal.Round(this.RubSum, decimals), total);
+                        total = decimal.Divide(decimal.Round(this.CustmRubSum.Value, decimals), total);
+                        break;
+                    case nameof(this.FinalCurSum):
+                        total = decimal.Divide(decimal.Round(this.FinalCurSum, decimals), total);
+                        break;
+                    case nameof(this.FinalCurSum2):
+                        total = decimal.Divide(decimal.Round(this.FinalCurSum2, decimals), total);
                         break;
                 }
-                foreach (PrepayCustomerRequest prepay in myrpdbm.Collection)
+                foreach (PrepayCustomerRequest prepay in myclient.Prepays)
                 {
-                    if (prepay.DTSum.HasValue)
+                    if (total == 0M)
+                        val = 0M;
+                    else if (prepay.DTSum.HasValue)
                     {
                         s = decimal.Multiply(total, prepay.DTSum.Value);
                         sr = decimal.Round(s, decimals);
@@ -716,7 +755,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         case nameof(prepay.CustomsInvoiceRubSum):
                             prepay.CustomsInvoiceRubSum = val;
                             break;
-
+                        case nameof(this.FinalCurSum):
+                            prepay.FinalInvoiceCurSumSet = val;
+                            break;
+                        case nameof(this.FinalCurSum2):
+                            prepay.FinalInvoiceCurSum2Set = val;
+                            break;
                     }
                 }
             }
@@ -725,9 +769,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             //if (myparcel != null)
             //    myparcel.PropertyChanged -= this.Parcel_PropertyChanged;
-            if(myfinalpays!=null)
-            foreach (FinalInvoicePay pay in myfinalpays)
-                pay.PropertyChanged -= this.FinalRubPay_PropertyChanged;
+            if (myfinalpays != null)
+                foreach (FinalInvoicePay pay in myfinalpays)
+                    pay.PropertyChanged -= this.FinalRubPay_PropertyChanged;
+        }
+        private void SetCustmRubSum()
+        {
+            if (mycbrate.HasValue && (mycustmcursum.HasValue || this.CustmCurSumPre > 0M))
+            {
+                if (!this.CustmCurSum.HasValue) this.CustmCurSum = this.CustmCurSumPre;
+                this.CustmRubSum = decimal.Round(decimal.Multiply(decimal.Multiply(mycbrate.Value, mycustmcursum.Value), mypercent));
+            }
+            else
+                this.CustmRubSum = null;
         }
 
         private Classes.CurrencyRateProxy myrater;
@@ -764,23 +818,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             {
                 myupdateparams[0]
                 ,new SqlParameter("@cbrateupd", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@invoicedateupd", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@invoicenumberupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@custmcursumupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@custmrubsumupd", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@finalcursumupd", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@finalcursum2upd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@invoicedateupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@invoicenumberupd", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@percentupd", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@rubsumupd", System.Data.SqlDbType.Bit)
            };
             myinsertupdateparams = new SqlParameter[]
             {
                myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
                ,new SqlParameter("@cbrate",System.Data.SqlDbType.Money)
-               ,new SqlParameter("@invoicedate",System.Data.SqlDbType.DateTime2)
-               ,new SqlParameter("@invoicenumber", System.Data.SqlDbType.NVarChar,10)
+               ,new SqlParameter("@custmcursum",System.Data.SqlDbType.Money)
+               ,new SqlParameter("@custmrubsum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@finalcursum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@finalcursum2",System.Data.SqlDbType.Money)
+               ,new SqlParameter("@invoicedate",System.Data.SqlDbType.DateTime2)
+               ,new SqlParameter("@invoicenumber", System.Data.SqlDbType.NVarChar,10)
                ,new SqlParameter("@percent",System.Data.SqlDbType.Money)
-               ,new SqlParameter("@rubsum",System.Data.SqlDbType.Money)
              };
             mypdbm = new CustomsInvoicePayDBM();
             myfpdbm = new FinalInvoicePayDBM();
@@ -808,7 +864,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal RequestCustomerLegal RequestCustomer
         { set { myparcel = value; } get { return myparcel; } }
 
-        protected override CustomsInvoice CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override CustomsInvoice CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             System.Collections.Generic.List<lib.DBMError> errors;
             RequestCustomerLegal customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
@@ -818,18 +874,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , reader.IsDBNull(this.Fields["updater"]) ? null : reader.GetString(this.Fields["updater"])
                 , reader.IsDBNull(0) ? lib.DomainObjectState.Added : lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
-                , reader.IsDBNull(this.Fields["cursum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cursum"])
+                , reader.IsDBNull(this.Fields["custmcursum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmcursum"])
+                , reader.IsDBNull(this.Fields["custmrubsum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmrubsum"])
                 , customer.CustomerLegal
+                , reader.GetDecimal(this.Fields["finalcursum"])
+                , reader.GetDecimal(this.Fields["finalcursum2"])
                 , reader.IsDBNull(this.Fields["importerid"]) ? null : CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
                 , reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
                 , reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
-                , reader.GetDecimal(this.Fields["finalcursum"])
-                , reader.GetDecimal(this.Fields["finalcursum2"])
-                , customer
                 , reader.GetDecimal(this.Fields["percent"])
-                , reader.GetDecimal(this.Fields["rubsum"]));
-            
-            if (item.Id > 0) 
+                , customer);
+            if (item.Id > 0)
                 item = CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item);
             if (this.Fields.ContainsKey("selling") && !reader.IsDBNull(this.Fields["selling"]))
                 item.Selling = reader.GetDecimal(reader.GetOrdinal("selling"));
@@ -928,14 +983,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(CustomsInvoice item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            //bool success = true;
-            //foreach (CustomsInvoice item in this.Collection)
-            //{
-            //    LoadObjects(item);
-            //}
-            return true;
+            mypdbm.CancelingLoad = this.CancelingLoad;
+            myfpdbm.CancelingLoad = this.CancelingLoad;
+            mycurdbm.CancelingLoad = this.CancelingLoad;
+            mycbdbm.CancelingLoad = this.CancelingLoad;
         }
         protected override bool SaveChildObjects(CustomsInvoice item)
         {
@@ -1017,7 +1070,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 switch (par.ParameterName)
                 {
                     case "@customerid":
-                        par.Value = mycustomer?.Id?? myparcel?.CustomerLegal.Id;
+                        par.Value = mycustomer?.Id ?? myparcel?.CustomerLegal.Id;
                         break;
                     case "@importerid":
                         par.Value = myimporter?.Id;
@@ -1042,7 +1095,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         par.Value = item.Importer?.Id;
                         break;
                     case "@parcelid":
-                        par.Value = item.Parcel.Request.Id;
+                        par.Value = item.RequestCustomer.Request.Id;
                         break;
                 }
             foreach (SqlParameter par in this.UpdateParams)
@@ -1051,11 +1104,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@cbrateupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.CBRate));
                         break;
-                    case "@invoicedateupd":
-                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.InvoiceDate));
+                    case "@custmcursumupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.CustmCurSum));
                         break;
-                    case "@invoicenumberupd":
-                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.InvoiceNumber));
+                    case "@custmrubsumupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.CustmRubSum));
                         break;
                     case "@finalcursumupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.FinalCurSum));
@@ -1063,11 +1116,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@finalcursum2upd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.FinalCurSum2));
                         break;
+                    case "@invoicedateupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.InvoiceDate));
+                        break;
+                    case "@invoicenumberupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.InvoiceNumber));
+                        break;
                     case "@percentupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.Percent));
-                        break;
-                    case "@rubsumupd":
-                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomsInvoice.RubSum));
                         break;
                 }
             foreach (SqlParameter par in this.InsertUpdateParams)
@@ -1091,8 +1147,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@percent":
                         par.Value = item.Percent;
                         break;
-                    case "@rubsum":
-                        par.Value = item.RubSum;
+                    case "@custmcursum":
+                        par.Value = item.CustmCurSum;
+                        break;
+                    case "@custmrubsum":
+                        par.Value = item.CustmRubSum;
                         break;
                 }
             return true;
@@ -1111,7 +1170,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (request != null && customer != null)
                 {
                     foreach (CustomsInvoice item in mycollection.Values)
-                        if (item.Customer == customer && item.Parcel.Request == request)
+                        if (item.Customer == customer && item.RequestCustomer.Request == request)
                         { firstitem = item; break; }
                 }
                 return firstitem;
@@ -1125,15 +1184,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (customer != null)
                 {
                     foreach (CustomsInvoice item in mycollection.Values)
-                        if (item.Parcel == customer)
+                        if (item.RequestCustomer == customer)
                         { firstitem = item; break; }
                 }
                 return firstitem;
             });
         }
         internal CustomsInvoice GetItemLoad(CustomerLegal customer, Request request, out List<DBMError> errors)
-		{
-            return GetItemLoad( customer, request, null, out errors);
+        {
+            return GetItemLoad(customer, request, null, out errors);
         }
         internal CustomsInvoice GetItemLoad(CustomerLegal customer, Request request, SqlConnection conection, out List<DBMError> errors)
         {
@@ -1142,35 +1201,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             CustomsInvoiceDBM dbm;
             errors = new List<DBMError>();
             CustomsInvoice firstitem = default(CustomsInvoice);
-                if (request != null && customer != null)
+            if (request != null && customer != null)
+            {
+                firstitem = this.GetItem(customer, request);
+                if (firstitem == default(CustomsInvoice))
                 {
-                    firstitem = this.GetItem(customer, request);
-                    if (firstitem == default(CustomsInvoice))
-                    {
                     dbm = GetDBM();
-                    dbm.ItemId = null;
-                    dbm.Importer = null;
-                    dbm.Parcel = null;
-                    dbm.RequestCustomer = null;
+                    dbm.SelectParamsReset();
                     dbm.Customer = customer;
                     dbm.Request = request;
                     dbm.Command.Connection = conection;
                     firstitem = dbm.GetFirst();
-                        if (firstitem == default(CustomsInvoice))
-                        {
-                            firstitem = new CustomsInvoice(request.CustomerLegals.First((RequestCustomerLegal legal)=> { return legal.CustomerLegal == customer; }));
-                            dbm.SaveItemChanches(firstitem);
-                            if (!mycollection.ContainsKey(firstitem.Id)) base.AddItem(firstitem);
-                        }
-                        else
+                    if (firstitem == default(CustomsInvoice))
+                    {
+                        firstitem = new CustomsInvoice(request.CustomerLegals.First((RequestCustomerLegal legal) => { return legal.CustomerLegal == customer; }));
+                        dbm.SaveItemChanches(firstitem);
+                        if (!mycollection.ContainsKey(firstitem.Id)) base.AddItem(firstitem);
+                    }
+                    else
                         firstitem = UpdateItem(firstitem);
                     dbm.Command.Connection = null;
                     errors.AddRange(dbm.Errors);
                     dbm.Errors.Clear();
                     mydbmanagers.Enqueue(dbm);
-                    }
                 }
-                return firstitem;
+            }
+            return firstitem;
             //});
         }
         internal CustomsInvoice GetItemLoad(RequestCustomerLegal customer, SqlConnection conection, out List<DBMError> errors)
@@ -1180,26 +1236,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             CustomsInvoiceDBM dbm;
             errors = new List<DBMError>();
             CustomsInvoice firstitem = default(CustomsInvoice);
-                if (customer != null)
+            if (customer != null)
+            {
+                firstitem = this.GetItem(customer);
+                if (firstitem == default(CustomsInvoice))
                 {
-                    firstitem = this.GetItem(customer);
-                    if (firstitem == default(CustomsInvoice))
-                    {
                     dbm = GetDBM();
-                    dbm.ItemId = null;
-                    dbm.Importer = null;
-                    dbm.Parcel = null;
-                    dbm.Customer = null;
-                    dbm.Request = null;
+                    dbm.SelectParamsReset();
                     dbm.RequestCustomer = customer;
                     dbm.Command.Connection = conection;
                     firstitem = dbm.GetFirst();
-                        if (firstitem == default(CustomsInvoice))
-                        {
-                            firstitem = new CustomsInvoice(customer);
-                            dbm.SaveItemChanches(firstitem);
-                            if(!mycollection.ContainsKey(firstitem.Id))base.AddItem(firstitem);
-                        }
+                    if (firstitem == default(CustomsInvoice))
+                    {
+                        firstitem = new CustomsInvoice(customer);
+                        dbm.SaveItemChanches(firstitem);
+                        if (!mycollection.ContainsKey(firstitem.Id)) base.AddItem(firstitem);
+                    }
                     else
                         firstitem = UpdateItem(firstitem);
                     dbm.Command.Connection = null;
@@ -1208,12 +1260,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     mydbmanagers.Enqueue(dbm);
                 }
             }
-                return firstitem;
+            return firstitem;
             //});
         }
         internal CustomsInvoice GetItemLoad(RequestCustomerLegal customer, out List<DBMError> errors)
         {
-            return GetItemLoad( customer, null, out errors);
+            return GetItemLoad(customer, null, out errors);
         }
         protected override void UpdateProperties(CustomsInvoice olditem, CustomsInvoice newitem)
         {
@@ -1247,8 +1299,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         public CustomerLegal Customer
         { get { return this.DomainObject.Customer; } }
-        public decimal? CurSum
-        { get { return this.DomainObject.DTSum; } }
+        public decimal? CustmCurSum
+        {
+            set
+            {
+                if(!this.IsReadOnly && (this.DomainObject.CustmCurSum.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.CustmCurSum.Value, value.Value))))
+                {
+                    string name = nameof(this.CustmCurSum);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CustmCurSum);
+                    ChangingDomainProperty = name; this.DomainObject.CustmCurSum = value;
+                }
+            }
+            get { return this.DomainObject.CustmCurSum.HasValue ? this.DomainObject.CustmCurSum : this.DomainObject.CustmCurSumPre; }
+        }
+        public decimal? CustmRubSum
+        {
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.CustmRubSum.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.CustmRubSum.Value, value.Value))))
+                {
+                    string name = nameof(this.CustmRubSum);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CustmRubSum);
+                    ChangingDomainProperty = name; this.DomainObject.CustmRubSum = value;
+                }
+            }
+            get { return this.DomainObject.CustmRubSum; }
+        }
         public Importer Importer
         { get { return this.IsEnabled ? this.DomainObject.Importer : null; } }
         public DateTime? InvoiceDate
@@ -1313,12 +1391,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             get { return this.DomainObject.FinalRubSum; }
         }
         public decimal? Selling
-		{
-			get { return this.DomainObject.Selling; }
-		}
+        {
+            get { return this.DomainObject.Selling; }
+        }
 
-        public RequestCustomerLegal Parcel
-        { get { return this.IsEnabled ? this.DomainObject.Parcel : null; } }
+        public RequestCustomerLegal RequestCustomer
+        { get { return this.IsEnabled ? this.DomainObject.RequestCustomer : null; } }
         public decimal? PaySum
         { get { return this.IsEnabled ? this.DomainObject.PaySum : (decimal?)null; } }
         public DateTime? PaidDate
@@ -1340,29 +1418,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-                if (value.HasValue && !(this.IsReadOnly || decimal.Equals(this.DomainObject.Percent*100, value.Value)))
+                if (value.HasValue && !(this.IsReadOnly || decimal.Equals(this.DomainObject.Percent * 100, value.Value)))
                 {
                     string name = nameof(this.FinalCurSum);
                     if (!myUnchangedPropertyCollection.ContainsKey(name))
                         this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Percent);
-                    ChangingDomainProperty = name; this.DomainObject.Percent = value.Value/100M;
+                    ChangingDomainProperty = name; this.DomainObject.Percent = value.Value / 100M;
                 }
             }
             get { return this.DomainObject.Percent * 100; }
-        }
-        public decimal? RubSum
-        {
-            set
-            {
-                if (value.HasValue && !(this.IsReadOnly || decimal.Equals(this.DomainObject.RubSum, value.Value)))
-                {
-                    string name = nameof(this.RubSum);
-                    if (!myUnchangedPropertyCollection.ContainsKey(name))
-                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.RubSum);
-                    ChangingDomainProperty = name; this.DomainObject.RubSum = value.Value;
-                }
-            }
-            get { return this.DomainObject.RubSum; }
         }
 
         public bool ProcessedIn { set; get; }
@@ -1414,8 +1478,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 case nameof(this.PaidDate):
                     this.DomainObject.PaidDate = (DateTime?)value;
                     break;
-                case nameof(this.RubSum):
-                    this.DomainObject.RubSum = (decimal)value;
+                case nameof(this.CustmCurSum):
+                    this.DomainObject.CustmCurSum = (decimal?)value;
+                    break;
+                case nameof(this.CustmRubSum):
+                    this.DomainObject.CustmRubSum = (decimal?)value;
                     break;
             }
         }
@@ -1426,6 +1493,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         private void Model_ValueChanged(object sender, ValueChangedEventArgs<object> e)
         {
+            if (e.PropertyName == nameof(CustomsInvoice.CustmCurSum))
+            {
+                if (e.OldValue == null)
+                    e.OldValue = this.DomainObject.CustmCurSumPre;
+                if (e.NewValue == null)
+                    e.NewValue = this.DomainObject.CustmCurSumPre;
+            }
             this.OnValueChanged(e.PropertyName, e.OldValue, e.NewValue);
         }
     }
@@ -1475,7 +1549,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-				mymaindbm.Parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(value, out _);
+                mymaindbm.Parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(value, out _);
                 mymaindbm.Fill();
                 if (mymaindbm.Errors.Count > 0) { this.PopupText = mymaindbm.ErrorMessage; this.PopupIsOpen = true; }
                 //else if ((bool)mymaindbm.SelectParams.Where((SqlParameter par) => { return par.ParameterName == "@notready"; }).First().Value)
@@ -1496,7 +1570,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-                if (mybuydate.HasValue!=value.HasValue || (value.HasValue && !DateTime.Equals(mybuydate.Value, value.Value)))
+                if (mybuydate.HasValue != value.HasValue || (value.HasValue && !DateTime.Equals(mybuydate.Value, value.Value)))
                 {
                     myrater.RateDate = value;
                     mybuydate = value;
@@ -1610,13 +1684,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     //    curitem.DomainObject.CustomsInvoice = null;
                     //else
                     //{
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoice));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoiceRubSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.Selling));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceRubSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum2));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomerBalance));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoice));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoiceRubSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.Selling));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceRubSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum2));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomerBalance));
                     //}
                     p--;
                 }
@@ -1628,13 +1702,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     //    curitem.DomainObject.CustomsInvoice = null;
                     //else
                     //{
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoice));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoiceRubSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.Selling));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceRubSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum2));
-                        curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomerBalance));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoice));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomsInvoiceRubSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.Selling));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceRubSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.FinalInvoiceCurSum2));
+                    curitem.DomainObject.PropertyChangedNotification(nameof(curitem.CustomerBalance));
                     //}
                     p++;
                 }
@@ -1665,14 +1739,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override void Item_ValueChangedHandler(CustomsInvoiceVM sender, ValueChangedEventArgs<object> e)
         {
+            if (!sender.Selected) return;
             decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M);
             switch (e.PropertyName)
             {
-                case nameof(CustomsInvoiceVM.CurSum):
+                case nameof(CustomsInvoiceVM.CustmCurSum):
                     mytotalcost += newvalue - oldvalue;
                     PropertyChangedNotification("TotalCost");
                     break;
-                case nameof(CustomsInvoiceVM.RubSum):
+                case nameof(CustomsInvoiceVM.CustmRubSum):
                     mytotalcostrub += newvalue - oldvalue;
                     PropertyChangedNotification("TotalCostRUB");
                     break;
@@ -1687,14 +1762,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void ValuesPlus(CustomsInvoiceVM item)
         {
             myitemcount++;
-            mytotalcost = mytotalcost + (item.DomainObject.DTSum??0M);
-            mytotalcostrub = mytotalcostrub + (item.DomainObject.RubSum);
+            mytotalcost = mytotalcost + (item.CustmCurSum ?? 0M);
+            mytotalcostrub = mytotalcostrub + (item.CustmRubSum??0M);
         }
         protected override void ValuesMinus(CustomsInvoiceVM item)
         {
             myitemcount--;
-            mytotalcost = mytotalcost - (item.DomainObject.DTSum??0M);
-            mytotalcostrub = mytotalcostrub - (item.DomainObject.RubSum);
+            mytotalcost = mytotalcost - (item.CustmCurSum ?? 0M);
+            mytotalcostrub = mytotalcostrub - (item.CustmRubSum ?? 0M);
         }
         protected override void PropertiesChangedNotifycation()
         {

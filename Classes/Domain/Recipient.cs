@@ -397,8 +397,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class RecipientStore : lib.DomainStorageLoad<Recipient, RecipientDBM>

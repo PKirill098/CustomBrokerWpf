@@ -101,9 +101,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void GetOutputSpecificParametersValue(AgentAlias item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(AgentAlias item)
         {

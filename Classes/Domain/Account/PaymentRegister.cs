@@ -1217,7 +1217,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     };
                     RequestCustomerLegal legal = request.CustomerLegals.First((RequestCustomerLegal item) => { return item.CustomerLegal == prepay.Customer.CustomerLegal.DomainObject; });
                     legal.Selected = true;
-                    legal.Prepays.Add(new PrepayCustomerRequest(legal, null, prepay.Prepay, request));
+                    legal.Prepays.Add(new PrepayCustomerRequest(legal, prepay.Prepay, request));
                     RequestCustomerLegalDBM ldbm = new RequestCustomerLegalDBM();
                     RequestDBM rqdbm = new RequestDBM();
                     rqdbm.LegalDBM = ldbm;
@@ -1250,7 +1250,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override void AddData(object parametr)
         {
-            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest( null, null, new Prepay(), null)));
+            base.AddData(new PrepayCustomerRequestVM(new PrepayCustomerRequest( null, new Prepay(), null)));
         }
         protected override bool CanAddData(object parametr)
         {
@@ -1282,8 +1282,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             else
             {
                 this.RefreshSuccessMessageHide = true;
-                if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation)) return;
-                //LoadAsyncStop();
+                //if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation)) return;
+                LoadAsyncStop();
                 //foreach (PrepayCustomerRequest item in mymaindbm.Collection)
                 //    item.UnSubscribe();
                 StringBuilder errstr = new StringBuilder();
@@ -1413,6 +1413,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation))
             {
+                mymaindbm.CancelingLoad = true;
                 mycanceltasksource.Cancel();
                 if (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running)
                     myloadtask.Wait(500);

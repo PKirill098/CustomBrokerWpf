@@ -82,8 +82,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class BranchCountryCommand : DataModelClassLibrary.ViewModelBaseCommand

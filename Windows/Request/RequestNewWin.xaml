@@ -11,8 +11,8 @@
     <Grid IsSharedSizeScope="True">
         <Grid.Resources>
             <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
-			<libcnv:NoDisplayNewId x:Key="NoDisplayNewIdCNV"/>
-			<Style TargetType="TextBlock">
+            <libcnv:NoDisplayNewId x:Key="NoDisplayNewIdCNV"/>
+            <Style TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Padding" Value="4,0"/>
             </Style>
@@ -23,9 +23,9 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <ToolBar Height="30" Grid.ColumnSpan="8">
-			<Button ToolTip="Добавить" Command="New">
-				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
-			</Button>
+            <Button ToolTip="Добавить" Command="New">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
             <Button Command="Delete" ToolTip="Удалить" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
             </Button>
@@ -35,7 +35,7 @@
             </Button>
             <Separator/>
             <ToggleButton IsChecked="{Binding Path=IsEditable}" ToolTip="Включить\выключить режим редактирования" IsTabStop="False">
-				<Image Source="/CustomBrokerWpf;component/Images/edit.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/edit.png" />
             </ToggleButton>
             <Separator/>
             <!--<Button ToolTip="Загрузить разбивку" Command="{Binding Path=DetailsAdd}">
@@ -43,13 +43,13 @@
             </Button>
             <Separator/>-->
             <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию" Margin="10,0,0,0">
-				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
                 <Image Source="/CustomBrokerWpf;component/Images/save.png" />
             </Button>
             <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
             </Button>
             <Separator/>
             <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -438,7 +438,7 @@
                         </Border>
                         <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
                         <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
-							<ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                            <ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                         </Border>
                         <!--<DataGrid Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="4" ItemsSource="{Binding Path=CustomerLegalsSelected}" CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#e0f7e3" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#e0f7e3" SelectionUnit="Cell" SelectionMode="Single">
                             <DataGrid.Resources>
@@ -1468,7 +1468,7 @@
                         <CollectionViewSource x:Key="keyDocTypes" Source="{Binding Source={StaticResource MainDataContext}, Path=Data.DocTypes}" />
                     </Grid.Resources>
                     <Grid.RowDefinitions>
-						<RowDefinition SharedSizeGroup="r1" />
+                        <RowDefinition SharedSizeGroup="r1" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -1476,14 +1476,15 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-					<Border Grid.Row="0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1,1,1,0">
-						<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" BorderBrush="White" BorderThickness="0,0,0,1">
-							<TextBlock Text="ОПЛАТЫ" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="12"/>
-						</Border>
-					</Border>
+                    <Border Grid.Row="0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1,1,1,0">
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" BorderBrush="White" BorderThickness="0,0,0,1">
+                            <TextBlock Text="ОПЛАТЫ" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="12"/>
+                        </Border>
+                    </Border>
                     <Border Grid.Row="1" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1,0,1,1">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
@@ -1503,7 +1504,7 @@
                                     <TextBlock Text="Дата отгрузки" ToolTip="Предполагаемая дата отгрузки" TextAlignment="Center"/>
                                 </Border>
                                 <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
-									<DatePicker SelectedDate="{Binding ShipPlanDate,NotifyOnValidationError=True}" ToolTip="Предполагаемая дата отгрузки" FirstDayOfWeek="Monday" BorderThickness="0" VerticalAlignment="Center">
+                                    <DatePicker SelectedDate="{Binding ShipPlanDate,NotifyOnValidationError=True}" ToolTip="Предполагаемая дата отгрузки" FirstDayOfWeek="Monday" BorderThickness="0" VerticalAlignment="Center">
                                         <DatePicker.Resources>
                                             <Style TargetType="DatePickerTextBox">
                                                 <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
@@ -1515,7 +1516,7 @@
                                                 </Style.Triggers>
                                             </Style>
                                             <Style TargetType="Button">
-												<Setter Property="IsEnabled" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
+                                                <Setter Property="IsEnabled" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
                                             </Style>
                                         </DatePicker.Resources>
                                         <DatePicker.Style>
@@ -1551,15 +1552,15 @@
                                 <Border Grid.Row="1" Grid.Column="5" BorderBrush="White" BorderThickness="0,0,0,0">
                                     <!--<TextBlock Text="{Binding Path=Invoice2per, StringFormat=\{0:N2\}, TargetNullValue=''}" TextAlignment="Left" />-->
                                 </Border>
-								<Border Grid.Row="1" Grid.Column="5" BorderBrush="White" BorderThickness="0,0,0,0">
-									<!--<TextBlock Text="{Binding Path=Invoice2per, StringFormat=\{0:N2\}, TargetNullValue=''}" TextAlignment="Left" />-->
-								</Border>
-							</Grid>
+                                <Border Grid.Row="1" Grid.Column="5" BorderBrush="White" BorderThickness="0,0,0,0">
+                                    <!--<TextBlock Text="{Binding Path=Invoice2per, StringFormat=\{0:N2\}, TargetNullValue=''}" TextAlignment="Left" />-->
+                                </Border>
+                            </Grid>
                             <DataGrid x:Name="LegalInvoiceDataGrid" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" ItemsSource="{Binding Path=CustomerLegalsSelected}" HeadersVisibility="Column" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="0,1,0,0" Background="#f7e0e0" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#FFF7E0E0" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" CanUserDeleteRows="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" RowDetailsVisibilityMode="Visible">
-								<DataGrid.CommandBindings>
-									<CommandBinding Command="New" CanExecute="CommandBindingAdd_CanExecute" Executed="CommandBindingAdd_Executed" />
-								</DataGrid.CommandBindings>
-								<DataGrid.Resources>
+                                <DataGrid.CommandBindings>
+                                    <CommandBinding Command="New" CanExecute="CommandBindingAdd_CanExecute" Executed="CommandBindingAdd_Executed" />
+                                </DataGrid.CommandBindings>
+                                <DataGrid.Resources>
                                     <Style TargetType="DataGridColumnHeader" x:Key="HeaderStyleWithBorder">
                                         <Setter Property="Background" Value="#f7e0e0"/>
                                         <Setter Property="BorderBrush" Value="White"/>
@@ -1575,79 +1576,135 @@
                                         <Setter Property="Height" Value="24"/>
                                     </Style>
                                 </DataGrid.Resources>
-								<DataGrid.RowDetailsTemplate>
-									<DataTemplate>
-										<DataGrid ItemsSource="{Binding Prepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-								            <DataGrid.CommandBindings>
-									            <CommandBinding Command="Delete" CanExecute="CommandBindingDelete_CanExecute" Executed="CommandBindingDelete_Executed" />
-								            </DataGrid.CommandBindings>
-											<DataGrid.Columns>
-												<DataGridTextColumn Header="№" Binding="{Binding Path=Prepay.InvoiceNumber, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="40">
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Setter Property="ToolTip" Value="Номер счета для предоплаты"/>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-												<DataGridTextColumn Header="дата" Binding="{Binding Path=Prepay.InvoiceDate, StringFormat=\{0:d\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Setter Property="ToolTip" Value="Дата счета для предоплаты"/>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-												<DataGridTextColumn Header="валюта" Binding="{Binding Path=Prepay.CurrencyBuySum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Setter Property="ToolTip" Value="Куплено валюты"/>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-												<DataGridTextColumn Header="остаток" Binding="{Binding Path=Prepay.FundSum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="60">
-													<DataGridTextColumn.HeaderStyle>
-														<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource HeaderStyleWithBorder}">
-															<Setter Property="ToolTip" Value="Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
-														</Style>
-													</DataGridTextColumn.HeaderStyle>
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Setter Property="ToolTip" Value="Резерв валюты.&#xA;Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-												<DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Style.Triggers>
-																<Trigger Property="IsSelected" Value="False">
-																	<Setter Property="Background" Value="#FFFBEFEF"/>
-																</Trigger>
-															</Style.Triggers>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-												<DataGridTextColumn Header="сумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
-													<DataGridTextColumn.CellStyle>
-														<Style TargetType="DataGridCell">
-															<Setter Property="ToolTip" Value="Расчетное значение суммы ТД, пропорциональное предоплате.&#xA;Корректировка в случии недовоза товара и нескольких предоплат"/>
-															<Style.Triggers>
-																<Trigger Property="IsSelected" Value="False">
-																	<Setter Property="Background" Value="#FFFBEFEF"/>
-																</Trigger>
-															</Style.Triggers>
-														</Style>
-													</DataGridTextColumn.CellStyle>
-												</DataGridTextColumn>
-											</DataGrid.Columns>
-										</DataGrid>
-									</DataTemplate>
-								</DataGrid.RowDetailsTemplate>
+                                <DataGrid.RowDetailsTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <DataGrid ItemsSource="{Binding Prepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+                                                <DataGrid.CommandBindings>
+                                                    <CommandBinding Command="Delete" CanExecute="CommandBindingDelete_CanExecute" Executed="CommandBindingDelete_Executed" />
+                                                </DataGrid.CommandBindings>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="№" Binding="{Binding Path=Prepay.InvoiceNumber, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="40">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Номер счета для предоплаты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="дата" Binding="{Binding Path=Prepay.InvoiceDate, StringFormat=\{0:d\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Дата счета для предоплаты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="валюта" Binding="{Binding Path=Prepay.CurrencyBuySum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Куплено валюты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="остаток" Binding="{Binding Path=Prepay.FundSum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="60">
+                                                        <DataGridTextColumn.HeaderStyle>
+                                                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource HeaderStyleWithBorder}">
+                                                                <Setter Property="ToolTip" Value="Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
+                                                            </Style>
+                                                        </DataGridTextColumn.HeaderStyle>
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Резерв валюты.&#xA;Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="False">
+                                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="сумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Расчетное значение суммы ТД, пропорциональное предоплате.&#xA;Корректировка в случии недовоза товара и нескольких предоплат"/>
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="False">
+                                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Предоплаты" Background="#FFF7E0E0" Padding="40,0,0,0"/>
+                                            <DataGrid Grid.Row="2" ItemsSource="{Binding PrePrepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0,1,0,0" BorderBrush="White" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="№" Binding="{Binding Path=Prepay.InvoiceNumber, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="40">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Номер счета для предоплаты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="дата" Binding="{Binding Path=Prepay.InvoiceDate, StringFormat=\{0:d\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Дата счета для предоплаты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="валюта" Binding="{Binding Path=Prepay.CurrencyBuySum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="60" >
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Куплено валюты"/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="остаток" Binding="{Binding Path=Prepay.FundSum, StringFormat=\{0:N2\},Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="60">
+                                                        <DataGridTextColumn.HeaderStyle>
+                                                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource HeaderStyleWithBorder}">
+                                                                <Setter Property="ToolTip" Value="Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
+                                                            </Style>
+                                                        </DataGridTextColumn.HeaderStyle>
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Резерв валюты.&#xA;Разница между суммой купленной валюты и инвойами заявок, не являющихся предоплатой."/>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="False">
+                                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGrid.RowDetailsTemplate>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Юр лицо" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=CustomerLegal.Name}" FontWeight="Bold" IsReadOnly="True" Width="220"/>
-									<DataGridTemplateColumn Header="Предоплата" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="80">
-										<DataGridTemplateColumn.CellStyle>
+                                    <DataGridTemplateColumn Header="Предоплата" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Width="80">
+                                        <DataGridTemplateColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
-												<Setter Property="ToolTip" Value="Сумма евро для счета авансового платежа"/>
+                                                <Setter Property="ToolTip" Value="Сумма евро для счета авансового платежа"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsSelected" Value="False">
                                                         <Setter Property="Background" Value="#FFFBEFEF"/>
@@ -1655,21 +1712,21 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </DataGridTemplateColumn.CellStyle>
-										<DataGridTemplateColumn.CellTemplate>
-											<DataTemplate>
-												<TextBlock Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" FontWeight="Bold" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
-											</DataTemplate>
-										</DataGridTemplateColumn.CellTemplate>
-										<DataGridTemplateColumn.CellEditingTemplate>
-											<DataTemplate>
-												<TextBox Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" IsReadOnly="{Binding Path=InvoiceDiscountIsReadOnly,Mode=OneWay}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
-											</DataTemplate>
-										</DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" FontWeight="Bold" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" IsReadOnly="{Binding Path=InvoiceDiscountIsReadOnly,Mode=OneWay}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
                                     </DataGridTemplateColumn>
-									<DataGridTextColumn Header="Сумма ДТ" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=true}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" FontWeight="Bold" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                    <DataGridTextColumn Header="Сумма ДТ" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=true}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" FontWeight="Bold" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
-												<Setter Property="ToolTip" Value="Сумма евро для таможенного счета. Инвойс со скидкой"/>
+                                                <Setter Property="ToolTip" Value="Сумма евро для таможенного счета. Инвойс со скидкой"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsSelected" Value="False">
                                                         <Setter Property="Background" Value="#FFFBEFEF"/>
@@ -1678,10 +1735,10 @@
                                             </Style>
                                         </DataGridTextColumn.CellStyle>
                                     </DataGridTextColumn>
-									<DataGridTextColumn Header="Таможен %" Binding="{Binding CustomsPercent, NotifyOnValidationError=True, StringFormat=\{0:F0\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                    <DataGridTextColumn Header="Таможен %" Binding="{Binding CustomsPercent, NotifyOnValidationError=True, StringFormat=\{0:F0\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
-												<Setter Property="ToolTip" Value="Ставка таможенного счета для клиента по машине"/>
+                                                <Setter Property="ToolTip" Value="Ставка таможенного счета для клиента по машине"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsSelected" Value="False">
                                                         <Setter Property="Background" Value="#FFFBEFEF"/>
@@ -1690,7 +1747,7 @@
                                             </Style>
                                         </DataGridTextColumn.CellStyle>
                                     </DataGridTextColumn>
-									<!--<DataGridTextColumn Header="Инвойс" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="97">
+                                    <!--<DataGridTextColumn Header="Инвойс" HeaderStyle="{StaticResource HeaderStyleWithBorder}" Binding="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="97">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
                                                 <Style.Triggers>
@@ -1803,7 +1860,9 @@
                                             </Style>
                                         </DataGridComboBoxColumn.CellStyle>
                                     </DataGridComboBoxColumn>
-                                    --><!--<DataGridTextColumn Binding="{Binding Path=Name}" Width="50"/>--><!--
+                                    -->
+                    <!--<DataGridTextColumn Binding="{Binding Path=Name}" Width="50"/>-->
+                    <!--
                                     <DataGridTextColumn Binding="{Binding Path=Sum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource ErrorStyle}" Width="80">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
@@ -1853,12 +1912,14 @@
                                     <DataGridTextColumn Binding="{Binding Path=Rate, Mode=OneWay, StringFormat=\{0:N4\}}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" Width="50"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            --><!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" VerticalAlignment="Top" BorderThickness="0,0,0,1" Height="18">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" VerticalAlignment="Top" BorderThickness="0,0,0,1" Height="18">
                                 <TextBlock Text="Курс ЦБ" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="5" BorderBrush="White" VerticalAlignment="Top" BorderThickness="1,0,0,1" Height="18">
                                 <TextBlock Text="{Binding Path=InvoiceRate.EURRate, Mode=OneWay, StringFormat=\{0:N4\}}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="0,0,0,0">
                                 <TextBlock Text="Баланс" Foreground="{Binding Path=BalanceInvoiceColor, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
                             </Border>
@@ -1929,16 +1990,19 @@
                                     <DataGridTextColumn Width="161"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            --><!--<Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,0,0,0">
                                 <TextBlock Text="Сумма" HorizontalAlignment="Left"/>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBlock Text="Оплата поставщику" />
                             </Border>
                             <Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBlock Text="Примечания" HorizontalAlignment="Left"/>
                             </Border>
-                            --><!--<Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="1,0,0,0">
                                 <TextBox Text="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1950,7 +2014,8 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <CheckBox IsChecked="{Binding Path=CurrencyPaid}" IsEnabled="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}" VerticalAlignment="Center" IsThreeState="False" />
                             </Border>
@@ -1967,7 +2032,8 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            --><!--<Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="3" BorderBrush="White" BorderThickness="1,0,0,0">
                                 <TextBox Text="{Binding CurrencyDate, NotifyOnValidationError=True, StringFormat=\{0:d\}}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1979,7 +2045,8 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="1" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding CurrencyPaidDate, NotifyOnValidationError=True, StringFormat=\{0:d\}}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                     <TextBox.Style>
@@ -1994,9 +2061,12 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="4" BorderBrush="White" BorderThickness="1,0,0,0">
-                                --><!--<TextBlock Text="Курс ВБ" HorizontalAlignment="Left"/>--><!--
+                                -->
+                    <!--<TextBlock Text="Курс ВБ" HorizontalAlignment="Left"/>-->
+                    <!--
                             </Border>
-                            --><!--<Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,0">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,0">
                                 <TextBox Text="{Binding Path=CurrencyRate, StringFormat=\{0:N4\}, TargetNullValue='', NotifyOnValidationError=True}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -2008,7 +2078,8 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                         </Grid>
                     </Border>
                     <Border Grid.Row="4" Margin="0,6,0,0" Background="#f7e0e0" BorderBrush="#FFCCCCCC" BorderThickness="1" Visibility="Collapsed">
@@ -2076,12 +2147,14 @@
                                     <DataGridTextColumn Binding="{Binding Path=Rate, Mode=OneWay, StringFormat=\{0:N4\}}" IsReadOnly="{Binding Path=RateVisible,Mode=OneWay}" Width="50"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            --><!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" BorderThickness="0,0,0,1" Height="18" VerticalAlignment="Top">
+                            -->
+                    <!--<Border Grid.Row="0" Grid.Column="4" BorderBrush="White" BorderThickness="0,0,0,1" Height="18" VerticalAlignment="Top">
                                 <TextBlock Text="Курс ЦБ" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="5" BorderBrush="White" BorderThickness="1,0,0,1" Height="18" VerticalAlignment="Top">
                                 <TextBlock Text="{Binding Path=PrepaymentsRate.EURRate, Mode=OneWay, StringFormat=\{0:N4\}}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="0" Grid.Column="2" BorderBrush="White" BorderThickness="0,0,0,0">
                                 <TextBlock Text="Баланс" Foreground="{Binding Path=BalancePrepaymentsColor}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
                             </Border>
@@ -2184,12 +2257,14 @@
                             <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,1">
                                 <TextBlock Text="Коэф. наценки" HorizontalAlignment="Left"/>
                             </Border>
-                            --><!--<Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            -->
+                    <!--<Border Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBlock Text="Покупка валюты" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBlock Text="Наценка" HorizontalAlignment="Left"/>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="3" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBlock Text="Сумма реализации" HorizontalAlignment="Left"/>
                             </Border>
@@ -2206,7 +2281,8 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            --><!--<Border Grid.Row="2" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            -->
+                    <!--<Border Grid.Row="2" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=CurrencySum, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -2231,7 +2307,8 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                            </Border>--><!--
+                            </Border>-->
+                    <!--
                             <Border Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=Selling, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
@@ -2247,7 +2324,9 @@
                             </Border>
                             <Border Grid.Row="0" Grid.Column="6" BorderBrush="White" BorderThickness="1,0,0,0"/>
                             <Border Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="4" BorderBrush="White" BorderThickness="1,1,0,1"/>
-                            --><!--<Border Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="0,1,0,0"/>--><!--
+                            -->
+                    <!--<Border Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="0,1,0,0"/>-->
+                    <!--
                             <Border Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="4" BorderBrush="White" BorderThickness="1,1,0,0"/>
                         </Grid>
                     </Border>

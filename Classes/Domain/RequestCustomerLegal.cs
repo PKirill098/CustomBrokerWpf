@@ -248,6 +248,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 pfdbm.Customer = this;
                 pfdbm.Command.Connection = pdbm.Command.Connection;
                 pfdbm.Fill();
+                Application.Current.Dispatcher.Invoke(() =>
+                { this.PrePrepays.Clear(); });
                 foreach (Prepay pay in pfdbm.Collection)
                 {
                     foreach (PrepayCustomerRequest item in pdbm.Collection)
@@ -258,7 +260,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         }
                     if (!find)
                         Application.Current.Dispatcher.Invoke(() =>
-                        { this.Prepays.Add(new PrepayCustomerRequest(this, null, pay, null)); });
+                        { this.PrePrepays.Add(new PrepayCustomerRequest(this, pay, null)); });
                 }
                 if (pdbm.Errors.Count > 0 | pfdbm.Errors.Count > 0)
                     Common.PopupCreator.GetPopup(text: pdbm.ErrorMessage+"/n"+ pfdbm.ErrorMessage
@@ -273,7 +275,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             foreach (PrepayCustomerRequest item in myprepays)
             { item.PropertyChangedNotification(nameof(PrepayCustomerRequest.FinalInvoiceRubSumPaid)); item.PropertyChangedNotification(nameof(PrepayCustomerRequest.CustomerBalance)); }
         }
-
+        private ObservableCollection<PrepayCustomerRequest> mypreprepays;
+        internal ObservableCollection<PrepayCustomerRequest> PrePrepays
+        {
+            set
+            {
+                mypreprepays = value;
+                this.PropertyChangedNotification(nameof(this.PrePrepays));
+            }
+            get
+            {
+                if (mypreprepays == null)
+                {
+                    mypreprepays = new ObservableCollection<PrepayCustomerRequest>(); // чтобы небыло гонки
+                }
+                return mypreprepays;
+            }
+        }
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             RequestCustomerLegal templ= sample as RequestCustomerLegal;
@@ -282,7 +300,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.Selected = templ.Selected;
             this.CustomerLegal = templ.CustomerLegal;
             this.Invoice = templ.Invoice;
-            //this.InvoiceDiscount = templ.InvoiceDiscount;
+            this.InvoiceDiscount = templ.InvoiceDiscount;
         }
         protected override void RejectProperty(string property, object value)
         {
@@ -463,7 +481,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if(entry=='l')
             {
                 UpdatedRequest(nameof(this.InvoiceDiscount), oldvalue);
-                //this.UpdatePrepay(value, oldvalue);
             }
             else if(entry == 'r')
                 this.UpdatePrepay(value, oldvalue);
@@ -472,7 +489,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private PrepayCustomerRequest GetNewPrepay()
         {
-            return new PrepayCustomerRequest(lib.NewObjectId.NewId, 0,null,null, lib.DomainObjectState.Added, this,null, null, 0M, myinvoice??0M, null
+            return new PrepayCustomerRequest(lib.NewObjectId.NewId, 0,null,null, lib.DomainObjectState.Added, this,null, myinvoice??0M, null, 0M, null
                                 , new Prepay(id:lib.NewObjectId.NewId, stamp:0,updated:null,updater:null, mstate:lib.DomainObjectState.Added,
                                 agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(this.Request.AgentId ?? 0, out _),
                                 cbrate: null, currencypaiddate:null, customer:this.CustomerLegal,dealpassport:true, eurosum:0M, importer:this.Request.Importer, initsum:myinvoice ?? 0M, invoicedate:null, invoicenumber:null, percent:0M, refund:0M,
@@ -526,20 +543,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             else
             {
                 decimal? val;
-                decimal total = 0M, d = 0M, d1 = 0M, d2 = 0M, sd = 0M, s = 0M, sr = 0M, sdr = 0M;
+                decimal total = 0M, m = 0M, d = 0M, d1 = 0M, d2 = 0M, sd = 0M, s = 0M, sr = 0M, sdr = 0M;
                 switch (property)
                 {
-                    case nameof(PrepayCustomerRequest.CustomsInvoiceRubSum):
-                        total = this.Prepays.Sum((PrepayCustomerRequest prepay) => { return prepay.EuroSum; });
+                    case nameof(PrepayCustomerRequest.DTSum):
+                        foreach(PrepayCustomerRequest prepay in this.Prepays)
+                        {
+                            if (prepay.DTSumSet.HasValue)
+                                m += prepay.DTSumSet.Value;
+                            else
+                                total += prepay.EuroSum;
+                        }
                         if (total == 0M) return;
-                        total = decimal.Divide(decimal.Round(this.InvoiceDiscount.Value, decimals), total);
+                        total = decimal.Divide(decimal.Round(this.InvoiceDiscount.Value - m, decimals), total);
                         break;
                 }
                 foreach (PrepayCustomerRequest prepay in this.Prepays)
                 {
+                    if (prepay.DTSumSet.HasValue) continue;
                     switch (property)
                     {
                         case nameof(prepay.DTSum):
+                            
                             if (prepay.EuroSum>0M)
                             {
                                 s = decimal.Multiply(total, prepay.EuroSum);
@@ -685,7 +710,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             mycidbm = new CustomsInvoiceDBM();
             mypdbm = new PrepayCustomerRequestDBM();
-            mypfdbm = new PrepayFundDBM();
         }
 
         private Request myrequest;
@@ -699,7 +723,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { set { mycustomer = value; } get { return mycustomer; } }
         public override int? ItemId { get; set; }
         private PrepayCustomerRequestDBM mypdbm;
-        private PrepayFundDBM mypfdbm;
         private CustomsInvoiceDBM mycidbm;
 
         protected override void SetSelectParametersValue(SqlConnection addcon)
@@ -712,23 +735,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override RequestCustomerLegal CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            CustomerLegal customerlegal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerlegalid")), addcon, out List<lib.DBMError> errors);
+            CustomerLegal customerlegal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["customerlegalid"]), addcon, out List<lib.DBMError> errors);
             this.Errors.AddRange(errors);
-            Request request = myrequest ?? CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+            Request request = myrequest ?? (this.FillType == lib.FillType.Refresh ? CustomBrokerWpf.References.RequestStore.UpdateItem(reader.GetInt32(this.Fields["requestid"]), addcon, out errors) : CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors));
             this.Errors.AddRange(errors);
             RequestCustomerLegal item = new RequestCustomerLegal(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), lib.DomainObjectState.Unchanged
                 , request
                 , customerlegal
-                , reader.GetBoolean(reader.GetOrdinal("selected"))
-                , reader.IsDBNull(reader.GetOrdinal("actualweight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("actualweight"))
-                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? (int?)null : reader.GetInt16(reader.GetOrdinal("cellnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("currencydate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("currencydate"))
-                , reader.IsDBNull(reader.GetOrdinal("currencyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("currencyrate"))
-                , reader.IsDBNull(reader.GetOrdinal("invoice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("invoice"))
-                , reader.IsDBNull(reader.GetOrdinal("invoicediscount")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("invoicediscount"))
-                , reader.IsDBNull(reader.GetOrdinal("officialWeight")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("officialWeight"))
-                , reader.IsDBNull(reader.GetOrdinal("volume")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("volume")));
-            if (item.Id > 0) item = CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(item);
+                , reader.GetBoolean(this.Fields["selected"])
+                , reader.IsDBNull(this.Fields["actualweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualweight"])
+                , reader.IsDBNull(this.Fields["cellnumber"]) ? (int?)null : reader.GetInt16(this.Fields["cellnumber"])
+                , reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
+                , reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
+                , reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
+                , reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
+                , reader.IsDBNull(this.Fields["officialweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialweight"])
+                , reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"]));
+            if (item.Id > 0) item = CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(item, this.FillType == lib.FillType.Refresh);
 
             if ((this.FillType == lib.FillType.Refresh) & !item.CustomsInvoiceIsNull)
             {
@@ -737,6 +760,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             mypdbm.Command.Connection = addcon;
             mypdbm.Errors.Clear();
+            mypdbm.FillType = this.FillType;
             mypdbm.RequestCustomer = item;
             mypdbm.Fill();
             if (mypdbm.Errors.Count > 0)
@@ -791,6 +815,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     isSuccess = false;
                     foreach (lib.DBMError err in mypdbm.Errors) this.Errors.Add(err);
                 }
+                mypdbm.Collection = item.PrePrepays;
+                foreach (PrepayCustomerRequest prepay in item.PrePrepays)
+                    if (prepay.DomainState == lib.DomainObjectState.Modified & prepay.EuroSum == 0M)
+                    {
+                        prepay.DomainState = lib.DomainObjectState.Deleted;
+                        if (!mypdbm.SaveItemChanches(prepay))
+                        {
+                            isSuccess = false;
+                            foreach (lib.DBMError err in mypdbm.Errors) this.Errors.Add(err);
+                        }
+                        prepay.DomainState = lib.DomainObjectState.Added;
+                    }
             }
             return isSuccess;
         }
@@ -883,20 +919,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            //mypdbm.Command.Connection = this.Command.Connection;
-            //foreach (RequestCustomerLegal item in this.Collection)
-            //{
-            //    LoadObjects(item);
-            //}
-            return this.Errors.Count==0;
+            mypdbm.CancelingLoad = this.CancelingLoad;
         }
         private void RefreshFund(RequestCustomerLegal requestlegal,List<lib.DBMError> errors, SqlConnection con)
         {
             if (requestlegal.Request.Status.Id == 0) return;
             bool find = false;
-            mypfdbm.Errors.Clear();
+            PrepayFundDBM mypfdbm = new PrepayFundDBM();
             mypfdbm.Customer = requestlegal;
             mypfdbm.Command.Connection = con;
             mypfdbm.Fill();
@@ -915,8 +946,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     }
                 if (!find)
+                    foreach (PrepayCustomerRequest item in requestlegal.PrePrepays)
+                        if (item.Prepay.Id == pay.Id)
+                        {
+                            find = true;
+                            break;
+                        }
+                if (!find)
                     this.mydispatcher.Invoke(() =>
-                    { requestlegal.Prepays.Add(new PrepayCustomerRequest(requestlegal, null, pay, null)); });
+                    { requestlegal.PrePrepays.Add(new PrepayCustomerRequest(requestlegal, pay, null)); });
             }
         }
     }
@@ -1157,6 +1195,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return myprepays;
             }
         }
+        private PrepayCustomerRequestSynchronizer mypresync;
+        private ListCollectionView mypreprepays;
+        public ListCollectionView PrePrepays
+        {
+            get
+            {
+                if (mypreprepays == null)
+                {
+                    if (mypresync == null)
+                    {
+                        mypresync = new PrepayCustomerRequestSynchronizer();
+                        mypresync.DomainCollection = this.DomainObject.PrePrepays;
+                        mypresync.DomainCollection.CollectionChanged += DomainCollection_CollectionChanged;
+                        this.PropertyChangedNotification(nameof(this.PrePrepaysVisibility));
+                    }
+                    mypreprepays = new ListCollectionView(mypresync.ViewModelCollection);
+                    mypreprepays.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
+                    //mypreprepays.CurrentChanged += (object sender, EventArgs e)=> { this.PropertyChangedNotification(nameof(this.PrePrepaysVisibility)); };
+                }
+                return mypreprepays;
+            }
+        }
+        private void DomainCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            this.PropertyChangedNotification(nameof(this.PrePrepaysVisibility));
+        }
+        public Visibility PrePrepaysVisibility
+        { get { return mypresync?.DomainCollection.Count > 0 ? Visibility.Visible : Visibility.Collapsed; } }
 
         protected override void DomainObjectPropertyChanged(string property)
         {

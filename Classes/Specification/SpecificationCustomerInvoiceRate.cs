@@ -34,9 +34,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return new SpecificationCustomerInvoiceRate() { CustomerId=reader.IsDBNull(0)?(int?)null: reader.GetInt32(0),Rate= reader.IsDBNull(1) ? (decimal?)null : reader.GetDecimal(1),Equally = reader.IsDBNull(2) ? false : reader.GetBoolean(2) };
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override void PrepareFill(SqlConnection addcon)
         {

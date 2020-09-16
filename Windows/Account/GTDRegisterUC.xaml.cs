@@ -24,6 +24,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
     public partial class GTDRegisterUC : UserControl
     {
         private Window myhost;
+        private TabItem myhostelement;
         private List<Window> mychildwindows;
         private lib.BindingDischarger mybinddisp;
         private GTDRegisterViewCommander mycmd;
@@ -40,7 +41,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                 FrameworkElement win = this;
                 while (myhost == null & win != null)
                     if (win.Parent is Window) myhost = win.Parent as Window;
-                    else win = win.Parent as FrameworkElement;
+                    else { win = win.Parent as FrameworkElement; if (win.Parent is TabItem) myhostelement = win.Parent as TabItem; }
                 if (myhost != null)
                 {
                     mychildwindows = (myhost as lib.Interfaces.IMainWindow).ListChildWindow;
@@ -554,7 +555,59 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                 }
             }
         }
-		#endregion
+        #endregion
 
-	}
+        internal bool HostWindow_Close()
+        {
+            bool cancel = false;
+            if (mycmd == null) return cancel;
+            if (mybinddisp.EndEdit())
+            {
+                bool isdirty = false;
+                foreach (lib.ViewModelErrorNotifyItem item in mycmd.Items)
+                {
+                    isdirty = isdirty | item.IsDirty;
+                    if (isdirty) break;
+                    else
+                    {
+                        isdirty = isdirty | item.DomainObject.IsDirty;
+                        if (isdirty) break;
+                    }
+                }
+                if (isdirty)
+                {
+                    if (myhostelement != null) myhostelement.IsSelected = true; else myhost.Activate();
+                    if (MessageBox.Show("Сохранить изменения?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                    {
+                        if (!mycmd.SaveDataChanges())
+                        {
+                            if (MessageBox.Show("\nИзменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                            {
+                                cancel = true;
+                            }
+                            else
+                                mycmd.Reject.Execute(null);
+                        }
+                    }
+                    else
+                    {
+                        mycmd.Reject.Execute(null);
+                    }
+                }
+            }
+            else
+            {
+                if (myhostelement != null) myhostelement.IsSelected = true; else myhost.Activate();
+                if (MessageBox.Show("\nИзменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                {
+                    cancel = true;
+                }
+                else
+                {
+                    mycmd.Reject.Execute(null);
+                }
+            }
+            return cancel;
+        }
+    }
 }

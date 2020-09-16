@@ -229,7 +229,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             {
                 Action action = () =>
                 {
-                    if (this.UpdateIsOver) return;
+                    if (this.UpdatingSample) return;
                     this.CBRate = null;
                     this.Percent = this.GetPercent();
                     if (myinvoicedate.HasValue)
@@ -638,7 +638,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , reader.GetDecimal(this.Fields["percent"])
                 , reader.GetDecimal(this.Fields["refund"])
                 , reader.GetDateTime(this.Fields["shipplandate"]));
-            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
             
             myrdbm.Errors.Clear();
             mycbdbm.Errors.Clear();
@@ -676,6 +675,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 mycpdbm.Fill();
                 item.CurrencyPays = mycpdbm.Collection;
             }
+            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
             myrdbm.Collection = null;
             mycbdbm.Collection = null;
             mycpdbm.Collection = null;
@@ -845,9 +845,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             return item.Agent?.Id > 0 & item.Customer?.Id > 0;
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return this.Errors.Count==0;
+            myrdbm.CancelingLoad = this.CancelingLoad;
+            mycbdbm.CancelingLoad = this.CancelingLoad;
+            mycpdbm.CancelingLoad = this.CancelingLoad;
         }
     }
 
@@ -975,7 +977,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         this.myUnchangedPropertyCollection.Add(name, this.DomainObject.CurrencyPaidDate);
                     mypaydate = value;
                     if (this.ValidateProperty(name))
-                    { ChangingDomainProperty = name; this.DomainObject.CurrencyPaidDate = value.Value; this.ClearErrorMessageForProperty(name); }
+                    { ChangingDomainProperty = name; this.DomainObject.CurrencyPaidDate = value; this.ClearErrorMessageForProperty(name); }
                 }
             }
             get { return this.IsEnabled ? mypaydate : (DateTime?)null; }
@@ -1125,7 +1127,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     if (mypaydate != this.DomainObject.CurrencyPaidDate)
                         mypaydate = this.DomainObject.CurrencyPaidDate;
                     else
-                        this.CurrencyPaidDate = (DateTime)value;
+                        this.CurrencyPaidDate = (DateTime?)value;
                     break;
                 case nameof(this.NotDealPassport):
                     this.DomainObject.DealPassport = !(bool)value;

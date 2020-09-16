@@ -321,8 +321,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.SelectParams[0].Value = myrequest?.Id;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class RequestHistoryVM

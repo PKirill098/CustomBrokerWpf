@@ -109,8 +109,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[0].Value = item.Name;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class TNVEDGoodsVM : lib.ViewModelErrorNotifyItem<TNVEDGoods>

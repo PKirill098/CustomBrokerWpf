@@ -220,6 +220,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                             }
                         }
                         break;
+                    case "W13":
+                        if (this.Value1.HasValue)
+                        {
+                            foreach (Request request in mycmd.Requests)
+                            {
+                                if (request.AlgorithmCMD != null)
+                                {
+                                    decimal? p9 = null;
+                                    foreach (AlgorithmValuesRequest values in request.AlgorithmCMD.Algorithm.Formulas)
+                                        if (values.Formula.Code == "П10")
+                                        {
+                                            p9 = values.Value1;
+                                            break;
+                                        }
+                                    if (p9.HasValue)
+                                        foreach (AlgorithmValuesRequest values in request.AlgorithmCMD.Algorithm.Formulas)
+                                            if (values.Formula.Code == "П13" & !values.Value1User.HasValue)
+                                            {
+                                                values.Value1Templ = this.Value1.Value * p9;
+                                                break;
+                                            }
+                                }
+                            }
+                        }
+                        break;
+                    case "W22":
+                        if (this.Value1.HasValue)
+                        {
+                            foreach (Request request in mycmd.Requests)
+                            {
+                                if (request.AlgorithmCMD != null)
+                                {
+                                    decimal? p9 = null;
+                                    foreach (AlgorithmValuesRequest values in request.AlgorithmCMD.Algorithm.Formulas)
+                                        if (values.Formula.Code == "П10")
+                                        {
+                                            p9 = values.Value1;
+                                            break;
+                                        }
+                                    if (p9.HasValue)
+                                        foreach (AlgorithmValuesRequest values in request.AlgorithmCMD.Algorithm.Formulas)
+                                            if (values.Formula.Code == "П22" & !values.Value1User.HasValue)
+                                            {
+                                                values.Value1Templ = this.Value1.Value * p9;
+                                                break;
+                                            }
+                                }
+                            }
+                        }
+                        break;
                 }
         }
         protected override void RequestSync2()
@@ -476,8 +526,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[11].Value = item.AFStamp;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class AlgorithmConsolidateTotalDBM : lib.DBMExec
@@ -622,8 +672,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class AlgorithmConsolidateCommand : AlgorithmFormulaCommand
@@ -1237,6 +1287,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "X3", "", 200, "П18/П9", null), this),
             new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "X4", "", 200, "П19/П9", null), this),
             new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "X5", "", 200, "П20/П9", null), this),
+            new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "W13", "", 200, "П13/П10", null), this),
+            new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "W22", "", 200, "П22/П10", null), this),
             //new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "P2", "", 200, "П23+П22+П24+П25+П27+П28+П29", null), myrequest),
             //new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "P3", "", 200, "П23+П22+П24+П35+П25+П27+П28+П29", null), myrequest)
             };

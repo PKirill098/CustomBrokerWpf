@@ -224,9 +224,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(CustomsInvoicePay item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(CustomsInvoicePay item)
         {

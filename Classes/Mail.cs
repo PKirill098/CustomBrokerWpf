@@ -179,8 +179,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 this.Errors.Add(new lib.DBMError(item, "Объект рассылки не сохранен в БД!", "0"));
             return myobject.Id > 0;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class MailCustomerDBM : lib.DBMSFill<KeyValuePair<int, string>>
@@ -210,8 +210,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         {
             SelectParams[0].Value = myobject.Id;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     internal class MailState : lib.DomainBaseNotifyChanged

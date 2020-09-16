@@ -721,8 +721,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        {}
     }
 
     internal class GoodsStore : lib.DomainStorageLoad<Goods, GoodsDBM>
@@ -2655,8 +2655,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return reader.GetString(0);
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class GoodsNameCheckListBoxVM : libui.CheckListBoxVMFill<GoodsVM, string>

@@ -96,8 +96,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[1].Value = item.Name;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class ImporterVM : lib.ViewModelErrorNotifyItem<Importer>

@@ -305,10 +305,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             return new CurrencyBuyJoint(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
 				, DateTime.Today, 0M, reader.GetDecimal(reader.GetOrdinal("cursum")), host);
 		}
-		protected override bool LoadObjects()
+		protected override void CancelLoad()
 		{
-			return this.Errors.Count == 0;
-		}
+            myfcdbm.CancelingLoad = this.CancelingLoad;
+            myfcdbm.CancelingLoad = this.CancelingLoad;
+        }
 		protected override void PrepareFill(SqlConnection addcon)
 		{
 			this.SelectParams[0].Value = myimporter?.Id;
@@ -366,7 +367,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return mymodel.Host; } }
         
         public Agent Agent
-        { get { return mymodel.Host is Prepay ? (mymodel.Host as Prepay).Agent : (mymodel.Host as CustomsInvoice).Parcel.Request.Agent; } }
+        { get { return mymodel.Host is Prepay ? (mymodel.Host as Prepay).Agent : (mymodel.Host as CustomsInvoice).RequestCustomer.Request.Agent; } }
         public decimal? CBRate
         { get { return mymodel.Host is Prepay ? (mymodel.Host as Prepay).CBRate : (mymodel.Host as CustomsInvoice).FinalCurCBRate; } }
         public decimal? CBRate2p
@@ -670,9 +671,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(CurrencyBuyPrepay item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(CurrencyBuyPrepay item)
         {
@@ -913,9 +913,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void GetOutputSpecificParametersValue(CurrencyBuyInvoice item)
         {
         }
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return true;
         }
         protected override bool SaveChildObjects(CurrencyBuyInvoice item)
         {

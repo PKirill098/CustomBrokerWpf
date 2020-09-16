@@ -253,9 +253,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 			item.AcceptChanches();
 		}
 
-		protected override bool LoadObjects()
+		protected override void CancelLoad()
 		{
-			return true;
 		}
 		protected override bool SaveChildObjects(StorageData item)
 		{

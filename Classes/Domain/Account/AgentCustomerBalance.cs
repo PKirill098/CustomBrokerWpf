@@ -71,9 +71,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 );
         }
 
-        protected override bool LoadObjects()
+        protected override void CancelLoad()
         {
-            return this.Errors.Count == 0;
         }
 
         protected override void PrepareFill(SqlConnection addcon)

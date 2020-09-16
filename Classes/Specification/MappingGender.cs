@@ -128,8 +128,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 myupdateparams[0].Value = item.Gender.Id;
             return true;
         }
-        protected override bool LoadObjects()
-        { return true; }
+        protected override void CancelLoad()
+        { }
     }
 
     public class MappingGenderVM : lib.ViewModelErrorNotifyItem<MappingGender>
