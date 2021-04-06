@@ -7,7 +7,7 @@
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
         mc:Ignorable="d"
-        Title="Артикулы" Name="winVendorCode" Height="450" Width="800" Closing="Window_Closing" Language="ru-RU" FontSize="11" Icon="Images/document_view.png">
+        Title="Артикулы" Name="winVendorCode" Height="450" Width="800" Closing="Window_Closing" Language="ru-RU" FontSize="11" Icon="/CustomBrokerWpf;component/Images/document_view.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -33,21 +33,24 @@
         </Grid.Resources>
         <ToolBar Height="30">
             <Button Click="AddButton_Click" ToolTip="Прокрутить для добавления номера" IsTabStop="False" Visibility="Visible">
-                <Image Source="Images/rPlus_01-66-512.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
             </Button>
             <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                <Image Source="Images/remove.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
             </Button>
             <Button ToolTip="Выгрузить в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid}" IsTabStop="False">
-                <Image Source="Images/excel_export.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+            </Button>
+            <Button ToolTip="Загрузить из Excel" Command="{Binding Path=ExcelImport}" CommandParameter="{Binding ElementName=MainDataGrid}" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
             </Button>
             <Separator/>
             <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                <Image Source="Images/funnel_delete.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
             </Button>
             <Separator/>
             <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                <Image Source="Images/r2Refresh-512.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Button ToolTip="Сохранить изменения в БД" Command="{Binding Save}" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
@@ -64,8 +67,16 @@
             </Popup>
         </ToolBar>
         <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Path=Items}" Grid.Row="1"
-                  AutoGenerateColumns="False" EnableRowVirtualization="True" RowDetailsVisibilityMode="Collapsed" SelectionUnit="FullRow" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" AlternationCount="2"
+                  AutoGenerateColumns="False" EnableRowVirtualization="True" RowDetailsVisibilityMode="Collapsed" SelectionUnit="CellOrRowHeader" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" AlternationCount="2"
                   >
+            <DataGrid.CommandBindings>
+                <CommandBinding Command="{x:Static ApplicationCommands.Paste}" 
+                        CanExecute="Paste_CanExecute" 
+                        Executed="Paste_Execute" />
+                <CommandBinding Command="{x:Static ApplicationCommands.Copy}" 
+                        CanExecute="Copy_CanExecute" 
+                        Executed="Copy_Execute" />
+            </DataGrid.CommandBindings>
             <DataGrid.Resources>
                 <libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="ContextureFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ContextureFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
@@ -91,7 +102,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -108,7 +119,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -125,7 +136,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GoodsFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GoodsFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -142,7 +153,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DescriptionFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DescriptionFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -159,7 +170,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ContextureFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ContextureFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -176,7 +187,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GenderFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GenderFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -193,7 +204,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.TNVEDFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.TNVEDFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -210,7 +221,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.TranslationFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.TranslationFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -227,7 +238,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CountryRuFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CountryRuFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -244,7 +255,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.NoteFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.NoteFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}" FontWeight="Bold"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -254,6 +265,7 @@
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Обновлен" Binding="{Binding Updated, Mode=OneWay, StringFormat=\{0:d\}}" IsReadOnly="True" Width="70"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

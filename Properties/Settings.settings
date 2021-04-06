@@ -43,5 +43,14 @@
     <Setting Name="DocFileDefault" Type="System.String" Scope="User">
       <Value Profile="(Default)">Документы</Value>
     </Setting>
+    <Setting Name="VendorCodeDefault" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Документы</Value>
+    </Setting>
+    <Setting Name="Selling1CFileRoot" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Реализации</Value>
+    </Setting>
+    <Setting Name="Income1CFileRoot" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Поступления</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

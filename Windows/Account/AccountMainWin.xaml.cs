@@ -259,27 +259,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 try
                 {
-                    string path, err;
                     Classes.Domain.RequestVM item = (sender as Button).Tag as Classes.Domain.RequestVM;
-                    if (item.DomainState == lib.DomainObjectState.Unchanged)
-                    {
-                        err = item.MoveFolder();
-                        if (!string.IsNullOrEmpty(err))
-                            MessageBox.Show(err, "Папка документов");
-                    }
-                    else if (string.IsNullOrEmpty(item.DomainObject.DocDirPath) & item.DomainState != lib.DomainObjectState.Unchanged)
-                        MessageBox.Show("Сохраните изменения!", "Папка документов");
-
-                    if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
-                    {
-                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
-                        if (System.IO.Directory.Exists(path))
-                        {
-                            System.Diagnostics.Process.Start(path);
-                        }
-                        else if (MessageBox.Show("Папка документов " + path + " не найдена!/n/nСоздать заново?", "Папка документов", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
-                            item.DomainObject.DocDirPath = string.Empty;
-                    }
+                    item.DomainObject.DocFolderOpen();
                 }
                 catch (Exception ex)
                 {

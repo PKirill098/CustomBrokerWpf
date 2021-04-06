@@ -95,30 +95,30 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.10.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="DataModelClassLibrary, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\WPF\DataModelClassLibrary\DataModelClassLibrary\bin\Release\DataModelClassLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="MailKit, Version=2.2.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
-      <HintPath>packages\MailKit.2.2.0\lib\net45\MailKit.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MailKit, Version=2.11.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
+      <HintPath>packages\MailKit.2.11.1\lib\net47\MailKit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>C:\Windows\assembly\GAC_MSIL\Microsoft.Office.Interop.Excel\14.0.0.0__71e9bce111e9429c\Microsoft.Office.Interop.Excel.dll</HintPath>
     </Reference>
-    <Reference Include="MimeKit, Version=2.2.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
-      <HintPath>packages\MimeKit.2.2.0\lib\net45\MimeKit.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MimeKit, Version=2.11.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
+      <HintPath>packages\MimeKit.2.11.0\lib\net47\MimeKit.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Net.Http" />
@@ -155,15 +155,22 @@
     <Compile Include="Classes\Domain\Account\GTDRegister.cs" />
     <Compile Include="Classes\Domain\Account\InvoiceCurrencyPay.cs" />
     <Compile Include="Classes\Domain\Account\PrepayCurrencyPay.cs" />
+    <Compile Include="Classes\Domain\Account\PrepayExpire.cs" />
     <Compile Include="Classes\Domain\Account\Selling.cs" />
     <Compile Include="Classes\Domain\AgentAlias.cs" />
     <Compile Include="Classes\Domain\Manager.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
     <Compile Include="Classes\Domain\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
+    <Compile Include="Classes\EventLoger.cs" />
+    <Compile Include="Classes\Specification\SellingFactors.cs" />
     <Compile Include="Classes\Specification\SpecificationCustomerInvoiceRate.cs" />
+    <Compile Include="Classes\Specification\Variation.cs" />
     <Compile Include="ManagersWin.xaml.cs">
       <DependentUpon>ManagersWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Account\PrepayExpireWin.xaml.cs">
+      <DependentUpon>PrepayExpireWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Storage\StorageAgentIdentify.xaml.cs">
       <DependentUpon>StorageAgentIdentify.xaml</DependentUpon>
@@ -180,7 +187,7 @@
     <Compile Include="Windows\Account\CurrencyPayWin.xaml.cs">
       <DependentUpon>CurrencyPayWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AgentFilterWin.xaml.cs">
+    <Compile Include="Windows\Agent\AgentFilterWin.xaml.cs">
       <DependentUpon>AgentFilterWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="AlgorithmWin.xaml.cs">
@@ -312,13 +319,13 @@
     <Compile Include="ExcelImportWin.xaml.cs">
       <DependentUpon>ExcelImportWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GoodsEndingWin.xaml.cs">
+    <Compile Include="Windows\Specification\Goods\GoodsEndingWin.xaml.cs">
       <DependentUpon>GoodsEndingWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GoodsItemWin.xaml.cs">
+    <Compile Include="Windows\Specification\Goods\GoodsItemWin.xaml.cs">
       <DependentUpon>GoodsItemWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GoodsWin.xaml.cs">
+    <Compile Include="Windows\Specification\Goods\GoodsWin.xaml.cs">
       <DependentUpon>GoodsWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="GoodsСhoiceWin.xaml.cs">
@@ -341,7 +348,7 @@
     <Compile Include="InvoiceWin.xaml.cs">
       <DependentUpon>InvoiceWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LoginWin.xaml.cs">
+    <Compile Include="Windows\Security\LoginWin.xaml.cs">
       <DependentUpon>LoginWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="MailSMSWin.xaml.cs">
@@ -410,7 +417,7 @@
     <Compile Include="UserConflictResolutionWin.xaml.cs">
       <DependentUpon>UserConflictResolutionWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="VendorCodeWin.xaml.cs">
+    <Compile Include="Windows\Specification\VendorCodeWin.xaml.cs">
       <DependentUpon>VendorCodeWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewTextWin.xaml.cs">
@@ -553,7 +560,7 @@
     <Compile Include="ForwarderWin.xaml.cs">
       <DependentUpon>ForwarderWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GoodsTypeWin.xaml.cs">
+    <Compile Include="Windows\Directories\GoodsTypeWin.xaml.cs">
       <DependentUpon>GoodsTypeWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\Interfaces.cs" />
@@ -598,6 +605,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Account\PrepayExpireWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\Storage\StorageAgentIdentify.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -622,11 +633,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AgentFilterWin.xaml">
+    <Page Include="Windows\Agent\AgentFilterWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\AgentWin.xaml">
+    <Page Include="Windows\Agent\AgentWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -722,19 +733,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GoodsEndingWin.xaml">
+    <Page Include="Windows\Specification\Goods\GoodsEndingWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GoodsItemWin.xaml">
+    <Page Include="Windows\Specification\Goods\GoodsItemWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GoodsTypeWin.xaml">
+    <Page Include="Windows\Directories\GoodsTypeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GoodsWin.xaml">
+    <Page Include="Windows\Specification\Goods\GoodsWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -778,7 +789,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LoginWin.xaml">
+    <Page Include="Windows\Security\LoginWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -801,7 +812,7 @@
     <Compile Include="AddressTypeWin.xaml.cs">
       <DependentUpon>AddressTypeWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\AgentWin.xaml.cs">
+    <Compile Include="Windows\Agent\AgentWin.xaml.cs">
       <DependentUpon>AgentWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
@@ -981,7 +992,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="VendorCodeWin.xaml">
+    <Page Include="Windows\Specification\VendorCodeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1576,7 +1587,20 @@
   <ItemGroup>
     <Resource Include="Images\moneybag_euro.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="VBIDE">
+      <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>3</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\1C.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

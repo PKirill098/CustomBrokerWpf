@@ -145,6 +145,7 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Состав" Binding="{Binding Path=Contexture, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Описание" Binding="{Binding Path=Description, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Описание 1C" Binding="{Binding Path=DescriptionAccount, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Размер EN" Binding="{Binding Path=SizeEN, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}"/>
                 <DataGridTextColumn Header="Размер РФ" Binding="{Binding Path=SizeRU, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Артикул" Binding="{Binding Path=VendorCode, TargetNullValue='', Mode=OneWay}" />

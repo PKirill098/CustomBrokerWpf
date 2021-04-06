@@ -495,6 +495,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mysync.DomainCollection = mymaindbm.Collection;
             base.Collection = mysync.ViewModelCollection;
             mytotal = new CurrencyPayTotal(myview);
+            if (agent != null & importer != null)
+                mytotal.StartCount();
             if (mymaindbm.Errors.Count > 0)
                 this.OpenPopup(mymaindbm.ErrorMessage, true);
         
@@ -511,7 +513,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             set
             {
                 mymaindbm.Agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(value,out _);
-                mymaindbm.Fill();
+                mytotal.StopCount(); mymaindbm.Fill(); mytotal.StartCount();
             }
             get { return mymaindbm.Agent?.Id ?? 0; }
         }
@@ -569,7 +571,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override void RefreshData(object parametr)
         {
-            mymaindbm.Fill();
+            mytotal.StopCount(); mymaindbm.Fill(); mytotal.StartCount();
             if (mymaindbm.Errors.Count > 0) this.PopupText = mymaindbm.ErrorMessage;
         }
         public override bool SaveDataChanges()
@@ -604,7 +606,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class CurrencyPayTotal : lib.TotalCollectionValues<CurrencyPayVM>
+    public class CurrencyPayTotal : lib.TotalValues.TotalViewValues<CurrencyPayVM>
     {
         internal CurrencyPayTotal(ListCollectionView view) : base(view)
         {

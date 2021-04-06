@@ -467,12 +467,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         internal RequestHistoryViewCommand(Request request)
         {
+            mysync = new RequestHistorySynchronizer();
+            mysync.DomainCollection = new System.Collections.ObjectModel.ObservableCollection<RequestHistory>();
             mydbm = new RequestHistoryDBM();
             mydbm.Request = request;
             mydbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); };
+            mydbm.Collection = mysync.DomainCollection;
             mydbm.FillAsync();
-            mysync = new RequestHistorySynchronizer();
-            mysync.DomainCollection = mydbm.Collection;
             myitems = new ListCollectionView(mysync.ViewModelCollection);
             myitems.SortDescriptions.Add(new SortDescription("Request.UpdateWhen", ListSortDirection.Ascending));
         }

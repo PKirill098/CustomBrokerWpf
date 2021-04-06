@@ -1,5 +1,6 @@
 ﻿using KirillPolyanskiy.CustomBrokerWpf;
 using KirillPolyanskiy.CustomBrokerWpf.Classes.Specification;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -18,10 +19,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private lib.Metadata.MetadataDataGrid mygoodsmetadatadatagrid;
         private lib.BindingDischarger mybranchbindingdischarger;
         private lib.BindingDischarger mytnvedbindingdischarger;
-
+        private lib.BindingDischarger myvariationbindingdischarger;
+        private VariationCommander myvariationcmd;
         public GoodsWin()
         {
             InitializeComponent();
+            myvariationcmd = null;
             mybranchbindingdischarger = new lib.BindingDischarger(this, new DataGrid[] { this.BranchDataGrid });
             mytnvedbindingdischarger = new lib.BindingDischarger(this, new DataGrid[] { this.TNVEDGroupDataGrid });
         }
@@ -69,16 +72,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             Classes.Domain.GoodsViewCommand vm = this.GoodsTab.DataContext as Classes.Domain.GoodsViewCommand;
             Classes.Domain.BranchCountryCommand brhcmd = this.BranchTab.DataContext as Classes.Domain.BranchCountryCommand;
             Classes.Specification.MappingViewCommand mapcmd = this.MappingTab.DataContext as Classes.Specification.MappingViewCommand;
-            Classes.Domain.GenderViewCommand gnrcmd = new Classes.Domain.GenderViewCommand();
-            if (vmEndEdit() & mappingEndEdit() & materialEndEdit() & ingredientEndEdit() & genderEndEdit() & mybranchbindingdischarger.EndEdit())
+            Classes.Domain.GenderViewCommand gnrcmd = this.GenderTab.DataContext as Classes.Domain.GenderViewCommand;
+            if (vmEndEdit() & mappingEndEdit() & materialEndEdit() & ingredientEndEdit() & genderEndEdit() & mybranchbindingdischarger.EndEdit() & (myvariationbindingdischarger==null || myvariationbindingdischarger.EndEdit()))
             {
-                bool isdirty = false, matdirty = false, mapdirty = false, gnrdirty = false, brhdirty = false;
+                bool isdirty = false, matdirty = false, mapdirty = false, gnrdirty = false, brhdirty = false, vrtdirty = false;
                 foreach (Classes.Specification.MaterialVM item in ingcmd.Items.SourceCollection) matdirty = matdirty | item.IsDirty;
                 foreach (Classes.Domain.GoodsVM item in vm.Items.SourceCollection) isdirty = isdirty | item.IsDirty;
                 foreach (Classes.Domain.BranchCountry item in brhcmd.Items.SourceCollection) brhdirty = brhdirty | item.IsDirty;
                 foreach (Classes.Specification.MappingVM item in mapcmd.Items.SourceCollection) mapdirty = mapdirty | item.IsDirty;
                 gnrdirty = gnrcmd.IsDirtyTree;
-                if (isdirty | matdirty | mapdirty | gnrdirty | brhdirty)
+                if(myvariationcmd != null) foreach (VariationVM item in myvariationcmd.Items.SourceCollection) vrtdirty = vrtdirty | item.DomainObject.IsDirty;
+                if (isdirty | matdirty | mapdirty | gnrdirty | brhdirty | vrtdirty)
                 {
                     if (MessageBox.Show("Сохранить изменения?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
                     {
@@ -137,6 +141,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                             //else
                             //    gnrcmd.Reject.Execute(null);
                         }
+                        if (!(myvariationcmd == null || myvariationcmd.SaveDataChanges()))
+                        {
+                            this.Activate();
+                            VariationTab.IsSelected = true;
+                            if (MessageBox.Show("\nИзменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                            {
+                                e.Cancel = true;
+                            }
+                            else
+                                myvariationcmd.Reject.Execute(null);
+                        }
                     }
                     else
                     {
@@ -145,6 +160,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         //matcmd.Reject.Execute(null);
                         //gnrcmd.Reject.Execute(null);
                         mapcmd.Reject.Execute(null);
+                        if (myvariationcmd != null) myvariationcmd.Reject.Execute(null);
                     }
                 }
             }
@@ -161,6 +177,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     brhcmd.Reject.Execute(null);
                     //matcmd.Reject.Execute(null);
                     mapcmd.Reject.Execute(null);
+                    if (myvariationcmd != null) myvariationcmd.Reject.Execute(null);
                 }
             }
             if (!e.Cancel)
@@ -916,6 +933,60 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             e.Handled = true;
         }
         #endregion
+        #region Variation
+        private void ColmarkComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (VariationDataGrid.SelectedItems.Count > 0 & e.AddedItems.Count > 0)
+            {
+                foreach (VariationVM item in mainDataGrid.SelectedItems.OfType<VariationVM>())
+                {
+                    item.ColorMark = (e.AddedItems[0] as System.Windows.Shapes.Rectangle).Fill.ToString();
+                }
+            }
+        }
 
+        private void PluralFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (myvariationcmd.PluralFilter != null && !myvariationcmd.PluralFilter.FilterOn) myvariationcmd.PluralFilter?.FillAsync();
+            Popup ppp = this.VariationDataGrid.FindResource("PluralFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+        private void SingularFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (myvariationcmd.SingularFilter != null && !myvariationcmd.SingularFilter.FilterOn) myvariationcmd.SingularFilter?.FillAsync();
+            Popup ppp = this.VariationDataGrid.FindResource("SingularFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+
+        private void VariationDelete_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = myvariationcmd.Delete.CanExecute(this.VariationDataGrid.SelectedItems);
+            e.ContinueRouting = false;
+        }
+        private void VariationDelete_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            myvariationcmd.Delete.Execute(this.VariationDataGrid.SelectedItems);
+            e.Handled = true;
+        }
+        #endregion
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(e.AddedItems.Count>0)
+            {
+                 if(e.AddedItems.Contains(this.VariationTab) && myvariationcmd==null)
+                {
+                    myvariationbindingdischarger = new lib.BindingDischarger(this, new DataGrid[] { this.VariationDataGrid });
+                    myvariationcmd = new VariationCommander();
+                    myvariationcmd.CancelEdit = myvariationbindingdischarger.CancelEdit;
+                    myvariationcmd.EndEdit = myvariationbindingdischarger.EndEdit;
+                    this.VariationTab.DataContext = myvariationcmd;
+                }
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
-    public class Declaration : lib.DomainBaseStamp
+    public class Declaration : lib.DomainStampValueChanged
     {
         public Declaration(int id, long stamp, lib.DomainObjectState mstate
             , decimal? cbrate, decimal? fee, string number,DateTime? spddate, decimal? tax, decimal? totalsum, decimal? vat
@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private decimal? mycbrate;
         public decimal? CBRate
         {
-            set { SetProperty<decimal?>(ref mycbrate, value);}
+            set { SetPropertyOnValueChanged<decimal?>(ref mycbrate, value);}
             get { return mycbrate; }
         }
         private decimal? myfee;
@@ -50,7 +50,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private decimal? mytotalsum;
         public decimal? TotalSum
         {
-            set { SetProperty<decimal?>(ref mytotalsum, value); }
+            set { SetPropertyOnValueChanged<decimal?>(ref mytotalsum, value); }
             get { return mytotalsum; }
         }
         private DateTime? myspddate;
@@ -81,7 +81,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal string LoadDeclaration(string filepath)
         {
             string errmsg = string.Empty;
-            decimal invoice=0,rate=0;
+            decimal? cbrate = null, totalsum = null, fee = null, tax = null, vat = null;
+            decimal val;
             try
             {
                 XElement rateelement = null, CUMainContractTerms = null;
@@ -104,13 +105,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         CUMainContractTerms = CUMainContractTerms.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("TotalInvoiceAmount"));
                         if (rateelement != null)
                         {
-                            decimal.TryParse(rateelement.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out rate);
-                            this.CBRate = rate;
+                            decimal.TryParse(rateelement.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out val);
+                            cbrate = val;
                         }
                         if (CUMainContractTerms != null)
                         {
-                            decimal.TryParse(CUMainContractTerms.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out invoice);
-                            this.TotalSum = invoice;
+                            decimal.TryParse(CUMainContractTerms.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out val);
+                            totalsum = val;
                         }
                     }
                     element = element.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("ESADout_CUPayments"));
@@ -119,19 +120,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                             switch(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentModeCode"))?.Value)
                             {
                                 case "1010":
-                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out invoice);
-                                    this.Fee = invoice;
+                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out val);
+                                    fee = val;
                                     break;
                                 case "2010":
-                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out invoice);
-                                    this.Tax = invoice;
+                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out val);
+                                    tax = val;
                                     break;
                                 case "5010":
-                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out invoice);
-                                    this.VAT = invoice;
+                                    decimal.TryParse(CUCustomsPayment.Elements().FirstOrDefault(e => e.Name.LocalName.Equals("PaymentAmount"))?.Value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CreateSpecificCulture("en-EN"), out val);
+                                    vat = val;
                                     break;
                             }
                 }
+                this.CBRate = cbrate; // if not exists null, if it is same then have not to save
+                this.TotalSum = totalsum;
+                this.Fee = fee;
+                this.Tax = tax;
+                this.VAT = vat;
                 XComment comment = xdoc.Nodes().FirstOrDefault(e => e.NodeType == System.Xml.XmlNodeType.Comment) as XComment;
                 this.Number = comment?.Value.Substring(3);
             }
@@ -256,6 +262,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         par.Value = item.VAT;
                         break;
                 }
+            EventLoger log = new EventLoger() { What = "DT", Message = (item.Number ?? "Новая") + " Save", ObjectId = item.Id };
+            log.Execute();
             return true;
         }
     }

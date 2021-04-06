@@ -225,7 +225,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Счет в руб." Binding="{Binding Path=RubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="SizeToHeader">
+					<DataGridTextColumn Header="Счет в руб." Binding="{Binding Path=RubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}" Width="SizeToHeader">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма счета выставленного клиенту"/>
@@ -294,7 +294,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Курс ЦБ" Binding="{Binding Path=Prepay.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+                    <DataGridTextColumn Header="Курс ЦБ" Binding="{Binding Path=Prepay.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="60">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Курс ЦБ на дату выставления счета"/>
@@ -312,7 +312,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Курс ЦБ + 2%" Binding="{Binding Path=Prepay.CBRatep2p, StringFormat=\{0:N4\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+                    <DataGridTextColumn Header="Курс ЦБ + 2%" Binding="{Binding Path=Prepay.CBRatep2p, StringFormat=\{0:N4\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ContentTemplate">
@@ -329,7 +329,25 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="Prepay.RubPaidDate" ClipboardContentBinding="{Binding Prepay.RubPaidDate}">
+                    <DataGridTextColumn Header="Курс реализации" Binding="{Binding Path=SellingRateCorr, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="60">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                <Setter Property="ToolTip" Value="Курс предоплаты для расчета реализации&#xA;Для перерасчета реализации необходимо обновить данные&#xA;Для отмены ручной корректировки удалите значение и обновите данные"/>
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CBRateFilter.IconVisibile, Mode=OneWay}"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <EventSetter Event="MouseRightButtonUp" Handler="RequestTDCBRateFilterPopup_Open"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Дата оплаты" SortMemberPath="Prepay.RubPaidDate" ClipboardContentBinding="{Binding Prepay.RubPaidDate}">
 						<DataGridTemplateColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Даты оплаты счета  на предоплату выставленного клиенту"/>
@@ -388,7 +406,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Инвойс" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Инвойс" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма инвойса, евро"/>
@@ -414,7 +432,25 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTemplateColumn Header="Валюта" SortMemberPath="CurrencyBoughtDate" ClipboardContentBinding="{Binding CurrencyBoughtDate}">
+                    <DataGridTextColumn Header="Валюта&#xA;курс покупки" Binding="{Binding Path=CurrencyBuyRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Взвешенный курс покупки валюты"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBuyRateFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCurrencyBuyRateFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Валюта&#xA;дата покупки" SortMemberPath="CurrencyBoughtDate" ClipboardContentBinding="{Binding CurrencyBoughtDate}">
 						<DataGridTemplateColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Дата покупки валюты"/>
@@ -450,31 +486,13 @@
 										<ColumnDefinition/>
 										<ColumnDefinition Width="Auto"/>
 									</Grid.ColumnDefinitions>
-									<TextBox Text="{Binding Path=CurrencyBoughtDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+									<TextBox Text="{Binding Path=CurrencyBoughtDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentCenterErr}" Margin="2,0"/>
 									<Button Content="" ToolTip="Покупка валюты" Click="CurrencyBuyButton_Click" Tag="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
 								</Grid>
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTextColumn Header="Курс покупки" Binding="{Binding Path=CurrencyBuyRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
-						<DataGridTextColumn.HeaderStyle>
-							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-								<Setter Property="ToolTip" Value="Взвешенный курс покупки валюты"/>
-								<Setter Property="ContentTemplate">
-									<Setter.Value>
-										<DataTemplate>
-											<StackPanel Orientation="Horizontal">
-												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CurrencyBuyRateFilter.IconVisibile, Mode=OneWay}"/>
-												<TextBlock Text="{Binding}" FontWeight="Bold"/>
-											</StackPanel>
-										</DataTemplate>
-									</Setter.Value>
-								</Setter>
-								<EventSetter Event="MouseRightButtonUp" Handler="RequestTDCurrencyBuyRateFilterPopup_Open"/>
-							</Style>
-						</DataGridTextColumn.HeaderStyle>
-					</DataGridTextColumn>
-					<DataGridTextColumn Header="Оплачено" Binding="{Binding Path=CurrencyPaySum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Оплачено" Binding="{Binding Path=CurrencyPaySum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Cумма оплаченная поставщику"/>
@@ -503,7 +521,7 @@
 					<DataGridTemplateColumn Header="Инвойс оплачен" SortMemberPath="CurrencyPaidDate" ClipboardContentBinding="{Binding Path=CurrencyPaidDate}">
 						<DataGridTemplateColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-								<Setter Property="ToolTip" Value="Дата оплаты поставщику.&#13;Является признаком того, что оплаты поставщику по данной предоплате завершены.&#13;При наличии оплаты на ту же дату, при заполнении, корректировка суммы оплаты производиться не будет."/>
+								<Setter Property="ToolTip" Value="Дата оплаты поставщику.&#13;Является признаком того, что оплаты поставщику завершены.&#13;При наличии оплаты на ту же дату, при заполнении, корректировка суммы оплаты производиться не будет."/>
 								<Setter Property="ContentTemplate">
 									<Setter.Value>
 										<DataTemplate>
@@ -542,7 +560,7 @@
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTextColumn Header="Cумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Cумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Cумма стоимости товаров из файла разбивок"/>
@@ -623,7 +641,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Таможенный cчет" Binding="{Binding Path=CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+					<DataGridTextColumn Header="Таможенный cчет" Binding="{Binding Path=CustomsInvoiceRubSum, StringFormat=\{0:N0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма таможенного счета выставленного клиенту"/>
@@ -708,7 +726,7 @@
 													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SellingFilter.IconVisibile, Mode=OneWay}"/>
 													<TextBlock Text="{Binding}" FontWeight="Bold"/>
 												</StackPanel>
-												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.Selling, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.Selling, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0,0,18,0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
 											</Grid>
 										</DataTemplate>
 									</Setter.Value>
@@ -723,7 +741,7 @@
 										<ColumnDefinition/>
 										<ColumnDefinition Width="Auto"/>
 									</Grid.ColumnDefinitions>
-									<TextBlock Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
+									<TextBlock Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBlockAlignmentRightTotal}" Margin="2,0"/>
                                     <Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneTime}"/>
 								</Grid>
 							</DataTemplate>
@@ -735,7 +753,7 @@
 												<ColumnDefinition/>
 												<ColumnDefinition Width="Auto"/>
 											</Grid.ColumnDefinitions>
-											<TextBox Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
+											<TextBox Text="{Binding Path=Selling, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" Style="{StaticResource StyleTextBoxAlignmentRightTotal}" Margin="2,0"/>
 											<Button Content="" ToolTip="Загрузка таможенной декларации" Command="{Binding Source={StaticResource DataContext}, Path=Data.TDLoad}" CommandParameter="{Binding}" Grid.Column="1" FontFamily="Segoe UI Symbol" Foreground="Green" Background="#f7e0e0"/>
 										</Grid>
 									</DataTemplate>
@@ -758,7 +776,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Финальный счет RUB" Binding="{Binding Path=FinalInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+					<DataGridTextColumn Header="Финальный счет RUB" Binding="{Binding Path=FinalInvoiceRubSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма рублевого финального счета выставленного клиенту"/>
@@ -784,7 +802,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Сумма оплаты RUB" Binding="{Binding Path=FinalInvoiceRubSumPaid, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Сумма оплаты RUB" Binding="{Binding Path=FinalInvoiceRubSumPaid, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма оплат по рублевому финальному счету"/>
@@ -853,7 +871,7 @@
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTextColumn Header="Счет EUR 1" Binding="{Binding Path=FinalInvoiceCurSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Счет EUR 1" Binding="{Binding Path=FinalInvoiceCurSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма первого валютного финального счета выставленного клиенту"/>
@@ -921,7 +939,7 @@
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTextColumn Header="Cчет EUR 2" Binding="{Binding Path=FinalInvoiceCurSum2, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Cчет EUR 2" Binding="{Binding Path=FinalInvoiceCurSum2, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Сумма второго валютного финального счета выставленного клиенту"/>
@@ -989,7 +1007,7 @@
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTextColumn Header="Cальдо" Binding="{Binding Path=CustomerBalance, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+					<DataGridTextColumn Header="Cальдо" Binding="{Binding Path=CustomerBalance, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Cальдо в руб. по клиенту"/>
@@ -1015,7 +1033,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Переплата" Binding="{Binding Path=OverPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Переплата" Binding="{Binding Path=OverPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Переплата по ДТ в евро"/>
@@ -1086,7 +1104,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Возврат" Binding="{Binding Path=Refund, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}">
+					<DataGridTextColumn Header="Возврат" Binding="{Binding Path=Refund, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Возврат предоплаты от поставщика"/>
@@ -1130,7 +1148,7 @@
 							</Style>
 						</DataGridComboBoxColumn.HeaderStyle>
 					</DataGridComboBoxColumn>
-					<DataGridTextColumn Header="Разница %" Binding="{Binding Prepay.RateDiffPer, Mode=OneWay, StringFormat=\{0:P\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+					<DataGridTextColumn Header="Разница %" Binding="{Binding Prepay.RateDiffPer, Mode=OneWay, StringFormat=\{0:P2\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Разница в курсе %"/>
@@ -1148,7 +1166,7 @@
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
 					</DataGridTextColumn>
-					<DataGridTextColumn Header="Разница RUB" Binding="{Binding Path=RubDiff, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}">
+					<DataGridTextColumn Header="Разница RUB" Binding="{Binding Path=RubDiff, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
 						<DataGridTextColumn.HeaderStyle>
 							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
 								<Setter Property="ToolTip" Value="Разница по покупке валюты (-) доход (+) убыток"/>

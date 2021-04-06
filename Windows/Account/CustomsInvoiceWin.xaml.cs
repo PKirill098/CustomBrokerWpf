@@ -20,6 +20,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            CustomsInvoiceViewCommand cmd = this.DataContext as CustomsInvoiceViewCommand;
+            bool isdirty = !mydischanger.EndEdit();
+            if (!isdirty)
+                foreach (CustomsInvoiceVM item in cmd.Items)
+                    if (item.IsDirty)
+                    { isdirty = true; break; }
+            if (!isdirty)
+            {
+                foreach (CustomsInvoiceVM item in cmd.Items)
+                    if (item.DomainObject.IsDirty)
+                    { isdirty = true; break; }
+                if(isdirty 
+                    && MessageBox.Show("\nИзменения не сохранены. \n Сохранить изменения?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes
+                    && !cmd.SaveDataChanges())
+                {
+                    this.Activate();
+                    if (MessageBox.Show("\nИзменения не сохранены. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                    {
+                        e.Cancel = true;
+                    }
+                }
+            }
+            else
+            {
+                this.Activate();
+                if (MessageBox.Show("\nИзменения не сохранены. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                {
+                    e.Cancel = true;
+                }
+            }
             if (!e.Cancel)
             {
                 (App.Current.MainWindow as AccountMainWin).ListChildWindow.Remove(this);
@@ -48,11 +78,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
                     if (be.IsDirty) be.UpdateSource();
                 }
             }
-        }
-
-        private void MainDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
     }
 }

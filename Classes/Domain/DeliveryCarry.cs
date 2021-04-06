@@ -528,9 +528,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             item.Carry = this;
                         }
                     };
+                    mydeliveryaddresses = new ObservableCollection<CustomerAddressSelected>();
+                    myddbm.Collection = mydeliveryaddresses;
                     myddbm.FillAsync();
-                    mydeliveryaddresses = myddbm.Collection;
-                    mydeliveryaddressesview = new ListCollectionView(myddbm.Collection);
+                    mydeliveryaddressesview = new ListCollectionView(mydeliveryaddresses);
                     mydeliveryaddressesview.SortDescriptions.Add(new System.ComponentModel.SortDescription("FullAddressDescription", System.ComponentModel.ListSortDirection.Ascending));
                 }
                 return mydeliveryaddressesview;
@@ -679,13 +680,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             mycdbm = new DeliveryCarryDBM();
             mydbm = mycdbm;
-            mycdbm.FillAsyncCompleted = () => { if (mycdbm.Errors.Count > 0) OpenPopup(mycdbm.ErrorMessage, true); };
+            mycdbm.FillAsyncCompleted = () => { mytotal.StartCount(); if (mycdbm.Errors.Count > 0) OpenPopup(mycdbm.ErrorMessage, true); };
             mycdbm.Collection = new ObservableCollection<DeliveryCarry>();
             mysync = new DeliveryCarrySynchronizer();
             mysync.DomainCollection = mycdbm.Collection;
             base.Collection = mysync.ViewModelCollection;
             SettingView();
 
+            mytotal = new DeliveryCarryTotal(myview);
             myfilter = new SQLFilter("deliverycarry", "AND");
             myservicetypefiltergroup = myfilter.GroupAdd(myfilter.FilterWhereId, "servicetype", "OR");
             mycdbm.Filter = myfilter;
@@ -713,7 +715,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myshipmentdatefilter = new libui.DateFilterVM();
             myshipmentdatefilter.ExecCommand1 = () => { FilterRunExec(null); };
             myshipmentdatefilter.ExecCommand2 = () => { FilterRunExec(null); };
-            mytotal = new DeliveryCarryTotal(myview);
             myexcelexport = new RelayCommand(ExcelExportExec, ExcelExportCanExec);
         }
 
@@ -826,6 +827,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myfilter.ConditionDel(cond.propertyid);
             myfilter.SetDate(myfilter.FilterWhereId, "shipmentdate", "shipmentdate", myshipmentdatefilter.DateStart, myshipmentdatefilter.DateStop);
 
+            mytotal.StopCount();
             mycdbm.FillAsync();
             //}
         }
@@ -1237,10 +1239,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void RefreshData(object parametr)
         {
-            mycdbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); else foreach (DeliveryCarryVM item in mysync.ViewModelCollection) item.DeliveryAddressesRefresh(); };
+            mycdbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); else foreach (DeliveryCarryVM item in mysync.ViewModelCollection) item.DeliveryAddressesRefresh(); mytotal.StartCount(); };
             //if(myfilter.isEmpty)
             //    this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора грузов!", false);
             //else
+            mytotal.StopCount();
             mycdbm.FillAsync();
             CustomBrokerWpf.References.DeliveryCars = null;
             DeliveryCarDBM cdbm = new DeliveryCarDBM();
@@ -1535,7 +1538,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { }
     }
 
-    public class DeliveryCarryTotal : lib.TotalCollectionValues<DeliveryCarryVM>
+    public class DeliveryCarryTotal : lib.TotalValues.TotalViewValues<DeliveryCarryVM>
     {
         internal DeliveryCarryTotal(ListCollectionView view) : base(view) { }
 

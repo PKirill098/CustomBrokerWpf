@@ -272,7 +272,7 @@
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>-->
-                <DataGridTextColumn Header="Тип перевозки" Binding="{Binding Path=Request.ParcelType.Name,Mode=OneWay}" IsReadOnly="True" Width="SizeToCells">
+                <DataGridTextColumn Header="Тип перевозки" Binding="{Binding Path=Request.ParcelType.Name,Mode=OneWay}" IsReadOnly="True" Width="SizeToCells" Visibility="Collapsed">
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Style.Triggers>

@@ -38,6 +38,10 @@
             <Button ToolTip="Открыть папку документов" Command="{Binding Path=SpecFolderOpen}" IsTabStop="False" Background="Transparent">
                 <Image Source="/CustomBrokerWpf;component/Images/catalog.png" />
             </Button>
+            <Separator/>
+            <Button Command="{Binding Path=DetailLoad}" ToolTip="Загрузить разбивку" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
+            </Button>
             <!--<Separator/>
             <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
                 <Image Source="Images/funnel_delete.png" />
@@ -179,6 +183,7 @@
                 <DataGridTextColumn Header="Пол" Binding="{Binding Path=Gender, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Состав" Binding="{Binding Path=Contexture, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Описание" Binding="{Binding Path=Description, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Описание 1C" Binding="{Binding Path=DescriptionAccount, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Размер EN" Binding="{Binding Path=SizeEN, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Размер РФ" Binding="{Binding Path=SizeRU, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Артикул" Binding="{Binding Path=VendorCode, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" />

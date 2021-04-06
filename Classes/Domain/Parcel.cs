@@ -13,6 +13,8 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Linq;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
+using KirillPolyanskiy.DataModelClassLibrary;
+using MailKit;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -203,7 +205,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { get { return (myparcelnumber ?? string.Empty) + '-' + ((mylorry?.Trim()) ?? string.Empty) + '-' + myshipplandate.ToString("yy"); } }
         public string ParcelNumberOrder
         {
-            get { return this.ShipPlanDate.Year.ToString() + (this.ParcelNumber??"9999").PadLeft(4, '0'); }
+            get { return this.ShipPlanDate.Year.ToString() + (this.ParcelNumber ?? "9999").PadLeft(4, '0'); }
         }
         public lib.ReferenceSimpleItem ParcelType
         {
@@ -238,7 +240,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public DateTime? RateDate
         {
-            set {
+            set
+            {
                 Action action = () =>
                 {
                     this.UsdRate = null;
@@ -247,7 +250,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         myrater.RateDate = myratedate.Value;
                     }
                 };
-                SetProperty<DateTime?>(ref myratedate, value, action); }
+                SetProperty<DateTime?>(ref myratedate, value, action);
+            }
             get { return myratedate; }
         }
         public DateTime? ShipDate
@@ -284,7 +288,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => { Count(); PropertiesChangedNotifycation(); });
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => { if (!this.RequestsIsNull) foreach (Request item in this.Requests.Where((Request rq) => { return rq.Parcel == this; })) item.Status = this.Status; }); //Count(); PropertiesChangedNotifycation();
             }
             get { return mystatus; }
         }
@@ -432,115 +436,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return mytinsuranceprice; }
         }
 
-        private ImporterParcelRequestTotal mytotal;
-        public ImporterParcelRequestTotal RequestTotal
-        {
-            get
-            {
-                if (mytotal == null)
-                {
-                    mytotal = new ImporterParcelRequestTotal(this, null);
-                    mytotal.Requests = this.Requests;
-                    mytotal.PropertyChanged += RequestTotal_PropertyChanged;
-                    PropertyChangedNotification("OverVolume");
-                    PropertyChangedNotification("OverWeight");
-                }
-                return mytotal;
-            }
-        }
-        private ImporterParcelRequestTotal mytotald;
-        public ImporterParcelRequestTotal RequestTotalD
-        {
-            get
-            {
-                if (mytotald == null)
-                {
-                    mytotald = new ImporterParcelRequestTotal(this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
-                    mytotald.Requests = this.Requests;
-                    mytotald.PropertyChanged += RequestTotalDT_PropertyChanged;
-                }
-                return mytotald;
-            }
-        }
-        private ImporterParcelRequestTotal mytotalt;
-        public ImporterParcelRequestTotal RequestTotalT
-        {
-            get
-            {
-                if (mytotalt == null)
-                {
-                    mytotalt = new ImporterParcelRequestTotal(this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
-                    mytotalt.Requests = this.Requests;
-                    mytotalt.PropertyChanged += RequestTotalDT_PropertyChanged;
+        //private ImporterParcelRequestTotal mytotal;
+        //public ImporterParcelRequestTotal RequestTotal
+        //{
+        //    get
+        //    {
+        //        if (mytotal == null)
+        //        {
+        //            mytotal = new ImporterParcelRequestTotal(this, null);
+        //            mytotal.Requests = this.Requests;
 
-                }
-                return mytotalt;
-            }
-        }
-        private void ForegroundNotifyChanged()
-        {
-            PropertyChangedNotification("ActualWeightForeground");
-            PropertyChangedNotification("OfficialWeightForeground");
-            PropertyChangedNotification("CellNumberForeground");
-            PropertyChangedNotification("InvoiceForeground");
-            PropertyChangedNotification("InvoiceDiscountForeground");
-            PropertyChangedNotification("VolumeForeground");
-        }
+        //            PropertyChangedNotification("OverVolume");
+        //            PropertyChangedNotification("OverWeight");
+        //        }
+        //        return mytotal;
+        //    }
+        //}
+        //private ImporterParcelRequestTotal mytotald;
+        //public ImporterParcelRequestTotal RequestTotalD
+        //{
+        //    get
+        //    {
+        //        if (mytotald == null)
+        //        {
+        //            mytotald = new ImporterParcelRequestTotal(this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+        //            mytotald.Requests = this.Requests;
+        //            mytotald.PropertyChanged += RequestTotalDT_PropertyChanged;
+        //        }
+        //        return mytotald;
+        //    }
+        //}
+        //private ImporterParcelRequestTotal mytotalt;
+        //public ImporterParcelRequestTotal RequestTotalT
+        //{
+        //    get
+        //    {
+        //        if (mytotalt == null)
+        //        {
+        //            mytotalt = new ImporterParcelRequestTotal(this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+        //            mytotalt.Requests = this.Requests;
+        //            mytotalt.PropertyChanged += RequestTotalDT_PropertyChanged;
 
-        public bool OverVolume
-        { get { return (this.LorryVolume ?? 0M) - RequestTotal.Volume < 0; } }
-        public bool OverWeight
-        { get { return (this.LorryTonnage ?? 0M) - RequestTotal.ActualWeight < 0; } }
-        private void RequestTotal_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "ActualWeight":
-                    PropertyChangedNotification("OverWeight");
-                    PropertyChangedNotification("ActualWeightForeground");
-                    break;
-                case "OfficialWeight":
-                    PropertyChangedNotification("OfficialWeightForeground");
-                    break;
-                case "CellNumber":
-                    PropertyChangedNotification("CellNumberForeground");
-                    break;
-                case "Invoice":
-                    PropertyChangedNotification("InvoiceForeground");
-                    break;
-                case "InvoiceDiscount":
-                    PropertyChangedNotification("InvoiceDiscountForeground");
-                    break;
-                case "Volume":
-                    PropertyChangedNotification("OverVolume");
-                    PropertyChangedNotification("VolumeForeground");
-                    break;
-            }
-        }
-        private void RequestTotalDT_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "ActualWeight":
-                    PropertyChangedNotification("ActualWeightForeground");
-                    break;
-                case "OfficialWeight":
-                    PropertyChangedNotification("OfficialWeightForeground");
-                    break;
-                case "CellNumber":
-                    PropertyChangedNotification("CellNumberForeground");
-                    break;
-                case "Invoice":
-                    PropertyChangedNotification("InvoiceForeground");
-                    break;
-                case "InvoiceDiscount":
-                    PropertyChangedNotification("InvoiceDiscountForeground");
-                    break;
-                case "Volume":
-                    PropertyChangedNotification("VolumeForeground");
-                    break;
-            }
-        }
+        //        }
+        //        return mytotalt;
+        //    }
+        //}
+
+        //public bool OverVolume
+        //{ get { return (this.LorryVolume ?? 0M) - RequestTotal.Volume < 0; } }
+        //public bool OverWeight
+        //{ get { return (this.LorryTonnage ?? 0M) - RequestTotal.ActualWeight < 0; } }
 
         #region Free
         private decimal myactualweightfree;
@@ -570,51 +515,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public decimal VolumeFree
         { get { return myvolumefree; } }
 
-        private void Count()
-        {
-            if (this.RequestsIsNull) return;
-            myactualweightfree = 0M;
-            mycellnumberfree = 0M;
-            myinvoicefree = 0M;
-            myinvoicediscountfree = 0M;
-            myofficialweightfree = 0M;
-            myvolumefree = 0M;
-            foreach (Request item in myrequests)
-            {
-                item.ValueChanged -= Request_ValueChanged;
-                item.PropertyChanged -= Request_PropertyChanged;
-            }
-            if (mystatus.Id < 60)
-                foreach (Request item in myrequests)
-                {
-                    item.ValueChanged += Request_ValueChanged;
-                    if (!item.ParcelId.HasValue)
-                    {
-                        item.PropertyChanged += Request_PropertyChanged;
-                        if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                            ValuesPlus(item);
-                    }
-                }
-            PropertiesChangedNotifycation();
-        }
-        private void ValuesPlus(Request item)
-        {
-            myactualweightfree += item.ActualWeight ?? 0M;
-            mycellnumberfree += item.CellNumber ?? 0;
-            myinvoicefree += item.Invoice ?? 0M;
-            myinvoicediscountfree += item.InvoiceDiscount ?? 0M;
-            myofficialweightfree += item.OfficialWeight ?? 0M;
-            myvolumefree += item.Volume ?? 0M;
-        }
-        private void ValuesMinus(Request item)
-        {
-            myactualweightfree -= item.ActualWeight ?? 0M;
-            mycellnumberfree -= item.CellNumber ?? 0;
-            myinvoicefree -= item.Invoice ?? 0M;
-            myinvoicediscountfree -= item.InvoiceDiscount ?? 0M;
-            myofficialweightfree -= item.OfficialWeight ?? 0M;
-            myvolumefree -= item.Volume ?? 0M;
-        }
+        //private void Count()
+        //{
+        //    if (this.RequestsIsNull) return;
+        //    myactualweightfree = 0M;
+        //    mycellnumberfree = 0M;
+        //    myinvoicefree = 0M;
+        //    myinvoicediscountfree = 0M;
+        //    myofficialweightfree = 0M;
+        //    myvolumefree = 0M;
+        //    foreach (Request item in myrequests)
+        //    {
+        //        item.ValueChanged -= Request_ValueChanged;
+        //        item.PropertyChanged -= Request_PropertyChanged;
+        //    }
+        //    if (mystatus.Id < 60)
+        //        foreach (Request item in myrequests)
+        //        {
+        //            item.ValueChanged += Request_ValueChanged;
+        //            if (!item.ParcelId.HasValue)
+        //            {
+        //                item.PropertyChanged += Request_PropertyChanged;
+        //                if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    ValuesPlus(item);
+        //            }
+        //        }
+        //    PropertiesChangedNotifycation();
+        //}
+        //private void ValuesPlus(Request item)
+        //{
+        //    myactualweightfree += item.ActualWeight ?? 0M;
+        //    mycellnumberfree += item.CellNumber ?? 0;
+        //    myinvoicefree += item.Invoice ?? 0M;
+        //    myinvoicediscountfree += item.InvoiceDiscount ?? 0M;
+        //    myofficialweightfree += item.OfficialWeight ?? 0M;
+        //    myvolumefree += item.Volume ?? 0M;
+        //}
+        //private void ValuesMinus(Request item)
+        //{
+        //    myactualweightfree -= item.ActualWeight ?? 0M;
+        //    mycellnumberfree -= item.CellNumber ?? 0;
+        //    myinvoicefree -= item.Invoice ?? 0M;
+        //    myinvoicediscountfree -= item.InvoiceDiscount ?? 0M;
+        //    myofficialweightfree -= item.OfficialWeight ?? 0M;
+        //    myvolumefree -= item.Volume ?? 0M;
+        //}
         private void PropertiesChangedNotifycation()
         {
             PropertyChangedNotification("ActualWeightFree");
@@ -635,6 +580,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (myrequests == null)
                 {
+                    myrequests = new ObservableCollection<Request>();
                     myrdbm = new RequestDBM();
                     myrdbm.Parcel = this.Id;
                     myrdbm.FillType = lib.FillType.PrefExist;
@@ -645,11 +591,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         else
                         {
                             myrdbm = null;
-                            myrequests.CollectionChanged += Requests_CollectionChanged;
-                            Count();
-                            ForegroundNotifyChanged();
+                            //myrequests.CollectionChanged += Requests_CollectionChanged;
+                            //Count();
+                            //ForegroundNotifyChanged();
                             if (myspecifications != null)
-                                for (int i = 0;i< myspecifications.Count;i++)
+                                for (int i = 0; i < myspecifications.Count; i++)
                                     myspecifications[i].CustomersLegalsRefresh();
                             myrequestsloaded = true;
                             this.PropertyChangedNotification(nameof(this.Requests));
@@ -657,8 +603,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             this.PropertyChangedNotification(nameof(this.RequestsIsLoaded));
                         }
                     };
+                    myrdbm.Collection = myrequests;
                     myrdbm.FillAsync();
-                    myrequests = myrdbm.Collection;
                 }
                 return myrequests;
             }
@@ -666,119 +612,119 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal bool RequestsIsNull { get { return myrequests == null; } }
         private bool myrequestsloaded;
         internal bool RequestsIsLoaded { get { return myrequestsloaded; } }
-        private void Requests_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
-                Count();
-            else
-            {
-                if (e.NewItems != null)
-                    foreach (Request item in e.NewItems)
-                    {
-                        item.ValueChanged -= Request_ValueChanged; // объект из хранилища добавлен в коллекцию повторно при обновлении
-                        item.ValueChanged += Request_ValueChanged;
-                        if (!item.ParcelId.HasValue) // считаем
-                        {
-                            item.PropertyChanged -= Request_PropertyChanged;
-                            item.PropertyChanged += Request_PropertyChanged;
-                            if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                            { ValuesPlus(item); PropertiesChangedNotifycation(); }
-                        }
-                    }
-                if (e.OldItems != null)
-                    foreach (Request item in e.OldItems)
-                    {
-                        item.ValueChanged -= Request_ValueChanged;
-                        if (!item.ParcelId.HasValue)
-                        {
-                            item.PropertyChanged -= Request_PropertyChanged;
-                            if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                            { ValuesMinus(item); PropertiesChangedNotifycation(); }
-                        }
-                    }
-            }
-        }
-        private void Request_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "DomainState")
-            {
-                Request request = sender as Request;
-                if (!request.ParcelId.HasValue)
-                {
-                    if (request.DomainState == DataModelClassLibrary.DomainObjectState.Deleted & request.DomainStatePrevious < DataModelClassLibrary.DomainObjectState.Deleted)
-                    { ValuesMinus(request); PropertiesChangedNotifycation(); }
-                    else if (request.DomainStatePrevious == DataModelClassLibrary.DomainObjectState.Deleted & request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                    { ValuesPlus(request); PropertiesChangedNotifycation(); }
-                }
-            }
-        }
-        private void Request_ValueChanged(object sender, DataModelClassLibrary.Interfaces.ValueChangedEventArgs<object> e)
-        {
-            Request request = sender as Request;
-            switch (e.PropertyName)
-            {
-                case "ParcelId":
-                    {
-                        int? newvalue = (int?)e.NewValue, oldvalue = (int?)e.OldValue;
-                        if (!newvalue.HasValue && oldvalue.HasValue)// теперь считаем
-                        {
-                            request.PropertyChanged += Request_PropertyChanged;
-                            if (request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                            { ValuesPlus(request); PropertiesChangedNotifycation(); }
-                        }
-                        else if (newvalue.HasValue && !oldvalue.HasValue) // больше не считаем
-                        {
-                            request.PropertyChanged -= Request_PropertyChanged;
-                            if (request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-                            { ValuesMinus(request); PropertiesChangedNotifycation(); }
-                        }
-                    }
-                    break;
-                default:
-                    if (!request.ParcelId.HasValue)
-                    {
-                        {
-                            decimal newvalue, oldvalue;
-                            switch (e.PropertyName)
-                            {
-                                case "ActualWeight":
-                                    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
-                                    myactualweightfree += newvalue - oldvalue;
-                                    PropertyChangedNotification("ActualWeightFree");
-                                    PropertyChangedNotification("DifferenceWeightFree");
-                                    break;
-                                case "CellNumber":
-                                    newvalue = (short)(e.NewValue ?? (short)0); oldvalue = (short)(e.OldValue ?? (short)0);
-                                    mycellnumberfree += newvalue - oldvalue;
-                                    PropertyChangedNotification("CellNumberFree");
-                                    break;
-                                case "Invoice":
-                                    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
-                                    myinvoicefree += newvalue - oldvalue;
-                                    PropertyChangedNotification("InvoiceFree");
-                                    break;
-                                case "InvoiceDiscount":
-                                    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
-                                    myinvoicediscountfree += newvalue - oldvalue;
-                                    PropertyChangedNotification("InvoiceDiscountFree");
-                                    break;
-                                case "OfficialWeight":
-                                    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
-                                    myofficialweightfree += newvalue - oldvalue;
-                                    PropertyChangedNotification("OfficialWeightFree");
-                                    PropertyChangedNotification("DifferenceWeightFree");
-                                    break;
-                                case "Volume":
-                                    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
-                                    myvolumefree += newvalue - oldvalue;
-                                    PropertyChangedNotification("VolumeFree");
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
+        //private void Requests_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        //{
+        //    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+        //        Count();
+        //    else
+        //    {
+        //        if (e.NewItems != null)
+        //            foreach (Request item in e.NewItems)
+        //            {
+        //                item.ValueChanged -= Request_ValueChanged; // объект из хранилища добавлен в коллекцию повторно при обновлении
+        //                item.ValueChanged += Request_ValueChanged;
+        //                if (!item.ParcelId.HasValue) // считаем
+        //                {
+        //                    item.PropertyChanged -= Request_PropertyChanged;
+        //                    item.PropertyChanged += Request_PropertyChanged;
+        //                    if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    { ValuesPlus(item); PropertiesChangedNotifycation(); }
+        //                }
+        //            }
+        //        if (e.OldItems != null)
+        //            foreach (Request item in e.OldItems)
+        //            {
+        //                item.ValueChanged -= Request_ValueChanged;
+        //                if (!item.ParcelId.HasValue)
+        //                {
+        //                    item.PropertyChanged -= Request_PropertyChanged;
+        //                    if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    { ValuesMinus(item); PropertiesChangedNotifycation(); }
+        //                }
+        //            }
+        //    }
+        //}
+        //private void Request_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        //{
+        //    if (e.PropertyName == "DomainState")
+        //    {
+        //        Request request = sender as Request;
+        //        if (!request.ParcelId.HasValue)
+        //        {
+        //            if (request.DomainState == DataModelClassLibrary.DomainObjectState.Deleted & request.DomainStatePrevious < DataModelClassLibrary.DomainObjectState.Deleted)
+        //            { ValuesMinus(request); PropertiesChangedNotifycation(); }
+        //            else if (request.DomainStatePrevious == DataModelClassLibrary.DomainObjectState.Deleted & request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //            { ValuesPlus(request); PropertiesChangedNotifycation(); }
+        //        }
+        //    }
+        //}
+        //private void Request_ValueChanged(object sender, DataModelClassLibrary.Interfaces.ValueChangedEventArgs<object> e)
+        //{
+        //    Request request = sender as Request;
+        //    switch (e.PropertyName)
+        //    {
+        //        case "ParcelId":
+        //            {
+        //                int? newvalue = (int?)e.NewValue, oldvalue = (int?)e.OldValue;
+        //                if (!newvalue.HasValue && oldvalue.HasValue)// теперь считаем
+        //                {
+        //                    request.PropertyChanged += Request_PropertyChanged;
+        //                    if (request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    { ValuesPlus(request); PropertiesChangedNotifycation(); }
+        //                }
+        //                else if (newvalue.HasValue && !oldvalue.HasValue) // больше не считаем
+        //                {
+        //                    request.PropertyChanged -= Request_PropertyChanged;
+        //                    if (request.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    { ValuesMinus(request); PropertiesChangedNotifycation(); }
+        //                }
+        //            }
+        //            break;
+        //        default:
+        //            if (!request.ParcelId.HasValue)
+        //            {
+        //                {
+        //                    decimal newvalue, oldvalue;
+        //                    switch (e.PropertyName)
+        //                    {
+        //                        case "ActualWeight":
+        //                            newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+        //                            myactualweightfree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("ActualWeightFree");
+        //                            PropertyChangedNotification("DifferenceWeightFree");
+        //                            break;
+        //                        case "CellNumber":
+        //                            newvalue = (short)(e.NewValue ?? (short)0); oldvalue = (short)(e.OldValue ?? (short)0);
+        //                            mycellnumberfree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("CellNumberFree");
+        //                            break;
+        //                        case "Invoice":
+        //                            newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+        //                            myinvoicefree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("InvoiceFree");
+        //                            break;
+        //                        case "InvoiceDiscount":
+        //                            newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+        //                            myinvoicediscountfree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("InvoiceDiscountFree");
+        //                            break;
+        //                        case "OfficialWeight":
+        //                            newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+        //                            myofficialweightfree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("OfficialWeightFree");
+        //                            PropertyChangedNotification("DifferenceWeightFree");
+        //                            break;
+        //                        case "Volume":
+        //                            newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+        //                            myvolumefree += newvalue - oldvalue;
+        //                            PropertyChangedNotification("VolumeFree");
+        //                            break;
+        //                    }
+        //                }
+        //            }
+        //            break;
+        //    }
+        //}
 
         private ObservableCollection<Specification.Specification> myspecifications;
         public ObservableCollection<Specification.Specification> Specifications
@@ -793,17 +739,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal bool SpecificationsIsNull { get { return myspecifications == null; } }
         internal void SpecificationsRefresh()
         {
-            myspecifications = null;
-            this.PropertyChangedNotification("Specifications");
+            if (myspecifications != null)
+            {
+                SpecificationLoad(lib.FillType.Refresh);
+                this.PropertyChangedNotification("Specifications");
+            }
         }
-        private void SpecificationLoad()
+        private void SpecificationLoad(lib.FillType filltype = lib.FillType.PrefExist)
         {
             Specification.SpecificationDBM sdbm = new Specification.SpecificationDBM();
             sdbm.Parcel = this;
             sdbm.FillAsyncCompleted = () => { if (sdbm.Errors.Count > 0) throw new Exception(sdbm.ErrorMessage); };
             sdbm.Collection = myspecifications;
+            sdbm.FillType = filltype;
             sdbm.Fill();
-            if (sdbm.Errors.Count > 0) System.Windows.MessageBox.Show(sdbm.ErrorMessage, "Загрузка ГТД", System.Windows.MessageBoxButton.OK,System.Windows.MessageBoxImage.Error);
+            if (sdbm.Errors.Count > 0) System.Windows.MessageBox.Show(sdbm.ErrorMessage, "Загрузка ГТД", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             if (myspecifications == null)
                 myspecifications = sdbm.Collection;
         }
@@ -996,10 +946,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private RequestDBM myrdbm;
         internal RequestDBM RequestDBM
-        { set { myrdbm=value; } get { return myrdbm; } }
+        { set { myrdbm = value; } get { return myrdbm; } }
+        internal bool RequestRefreshFill { set; get; } // load request for new parcel
         private Specification.SpecificationDBM mysdbm;
 
-        protected override Parcel CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Parcel CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             Parcel newitem = new Parcel(reader.GetInt32(0), reader.GetInt32(this.Fields["stamp"]), reader.IsDBNull(this.Fields["UpdateWho"]) ? null : reader.GetString(this.Fields["UpdateWho"]), reader.IsDBNull(this.Fields["UpdateWhen"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["UpdateWhen"]), lib.DomainObjectState.Unchanged
                 , reader.GetString(this.Fields["parcelnumber"])
@@ -1035,21 +986,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
                 , reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
                 );
-            newitem = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem,this.FillType==lib.FillType.Refresh);
-            if (!(newitem.RequestsIsNull | this.CancelingLoad))
+            Parcel item = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem, this.FillType == lib.FillType.Refresh);
+            if ((!item.RequestsIsNull | (this.RequestRefreshFill && item == newitem)) && !this.CancelingLoad) // refresh if the pascel has requests or parcel is new and it needs to refresh requests
             {
                 myrdbm.Command.Connection = addcon;
                 if (mydispatcher.Thread.ManagedThreadId == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
-                    RequestsRefresh(newitem);
+                    RequestsRefresh(item);
                 else
-                    mydispatcher.Invoke(() => { RequestsRefresh(newitem); });
+                    mydispatcher.Invoke(() => { RequestsRefresh(item); });
             }
-            return newitem;
+            return item;
         }
 
         protected override void GetOutputSpecificParametersValue(Parcel item)
         {
-            if(item.DomainState==lib.DomainObjectState.Added)
+            if (item.DomainState == lib.DomainObjectState.Added)
                 CustomBrokerWpf.References.ParcelStore.UpdateItem(item);
             SqlParameter par = myinsertupdateparams.Where((SqlParameter ipar) => { return ipar.ParameterName == "@parcelnumber"; }).First();
             if (par.Value != null)
@@ -1064,7 +1015,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SaveChildObjects(Parcel item)
         {
             bool isSuccess = true;
-            if (myrdbm!=null && !item.RequestsIsNull)
+            if (myrdbm != null && !item.RequestsIsNull)
             {
                 myrdbm.Errors.Clear();
                 myrdbm.Parcel = item.Id;
@@ -1075,6 +1026,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     isSuccess = false;
                     foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
                 }
+                myrdbm.Collection = null;
             }
             if (!item.SpecificationsIsNull)
             {
@@ -1096,7 +1048,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SaveReferenceObjects()
         {
-            if(myrdbm!=null) myrdbm.Command.Connection = this.Command.Connection;
+            if (myrdbm != null) myrdbm.Command.Connection = this.Command.Connection;
             mysdbm.Command.Connection = this.Command.Connection;
             return true;
         }
@@ -1340,7 +1292,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
             else
             {
-                foreach (Request ritem in myrdbm.Collection) { ritem.CustomerLegalsRefresh(); if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem); }
+                //RequestCustomerLegalDBM ldbm = App.Current.Dispatcher.Invoke<RequestCustomerLegalDBM>(() => { return new RequestCustomerLegalDBM(); });
+                //ldbm.FillType = lib.FillType.Refresh;
+                foreach (Request ritem in myrdbm.Collection)
+                {
+                    //ritem.CustomerLegalsRefresh(ldbm);
+                    //ldbm.Collection = null;
+                    if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem);
+                }
             }
         }
         internal bool CheckGroup()
@@ -1545,7 +1504,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get
             {
                 object brush;
-                if (this.IsEnabled & this.DomainObject.OverWeight)
+                if (this.IsEnabled & (this.LorryTonnage ?? 0M) - Total.ActualWeight < 0)
                     brush = Brushes.Red;
                 else
                     brush = Brushes.Black;
@@ -1585,7 +1544,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get
             {
                 object brush;
-                if (this.IsEnabled & this.DomainObject.OverVolume)
+                if (this.IsEnabled & (this.LorryVolume ?? 0M) - Total.Volume < 0)
                     brush = Brushes.Red;
                 else
                     brush = Brushes.Black;
@@ -2009,109 +1968,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        private ImporterParcelRequestTotalVM myrequesttotal;
-        public ImporterParcelRequestTotalVM RequestTotal
-        {
-            get
-            {
-                if (myrequesttotal == null)
-                    myrequesttotal = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotal, this);
-                return this.IsEnabled ? myrequesttotal : null;
-            }
-        }
-        private ImporterParcelRequestTotalVM myrequesttotald;
-        public ImporterParcelRequestTotalVM RequestTotalD
-        {
-            get
-            {
-                if (myrequesttotald == null)
-                    myrequesttotald = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotalD, this);
-                return this.IsEnabled ? myrequesttotald : null;
-            }
-        }
-        private ImporterParcelRequestTotalVM myrequesttotalt;
-        public ImporterParcelRequestTotalVM RequestTotalT
-        {
-            get
-            {
-                if (myrequesttotalt == null)
-                    myrequesttotalt = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotalT, this);
-                return this.IsEnabled ? myrequesttotalt : null;
-            }
-        }
-
-        public Brush ActualWeightForeground
-        {
-            get
-            {
-                Brush brush;
-                if (this.IsEnabled & (RequestTotalD.ActualWeight + RequestTotalT.ActualWeight != RequestTotal.ActualWeight))
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
-        public object OfficialWeightForeground
-        {
-            get
-            {
-                object brush;
-                if (this.IsEnabled & RequestTotalD.OfficialWeight + RequestTotalT.OfficialWeight != RequestTotal.OfficialWeight)
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
-        public object CellNumberForeground
-        {
-            get
-            {
-                object brush;
-                if (this.IsEnabled & RequestTotalD.CellNumber + RequestTotalT.CellNumber != RequestTotal.CellNumber)
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
-        public object InvoiceForeground
-        {
-            get
-            {
-                object brush;
-                if (this.IsEnabled & RequestTotalD.Invoice + RequestTotalT.Invoice != RequestTotal.Invoice)
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
-        public object InvoiceDiscountForeground
-        {
-            get
-            {
-                object brush;
-                if (this.IsEnabled & RequestTotalD.InvoiceDiscount + RequestTotalT.InvoiceDiscount != RequestTotal.InvoiceDiscount)
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
-        public object VolumeForeground
-        {
-            get
-            {
-                object brush;
-                if (this.IsEnabled & (RequestTotalD.Volume + RequestTotalT.Volume != RequestTotal.Volume))
-                    brush = Brushes.Red;
-                else
-                    brush = Brushes.Black;
-                return brush;
-            }
-        }
+        //private ImporterParcelRequestTotalVM myrequesttotal;
+        //public ImporterParcelRequestTotalVM RequestTotal
+        //{
+        //    get
+        //    {
+        //        if (myrequesttotal == null)
+        //            myrequesttotal = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotal, this);
+        //        return this.IsEnabled ? myrequesttotal : null;
+        //    }
+        //}
+        //private ImporterParcelRequestTotalVM myrequesttotald;
+        //public ImporterParcelRequestTotalVM RequestTotalD
+        //{
+        //    get
+        //    {
+        //        if (myrequesttotald == null)
+        //            myrequesttotald = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotalD, this);
+        //        return this.IsEnabled ? myrequesttotald : null;
+        //    }
+        //}
+        //private ImporterParcelRequestTotalVM myrequesttotalt;
+        //public ImporterParcelRequestTotalVM RequestTotalT
+        //{
+        //    get
+        //    {
+        //        if (myrequesttotalt == null)
+        //            myrequesttotalt = new ImporterParcelRequestTotalVM(this.DomainObject.RequestTotalT, this);
+        //        return this.IsEnabled ? myrequesttotalt : null;
+        //    }
+        //}
 
         #region Free
         private decimal myactualweightfreepre;
@@ -2173,6 +2059,177 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private ParcelRequestsTotal myparcelrequeststotal;
         public ParcelRequestsTotal ParcelRequestsTotal
         { get { return myparcelrequeststotal; } }
+        private ParcelRequestsTotal myparcelrequeststotald;
+        public ParcelRequestsTotal ParcelRequestsTotalDelivery
+        { get { return myparcelrequeststotald; } }
+        private ParcelRequestsTotal myparcelrequeststotalt;
+        public ParcelRequestsTotal ParcelRequestsTotalTrade
+        { get { return myparcelrequeststotalt; } }
+
+        private ParcelRequestsTotal myparcelrequeststotalselected;
+        public ParcelRequestsTotal ParcelRequestsTotalSelected
+        { get { return myparcelrequeststotalselected; } }
+
+        private ParcelRequestsTotal myrequeststotal;
+        public ParcelRequestsTotal RequestsTotal
+        { get { return myrequeststotal; } }
+        private ParcelRequestsTotal myrequeststotalselected;
+        public ParcelRequestsTotal RequestsTotalSelected
+        { get { return myrequeststotalselected; } }
+        private ParcelRequestsTotal myrequeststotalselectedd;
+        public ParcelRequestsTotal RequestsTotalSelectedDelivery
+        { get { return myrequeststotalselectedd; } }
+        private ParcelRequestsTotal myrequeststotalselectedt;
+        public ParcelRequestsTotal RequestsTotalSelectedTrade
+        { get { return myrequeststotalselectedt; } }
+
+        private ParcelTotal mytotal;
+        public ParcelTotal Total
+        {
+            get
+            {
+                if (mytotal == null)
+                {
+                    mytotal = new ParcelTotal(myparcelrequeststotal, myrequeststotalselected);
+                    mytotal.PropertyChanged += Total_PropertyChanged;
+                    this.PropertyChangedNotification(nameof(this.Total));
+                    ForegroundNotifyChanged();
+                }
+                return this.IsEnabled ? mytotal : null;
+            }
+        }
+        private ParcelTotal mytotaldelivery;
+        public ParcelTotal TotalDelivery
+        {
+            get
+            {
+                if (mytotaldelivery == null)
+                {
+                    mytotaldelivery = new ParcelTotal(myparcelrequeststotald, myrequeststotalselectedd);
+                    this.PropertyChangedNotification(nameof(this.TotalDelivery));
+                }
+                return this.IsEnabled ? mytotaldelivery : null;
+            }
+        }
+        private ParcelTotal mytotaltrade;
+        public ParcelTotal TotalTrade
+        {
+            get
+            {
+                if (mytotaltrade == null)
+                    mytotaltrade = new ParcelTotal(myparcelrequeststotalt, myrequeststotalselectedt);
+                return this.IsEnabled ? mytotaltrade : null;
+            }
+        }
+
+        public Brush ActualWeightForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & (TotalDelivery.ActualWeight + TotalTrade.ActualWeight != Total.ActualWeight))
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        public Brush OfficialWeightForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & TotalDelivery.OfficialWeight + TotalTrade.OfficialWeight != Total.OfficialWeight)
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        public Brush CellNumberForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & TotalDelivery.CellNumber + TotalTrade.CellNumber != Total.CellNumber)
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        public Brush InvoiceForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & TotalDelivery.Invoice + TotalTrade.Invoice != Total.Invoice)
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        public Brush InvoiceDiscountForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & TotalDelivery.InvoiceDiscount + TotalTrade.InvoiceDiscount != Total.InvoiceDiscount)
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        public Brush VolumeForeground
+        {
+            get
+            {
+                Brush brush;
+                if (this.IsEnabled & (TotalDelivery.Volume + TotalTrade.Volume != Total.Volume))
+                    brush = Brushes.Red;
+                else
+                    brush = Brushes.Black;
+                return brush;
+            }
+        }
+        private void ForegroundNotifyChanged()
+        {
+            PropertyChangedNotification("ActualWeightForeground");
+            PropertyChangedNotification("OfficialWeightForeground");
+            PropertyChangedNotification("CellNumberForeground");
+            PropertyChangedNotification("InvoiceForeground");
+            PropertyChangedNotification("InvoiceDiscountForeground");
+            PropertyChangedNotification("VolumeForeground");
+        }
+        private void Total_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "ActualWeight":
+                    PropertyChangedNotification("OverWeight");
+                    PropertyChangedNotification("ActualWeightForeground");
+                    break;
+                case "OfficialWeight":
+                    PropertyChangedNotification("OfficialWeightForeground");
+                    break;
+                case "CellNumber":
+                    PropertyChangedNotification("CellNumberForeground");
+                    break;
+                case "Invoice":
+                    PropertyChangedNotification("InvoiceForeground");
+                    break;
+                case "InvoiceDiscount":
+                    PropertyChangedNotification("InvoiceDiscountForeground");
+                    break;
+                case "Volume":
+                    PropertyChangedNotification("OverVolume");
+                    PropertyChangedNotification("VolumeForeground");
+                    break;
+            }
+        }
+
         private RequestSynchronizer myrsync;
         private ListCollectionView myrequests;
         public ListCollectionView Requests
@@ -2187,11 +2244,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (myrequests == null)
                 {
                     myrequests = new ListCollectionView(myrsync.ViewModelCollection);
-                    myrequests.Filter = (object item) => { return this.Status.Id < 60 && !(item as RequestVM).DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                    myrequests.Filter = (object item) => { return this.Status.Id < 60 && (item as RequestVM).DomainObject.Parcel == null && lib.ViewModelViewCommand.ViewFilterDefault(item); };
                     myrequests.SortDescriptions.Add(new SortDescription("CustomerName", ListSortDirection.Ascending));
                     myrequests.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
                     myrequests.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
                     myrequests.MoveCurrentToPosition(-1);
+
+                    //myrequeststotal = new ParcelRequestsTotal(myrequests, -10000);
+                    //myrequeststotal.FilteringProperties.Add("Parcel");
+                    //myrequeststotal.StartCount();
+                    //this.PropertyChangedNotification(nameof(this.RequestsTotal));
+
+                    myrequeststotalselected = new ParcelRequestsTotal(myrequests, 2);
+                    myrequeststotalselected.FilteringProperties.Add("Parcel");
+                    myrequeststotalselected.StartCount();
+                    this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalSelected));
+
+                    myrequeststotalselectedd = new ParcelRequestsTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                    myrequeststotalselectedd.FilteringProperties.Add("Parcel");
+                    myrequeststotalselectedd.StartCount();
+                    this.PropertyChangedNotification(nameof(this.RequestsTotalSelectedDelivery));
+
+                    myrequeststotalselectedt = new ParcelRequestsTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                    myrequeststotalselectedt.FilteringProperties.Add("Parcel");
+                    myrequeststotalselectedt.StartCount();
+                    this.PropertyChangedNotification(nameof(this.RequestsTotalSelectedTrade));
+
+                    this.Total.Selected = myrequeststotalselected;
+                    this.TotalDelivery.Selected = myrequeststotalselectedd;
+                    this.TotalTrade.Selected = myrequeststotalselectedt;
                 }
                 return myrequests;
             }
@@ -2209,14 +2290,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (myparcelrequests == null)
                 {
                     myparcelrequests = new ListCollectionView(myrsync.ViewModelCollection);
-                    myparcelrequests.Filter = (object item) => { return (item as RequestVM).DomainObject.ParcelId == this.DomainObject.Id && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                    myparcelrequests.Filter = (object item) => { return (item as RequestVM).DomainObject.Parcel == this.DomainObject && lib.ViewModelViewCommand.ViewFilterDefault(item); };
                     myparcelrequests.SortDescriptions.Add(new SortDescription("CustomerName", ListSortDirection.Ascending));
                     myparcelrequests.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
                     myparcelrequests.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
                     myparcelrequests.MoveCurrentToPosition(-1);
-                    myparcelrequeststotal = new ParcelRequestsTotal(myparcelrequests);
+
+                    myparcelrequeststotal = new ParcelRequestsTotal(myparcelrequests, -10000);
+                    myparcelrequeststotal.FilteringProperties.Add("Parcel");
+                    myparcelrequeststotal.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotal));
-                    myparcelrequeststotal.FilteringProperties.Add("ParcelId");
+
+                    myparcelrequeststotald = new ParcelRequestsTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                    myparcelrequeststotald.FilteringProperties.Add("Parcel");
+                    myparcelrequeststotald.StartCount();
+                    this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalDelivery));
+
+                    myparcelrequeststotalt = new ParcelRequestsTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                    myparcelrequeststotalt.FilteringProperties.Add("Parcel");
+                    myparcelrequeststotalt.StartCount();
+                    this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalTrade));
+
+                    myparcelrequeststotalselected = new ParcelRequestsTotal(myparcelrequests);
+                    myparcelrequeststotalselected.FilteringProperties.Add("Parcel");
+                    myparcelrequeststotalselected.StartCount();
+                    this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalSelected));
+
+                    this.Total.Total = myparcelrequeststotal;
+                    this.TotalDelivery.Total = myparcelrequeststotald;
+                    this.TotalTrade.Total = myparcelrequeststotalt;
                 }
                 return myparcelrequests;
             }
@@ -2437,9 +2539,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                     break;
                 case "Requests":
-                    if (myrsync != null && this.Status?.Id==50)
+                    if (myrsync != null && this.Status?.Id == 50)
                         foreach (RequestVM ritem in myrsync.ViewModelCollection)
-                            if(ritem.Parcel!=null) isvalid &= ritem.Validate(inform);
+                            if (ritem.Parcel != null) isvalid &= ritem.Validate(inform);
                     break;
                 case "ShipPlanDate":
                     if (!this.ShipPlanDate.HasValue)
@@ -2478,11 +2580,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mypdbm = new ParcelDBM();
             mydbm = mypdbm;
             mypdbm.Filter = myfilter.FilterWhereId;
-            mypdbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); else mypdbm.FillType = lib.FillType.Refresh; SettingView(); };
+            mypdbm.FillAsyncCompleted = () =>
+            {
+                if (mydbm.Errors.Count > 0)
+                    OpenPopup(mydbm.ErrorMessage, true);
+                mypdbm.FillType = lib.FillType.Refresh;
+                mypdbm.RequestRefreshFill = true; // load request for new parcel
+                SettingView();
+            };
+            mypdbm.Collection = new ObservableCollection<Parcel>();
             mypdbm.FillAsync();
             base.Collection = mypdbm.Collection;
             base.DeleteQuestionHeader = "Удалить перевозку?";
-            
+
             myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
             mysetstoreinform = new RelayCommand(SetStoreInformExec, SetStoreInformCanExec);
             mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
@@ -2492,6 +2602,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
             myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
             mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
+            myselling1c = new RelayCommand(Selling1CExec, Selling1CCanExec);
         }
 
         ParcelDBM mypdbm;
@@ -2523,26 +2634,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (this.CurrentItem != null)
                 {
-                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + this.CurrentItem.DocDirPath??string.Empty;
+                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + this.CurrentItem.ParcelNumber ?? string.Empty;
                     if (!Directory.Exists(path))
                     {
                         System.IO.Directory.CreateDirectory(path);
                     }
                     System.Diagnostics.Process.Start(path);
-                    //else if (Directory.Exists("E:\\Счета\\" + prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5)))
-                    //{
-                    //    prow.docdirpath = prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5);
-                    //    prow.EndEdit();
-                    //    System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-                    //}
-                    //else
-                    //{
-                    //    if (MessageBox.Show("Не удалось найти папку отправки: E:\\Счета\\" + prow.docdirpath + "\nСоздать папку?", "Папка документов", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    //    {
-                    //        System.IO.Directory.CreateDirectory("E:\\Счета\\" + prow.docdirpath);
-                    //        System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-                    //    }
-                    //}
                 }
             }
             catch (Exception ex)
@@ -2816,25 +2913,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         {
                             if (!System.IO.Directory.Exists(rootdir))
                                 System.IO.Directory.CreateDirectory(rootdir);
-                            Specification.Specification spec = this.CurrentItem.DomainObject.Specifications.FirstOrDefault<Specification.Specification>((Specification.Specification item) => { return item.Consolidate == request.Consolidate && item.ParcelGroup == (string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null) && item.Request == (string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null); });
+                            Specification.Specification spec = this.CurrentItem.DomainObject.Specifications.FirstOrDefault<Specification.Specification>((Specification.Specification item) => { return ViewModelViewCommand.ViewFilterDefault(item) && item.Consolidate == request.Consolidate && item.ParcelGroup == (string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null) && item.Request == (string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null); });
                             if (spec != null)
                             {
-                                if (System.Windows.MessageBox.Show("Такая спецификация уже есть. Перезаписать?", "Загрузка спецификации", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.No)
-                                    return;
-                                else
+                                if (spec.Details.Count > 0)
                                 {
-                                    if (spec.DetailsIsNull)
-                                    {
-                                        Specification.SpecificationDetailDBM sdbm = new Specification.SpecificationDetailDBM() { Specification = spec };
-                                        sdbm.Fill();
-                                        foreach (Specification.SpecificationDetail item in sdbm.Collection)
-                                            item.DomainState = lib.DomainObjectState.Deleted;
-                                        if (!sdbm.SaveCollectionChanches())
-                                        {
-                                            this.OpenPopup(sdbm.ErrorMessage, true);
-                                            return;
-                                        }
-                                    }
+                                    if (System.Windows.MessageBox.Show("Разбивка уже загружена. Перезаписать?", "Загрузка разбивок", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.No)
+                                        return;
                                     else
                                     {
                                         Specification.SpecificationVM specvm = null;
@@ -2862,17 +2947,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             else
                             {
                                 spec = new Specification.Specification(
-                                    parcel:this.CurrentItem.DomainObject,
-                                    consolidate:request.Consolidate,
-                                    parcelgroup:string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null,
-                                    request:string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null,
-                                    agent:CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId??0, out _),
-                                    importer:request.Importer);
+                                    parcel: this.CurrentItem.DomainObject,
+                                    consolidate: request.Consolidate,
+                                    parcelgroup: string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null,
+                                    request: string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null,
+                                    agent: CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId ?? 0, out _),
+                                    importer: request.Importer);
                                 spec.CustomersLegalsRefresh();
                                 this.CurrentItem.Specifications.AddNewItem(new Specification.SpecificationVM(spec));
                                 this.CurrentItem.Specifications.CommitNew();
                             }
-                            if(string.IsNullOrEmpty(spec.FilePath)) spec.BuildFileName(fd.FileName);
+                            if (string.IsNullOrEmpty(spec.FilePath)) spec.BuildFileName(fd.FileName);
                             path.Append(System.IO.Path.Combine(rootdir, spec.FilePath));
                             if (System.IO.File.Exists(path.ToString()))
                             {
@@ -2910,129 +2995,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { return this.CurrentItem != null & (myexceltask == null || !myexceltask.IsBusy); }
         private KeyValuePair<bool, string> OnExcelImport(object parm)
         {
-			int maxr, usedr = 0, r = 10;
-            decimal v;
             object[] param = parm as object[];
             string filepath = (string)param[0];
             Specification.Specification spec = (Specification.Specification)param[1];
-            Specification.SpecificationDetail detail;
-            CustomerLegal legal = spec.CustomerLegalsList?.Count == 1 ? spec.CustomerLegalsList[0] : null;
-
-            Excel.Application exApp = new Excel.Application();
-            Excel.Application exAppProt = new Excel.Application();
-            try
-            {
-                exApp.Visible = false;
-                exApp.DisplayAlerts = false;
-                exApp.ScreenUpdating = false;
-
-                Excel.Workbook exWb = exApp.Workbooks.Open(filepath, false, true);
-                Excel.Worksheet exWh = exWb.Sheets[1];
-                maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
-                myexceltask.ProgressChange(5);
-
-                for (; r <= maxr; r++)
-                {
-                    if (string.IsNullOrEmpty(exWh.Cells[r, 6].Text as string)) continue;
-                    detail = new Specification.SpecificationDetail();
-
-                    if (int.TryParse(exWh.Cells[r, 13].Text as string,out int n) && n < 0 | n > 10000000)
-                        throw new Exception("Некорректное значение количества товара: " + exWh.Cells[r, 6].Text);
-                    else
-                        detail.Amount = n;
-                    detail.Branch = exWh.Cells[r, 10].Text;
-                    detail.Brand = exWh.Cells[r, 11].Text;
-                    detail.CellNumber = (exWh.Cells[r, 16].Value)?.ToString();
-                    detail.Certificate = exWh.Cells[r, 22].Text;
-                    detail.Contexture = exWh.Cells[r, 5].Text;
-                    if (decimal.TryParse(exWh.Cells[r, 19].Value.ToString(), out v) && v < 0)
-                        throw new Exception("Некорректное значение стоимости товара: " + exWh.Cells[r, 19].Value.ToString());
-                    else
-                        detail.Cost = v;
-                    detail.CountryEN = exWh.Cells[r, 21].Text;
-                    detail.CountryRU = exWh.Cells[r, 20].Text;
-                    detail.Customer = exWh.Cells[r, 28].Text;
-                    detail.Description = exWh.Cells[r, 6].Text;
-                    detail.Gender = exWh.Cells[r, 4].Text;
-                    detail.GrossWeight = (decimal?)exWh.Cells[r, 15].Value;
-                    detail.Name = exWh.Cells[r, 3].Text;
-                    detail.NetWeight = (decimal?)exWh.Cells[r, 14].Value;
-                    detail.Note = exWh.Cells[r, 24].Text;
-                    detail.Packing = exWh.Cells[r, 17].Text;
-                    detail.Price = (decimal?)exWh.Cells[r, 18].Value;
-                    detail.Producer = exWh.Cells[r, 13].Text;
-                    detail.RowOrder = r - 10;
-                    detail.SizeEN = exWh.Cells[r, 7].Text;
-                    detail.SizeRU = exWh.Cells[r, 8].Text;
-                    detail.Specification = spec;
-                    detail.TNVED = (exWh.Cells[r, 12].Value)?.ToString();
-                    detail.VendorCode = (exWh.Cells[r, 9].Value)?.ToString();
-                    if((exWh.Cells[r, 29].Value)?.ToString().Length > 0)
-					{
-                        //Request request = CustomBrokerWpf.References.RequestStore.GetItemLoad((exWh.Cells[r, 29].Value)?.ToString(), out List<lib.DBMError> errors);
-                        Request request = spec.Requests.FirstOrDefault((Request req) => { return req.StorePoint == (exWh.Cells[r, 29].Value)?.ToString(); });
-                        //if (errors.Count>0)
-                        //    throw new Exception(errors[0].Message);
-                        //else 
-                        if (request == null)
-                            throw new Exception("Позиция по складу " + (exWh.Cells[r, 29].Value)?.ToString() + " не соответствует ни одной заявке в разбивке!");
-                        //    throw new Exception("Не найдена заявка с позицией по складу " + (exWh.Cells[r, 29].Value)?.ToString());
-                        //else if(request.Parcel != spec.Parcel)
-                        //    throw new Exception("Заявка с позицией по складу " + (exWh.Cells[r, 29].Value)?.ToString() + " не найдена в заявках разбивки!");
-                        else
-                            detail.Request = request;
-                    }
-                    detail.Client = legal;
-                    App.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action<Specification.SpecificationDetail>(spec.Details.Add), detail);
-                    //return new KeyValuePair<bool, string>(true, "Сертификат " + sert + " (ячейка Excel " + exWh.Cells[r, 1].Address(false, false) + ") не найден!");
-                    //double color = exWh.Cells[r, 1].Interior.Color ?? 16777215D;
-                    //if (color != 16777215D) findbranchcnt.Goods.ColorMark = lib.Common.MsOfficeHelper.OfficeColorToString(color);
-                    usedr++;
-                    myexceltask.ProgressChange(r, maxr, 0.85M, 0.15M);
-                }
-                myexceltask.ProgressChange(99);
-                spec.RefreshTotalDetails();
-                exWb.Close();
-                exApp.Quit();
-
-                if (spec.Request != null)
-                    spec.Request.IsSpecification = true;
-                else if (spec.Parcel != null)
-                    foreach (Request req in spec.Parcel.Requests)
-                    {
-                        if (!string.IsNullOrEmpty(spec.Consolidate))
-                        {
-                            if (req.Consolidate == spec.Consolidate)
-                                req.IsSpecification = true;
-                        }
-                        else if (spec.ParcelGroup.HasValue)
-                        {
-                            if (req.ParcelGroup == spec.ParcelGroup)
-                                req.IsSpecification = true;
-                        }
-                    }
-
-                myexceltask.ProgressChange(100);
-                return new KeyValuePair<bool, string>(false, "Разбивка загружена. " + usedr.ToString() + " строк обработано.");
-            }
-            catch (Exception ex)
-            {
-                if (exApp != null)
-                {
-                    foreach (Excel.Workbook itemBook in exApp.Workbooks)
-                    {
-                        itemBook.Close(false);
-                    }
-                    exApp.Quit();
-                }
-                throw new Exception("Ошибка в строке " + r.ToString() + ": " + ex.Message);
-            }
-            finally
-            {
-                exApp = null;
-                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
-                exAppProt = null;
-            }
+            return new KeyValuePair<bool, string>(false, "Разбивка загружена. " + spec.ImportDetail(filepath, myexceltask).ToString() + " строк обработано.");
         }
 
         private RelayCommand myspecdel;
@@ -3042,13 +3008,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void SpecDelExec(object parametr)
         {
-            Specification.SpecificationVM item = this.CurrentItem.Specifications.CurrentItem as Specification.SpecificationVM;
-            this.CurrentItem.Specifications.EditItem(item);
-            item.DomainState = lib.DomainObjectState.Deleted;
-            this.CurrentItem.Specifications.CommitEdit();
+            if ((parametr is System.Collections.IEnumerable | parametr is IViewModelBaseItem) && System.Windows.MessageBox.Show("Удалить выделенные спецификации", "Удаление", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+            {
+                if (parametr is System.Collections.IEnumerable)
+                {
+                    List<IViewModelBaseItem> list = new List<IViewModelBaseItem>();
+                    if (this.CurrentItem.Specifications.IsAddingNew) this.CurrentItem.Specifications.CancelNew();
+                    if (this.CurrentItem.Specifications.CanCancelEdit) this.CurrentItem.Specifications.CancelEdit();
+                    foreach (object item in parametr as System.Collections.IEnumerable)
+                    {
+                        if (item is IViewModelBaseItem) list.Add(item as IViewModelBaseItem);
+                    }
+                    foreach (Specification.SpecificationVM item in list)
+                    {
+                        this.CurrentItem.Specifications.EditItem(item);
+                        item.DomainState = lib.DomainObjectState.Deleted;
+                        this.CurrentItem.Specifications.CommitEdit();
+                    }
+                }
+                else if (parametr is Specification.SpecificationVM)
+                {
+                    Specification.SpecificationVM item = parametr as Specification.SpecificationVM;
+                    this.CurrentItem.Specifications.EditItem(item);
+                    item.DomainState = lib.DomainObjectState.Deleted;
+                    this.CurrentItem.Specifications.CommitEdit();
+                }
+            }
         }
         private bool SpecDelCanExec(object parametr)
-        { return false/* this.CurrentItem != null && this.CurrentItem.Specifications.CurrentItem != null*/; }
+        { return this.CurrentItem != null && !this.CurrentItem.DomainObject.SpecificationsIsNull && this.CurrentItem.Specifications.CurrentItem != null; }
 
         private RelayCommand mytdload;
         public ICommand TDLoad
@@ -3059,34 +3047,49 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             if (parametr is Specification.SpecificationVM)
             {
-                OpenFileDialog fd = new OpenFileDialog();
-                fd.Multiselect = false;
-                fd.CheckPathExists = true;
-                fd.CheckFileExists = true;
-                fd.Title = "Выбор файла декларации";
-                fd.Filter = "Файлы XML|*.xml;";
-                if (fd.ShowDialog().Value)
-                {
-                    Specification.Specification spec = (parametr as Specification.SpecificationVM).DomainObject;
-                    Specification.Declaration decl = new Specification.Declaration();
-                    if (spec.Declaration?.TotalSum != null)
-                        if (System.Windows.MessageBox.Show("Таможенная декларация уже загружена. Перезаписать?", "Загрузка ТД", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.No)
-                            return;
-                        else
-                            decl = spec.Declaration;
-                    else
-                    { decl = new Specification.Declaration(); spec.Declaration = decl; }
-
-                    string err = decl.LoadDeclaration(fd.FileName);
-                    if (string.IsNullOrEmpty(err))
-                        this.OpenPopup("ТД загружена!", false);
-                    else
-                        this.OpenPopup("НЕ удалось разобрать структуру файла ТД!/n" + err, true);
-                }
+                Specification.Specification spec = (parametr as Specification.SpecificationVM).DomainObject;
+                EventLoger log = new EventLoger() { What = "DT", Message = (spec?.Declaration?.Number ?? "Новая") + " Start Parcel", ObjectId= (spec?.Declaration?.Id ?? 0) };
+                log.Execute();
+                string err = spec.LoadDeclaration();
+                if (string.IsNullOrEmpty(err))
+                    this.OpenPopup("ТД загружена!", false);
+                else
+                    this.OpenPopup(err, true);
+                log.Message = (spec?.Declaration?.Number ?? "Новая") + " Finish Parcel";
+                log.ObjectId = (spec?.Declaration?.Id ?? 0);
+                log.Execute();
             }
         }
         private bool TDLoadCanExec(object parametr)
         { return true; }
+
+        private RelayCommand myselling1c;
+        public ICommand Selling1C
+        {
+            get { return myselling1c; }
+        }
+        private void Selling1CExec(object parametr)
+        {
+            if (parametr is System.Collections.IEnumerable & this.CurrentItem != null)
+            {
+                List<Specification.SpecificationVM> speclist = (parametr as System.Collections.IEnumerable).OfType<Specification.SpecificationVM>().ToList();
+                if (speclist.Count == 0)
+                {
+                    if (System.Windows.MessageBox.Show("Подготовить реализацию для всех разбивок?", "Реализация для 1С", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.OK)
+                        speclist = this.CurrentItem.Specifications.SourceCollection.OfType<Specification.SpecificationVM>().ToList();
+                    else
+                        return;
+                }
+                foreach (Specification.SpecificationVM item in speclist)
+                    if (!string.IsNullOrEmpty(item.FilePath))
+                    {
+                        item.DomainObject.Income1C();
+                        item.DomainObject.Selling1C(); 
+                    }
+            }
+        }
+        private bool Selling1CCanExec(object parametr)
+        { return this.CurrentItem != null && this.CurrentItem.Specifications.Count > 0; }
 
         private ListCollectionView mystates;
         public ListCollectionView States
@@ -3207,7 +3210,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 isSuccess = this.CurrentItem == null || !(this.CurrentItem.DomainState == lib.DomainObjectState.Added || this.CurrentItem.DomainState == lib.DomainObjectState.Modified) || this.CurrentItem.Validate(true);
                 if (!isSuccess)
                     err.AppendLine(this.CurrentItem.Errors);
-                if (this.CurrentItem != null && this.CurrentItem.Status.Id==50)
+                if (this.CurrentItem != null && this.CurrentItem.Status.Id == 50)
                 {
                     foreach (RequestVM item in this.CurrentItem.ParcelRequests)
                     {
@@ -3218,8 +3221,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                 err.AppendLine(item.Errors);
                                 isSuccess = false;
                             }
-                            else
-                                err.AppendLine(item.DomainObject.UpdateDocDirPath());
+                            //else
+                            //    err.AppendLine(item.DomainObject.UpdateDocDirPath());
                         }
                     }
                     foreach (RequestVM item in this.CurrentItem.Requests)
@@ -3231,8 +3234,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                 err.AppendLine(item.Errors);
                                 isSuccess = false;
                             }
-                            else
-                                err.AppendLine(item.DomainObject.UpdateDocDirPath());
+                            //else
+                            //    err.AppendLine(item.DomainObject.UpdateDocDirPath());
                         }
                     }
                 }
@@ -3334,7 +3337,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void OtherViewRefresh()
         {
-
+            CustomBrokerWpf.References.ParcelNumbers.RefreshAsinc();
         }
         protected override void RefreshData(object parametr)
         {
@@ -3349,6 +3352,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             //        this.CurrentItem.ParcelRequests.Refresh();
             //    }
             //};
+            this.CurrentItem.ParcelRequestsTotal.StopCount();
+            this.CurrentItem.ParcelRequestsTotalDelivery.StopCount();
+            this.CurrentItem.ParcelRequestsTotalTrade.StopCount();
+            this.CurrentItem.ParcelRequestsTotalSelected.StopCount();
+            this.CurrentItem.RequestsTotalSelected?.StopCount();
+            this.CurrentItem.RequestsTotalSelectedDelivery?.StopCount();
+            this.CurrentItem.RequestsTotalSelectedTrade?.StopCount();
             mypdbm.Fill();
             this.Items.MoveCurrentTo(current);
             if (this.CurrentItem != null)
@@ -3357,6 +3367,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.CurrentItem.ParcelRequests.Refresh();
                 this.CurrentItem.DomainObject.SpecificationsRefresh();
             }
+            this.CurrentItem.ParcelRequestsTotal.StartCount();
+            this.CurrentItem.ParcelRequestsTotalDelivery.StartCount();
+            this.CurrentItem.ParcelRequestsTotalTrade.StartCount();
+            this.CurrentItem.ParcelRequestsTotalSelected.StartCount();
+            this.CurrentItem.RequestsTotalSelected?.StartCount();
+            this.CurrentItem.RequestsTotalSelectedDelivery?.StartCount();
+            this.CurrentItem.RequestsTotalSelectedTrade?.StartCount();
         }
         protected override void RejectChanges(object parametr)
         {
@@ -3391,94 +3408,290 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ParcelRequestsTotal : lib.TotalCollectionValues<RequestVM>
+    public class ParcelRequestsTotal : lib.TotalValues.TotalViewValues<RequestVM>
     {
-        public ParcelRequestsTotal(ListCollectionView view) : base(view) { }
+        public ParcelRequestsTotal(ListCollectionView view, int initselected = 0, Importer importer = null) : base(view)
+        {
+            myinitselected = initselected;
+            myimporter = importer;
+            myview = view;
+        }
 
-        private decimal mycellnumber;
-        public decimal CellNumber
-        { get { return mycellnumber; } }
+        private ListCollectionView myview;
+        private Importer myimporter;
+        public Importer Importer
+        { get { return myimporter; } }
+
         private decimal myactualweight;
         public decimal ActualWeight
         { get { return myactualweight; } }
-        private decimal myofficialweight;
-        public decimal OfficialWeight
-        { get { return myofficialweight; } }
+        private decimal mycellnumber;
+        public decimal CellNumber
+        { get { return mycellnumber; } }
         public decimal DifferenceWeight
         { get { return myactualweight - myofficialweight; } }
+        private decimal myinvoice;
+        public decimal Invoice
+        { get { return myinvoice; } }
         private decimal myinvoicediscount;
         public decimal InvoiceDiscount
         { get { return myinvoicediscount; } }
+        private decimal myinvoicediscounttd;
+        public decimal InvoiceDiscountTD
+        {
+            get { return myinvoicediscounttd; }
+        }
+        private decimal myinvoicediscountteo;
+        public decimal InvoiceDiscountTEO
+        {
+            get { return myinvoicediscountteo; }
+        }
+        private decimal myofficialweight;
+        public decimal OfficialWeight
+        { get { return myofficialweight; } }
         private decimal myvolume;
         public decimal Volume
         { get { return myvolume; } }
 
-
         protected override void Item_ValueChangedHandler(RequestVM sender, ValueChangedEventArgs<object> e)
         {
-            //decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M);
             switch (e.PropertyName)
             {
-                case "CellNumber":
-                    mycellnumber += (Int16)(e.NewValue ?? (Int16)0) - (Int16)(e.OldValue ?? (Int16)0);
-                    PropertyChangedNotification("CellNumber");
+                case "Importer":
+                    if (myimporter != null && myview.Filter(sender))
+                    {
+                        if (e.NewValue == myimporter && e.OldValue != myimporter)
+                            ValuesPlus(sender);
+                        else if (e.NewValue != myimporter && e.OldValue == myimporter)
+                            Minus(sender);
+                        this.PropertiesChangedNotifycation();
+                    }
                     break;
-                case "ActualWeight":
-                    myactualweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                    PropertyChangedNotification("ActualWeight");
-                    PropertyChangedNotification("DifferenceWeight");
-                    break;
-                case "OfficialWeight":
-                    myofficialweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                    PropertyChangedNotification("OfficialWeight");
-                    PropertyChangedNotification("DifferenceWeight");
-                    break;
-                case "InvoiceDiscount":
-                    myinvoicediscount += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                    PropertyChangedNotification("InvoiceDiscount");
-                    break;
-                case "Volume":
-                    myvolume += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                    PropertyChangedNotification("Volume");
+                default:
+                    if ((myimporter == null || sender.Importer == myimporter))
+                    {
+                        decimal newvalue, oldvalue;
+                        switch (e.PropertyName)
+                        {
+                            case "ActualWeight":
+                                myactualweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                                PropertyChangedNotification("ActualWeight");
+                                PropertyChangedNotification("DifferenceWeight");
+                                break;
+                            case "CellNumber":
+                                mycellnumber += (Int16)(e.NewValue ?? (Int16)0) - (Int16)(e.OldValue ?? (Int16)0);
+                                PropertyChangedNotification("CellNumber");
+                                break;
+                            case nameof(RequestVM.Invoice):
+                                myinvoice += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                                PropertyChangedNotification(nameof(this.Invoice));
+                                break;
+                            case nameof(RequestVM.InvoiceDiscount):
+                                newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+                                myinvoicediscount += newvalue - oldvalue;
+                                if (sender.ServiceType == "ТД") myinvoicediscounttd += newvalue - oldvalue;
+                                if (sender.ServiceType == "ТЭО") myinvoicediscountteo += newvalue - oldvalue;
+                                PropertyChangedNotification(nameof(this.InvoiceDiscount));
+                                PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+                                PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+                                break;
+                            case "OfficialWeight":
+                                myofficialweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                                PropertyChangedNotification("OfficialWeight");
+                                PropertyChangedNotification("DifferenceWeight");
+                                break;
+                            case "Volume":
+                                myvolume += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                                PropertyChangedNotification("Volume");
+                                break;
+                        }
+                    }
                     break;
             }
         }
 
         protected override void PropertiesChangedNotifycation()
         {
-            this.PropertyChangedNotification("CellNumber");
             this.PropertyChangedNotification("ActualWeight");
-            this.PropertyChangedNotification("OfficialWeight");
+            this.PropertyChangedNotification("CellNumber");
             this.PropertyChangedNotification("DifferenceWeight");
-            this.PropertyChangedNotification("InvoiceDiscount");
+            this.PropertyChangedNotification(nameof(this.Invoice));
+            this.PropertyChangedNotification(nameof(this.InvoiceDiscount));
+            this.PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+            this.PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+            this.PropertyChangedNotification("OfficialWeight");
             this.PropertyChangedNotification("Volume");
         }
 
         protected override void ValuesReset()
         {
-            mycellnumber = 0M;
             myactualweight = 0M;
-            myofficialweight = 0M;
+            mycellnumber = 0M;
+            myinvoice = 0M;
             myinvoicediscount = 0M;
+            myinvoicediscounttd = 0M;
+            myinvoicediscountteo = 0M;
+            myofficialweight = 0M;
             myvolume = 0M;
         }
         protected override void ValuesMinus(RequestVM item)
         {
-            mycellnumber = mycellnumber - (item.DomainObject.CellNumber ?? 0M);
-            myactualweight = myactualweight - (item.DomainObject.ActualWeight ?? 0M);
-            myofficialweight = myofficialweight - (item.DomainObject.OfficialWeight ?? 0M);
-            myinvoicediscount = myinvoicediscount - (item.DomainObject.InvoiceDiscount ?? 0M);
-            myvolume = myvolume - (item.DomainObject.Volume ?? 0M);
-            //base.ValuesMinus(item);
+            if (myimporter == null || myimporter == item.Importer)
+                this.Minus(item); // из за смены импортера
         }
         protected override void ValuesPlus(RequestVM item)
         {
-            mycellnumber = mycellnumber + (item.DomainObject.CellNumber ?? 0M);
-            myactualweight = myactualweight + (item.DomainObject.ActualWeight ?? 0M);
-            myofficialweight = myofficialweight + (item.DomainObject.OfficialWeight ?? 0M);
-            myinvoicediscount = myinvoicediscount + (item.DomainObject.InvoiceDiscount ?? 0M);
-            myvolume = myvolume + (item.DomainObject.Volume ?? 0M);
-            //base.ValuesPlus(item);
+            if (myimporter == null || myimporter == item.Importer)
+            {
+                myactualweight = myactualweight + (item.DomainObject.ActualWeight ?? 0M);
+                mycellnumber = mycellnumber + (item.DomainObject.CellNumber ?? 0M);
+                myinvoice = myinvoice + (item.DomainObject.Invoice ?? 0M);
+                myinvoicediscount = myinvoicediscount + (item.DomainObject.InvoiceDiscount ?? 0M);
+                if (item.ServiceType == "ТД") myinvoicediscounttd += item.DomainObject.InvoiceDiscount ?? 0M;
+                if (item.ServiceType == "ТЭО") myinvoicediscountteo += item.DomainObject.InvoiceDiscount ?? 0M;
+                myofficialweight = myofficialweight + (item.DomainObject.OfficialWeight ?? 0M);
+                myvolume = myvolume + (item.DomainObject.Volume ?? 0M);
+            }
+        }
+        private void Minus(RequestVM item)
+        {
+            myactualweight = myactualweight - (item.DomainObject.ActualWeight ?? 0M);
+            mycellnumber = mycellnumber - (item.DomainObject.CellNumber ?? 0M);
+            myinvoice = myinvoice - (item.DomainObject.Invoice ?? 0M);
+            myinvoicediscount = myinvoicediscount - (item.DomainObject.InvoiceDiscount ?? 0M);
+            if (item.ServiceType == "ТД") myinvoicediscounttd -= item.DomainObject.InvoiceDiscount ?? 0M;
+            if (item.ServiceType == "ТЭО") myinvoicediscountteo -= item.DomainObject.InvoiceDiscount ?? 0M;
+            myofficialweight = myofficialweight - (item.DomainObject.OfficialWeight ?? 0M);
+            myvolume = myvolume - (item.DomainObject.Volume ?? 0M);
+        }
+    }
+    public class ParcelTotal : INotifyPropertyChanged
+    {
+        internal ParcelTotal(ParcelRequestsTotal total, ParcelRequestsTotal selected)
+        {
+            myselected = selected;
+            mytotal = total;
+            this.Init();
+        }
+
+        private ParcelRequestsTotal myselected;
+        internal ParcelRequestsTotal Selected
+        { set { myselected = value; this.Init(); } }
+        private ParcelRequestsTotal mytotal;
+        internal ParcelRequestsTotal Total
+        { set { mytotal = value; this.Init(); } }
+
+        private decimal myactualweight;
+        public decimal ActualWeight
+        { get { return myactualweight; } }
+        private decimal mycellnumber;
+        public decimal CellNumber
+        { get { return mycellnumber; } }
+        public decimal DifferenceWeight
+        { get { return myactualweight - myofficialweight; } }
+        private decimal myinvoice;
+        public decimal Invoice
+        { get { return myinvoice; } }
+        private decimal myinvoicediscount;
+        public decimal InvoiceDiscount
+        { get { return myinvoicediscount; } }
+        private decimal myinvoicediscounttd;
+        public decimal InvoiceDiscountTD
+        {
+            get { return myinvoicediscounttd; }
+        }
+        private decimal myinvoicediscountteo;
+        public decimal InvoiceDiscountTEO
+        {
+            get { return myinvoicediscountteo; }
+        }
+        private decimal myofficialweight;
+        public decimal OfficialWeight
+        { get { return myofficialweight; } }
+        private decimal myvolume;
+        public decimal Volume
+        { get { return myvolume; } }
+
+        private void Count()
+        {
+            myactualweight = (myselected?.ActualWeight ?? 0M) + mytotal.ActualWeight;
+            mycellnumber = (myselected?.CellNumber ?? 0M) + mytotal.CellNumber;
+            myinvoice = (myselected?.Invoice ?? 0M) + mytotal.Invoice;
+            myinvoicediscount = (myselected?.InvoiceDiscount ?? 0M) + mytotal.InvoiceDiscount;
+            myinvoicediscounttd = (myselected?.InvoiceDiscountTD ?? 0M) + mytotal.InvoiceDiscountTD;
+            myinvoicediscountteo = (myselected?.InvoiceDiscountTEO ?? 0M) + mytotal.InvoiceDiscountTEO;
+            myofficialweight = (myselected?.OfficialWeight ?? 0M) + mytotal.OfficialWeight;
+            myvolume = (myselected?.Volume ?? 0M) + mytotal.Volume;
+        }
+        private void Init()
+        {
+            if (mytotal != null)
+            {
+                Count();
+                if (myselected != null) myselected.PropertyChanged += Total_PropertyChanged;
+                mytotal.PropertyChanged += Total_PropertyChanged;
+                PropertiesChangedNotification();
+            }
+        }
+        private void PropertiesChangedNotification()
+        {
+            PropertyChangedNotification("ActualWeight");
+            PropertyChangedNotification("CellNumber");
+            PropertyChangedNotification("DifferenceWeight");
+            PropertyChangedNotification(nameof(this.Invoice));
+            PropertyChangedNotification(nameof(this.InvoiceDiscount));
+            PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+            PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+            PropertyChangedNotification("OfficialWeight");
+            PropertyChangedNotification("Volume");
+        }
+        private void Total_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "ActualWeight":
+                    myactualweight = (myselected?.ActualWeight ?? 0M) + mytotal.ActualWeight;
+                    PropertyChangedNotification("ActualWeight");
+                    PropertyChangedNotification("DifferenceWeight");
+                    break;
+                case "CellNumber":
+                    mycellnumber = (myselected?.CellNumber ?? 0M) + mytotal.CellNumber;
+                    PropertyChangedNotification("CellNumber");
+                    break;
+                case nameof(ParcelRequestsTotal.Invoice):
+                    myinvoice = (myselected?.Invoice ?? 0M) + mytotal.Invoice;
+                    PropertyChangedNotification(nameof(this.Invoice));
+                    break;
+                case nameof(ParcelRequestsTotal.InvoiceDiscount):
+                    myinvoicediscount = (myselected?.InvoiceDiscount ?? 0M) + mytotal.InvoiceDiscount;
+                    PropertyChangedNotification(nameof(this.InvoiceDiscount));
+                    break;
+                case nameof(ParcelRequestsTotal.InvoiceDiscountTD):
+                    myinvoicediscounttd = (myselected?.InvoiceDiscountTD ?? 0M) + mytotal.InvoiceDiscountTD;
+                    PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+                    break;
+                case nameof(ParcelRequestsTotal.InvoiceDiscountTEO):
+                    myinvoicediscountteo = (myselected?.InvoiceDiscountTEO ?? 0M) + mytotal.InvoiceDiscountTEO;
+                    PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+                    break;
+                case "OfficialWeight":
+                    myofficialweight = (myselected?.OfficialWeight ?? 0M) + mytotal.OfficialWeight;
+                    PropertyChangedNotification("OfficialWeight");
+                    PropertyChangedNotification("DifferenceWeight");
+                    break;
+                case "Volume":
+                    myvolume = (myselected?.Volume ?? 0M) + mytotal.Volume;
+                    PropertyChangedNotification("Volume");
+                    break;
+            }
+        }
+
+        //INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void PropertyChangedNotification(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
     }
 
@@ -3505,9 +3718,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectCommandText = "SELECT * FROM parcel.FullNumber_vw ORDER BY sort DESC";
         }
 
-        protected override ParcelNumber CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override ParcelNumber CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
-            return new ParcelNumber() { Id=reader.GetInt32(0),Status=reader.GetInt32(1),FullNumber=reader.GetString(2),Sort=reader.GetString(3)};
+            return new ParcelNumber() { Id = reader.GetInt32(0), Status = reader.GetInt32(1), FullNumber = reader.GetString(2), Sort = reader.GetString(3) };
         }
         protected override void CancelLoad()
         {

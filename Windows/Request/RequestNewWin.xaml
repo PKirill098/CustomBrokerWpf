@@ -33,6 +33,9 @@
             <Button Click="HistoryOpen_Click" Tag="{Binding Path=VModel}" Margin="0,0,10,0" >
                 <Image Source="/CustomBrokerWpf;component/Images/his.png" />
             </Button>
+            <Button Command="{Binding SendEmail}" ToolTip="Отправить письмо Гюзаль Закировой" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/mail2.png" />
+            </Button>
             <Separator/>
             <ToggleButton IsChecked="{Binding Path=IsEditable}" ToolTip="Включить\выключить режим редактирования" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/edit.png" />
@@ -42,7 +45,7 @@
                 <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
             </Button>
             <Separator/>-->
-            <Button Command="{Binding Path=Refresh}" ToolTip="Обновить информацию" Margin="10,0,0,0">
+            <Button Command="{Binding Path=RefreshSave}" ToolTip="Обновить информацию" Margin="10,0,0,0">
                 <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
@@ -204,7 +207,8 @@
                         <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox MaxLength="6" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
-                                    <Style TargetType="TextBox">
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenterErr}">
+                                        <Setter Property="Padding" Value="0"/>
                                         <Setter Property="IsReadOnly" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}"/>
                                         <Style.Triggers>
                                             <Trigger Property="IsFocused" Value="False">
@@ -214,7 +218,7 @@
                                     </Style>
                                 </TextBox.Style>
                                 <TextBox.Text>
-                                    <Binding Path="StorePoint" NotifyOnValidationError="True">
+                                    <Binding Path="StorePoint" NotifyOnValidationError="True" TargetNullValue="">
                                         <Binding.ValidationRules>
                                             <my:RequestStoagePointValidationRule x:Name="thisStoragePointValidationRule"/>
                                         </Binding.ValidationRules>
@@ -329,7 +333,7 @@
                             </TextBox>
                         </Border>
                         <Border Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <TextBox Text="{Binding Path=CustomerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
+                            <TextBox Text="{Binding Path=CustomerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" ToolTip="Не объединяется в группе" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
                                         <Style.Triggers>
@@ -430,15 +434,18 @@
                                 <TextBlock Text="{Binding Path=ParcelNumber, Mode=OneWay}" Visibility="{Binding Path=ParcelNumberVisible}" TextAlignment="Center"/>
                             </Grid>
                         </Border>
-                        <Border Grid.Row="7" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <ComboBox SelectedItem="{Binding Path=ParcelType}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.ParcelTypes}" DisplayMemberPath="Name" IsEnabled="{Binding Path=ParcelTypeEnable}" Background="#e0f7e3" BorderBrush="#e0f7e3" BorderThickness="0" Margin="2"/>
-                        </Border>
+                        <Border Grid.Row="7" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
                         <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
                         </Border>
-                        <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
-                        <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                        </Border>
+                        <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <ComboBox SelectedIndex="{Binding Path=Currency, Mode=TwoWay}" Background="#e0f7e3" BorderBrush="#e0f7e3" BorderThickness="0" Margin="2" ToolTip="Валюта">
+                                <ComboBoxItem IsSelected="True">EURO</ComboBoxItem>
+                                <ComboBoxItem>USD</ComboBoxItem>
+                            </ComboBox>
                         </Border>
                         <!--<DataGrid Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="4" ItemsSource="{Binding Path=CustomerLegalsSelected}" CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#e0f7e3" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#e0f7e3" SelectionUnit="Cell" SelectionMode="Single">
                             <DataGrid.Resources>
@@ -1622,7 +1629,7 @@
                                                             </Style>
                                                         </DataGridTextColumn.CellStyle>
                                                     </DataGridTextColumn>
-                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
                                                         <DataGridTextColumn.CellStyle>
                                                             <Style TargetType="DataGridCell">
                                                                 <Style.Triggers>
@@ -1633,10 +1640,10 @@
                                                             </Style>
                                                         </DataGridTextColumn.CellStyle>
                                                     </DataGridTextColumn>
-                                                    <DataGridTextColumn Header="сумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                    <DataGridTextColumn Header="сумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
                                                         <DataGridTextColumn.CellStyle>
                                                             <Style TargetType="DataGridCell">
-                                                                <Setter Property="ToolTip" Value="Расчетное значение суммы ТД, пропорциональное предоплате.&#xA;Корректировка в случии недовоза товара и нескольких предоплат"/>
+                                                                <Setter Property="ToolTip" Value="Сумма евро привезенного товара.&#xA;Корректировка в случии недовоза товара и нескольких предоплат"/>
                                                                 <Style.Triggers>
                                                                     <Trigger Property="IsSelected" Value="False">
                                                                         <Setter Property="Background" Value="#FFFBEFEF"/>
@@ -1647,8 +1654,9 @@
                                                     </DataGridTextColumn>
                                                 </DataGrid.Columns>
                                             </DataGrid>
-                                            <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Предоплаты" Background="#FFF7E0E0" Padding="40,0,0,0"/>
-                                            <DataGrid Grid.Row="2" ItemsSource="{Binding PrePrepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0,1,0,0" BorderBrush="White" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+                                            <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Резерв вылюты" ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ." Background="#FFF7E0E0" Padding="40,0,0,0"/>
+                                            <DataGrid Grid.Row="2" ItemsSource="{Binding PrePrepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0,1,0,0" BorderBrush="White" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+                                                      ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ.">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn Header="№" Binding="{Binding Path=Prepay.InvoiceNumber, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="40">
                                                         <DataGridTextColumn.CellStyle>
@@ -1683,9 +1691,21 @@
                                                             </Style>
                                                         </DataGridTextColumn.CellStyle>
                                                     </DataGridTextColumn>
-                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                    <DataGridTextColumn Header="предоплата" Binding="{Binding Path=EuroSum, StringFormat=\{0:N2\}, UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
                                                         <DataGridTextColumn.CellStyle>
                                                             <Style TargetType="DataGridCell">
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="False">
+                                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="сумма ДТ" Binding="{Binding Path=DTSum, StringFormat=\{0:N2\}, TargetNullValue='', UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Сумма евро привезенного товара.&#xA;Корректировка в случии недовоза товара и нескольких предоплат"/>
                                                                 <Style.Triggers>
                                                                     <Trigger Property="IsSelected" Value="False">
                                                                         <Setter Property="Background" Value="#FFFBEFEF"/>
@@ -1717,16 +1737,16 @@
                                                 <TextBlock Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, ValidatesOnExceptions=true, NotifyOnValidationError=True}" FontWeight="Bold" Style="{StaticResource StyleTextBlockAlignmentRight}" Margin="2,0"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
-                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                        <!--<DataGridTemplateColumn.CellEditingTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Path=PrepaySum, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" IsReadOnly="{Binding Path=InvoiceDiscountIsReadOnly,Mode=OneWay}" Style="{StaticResource StyleTextBoxAlignmentRight}" Margin="2,0"/>
                                             </DataTemplate>
-                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>-->
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Сумма ДТ" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=true}" HeaderStyle="{StaticResource HeaderStyleWithBorder}" FontWeight="Bold" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="80">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
-                                                <Setter Property="ToolTip" Value="Сумма евро для таможенного счета. Инвойс со скидкой"/>
+                                                <Setter Property="ToolTip" Value="Сумма евро привезенного товара. Инвойс со скидкой"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsSelected" Value="False">
                                                         <Setter Property="Background" Value="#FFFBEFEF"/>

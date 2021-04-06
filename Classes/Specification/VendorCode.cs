@@ -9,14 +9,16 @@ using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Windows;
+using Microsoft.Win32;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
     public class VendorCode : lib.DomainBaseStamp
     {
-        public VendorCode(int id, long stamp, lib.DomainObjectState mstate
+        public VendorCode(int id, long stamp,DateTime updated, lib.DomainObjectState mstate
             ,string brand,string contexture,string countryru,string description,string goods,string gender,string note, bool noupdate,string tnved,string translation, string vendorcode
-            ) : base(id, stamp, null, null, mstate)
+            ) : base(id, stamp, updated, null, mstate)
         {
             mybrand = brand;
             mycontexture = contexture;
@@ -30,7 +32,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mytranslation = translation;
             mycode = vendorcode;
         }
-        public VendorCode():this(lib.NewObjectId.NewId,0,lib.DomainObjectState.Added
+        public VendorCode():this(lib.NewObjectId.NewId,0,DateTime.Now,lib.DomainObjectState.Added
             , null, null, null, null, null, null, null, false, null, null, null)
         { }
 
@@ -138,6 +140,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 ,new SqlParameter("@translationchd", System.Data.SqlDbType.Bit)
             };
             InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
+                ,new SqlParameter("@idupd", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@noupdate", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@vendorcode", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@brand", System.Data.SqlDbType.NVarChar,100)
@@ -161,18 +164,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         protected override VendorCode CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            return new VendorCode(reader.GetInt32(0), reader.GetInt64(1),lib.DomainObjectState.Unchanged
-                , reader.IsDBNull(reader.GetOrdinal("brand")) ? null: reader.GetString(reader.GetOrdinal("brand"))
-                , reader.IsDBNull(reader.GetOrdinal("contexture")) ? null: reader.GetString(reader.GetOrdinal("contexture"))
-                , reader.IsDBNull(reader.GetOrdinal("countryru")) ? null: reader.GetString(reader.GetOrdinal("countryru"))
-                , reader.IsDBNull(reader.GetOrdinal("description")) ? null: reader.GetString(reader.GetOrdinal("description"))
-                , reader.IsDBNull(reader.GetOrdinal("goods")) ? null: reader.GetString(reader.GetOrdinal("goods"))
-                , reader.IsDBNull(reader.GetOrdinal("gender")) ? null: reader.GetString(reader.GetOrdinal("gender"))
-                , reader.IsDBNull(reader.GetOrdinal("note")) ? null: reader.GetString(reader.GetOrdinal("note"))
-                ,reader.GetBoolean(reader.GetOrdinal("noupdate"))
-                , reader.IsDBNull(reader.GetOrdinal("tnved")) ? null: reader.GetString(reader.GetOrdinal("tnved"))
-                , reader.IsDBNull(reader.GetOrdinal("translation")) ? null: reader.GetString(reader.GetOrdinal("translation"))
-                , reader.IsDBNull(reader.GetOrdinal("vendorcode"))?null:reader.GetString(reader.GetOrdinal("vendorcode"))
+            return new VendorCode(reader.GetInt32(0), reader.GetInt64(1), reader.GetDateTime(this.Fields["updated"]),lib.DomainObjectState.Unchanged
+                , reader.IsDBNull(this.Fields["brand"]) ? null: reader.GetString(this.Fields["brand"])
+                , reader.IsDBNull(this.Fields["contexture"]) ? null: reader.GetString(this.Fields["contexture"])
+                , reader.IsDBNull(this.Fields["countryru"]) ? null: reader.GetString(this.Fields["countryru"])
+                , reader.IsDBNull(this.Fields["description"]) ? null: reader.GetString(this.Fields["description"])
+                , reader.IsDBNull(this.Fields["goods"]) ? null: reader.GetString(this.Fields["goods"])
+                , reader.IsDBNull(this.Fields["gender"]) ? null: reader.GetString(this.Fields["gender"])
+                , reader.IsDBNull(this.Fields["note"]) ? null: reader.GetString(this.Fields["note"])
+                ,reader.GetBoolean(this.Fields["noupdate"])
+                , reader.IsDBNull(this.Fields["tnved"]) ? null: reader.GetString(this.Fields["tnved"])
+                , reader.IsDBNull(this.Fields["translation"]) ? null: reader.GetString(this.Fields["translation"])
+                , reader.IsDBNull(this.Fields["vendorcode"])?null:reader.GetString(this.Fields["vendorcode"])
                 );
         }
         protected override void GetOutputSpecificParametersValue(VendorCode item)
@@ -253,6 +256,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                     case "@gender":
                         par.Value = item.Gender;
+                        break;
+                    case "@idupd":
+                        par.Value = item.Id;
                         break;
                     case "@note":
                         par.Value = item.Note;
@@ -464,6 +470,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             get { return this.IsEnabled ? this.DomainObject.Translation : null; }
         }
+        public DateTime? Updated { get { return this.IsEnabled ? this.DomainObject.UpdateWhen : null; } }
 
         protected override bool DirtyCheckProperty()
         {
@@ -577,7 +584,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mybrandfilter.ExecCommand2 = () => { mybrandfilter.Clear(); };
             mybrandfilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                if (this.FilterIsEmpty)
                     foreach (string item in mybrandfilter.DefaultList)
                         mybrandfilter.Items.Add(item);
                 return myfilter.isEmpty;
@@ -594,7 +601,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mycountryrufilter.ExecCommand2 = () => { mycountryrufilter.Clear(); };
             mycountryrufilter.FillDefault = () =>
             {
-                if (myfilter.isEmpty)
+                if (this.FilterIsEmpty)
                     foreach (CustomBrokerWpf.Domain.References.Country item in CustomBrokerWpf.References.Countries)
                         mycountryrufilter.Items.Add(item.Name);
                 return myfilter.isEmpty;
@@ -643,6 +650,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (myfilter.isEmpty)
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             myexcelexport = new RelayCommand(ExcelExportExec, ExcelExportCanExec);
+            myexcelimport = new RelayCommand(ExcelImportExec, ExcelImportCanExec);
         }
         ~VendorCodeViewCommand()
         { Dispose(); }
@@ -687,6 +695,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public VendorCodeCodeFilter VendorCodeFilter
         {get { return myvendorcodefilter; } }
 
+        private bool FilterIsEmpty
+        { get { return !(mybrandfilter.FilterOn | mycontexturefilter.FilterOn | mycountryrufilter.FilterOn | mydescriptionfilter.FilterOn | mygenderfilter.FilterOn | mygoodsfilter.FilterOn | mynotefilter.FilterOn | mytnvedfilter.FilterOn | mytranslationfilter.FilterOn | myvendorcodefilter.FilterOn); } }
         private RelayCommand myfilterrun;
         public ICommand FilterRun
         {
@@ -694,7 +704,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         private void FilterRunExec(object parametr)
         {
+            UpdateFilter();
             this.EndEdit();
+            RefreshData(null);
+        }
+        private bool FilterRunCanExec(object parametr)
+        { return true; }
+        private RelayCommand myfilterclear;
+        public ICommand FilterClear
+        {
+            get { return myfilterclear; }
+        }
+        private void FilterClearExec(object parametr)
+        {
+            mybrandfilter.Clear();
+            mybrandfilter.IconVisibileChangedNotification();
+            mycontexturefilter.Clear();
+            mycontexturefilter.IconVisibileChangedNotification();
+            mycountryrufilter.Clear();
+            mycountryrufilter.IconVisibileChangedNotification();
+            mydescriptionfilter.Clear();
+            mydescriptionfilter.IconVisibileChangedNotification();
+            mygenderfilter.Clear();
+            mygenderfilter.IconVisibileChangedNotification();
+            mygoodsfilter.Clear();
+            mygoodsfilter.IconVisibileChangedNotification();
+            mynotefilter.Clear();
+            mynotefilter.IconVisibileChangedNotification();
+            mytnvedfilter.Clear();
+            mytnvedfilter.IconVisibileChangedNotification();
+            mytranslationfilter.Clear();
+            mytranslationfilter.IconVisibileChangedNotification();
+            myvendorcodefilter.Clear();
+            myvendorcodefilter.IconVisibileChangedNotification();
+            this.UpdateFilter();
+            this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+        }
+        private bool FilterClearCanExec(object parametr)
+        { return true; }
+        private void UpdateFilter()
+        {
             if (mybrandfilter.FilterOn)
             {
                 string[] items = new string[mybrandfilter.SelectedItems.Count];
@@ -820,45 +869,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "vendorcode", new string[0]);
-
-            if (!(mybrandfilter.FilterOn | mycontexturefilter.FilterOn | mycountryrufilter.FilterOn | mydescriptionfilter.FilterOn | mygenderfilter.FilterOn | mygoodsfilter.FilterOn | mynotefilter.FilterOn | mytnvedfilter.FilterOn | mytranslationfilter.FilterOn | myvendorcodefilter.FilterOn))
-                this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора грузов!", false);
-            else
-                myvddbm.FillAsync();
         }
-        private bool FilterRunCanExec(object parametr)
-        { return true; }
-        private RelayCommand myfilterclear;
-        public ICommand FilterClear
-        {
-            get { return myfilterclear; }
-        }
-        private void FilterClearExec(object parametr)
-        {
-            mybrandfilter.Clear();
-            mybrandfilter.IconVisibileChangedNotification();
-            mycontexturefilter.Clear();
-            mycontexturefilter.IconVisibileChangedNotification();
-            mycountryrufilter.Clear();
-            mycountryrufilter.IconVisibileChangedNotification();
-            mydescriptionfilter.Clear();
-            mydescriptionfilter.IconVisibileChangedNotification();
-            mygenderfilter.Clear();
-            mygenderfilter.IconVisibileChangedNotification();
-            mygoodsfilter.Clear();
-            mygoodsfilter.IconVisibileChangedNotification();
-            mynotefilter.Clear();
-            mynotefilter.IconVisibileChangedNotification();
-            mytnvedfilter.Clear();
-            mytnvedfilter.IconVisibileChangedNotification();
-            mytranslationfilter.Clear();
-            mytranslationfilter.IconVisibileChangedNotification();
-            myvendorcodefilter.Clear();
-            myvendorcodefilter.IconVisibileChangedNotification();
-            this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
-        }
-        private bool FilterClearCanExec(object parametr)
-        { return true; }
 
         private lib.TaskAsync.TaskAsync myexceltask;
         private RelayCommand myexcelexport;
@@ -917,7 +928,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 Excel.Workbook exWb = exApp.Workbooks.Add(Type.Missing);
                 Excel.Worksheet exWh = exWb.Sheets[1];
                 Excel.Range r;
-                exWh.Name = "Разбивки";
+                exWh.Name = "Артикулы";
 
                 int maxrow = (int)(args as object[])[2] + 1;
                 System.Collections.IEnumerable items = (args as object[])[1] as System.Collections.IEnumerable;
@@ -1027,6 +1038,125 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
         }
 
+        private RelayCommand myexcelimport;
+        public ICommand ExcelImport
+        {
+            get { return myexcelimport; }
+        }
+        private void ExcelImportExec(object parametr)
+        {
+            if (myexceltask == null)
+                myexceltask = new lib.TaskAsync.TaskAsync();
+            if (!myexceltask.IsBusy)
+            {
+                OpenFileDialog fd = new OpenFileDialog();
+                fd.Multiselect = false;
+                fd.CheckPathExists = true;
+                fd.CheckFileExists = true;
+                if (System.IO.Directory.Exists(CustomBrokerWpf.Properties.Settings.Default.VendorCodeDefault)) fd.InitialDirectory = CustomBrokerWpf.Properties.Settings.Default.VendorCodeDefault;
+                fd.Title = "Выбор файла разбивки";
+                fd.Filter = "Файлы Excel|*.xls;*.xlsx;*.xlsm;";
+                if (fd.ShowDialog().Value)
+                {
+                    try
+                    {
+                        if (CustomBrokerWpf.Properties.Settings.Default.VendorCodeDefault != System.IO.Path.GetDirectoryName(fd.FileName))
+                        {
+                            CustomBrokerWpf.Properties.Settings.Default.VendorCodeDefault = System.IO.Path.GetDirectoryName(fd.FileName);
+                            CustomBrokerWpf.Properties.Settings.Default.Save();
+                        }
+                        myexceltask.DoProcessing = OnExcelImport;
+                        myexceltask.Run(fd.FileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.OpenPopup("Не удалось загрузить файл.\n" + ex.Message, true);
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Предыдущая обработка еще не завершена, подождите.", "Обработка данных", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Hand);
+            }
+        }
+        private bool ExcelImportCanExec(object parametr)
+        { return (myexceltask == null || !myexceltask.IsBusy); }
+        private KeyValuePair<bool, string> OnExcelImport(object parm)
+        {
+            int maxr, maxc, usedr = 0, r = 2, c = 1;
+            string filepath = (string)parm, code, brand, goods;
+            VendorCode vendorcode;
+
+            Excel.Application exApp = new Excel.Application();
+            Excel.Application exAppProt = new Excel.Application();
+            try
+            {
+                exApp.Visible = false;
+                exApp.DisplayAlerts = false;
+                exApp.ScreenUpdating = false;
+
+                Excel.Workbook exWb = exApp.Workbooks.Open(filepath, false, true);
+                Excel.Worksheet exWh = exWb.Sheets[1];
+                maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
+                maxc = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Column;
+                myexceltask.ProgressChange(5);
+
+                //for(;c <= maxc; c++)
+                //{
+
+                //}
+                for (; r <= maxr; r++)
+                {
+                    code = exWh.Cells[r, 1].Text as string;
+                    brand = exWh.Cells[r, 2].Text as string;
+                    goods = exWh.Cells[r, 3].Text as string;
+                    if (string.IsNullOrEmpty(code) | string.IsNullOrEmpty(brand)) continue;
+                    vendorcode = mysync.DomainCollection.FirstOrDefault((VendorCode item)=> { return string.Equals(item.Code, code) && string.Equals(item.Brand, brand); });// && string.Equals(item.Goods, goods)
+                    if (vendorcode == null)
+                    {
+                        vendorcode = new VendorCode();
+                        vendorcode.Code = code;
+                        vendorcode.Brand = brand;
+                    }
+                    vendorcode.Goods = goods;
+                    vendorcode.Description = exWh.Cells[r, 4].Text as string;
+                    vendorcode.Contexture = exWh.Cells[r, 5].Text as string;
+                    vendorcode.Gender = exWh.Cells[r, 6].Text as string;
+                    vendorcode.TNVED = exWh.Cells[r, 7].Text as string;
+                    vendorcode.Translation = exWh.Cells[r, 8].Text as string;
+                    vendorcode.CountryRU = exWh.Cells[r, 9].Text as string;
+                    vendorcode.Note = exWh.Cells[r, 10].Text as string;
+                    App.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, new Action<VendorCode>(mysync.DomainCollection.Add), vendorcode);
+                    usedr++;
+                    myexceltask.ProgressChange(r, maxr);
+                }
+                myexceltask.ProgressChange(99);
+                exWb.Close();
+                exApp.Quit();
+
+                myexceltask.ProgressChange(100);
+                return new KeyValuePair<bool, string>(false, "Данные загружены. " + usedr.ToString() + " строк обработано.");
+            }
+            catch (Exception ex)
+            {
+                if (exApp != null)
+                {
+                    foreach (Excel.Workbook itemBook in exApp.Workbooks)
+                    {
+                        itemBook.Close(false);
+                    }
+                    exApp.Quit();
+                }
+                throw new Exception("Ошибка в строке " + r.ToString() + ": " + ex.Message);
+            }
+            finally
+            {
+                exApp = null;
+                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+                exAppProt = null;
+            }
+        }
+
         protected override bool CanAddData(object parametr)
         {
             return !(myview.IsAddingNew || myview.IsEditingItem);
@@ -1052,10 +1182,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         protected override void RefreshData(object parametr)
         {
-            if (myfilter.isEmpty)
-                this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
-            else
+            if (!myfilter.isEmpty || MessageBox.Show("Загрузить ВСЕ артикулы?", "Артикулы", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 myvddbm.FillAsync();
+            else
+                this.RefreshSuccessMessageHide = true;
         }
         protected override void SettingView()
         {

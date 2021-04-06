@@ -48,6 +48,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             logwin.ShowDialog();
             if (logwin.DialogResult.HasValue && logwin.DialogResult.Value)
             {
+                myuser = logwin.Result3;
                 myconnectionstring = myconnectionstring.Substring(0, myconnectionstring.IndexOf(";User ID=")) + ";User ID=" + logwin.Result1 + ";Password=" + logwin.Result2;
             }
             else
@@ -72,20 +73,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (CurrentUserRoles.Contains("Accounts"))
             {
                 App.Current.MainWindow = new AccountMainWin();
+                Classes.WarningAsyncItemPrepay prepay = new Classes.WarningAsyncItemPrepay();
+                mywarningasync = new Classes.WarningAsync(prepay);
             }
             else
             {
                 App.Current.MainWindow = new MainWindow();
-                mystartAsync = new Classes.StartAsyncProgram();
-                System.Threading.Tasks.Task task = mystartAsync.StartAsync();
+                Classes.WarningAsyncItemGoods goods = new Classes.WarningAsyncItemGoods();
+                mywarningasync = new Classes.WarningAsync(goods);
+                //mystartAsync = new Classes.StartAsyncProgram();
             }
+            System.Threading.Tasks.Task task = mywarningasync.StartAsync();//mystartAsync
             App.Current.MainWindow.Show();
         }
 
         private static String myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2;
         internal static string ConnectionString { get { return myconnectionstring; } }
 
-        static private Classes.StartAsyncProgram mystartAsync;
+        //static private Classes.StartAsyncProgram mystartAsync;
+        static private Classes.WarningAsync mywarningasync;
         static private Classes.EventLogTypeList myeventlogtype;
         static internal Classes.EventLogTypeList EventLogTypes
         {
@@ -194,6 +200,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
+        static private string myuser;
+        static internal string CurrentUser
+        { get { return myuser; } }
         static private CurrentUserRoleList myuserroles;
         static internal CurrentUserRoleList CurrentUserRoles
         {
@@ -503,6 +512,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             mymanagers = new Classes.Domain.ManagerCollection();
             myparcelnumbers = new Classes.Domain.ParcelNumberCollection();
             mygenders = new Classes.Domain.GenderCollection();
+            myimporters = new Classes.Domain.ImporterCollection();
+            myimporters.DataLoad();
+            if (References.CurrentUserRoles.Contains("Managers"))
+            {
+                mygenders.DataLoad();
+                mymaterials = new Classes.Specification.MaterialCollection();
+                mymaterials.DataLoad();
+            }
             //mygenderlazy = new Lazy<Classes.Domain.GenderCollection>(() => {
             //    Classes.Domain.GenderCollection genders=null;
             //    genders = new Classes.Domain.GenderCollection();
@@ -528,11 +545,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mydeliverycars == null)
                 {
+                    mydeliverycars = new System.Collections.ObjectModel.ObservableCollection<Classes.Domain.DeliveryCar>();
                     Classes.Domain.DeliveryCarDBM cdbm = new Classes.Domain.DeliveryCarDBM();
                     cdbm.isAll = false;
                     //cdbm.FillAsyncCompleted = () => { if (cdbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); };
+                    cdbm.Collection = mydeliverycars;
                     cdbm.FillAsync();
-                    mydeliverycars = cdbm.Collection;
                 }
                 return mydeliverycars;
             }

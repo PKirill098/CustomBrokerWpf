@@ -421,7 +421,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			mysync.DomainCollection = mymaindbm.Collection;
 			base.Collection = mysync.ViewModelCollection;
 			mytotal = new CurrencyBuyJointTotal(myview);
-			if (mymaindbm.Errors.Count > 0)
+            mytotal.StartCount();
+            if (mymaindbm.Errors.Count > 0)
 				this.OpenPopup(mymaindbm.ErrorMessage, true);
 
 			myselectall = new RelayCommand(SelectAllExec, SelectAllCanExec);
@@ -499,7 +500,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		}
 	}
 
-	public class CurrencyBuyJointTotal : lib.TotalCollectionValues<CurrencyBuyJointVM>
+	public class CurrencyBuyJointTotal : lib.TotalValues.TotalViewValues<CurrencyBuyJointVM>
     {
         internal CurrencyBuyJointTotal(ListCollectionView view) : base(view)
         {

@@ -41,13 +41,15 @@
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 			<TextBlock Text="Счет" Margin="6,4"/>
-			<TextBlock Text="{Binding Path=Prepay.RubSum, StringFormat=\{0:N0\}}" Grid.Column="1" Margin="0,4" Foreground="Green"/>
-			<TextBlock Text="Долг" Margin="6,4" Grid.Column="2"/>
-			<TextBlock Text="{Binding Path=Prepay.RubDebt, StringFormat=\{0:N0\}}" Grid.Column="3" Margin="0,4" Foreground="Red"/>
+            <TextBlock Text="{Binding Path=Prepay.EuroSum, StringFormat=\{0:C2\}}" Language="de-DE" Grid.Column="1" Margin="0,4" Foreground="Blue"/>
+			<TextBlock Text="{Binding Path=Prepay.RubSum, StringFormat=\{0:C0\}}" Grid.Column="2" Margin="6,4" Foreground="Green"/>
+			<TextBlock Text="Долг" Margin="6,4" Grid.Column="3"/>
+			<TextBlock Text="{Binding Path=Prepay.RubDebt, StringFormat=\{0:C0\}}" Grid.Column="4" Margin="0,4" Foreground="Red"/>
 		</Grid>
         <DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}" IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider, Mode=OneTime}">
 			<DataGrid.Columns>

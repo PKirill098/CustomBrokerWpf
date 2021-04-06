@@ -17,7 +17,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     public class SpecificationDetail : lib.DomainBaseStamp
     {
         private SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
+            int? amount, string branch, string brand, string cellnumber, string certificate, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
             ) : base(id, stamp, null, null, mstate)
         {
             myamount = amount;
@@ -31,6 +31,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mycountryen = countryen;
             mycustomer = customer;
             mydescription = description;
+            mydescriptionaccount = descriptionaccount;
             mygender = gender;
             mygrossweight = grossweight;
             mynetweight = netweight;
@@ -47,14 +48,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myvendorcode = vendorcode;
         }
         public SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
-            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,contexture,cost,countryru,countryen,customer,description,gender,grossweight,netweight,name,note,packing,price,producer,request, roworder,sizeen,sizeru,tnved,vendorcode)
+            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
+            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,contexture,cost,countryru,countryen,customer,description, descriptionaccount, gender,grossweight,netweight,name,note,packing,price,producer,request, roworder,sizeen,sizeru,tnved,vendorcode)
         {
             myclient = client;
             myspec = spec;
         }
         public SpecificationDetail() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null
+            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null
             )
         { }
 
@@ -129,6 +130,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             set { SetProperty<string>(ref mydescription, value); }
             get { return mydescription; }
+        }
+        private string mydescriptionaccount;
+        public string DescriptionAccount
+        {
+            set { SetProperty<string>(ref mydescriptionaccount, value); }
+            get { return mydescriptionaccount; }
         }
         private string mygender;
         public string Gender
@@ -236,6 +243,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.CountryRU = sample.CountryRU;
             this.Customer = sample.Customer;
             this.Description = sample.Description;
+            this.DescriptionAccount = sample.DescriptionAccount;
             this.Gender = sample.Gender;
             this.GrossWeight = sample.GrossWeight;
             this.Name = sample.Name;
@@ -286,6 +294,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@countryentrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@customertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@descriptiontrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@descriptionaccounttrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@gendertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@grossweighttrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@netweighttrue", System.Data.SqlDbType.Bit)
@@ -314,6 +323,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@customer", System.Data.SqlDbType.NVarChar,50)
                 , new SqlParameter("@customerid", System.Data.SqlDbType.Int)
                 , new SqlParameter("@description", System.Data.SqlDbType.NVarChar,200)
+                , new SqlParameter("@descriptionaccount", System.Data.SqlDbType.NVarChar,200)
                 , new SqlParameter("@gender", System.Data.SqlDbType.NVarChar,10)
                 , new SqlParameter("@grossweight", System.Data.SqlDbType.SmallMoney)
                 , new SqlParameter("@netweight", System.Data.SqlDbType.SmallMoney)
@@ -351,6 +361,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , reader.IsDBNull(this.Fields["countryen"]) ? null : reader.GetString(this.Fields["countryen"])
                 , reader.IsDBNull(this.Fields["customer"]) ? null : reader.GetString(this.Fields["customer"])
                 , reader.IsDBNull(this.Fields["description"]) ? null : reader.GetString(this.Fields["description"])
+                , reader.IsDBNull(this.Fields["descriptionaccount"]) ? null : reader.GetString(this.Fields["descriptionaccount"])
                 , reader.IsDBNull(this.Fields["gender"]) ? null : reader.GetString(this.Fields["gender"])
                 , reader.IsDBNull(this.Fields["grossweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["grossweight"])
                 , reader.IsDBNull(this.Fields["netweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["netweight"])
@@ -431,7 +442,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@descriptiontrue":
                         par.Value = item.HasPropertyOutdatedValue("Description");
                         break;
-                    case "@gendertruetrue":
+                    case "@descriptionaccounttrue":
+                        par.Value = item.HasPropertyOutdatedValue("DescriptionAccount");
+                        break;
+                    case "@gendertrue":
                         par.Value = item.HasPropertyOutdatedValue("Gender");
                         break;
                     case "@grossweighttrue":
@@ -513,6 +527,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                     case "@description":
                         par.Value = item.Description;
+                        break;
+                    case "@descriptionaccount":
+                        par.Value = item.DescriptionAccount;
                         break;
                     case "@gender":
                         par.Value = item.Gender;
@@ -740,6 +757,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.Description : null; }
+        }
+        public string DescriptionAccount
+        {
+            set
+            {
+                if (!(this.IsReadOnly || string.Equals(this.DomainObject.DescriptionAccount, value)))
+                {
+                    string name = "DescriptionAccount";
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.DescriptionAccount);
+                    ChangingDomainProperty = name; this.DomainObject.DescriptionAccount = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.DescriptionAccount : null; }
         }
         public string Gender
         {
@@ -1505,6 +1536,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                                 break;
                             case nameof(SpecificationDetailVM.Description):
                                 exWh.Cells[row, column] = item.Description;
+                                break;
+                            case nameof(SpecificationDetailVM.DescriptionAccount):
+                                exWh.Cells[row, column] = item.DescriptionAccount;
                                 break;
                             case nameof(SpecificationDetailVM.SizeEN):
                                 exWh.Cells[row, column] = item.SizeEN;

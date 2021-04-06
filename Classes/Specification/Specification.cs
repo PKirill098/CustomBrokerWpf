@@ -10,6 +10,9 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.IO;
+using Microsoft.Win32;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Windows;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
@@ -39,8 +42,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myddspidy = ddspidy;
             mywestgate = westgate;
             mymfk = mfk;
-            myinvoicedtrates = new Dictionary<int, SpecificationCustomerInvoiceRate>();
-            myinvoicedtrateslock = new object();
+            //myinvoicedtrates = new Dictionary<int, SpecificationCustomerInvoiceRate>();
+            //myinvoicedtrateslock = new object();
             mycustomerlegalslist = new List<CustomerLegal>();
         }
         public Specification(int id, long stamp, lib.DomainObjectState mstate
@@ -84,7 +87,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         private Declaration mydeclaration;
         public Declaration Declaration
-        { set { SetProperty<Declaration>(ref mydeclaration, value); }
+        {
+            set { SetProperty<Declaration>(ref mydeclaration, value); }
             get
             {
                 if (mydeclaration == null)
@@ -105,12 +109,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public decimal? GTLS
         {
             set { SetProperty<decimal?>(ref mygtls, value); }
-            get { return mygtlscur.HasValue && this.Parcel.UsdRate.HasValue ? mygtlscur * this.Parcel.UsdRate: mygtls; }
+            get { return mygtlscur.HasValue && this.Parcel.UsdRate.HasValue ? mygtlscur * this.Parcel.UsdRate : mygtls; }
         }
         private decimal? mygtlscur;
         public decimal? GTLSCur
         {
-            set { SetProperty<decimal?>(ref mygtlscur, value,()=> { this.PropertyChangedNotification(nameof(this.GTLS)); }); }
+            set { SetProperty<decimal?>(ref mygtlscur, value, () => { this.PropertyChangedNotification(nameof(this.GTLS)); }); }
             get { return mygtlscur; }
         }
         private decimal? mygtlsrate;
@@ -122,9 +126,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private decimal? mymfk;
         public decimal? MFK
         {
-            set {
+            set
+            {
                 Action action = () => { this.PropertyChangedNotification(nameof(this.MFKRate)); this.PropertyChangedNotification(nameof(this.MFKWithoutRate)); };
-                SetProperty<decimal?>(ref mymfk, value, action); }
+                SetProperty<decimal?>(ref mymfk, value, action);
+            }
             get { return mymfk; }
         }
         public decimal? MFKRate
@@ -134,8 +140,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private Parcel myparcel;
         public Parcel Parcel
         {
-            set {
-                SetProperty<Parcel>(ref myparcel, value, () => { if (myparcel != null) CustomersLegalsRefresh(); }); }
+            set
+            {
+                SetProperty<Parcel>(ref myparcel, value, () => { if (myparcel != null) CustomersLegalsRefresh(); });
+            }
             get { return myparcel; }
         }
         private int? myparcelgroup;
@@ -159,9 +167,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private decimal? mywestgate;
         public decimal? WestGate
         {
-            set {
+            set
+            {
                 Action action = () => { this.PropertyChangedNotification(nameof(this.WestGateRate)); this.PropertyChangedNotification(nameof(this.WestGateWithoutRate)); };
-                SetProperty<decimal?>(ref mywestgate, value, action); }
+                SetProperty<decimal?>(ref mywestgate, value, action);
+            }
             get { return mywestgate; }
         }
         public decimal? WestGateRate
@@ -187,10 +197,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             {
                 if (mydetails == null)
                 {
-                    myddbm = new SpecificationDetailDBM() { Specification = this };
-                    myddbm.FillAsyncCompleted = () => { if (myddbm.Errors.Count > 0) throw (new Exception(myddbm.ErrorMessage)); else RefreshTotalDetails(); };
-                    myddbm.FillAsync();
-                    mydetails = myddbm.Collection;
+                    mydetails = new ObservableCollection<SpecificationDetail>();
+                    if (myddbm == null) myddbm = new SpecificationDetailDBM() { Specification = this };
+                    myddbm.Collection = mydetails;
+                    myddbm.Fill();
+                    if (myddbm.Errors.Count > 0)
+                        throw (new Exception(myddbm.ErrorMessage));
+                    else RefreshTotalDetails();
                 }
                 return mydetails;
             }
@@ -221,6 +234,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.PropertyChangedNotification("GrossWeight");
             this.PropertyChangedNotification("NetWeight");
         }
+        internal Task DetailsTaskAsync { set; get; }
+        internal async Task DetailsGetAsync()
+        {
+            if (mydetails == null && DetailsTaskAsync == null)
+            {
+                mydetails = new ObservableCollection<SpecificationDetail>();
+                if (myddbm == null) myddbm = new SpecificationDetailDBM() { Specification = this };
+                myddbm.FillAsyncCompleted = () => { if (myddbm.Errors.Count > 0) throw (new Exception(myddbm.ErrorMessage)); else RefreshTotalDetails(); DetailsTaskAsync = null; };
+                myddbm.Collection = mydetails;
+                DetailsTaskAsync = myddbm.FillAsync();
+                await DetailsTaskAsync;
+            }
+        }
         private int myamount;
         public int Amount { set { myamount = value; this.PropertyChangedNotification("Amount"); } get { return myamount; } }
         private decimal mycellnumber;
@@ -247,7 +273,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     name.Append("_gr").Append(this.ParcelGroup.ToString());
                 else
                     name.Append("_s").Append(this.Request.StorePoint);
-                name.Append('_').Append((this.Request??this.Requests.First()).CustomerName);
+                name.Append('_').Append((this.Request ?? this.Requests.First()).CustomerName);
             }
             else
                 name.Append("_").Append(this.Consolidate);
@@ -256,6 +282,30 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.FilePath = name.ToString();
             return this.FilePath;
         }
+        internal string LoadDeclaration()
+        {
+            if (this.Declaration == null)
+                this.Declaration = new Declaration();
+            if (this.Declaration?.TotalSum != null)
+                if (System.Windows.MessageBox.Show("Таможенная декларация уже загружена. Перезаписать?", "Загрузка ТД", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.No)
+                    return string.Empty;
+
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Multiselect = false;
+            fd.CheckPathExists = true;
+            fd.CheckFileExists = true;
+            fd.Title = "Выбор файла декларации";
+            fd.Filter = "Файлы XML|*.xml;";
+            if (fd.ShowDialog().Value)
+            {
+                string err = this.Declaration.LoadDeclaration(fd.FileName);
+                if (!string.IsNullOrEmpty(err))
+                    err = "НЕ удалось разобрать структуру файла ТД!\n" + err;
+                return err;
+            }
+            else
+                return string.Empty;
+        }
         protected override void RejectProperty(string property, object value)
         {
 
@@ -263,6 +313,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             Specification newitem = (Specification)sample;
+            this.Id = newitem.Id;
             this.Agent = newitem.Agent;
             this.FilePath = newitem.FilePath;
             this.Declaration = newitem.Declaration;
@@ -273,7 +324,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.MFK = newitem.MFK;
             this.Pari = newitem.Pari;
             this.WestGate = newitem.WestGate;
-            if (this.DetailsIsNull && newitem.Amount>0)
+            if (this.DetailsIsNull && newitem.Amount > 0)
             {
                 this.Amount = newitem.Amount;
                 this.CellNumber = newitem.CellNumber;
@@ -346,45 +397,584 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     });
             }
         }
-        private Dictionary<int, SpecificationCustomerInvoiceRate> myinvoicedtrates;
-        internal Dictionary<int, SpecificationCustomerInvoiceRate> InvoiceDTRates
-        { get { return myinvoicedtrates; } }
-        private object myinvoicedtrateslock;
-        internal void InvoiceDTRatesAdd(SpecificationCustomerInvoiceRate rate)
+        //private Dictionary<int, SpecificationCustomerInvoiceRate> myinvoicedtrates;
+        //internal Dictionary<int, SpecificationCustomerInvoiceRate> InvoiceDTRates
+        //{ get { return myinvoicedtrates; } }
+        //private object myinvoicedtrateslock;
+        //internal void InvoiceDTRatesAdd(SpecificationCustomerInvoiceRate rate)
+        //{
+        //    lock(myinvoicedtrateslock)
+        //    {
+        //        if (rate.CustomerId.HasValue && !myinvoicedtrates.ContainsKey(rate.CustomerId.Value))
+        //            myinvoicedtrates.Add(rate.CustomerId.Value, rate);
+        //    }
+        //}
+        //internal SpecificationCustomerInvoiceRate GetCustomerInvoiceCostRate(CustomerLegal customer)
+        //{
+        //    SpecificationCustomerInvoiceRate customercost;
+        //    //lock (mythreadlock)
+        //    //{
+        //    //    CustomerLegal threadcustomer = customer;
+        //    //    customercost = this.Details.Where((SpecificationDetail detail) => { return detail.Client == threadcustomer; }).Sum((SpecificationDetail detail) => { return detail.Cost; });
+        //    //if(customercost.HasValue && customercost.Value>0.0099M)
+        //    //{
+        //    //    try
+        //    //    { 
+        //    //    decimal? requestcost = this.Requests.Sum(
+        //    //        (Request request)=> { return
+        //    //            request.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.CustomerLegal == threadcustomer; }).Sum(
+        //    //                (RequestCustomerLegal legal)=>{ return
+        //    //                    legal.Prepays.Sum((Domain.Account.PrepayCustomerRequest requestprepay) => { return
+        //    //                       requestprepay.DtSumSet ?? requestprepay.EuroSum ; });
+        //    //                }
+        //    //            );
+        //    //        }
+        //    //    );
+        //    //     customercost = requestcost / customercost;
+        //    //       }
+        //    //    catch { }
+        //    //}
+        //    return this.InvoiceDTRates.TryGetValue(customer.Id, out customercost) ? customercost: null;
+        //    //}
+        //}
+        internal int ImportDetail(string filepath, lib.TaskAsync.TaskAsync myexceltask)
         {
-            lock(myinvoicedtrateslock)
+            int maxr, usedr = 0, r = 10;
+            decimal v;
+            SpecificationDetail detail;
+            Excel.Application exApp = new Excel.Application();
+            Excel.Application exAppProt = new Excel.Application();
+            try
             {
-                if (rate.CustomerId.HasValue && !myinvoicedtrates.ContainsKey(rate.CustomerId.Value))
-                    myinvoicedtrates.Add(rate.CustomerId.Value, rate);
+                CustomerLegal legal = this.CustomerLegalsList?.Count == 1 ? this.CustomerLegalsList[0] : null;
+
+
+                exApp.Visible = false;
+                exApp.DisplayAlerts = false;
+                exApp.ScreenUpdating = false;
+
+                Excel.Workbook exWb = exApp.Workbooks.Open(filepath, false, true);
+                Excel.Worksheet exWh = exWb.Sheets[1];
+                maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
+                myexceltask.ProgressChange(5);
+
+                for (; r <= maxr; r++)
+                {
+                    if (string.IsNullOrEmpty(exWh.Cells[r, 6].Text as string)) continue;
+                    detail = new SpecificationDetail();
+
+                    if (int.TryParse(exWh.Cells[r, 13].Text as string, out int n) && n < 0 | n > 10000000)
+                        throw new Exception("Некорректное значение количества товара: " + exWh.Cells[r, 6].Text);
+                    else
+                        detail.Amount = n;
+                    detail.Branch = exWh.Cells[r, 10].Text;
+                    detail.Brand = exWh.Cells[r, 11].Text;
+                    detail.CellNumber = (exWh.Cells[r, 16].Value)?.ToString();
+                    detail.Certificate = exWh.Cells[r, 22].Text;
+                    detail.Contexture = exWh.Cells[r, 5].Text;
+                    if (decimal.TryParse(exWh.Cells[r, 19].Value.ToString(), out v) && v < 0)
+                        throw new Exception("Некорректное значение стоимости товара: " + exWh.Cells[r, 19].Value.ToString());
+                    else
+                        detail.Cost = v;
+                    detail.CountryEN = exWh.Cells[r, 21].Text;
+                    detail.CountryRU = exWh.Cells[r, 20].Text;
+                    detail.Customer = exWh.Cells[r, 28].Text;
+                    detail.Description = exWh.Cells[r, 6].Text;
+                    detail.DescriptionAccount = exWh.Cells[r, 33].Text;
+                    detail.Gender = exWh.Cells[r, 4].Text;
+                    detail.GrossWeight = (decimal?)exWh.Cells[r, 15].Value;
+                    detail.Name = exWh.Cells[r, 3].Text;
+                    detail.NetWeight = (decimal?)exWh.Cells[r, 14].Value;
+                    detail.Note = exWh.Cells[r, 24].Text;
+                    detail.Packing = exWh.Cells[r, 17].Text;
+                    detail.Price = (decimal?)exWh.Cells[r, 18].Value;
+                    detail.Producer = exWh.Cells[r, 13].Text;
+                    detail.RowOrder = r - 10;
+                    detail.SizeEN = exWh.Cells[r, 7].Text;
+                    detail.SizeRU = exWh.Cells[r, 8].Text;
+                    detail.Specification = this;
+                    detail.TNVED = (exWh.Cells[r, 12].Value)?.ToString();
+                    detail.VendorCode = (exWh.Cells[r, 9].Value)?.ToString();
+                    if ((exWh.Cells[r, 29].Value)?.ToString().Length > 0)
+                    {
+                        Request request = this.Requests.FirstOrDefault((Request req) => { return req.StorePoint == (exWh.Cells[r, 29].Value)?.ToString(); });
+                        if (request == null)
+                            throw new Exception("Позиция по складу " + (exWh.Cells[r, 29].Value)?.ToString() + " не соответствует ни одной заявке в разбивке!");
+                        else
+                            detail.Request = request;
+                    }
+                    detail.Client = legal;
+                    App.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action<SpecificationDetail>(this.Details.Add), detail);
+                    usedr++;
+                    myexceltask.ProgressChange(r, maxr, 0.85M, 0.15M);
+                }
+                myexceltask.ProgressChange(99);
+                this.RefreshTotalDetails();
+                exWb.Close();
+                exApp.Quit();
+
+                if (this.Request != null)
+                    this.Request.IsSpecification = true;
+                else if (this.Parcel != null)
+                    foreach (Request req in this.Parcel.Requests)
+                    {
+                        if (!string.IsNullOrEmpty(this.Consolidate))
+                        {
+                            if (req.Consolidate == this.Consolidate)
+                                req.IsSpecification = true;
+                        }
+                        else if (this.ParcelGroup.HasValue)
+                        {
+                            if (req.ParcelGroup == this.ParcelGroup)
+                                req.IsSpecification = true;
+                        }
+                    }
+
+                myexceltask.ProgressChange(100);
+                return usedr;
+            }
+            catch (Exception ex)
+            {
+                if (exApp != null)
+                {
+                    foreach (Excel.Workbook itemBook in exApp.Workbooks)
+                    {
+                        itemBook.Close(false);
+                    }
+                    exApp.Quit();
+                }
+                throw new Exception("Ошибка в строке " + r.ToString() + ": " + ex.Message);
+            }
+            finally
+            {
+                exApp = null;
+                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+                exAppProt = null;
             }
         }
-        internal SpecificationCustomerInvoiceRate GetCustomerInvoiceCostRate(CustomerLegal customer)
+        internal void Income1C()
         {
-            SpecificationCustomerInvoiceRate customercost;
-            //lock (mythreadlock)
-            //{
-            //    CustomerLegal threadcustomer = customer;
-            //    customercost = this.Details.Where((SpecificationDetail detail) => { return detail.Client == threadcustomer; }).Sum((SpecificationDetail detail) => { return detail.Cost; });
-            //if(customercost.HasValue && customercost.Value>0.0099M)
-            //{
-            //    try
-            //    { 
-            //    decimal? requestcost = this.Requests.Sum(
-            //        (Request request)=> { return
-            //            request.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.CustomerLegal == threadcustomer; }).Sum(
-            //                (RequestCustomerLegal legal)=>{ return
-            //                    legal.Prepays.Sum((Domain.Account.PrepayCustomerRequest requestprepay) => { return
-            //                       requestprepay.DtSumSet ?? requestprepay.EuroSum ; });
-            //                }
-            //            );
-            //        }
-            //    );
-            //     customercost = requestcost / customercost;
-            //       }
-            //    catch { }
-            //}
-            return this.InvoiceDTRates.TryGetValue(customer.Id, out customercost) ? customercost: null;
-            //}
+            Mouse.OverrideCursor = Cursors.Wait;
+            bool iserr;
+            int r = 2;
+            string str, filepath = string.Empty;
+            Variation variation;
+            VariationDBM vdbm = new VariationDBM();
+            Excel.Range rng;
+            Excel.Application exApp = new Excel.Application();
+            Excel.Application exAppProt = new Excel.Application();
+            exApp.SheetsInNewWorkbook = 1;
+            Excel.Workbook exWb;
+            Excel.Worksheet exWh = null;
+            System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo(System.Globalization.CultureInfo.InvariantCulture.Name, true);
+            try
+            {
+                exWb = exApp.Workbooks.Add(Type.Missing);
+                exWh = exWb.Sheets[1];
+
+                exWh.Cells[1, 1] = "№";
+                exWh.Cells[1, 2] = "Вид номенклатуры";
+                exWh.Cells[1, 3] = "Наименование";
+                exWh.Cells[1, 4] = "Полное наименование";
+                exWh.Cells[1, 5] = "Артикул";
+                exWh.Cells[1, 6] = "Входит в группу";
+                exWh.Cells[1, 7] = "Единица";
+                exWh.Cells[1, 8] = "Импортный товар:\nНомер ГТД";
+                exWh.Cells[1, 9] = "Импортный товар:\nСтрана происхождения";
+                exWh.Cells[1, 10] = "Кол-во";
+                exWh.Cells[1, 11] = "Цена за ед.";
+                exWh.Cells[1, 12] = "Цена";
+                exWh.Cells[1, 13] = "Классификация:\nТН ВЭД";
+                
+                r = 2;
+                
+                foreach (SpecificationDetail detail in this.Details.OrderBy((SpecificationDetail item) => { return item.RowOrder; }))
+                {
+                    str = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(detail.Gender) && detail.Description.ToLower().IndexOf(" ", detail.Description.ToLower().IndexOf(" " + detail.Gender.Substring(0, 3).ToLower()) + 3) > -1)
+                        str = detail.Description.Substring(0, detail.Description.ToLower().IndexOf(" ", detail.Description.ToLower().IndexOf(" " + detail.Gender.Substring(0, 3).ToLower()) + 3));
+                    if (str == string.Empty)
+                    {
+                        str = detail.TNVED.StartsWith("61") ? " трикотаж" : (detail.TNVED.StartsWith("62") ? " текстил" : string.Empty);
+                        if (str != string.Empty)
+                        {
+                            if (detail.Description.ToLower().IndexOf(str) > -1)
+                                str = detail.Description.Substring(0, detail.Description.ToLower().IndexOf(str));
+                            else
+                                str = string.Empty;
+                        }
+                        if (str == string.Empty)
+                            str = detail.Description;
+                    }
+                    vdbm.Plural = str;
+                    variation = vdbm.GetFirst();
+                    if (variation != null && !string.IsNullOrEmpty(variation.Singular))
+                    {
+                        iserr = false;
+                        str = (variation.Singular.Length > 0 ? variation.Singular.Substring(0, 1).ToUpper() : string.Empty) + (variation.Singular.Length > 1 ? variation.Singular.Substring(1) : string.Empty);
+                    }
+                    else
+                    {
+                        iserr = true;
+                        if (variation == null)
+                            vdbm.SaveItemChanches(new Variation() { Plural = vdbm.Plural.ToLower() });
+                    }
+                    exWh.Cells[r, 1] = r - 1;
+                    exWh.Cells[r, 2] = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                        detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
+                            detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
+                    exWh.Cells[r, 3] = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
+                    if (iserr)
+                        exWh.Cells[r, 3].Interior.Color = 255;
+                    else
+                        exWh.Cells[r, 3].Interior.Color = 16777215;
+                    exWh.Cells[r, 4] = exWh.Cells[r, 3];
+                    exWh.Cells[r, 5] = detail.VendorCode;
+                    exWh.Cells[r, 6] = this.Agent.Name;
+                    exWh.Cells[r, 7] = "шт";
+                    exWh.Cells[r, 8] = this.Declaration?.Number;
+                    exWh.Cells[r, 9] = detail.CountryRU;
+                    exWh.Cells[r, 10] = detail.Amount;
+                    exWh.Cells[r, 11] = detail.Price;
+                    exWh.Cells[r, 12] = detail.Cost;
+                    exWh.Cells[r, 13] = detail.TNVED;
+
+                    r++;
+                }
+
+                rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 13]];
+                rng.Borders.Weight = Excel.XlBorderWeight.xlThin;
+                rng.HorizontalAlignment = Excel.Constants.xlCenter;
+                rng.VerticalAlignment = Excel.Constants.xlCenter;
+                exWh.Columns[3, Type.Missing].HorizontalAlignment = Excel.Constants.xlLeft;
+                exWh.Columns[4, Type.Missing].HorizontalAlignment = Excel.Constants.xlLeft;
+                rng = exWh.Range[exWh.Cells[1, 8], exWh.Cells[1, 9]];
+                rng.WrapText = false;
+                rng.Columns.AutoFit();
+                rng.WrapText = true;
+                exWh.Cells[1, 13].WrapText = false;
+                exWh.Cells[1, 13].Columns.AutoFit();
+                exWh.Cells[1, 13].WrapText = true;
+                rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 2]];
+                rng.Columns.AutoFit();
+                rng = exWh.Range[exWh.Cells[1, 3], exWh.Cells[1, 4]];
+                rng.Columns.AutoFit();
+                rng = exWh.Range[exWh.Cells[1, 5], exWh.Cells[r + 1, 13]];
+                rng.Columns.AutoFit();
+
+                filepath = Path.Combine(
+                    CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + (this.Parcel.ParcelNumber ?? string.Empty),
+                    CustomBrokerWpf.Properties.Settings.Default.Income1CFileRoot);
+                if (!Directory.Exists(filepath))
+                    System.IO.Directory.CreateDirectory(filepath);
+                filepath = Path.Combine(filepath,
+                    Path.GetFileNameWithoutExtension(this.FilePath).Replace("-разбивка", string.Empty) + "_1C_" +
+                    this.Details.Sum((SpecificationDetail detail) => { return detail.Cost ?? 0M; }).ToString("F2", System.Globalization.CultureInfo.CurrentCulture) +
+                    ".csv"); //Path.GetExtension(this.FilePath)
+
+                exWb.SaveAs(filepath, 62);
+                Mouse.OverrideCursor = null;
+                exApp.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                if (exApp != null)
+                {
+                    foreach (Excel.Workbook itemBook in exApp.Workbooks)
+                    {
+                        itemBook.Close(false);
+                    }
+                    exApp.Quit();
+                }
+                KirillPolyanskiy.Common.PopupCreator.GetPopup("Не удалось создать файл из " + this.FilePath + ".\n" + ex.Message+("\n"+ex.InnerException?.Message??string.Empty), true, null, true, System.Windows.Controls.Primitives.PlacementMode.Center).IsOpen = true;
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                exApp = null;
+                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+                exAppProt = null;
+            }
+        }
+        internal void Selling1C()
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            bool iserr, skip = false;
+            int client = -1, request = 0, r = 2;
+            string str,rootpath,filename=string.Empty;
+            decimal eurosum=0M;
+            SellingFactors factors;
+            Variation variation;
+            VariationDBM vdbm = new VariationDBM();
+            Excel.Range rng;
+            Excel.Application exApp = new Excel.Application();
+            Excel.Application exAppProt = new Excel.Application();
+            exApp.SheetsInNewWorkbook = 1;
+            Excel.Workbook exWb = null;
+            Excel.Worksheet exWh = null;
+            System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo(System.Globalization.CultureInfo.InvariantCulture.Name, true);
+            //culture.NumberFormat.NumberDecimalSeparator = exApp.International[Excel.XlApplicationInternational.xlDecimalSeparator];
+            rootpath = Path.Combine(
+                    CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + (this.Parcel.ParcelNumber ?? string.Empty),
+                    CustomBrokerWpf.Properties.Settings.Default.Selling1CFileRoot);
+            if (!Directory.Exists(rootpath))
+                System.IO.Directory.CreateDirectory(rootpath);
+            SellingFactorsDBM sfdbm = new SellingFactorsDBM() { Specification = this };
+            sfdbm.Load();
+            if (sfdbm.Errors.Count > 0)
+            {
+                Mouse.OverrideCursor = null;
+                KirillPolyanskiy.Common.PopupCreator.GetPopup("Не удалось загрузить курсы для расчета реализации " + this.CFPR + ".\n" + sfdbm.Errors[0].Message, true, null, true, System.Windows.Controls.Primitives.PlacementMode.Center).IsOpen = true;
+                return;
+            }
+            try
+            {
+                if (!this.Details.Any((SpecificationDetail item) => { return item.Client != null; }))
+                {
+                    Mouse.OverrideCursor = null;
+                    if (MessageBox.Show("В резбивке " + this.CFPR + " не везде проставлен клиент!\nПродолжить подготовку реализации?", "Реализация 1С", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                        return;
+                    Mouse.OverrideCursor = Cursors.Wait;
+                }
+                foreach (SpecificationDetail detail in this.Details.OrderBy((SpecificationDetail item) => { return item.Request?.Id ?? 0; }).OrderBy((SpecificationDetail item) => { return item.Client?.Id ?? 0; }))
+                {
+                    if (client != (detail.Client?.Id ?? 0) | request != (detail.Request?.Id ?? 0))
+                    {
+                        if (!skip & exWh != null)
+                        {
+                            Selling1CEndFormat(exWh, r);
+                            exWb.SaveAs(filename.Replace("!sum!",
+                                eurosum.ToString("F2", System.Globalization.CultureInfo.CurrentCulture) + "_" +
+                                exWh.Cells[r + 1, 16].Text as string
+                                ), 62);
+                        }
+
+                        skip = false; // start new Selling
+                        client = (detail.Client?.Id ?? 0);
+                        request = (detail.Request?.Id ?? 0);
+                        factors = sfdbm.SellingFactors.FirstOrDefault((SellingFactors item) => { return item.Customer == detail.Client & item.Request == detail.Request; });
+                        if (factors == null)
+                        {
+                            Mouse.OverrideCursor = null;
+                            if (MessageBox.Show("Не найдены коэффициенты для разбивки " + this.CFPR
+                                    + ", клиента " + (detail.Client?.Name ?? "<неустановлен>")
+                                    + (detail.Request == null ? string.Empty : " и заявки " + detail.Request.StorePointDate)
+                                    + "!\nПродолжить подготовку других реализаций?", "Реализация 1С", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                                return;
+                            else
+                            { skip = true; Mouse.OverrideCursor = Cursors.Wait; continue; }
+                        }
+                        else if (!(factors.Persent.HasValue & factors.DTRate.HasValue))
+                        {
+                            Mouse.OverrideCursor = null;
+                            if (MessageBox.Show("Не найден Курс ГТД, Коэфиц. Алгоритм для разбивки " + this.CFPR
+                                    + ", клиента " + (detail.Client.Name ?? "<неустановлен>")
+                                    + (detail.Request == null ? string.Empty : " и заявки " + detail.Request.StorePointDate)
+                                    + "!\nПродолжить подготовку других реализаций?", "Реализация 1С", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                                return;
+                            else
+                            { skip = true; Mouse.OverrideCursor = Cursors.Wait; continue; }
+                        }
+                        filename = Path.Combine(rootpath,
+                            Path.GetFileNameWithoutExtension(this.FilePath).Replace("-разбивка", string.Empty) + "_1C_реализация_" +
+                            (detail.Client?.Name.Replace("/", string.Empty) ?? string.Empty) + "_!sum!" +
+                            ".csv");//Path.GetExtension(this.FilePath)
+
+                        //if (exWh == null)
+                        //    exWh = exWb.Sheets[1];
+                        //else
+                        //    exWh = exWb.Sheets.Add(Type.Missing, Type.Missing, 1, Excel.XlSheetType.xlWorksheet);
+                        exWb = exApp.Workbooks.Add(Type.Missing);
+                        exWh = exWb.Sheets[1];
+                        str = detail.Client?.Name.Replace("/", string.Empty) ?? string.Empty;
+                        exWh.Name = str.Length > 31 ? str.Remove(31) : str;
+
+                        exWh.Columns[5, Type.Missing].NumberFormat = "@";
+                        //exWh.Columns[11, Type.Missing].NumberFormat = @"# ##0,00";
+                        //exWh.Columns[12, Type.Missing].NumberFormat = @"# ##0,00";
+                        exWh.Columns[13, Type.Missing].NumberFormat = "@";
+                        //exWh.Columns[14, Type.Missing].NumberFormat = @"# ##0,00";
+                        //exWh.Columns[15, Type.Missing].NumberFormat = @"# ##0,00";
+                        //exWh.Columns[16, Type.Missing].NumberFormat = @"# ##0,00";
+                        exWh.Cells[1, 14].NumberFormat = "@";
+                        exWh.Cells[1, 15].NumberFormat = "@";
+                        exWh.Cells[1, 16].NumberFormat = "@";
+
+                        exWh.Cells[1, 1] = "№";
+                        exWh.Cells[1, 2] = "Вид номенклатуры";
+                        exWh.Cells[1, 3] = "Наименование";
+                        exWh.Cells[1, 4] = "Полное наименование";
+                        exWh.Cells[1, 5] = "Артикул";
+                        exWh.Cells[1, 6] = "Входит в группу";
+                        exWh.Cells[1, 7] = "Единица";
+                        exWh.Cells[1, 8] = "Импортный товар:\nНомер ГТД";
+                        exWh.Cells[1, 9] = "Импортный товар:\nСтрана происхождения";
+                        exWh.Cells[1, 10] = "Кол-во";
+                        exWh.Cells[1, 11] = "Цена за ед.";
+                        exWh.Cells[1, 12] = "Цена";
+                        exWh.Cells[1, 13] = "Классификация:\nТН ВЭД";
+                        exWh.Cells[1, 14] = "1";
+                        exWh.Cells[1, 15] = "2";
+                        exWh.Cells[1, 16] = "3";
+                        exWh.Cells[1, 17] = "Курс покупки валюты";
+                        exWh.Cells[1, 18] = "Курс ГТД";
+                        exWh.Cells[1, 19] = "Коэфиц.\nАлгоритм";
+
+                        rng = exWh.Range[exWh.Cells[1, 14], exWh.Cells[1, 16]];
+                        rng.HorizontalAlignment = Excel.Constants.xlCenter;
+                        rng.VerticalAlignment = Excel.Constants.xlCenter;
+                        rng.Interior.Color = 14610923;
+
+                        rng = exWh.Range[exWh.Cells[2, 17], exWh.Cells[2, 19]];
+                        rng.NumberFormat = "#,##0.0000";
+                        rng = exWh.Range[exWh.Cells[1, 17], exWh.Cells[2, 19]];
+                        rng.Borders.Weight = Excel.XlBorderWeight.xlThin;
+                        rng.VerticalAlignment = Excel.Constants.xlCenter;
+                        rng.HorizontalAlignment = Excel.Constants.xlCenter;
+                        rng.Interior.Color = 14610923;
+                        rng.WrapText = true;
+                        rng.Columns.ColumnWidth = 9.29;
+                        exWh.Cells[2, 17] = factors.Service == "ТД" ? (factors.CBRate.HasValue ? factors.CBRate.Value : 1M) : 0M;
+                        exWh.Cells[2, 18] = !factors.CBRate.HasValue & factors.Service == "ТД" ? 1M : factors.DTRate ?? 0M;
+                        exWh.Cells[2, 19] = factors.Persent.Value;
+
+                        r = 2;
+                    }
+                    else if (skip)
+                        continue;
+
+                    str = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(detail.Gender) && detail.Description.ToLower().IndexOf(" ", detail.Description.ToLower().IndexOf(" " + detail.Gender.Substring(0, 3).ToLower()) + 3) > -1)
+                        str = detail.Description.Substring(0, detail.Description.ToLower().IndexOf(" ", detail.Description.ToLower().IndexOf(" " + detail.Gender.Substring(0, 3).ToLower()) + 3));
+                    if (str == string.Empty)
+                    {
+                        str = detail.TNVED.StartsWith("61") ? " трикотаж" : (detail.TNVED.StartsWith("62") ? " текстил" : string.Empty);
+                        if (str != string.Empty)
+                        {
+                            if (detail.Description.ToLower().IndexOf(str) > -1)
+                                str = detail.Description.Substring(0, detail.Description.ToLower().IndexOf(str));
+                            else
+                                str = string.Empty;
+                        }
+                        if (str == string.Empty)
+                            str = detail.Description;
+                    }
+                    vdbm.Plural = str;
+                    variation = vdbm.GetFirst();
+                    if (variation != null && !string.IsNullOrEmpty(variation.Singular))
+                    {
+                        iserr = false;
+                        str = (variation.Singular.Length > 0 ? variation.Singular.Substring(0, 1).ToUpper() : string.Empty) + (variation.Singular.Length > 1 ? variation.Singular.Substring(1) : string.Empty);
+                    }
+                    else
+                    {
+                        iserr = true;
+                        if (variation == null)
+                            vdbm.SaveItemChanches(new Variation() { Plural = vdbm.Plural.ToLower() });
+                    }
+                    exWh.Cells[r, 1] = r - 1;
+                    exWh.Cells[r, 2] = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                        detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
+                            detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
+                    exWh.Cells[r, 3] = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
+                    if (iserr)
+                        exWh.Cells[r, 3].Interior.Color = 255;
+                    else
+                        exWh.Cells[r, 3].Interior.Color = 16777215;
+                    exWh.Cells[r, 4] = exWh.Cells[r, 3];
+                    exWh.Cells[r, 5] = detail.VendorCode;
+                    exWh.Cells[r, 6] = this.Agent.Name;
+                    exWh.Cells[r, 7] = "шт";
+                    exWh.Cells[r, 8] = this.Declaration?.Number;
+                    exWh.Cells[r, 9] = detail.CountryRU;
+                    exWh.Cells[r, 10] = detail.Amount;
+                    //exWh.Cells[r, 12] = detail.Cost;
+                    exWh.Cells[r, 13] = detail.TNVED;
+                    exWh.Cells[r, 14].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                    exWh.Cells[r, 15].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]*R2C[4]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                    exWh.Cells[r, 16].FormulaR1C1 = "=RC[-2]+RC[-1]";
+                    exWh.Cells[r, 11].FormulaR1C1 = "=RC[5]/RC[-1]";
+                    exWh.Cells[r, 12].FormulaR1C1 = "=RC[4]";
+                    eurosum += detail.Cost ?? 0M;
+
+                    r++;
+                }
+
+                if (!skip & exWh != null)
+                {
+                    this.Selling1CEndFormat(exWh, r);
+                    exWb.SaveAs(filename.Replace("!sum!",
+                        eurosum.ToString("F2", System.Globalization.CultureInfo.CurrentCulture) + "_" +
+                        exWh.Cells[r + 1, 16].Text as string), 62);
+                    Mouse.OverrideCursor = null;
+                    //if (exWh != null) // at least one sheet has been created
+                    //    exWb.SaveAs(CustomBrokerWpf.Properties.Settings.Default.DetailsFileRoot + Path.GetFileNameWithoutExtension(this.FilePath).Replace("-разбивка", string.Empty) + "_1C" + "_реализация" + Path.GetExtension(this.FilePath));
+                }
+                exApp.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                if (exApp != null)
+                {
+                    foreach (Excel.Workbook itemBook in exApp.Workbooks)
+                    {
+                        itemBook.Close(false);
+                    }
+                    exApp.Quit();
+                }
+                KirillPolyanskiy.Common.PopupCreator.GetPopup("Не удалось создать файл из " + this.FilePath + ".\n" + ex.Message + ("\n" + ex.InnerException?.Message ?? string.Empty), true, null, true, System.Windows.Controls.Primitives.PlacementMode.Center).IsOpen = true;
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                exApp = null;
+                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+                exAppProt = null;
+            }
+        }
+        private void Selling1CEndFormat(Excel.Worksheet exWh, int r)
+        {
+            exWh.Cells[r + 1, 13] = "Итого: ";
+            exWh.Cells[r + 1, 14].FormulaR1C1 = "=SUM(R2C:R[-2]C)";
+            exWh.Cells[r + 1, 15].FormulaR1C1 = "=SUM(R2C:R[-2]C)";
+            exWh.Cells[r + 1, 16].FormulaR1C1 = "=SUM(R2C:R[-2]C)";
+            Excel.Range rng = exWh.Range[exWh.Cells[r + 1, 14], exWh.Cells[r + 1, 16]];
+            rng.Font.Bold = true;
+
+            rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 16]];
+            rng.Borders.Weight = Excel.XlBorderWeight.xlThin;
+            rng.HorizontalAlignment = Excel.Constants.xlCenter;
+            rng.VerticalAlignment = Excel.Constants.xlCenter;
+
+            exWh.Columns[3, Type.Missing].HorizontalAlignment = Excel.Constants.xlLeft;
+            exWh.Columns[4, Type.Missing].HorizontalAlignment = Excel.Constants.xlLeft;
+            rng = exWh.Range[exWh.Cells[2, 14], exWh.Cells[r + 1, 16]];
+            rng.HorizontalAlignment = Excel.Constants.xlRight;
+
+            rng = exWh.Range[exWh.Cells[1, 8], exWh.Cells[1, 9]];
+            rng.WrapText = false;
+            rng.Columns.AutoFit();
+            rng.WrapText = true;
+            exWh.Cells[1, 13].WrapText = false;
+            exWh.Cells[1, 13].Columns.AutoFit();
+            exWh.Cells[1, 13].WrapText = true;
+
+
+            rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 2]];
+            rng.Columns.AutoFit();
+            rng = exWh.Range[exWh.Cells[1, 3], exWh.Cells[1, 4]];
+            rng.Columns.AutoFit();
+            rng = exWh.Range[exWh.Cells[1, 5], exWh.Cells[r + 1, 16]];
+            rng.Columns.AutoFit();
+
+            //
+            //rng.Columns.AutoFit();
+            //rng.Rows.AutoFit();
+            //rng = exWh.Columns[1, Type.Missing]; rng.AutoFit();
+            //rng = exWh.Columns[5, Type.Missing]; rng.AutoFit();
+            //rng.Columns[11, Type.Missing].AutoFit();
+            //rng = exWh.Columns[12, Type.Missing]; rng.AutoFit();
+
         }
     }
 
@@ -394,22 +984,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         internal Specification GetItemLoad(Request request, SqlConnection conection, out List<lib.DBMError> errors)
         {
-            //return Dispatcher.Invoke<Specification>(() =>
-            //{
-                Specification firstitem = default(Specification);
-                errors = new List<lib.DBMError>();
+            Specification firstitem = default(Specification);
+            errors = new List<lib.DBMError>();
             try
             {
                 if (request.Parcel != null)
                 {
                     if (myupdatingcoll > 0) System.Threading.Thread.Sleep(20);
+                    while (myupdatingcoll > 0)
+                        System.Threading.Thread.Sleep(10);
                     myforcount++;
-                    foreach (Specification item in mycollection.Values)
-                        if (item.Parcel == request.Parcel && string.Equals(item.Consolidate, request.Consolidate)
-                            && (!string.IsNullOrEmpty(request.Consolidate) || (item.ParcelGroup == request.ParcelGroup
-                            && (request.ParcelGroup.HasValue || item.Request?.Id == request.Id))))
-                        { firstitem = item; break; }
-                    myforcount--;
+                    try
+                    {
+                        foreach (Specification item in mycollection.Values)
+                            if (item.Parcel == request.Parcel && string.Equals(item.Consolidate, request.Consolidate)
+                                && (!string.IsNullOrEmpty(request.Consolidate) || (item.ParcelGroup == request.ParcelGroup
+                                && (request.ParcelGroup.HasValue || item.Request?.Id == request.Id))))
+                            { firstitem = item; break; }
+                    }
+                    finally { this.myforcount--; }
                     if (firstitem == default(Specification))
                     {
                         SpecificationDBM dbm;
@@ -428,16 +1021,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errors.Add(new lib.DBMError(request, ex.Message, "SpecificationStore.GetItemLoad"));
             }
-                return firstitem;
-            //});
+            return firstitem;
         }
         internal Specification GetItemLoad(Request request, out List<lib.DBMError> errors)
         {
-            return GetItemLoad( request, null, out errors);
+            return GetItemLoad(request, null, out errors);
         }
         protected override void UpdateProperties(Specification olditem, Specification newitem)
         {
@@ -516,53 +1108,60 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         DeclarationDBM mytddbm;
         SpecificationCustomerInvoiceRateDBM myratedbm;
 
-        protected override Specification CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Specification CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon,out errors);
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
             this.Errors.AddRange(errors);
             Declaration declaration = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("declarationid")))
+            if (!reader.IsDBNull(this.Fields["declarationid"]))
             {
                 mytddbm.Errors.Clear();
                 mytddbm.Command.Connection = addcon;
-                mytddbm.ItemId = reader.GetInt32(reader.GetOrdinal("declarationid"));
+                mytddbm.ItemId = reader.GetInt32(this.Fields["declarationid"]);
                 declaration = mytddbm.GetFirst();
             }
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parcelid")), addcon, out errors);
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
             this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(reader.GetOrdinal("requestid")))
+            if (!reader.IsDBNull(this.Fields["requestid"]))
             {
-                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors);
                 this.Errors.AddRange(errors);
             }
-            Specification spec = new Specification(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
+            Specification spec = new Specification(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
                 , agent
-                , reader.IsDBNull(reader.GetOrdinal("consolidate")) ? null : reader.GetString(reader.GetOrdinal("consolidate"))
+                , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
                 , declaration
-                , reader.IsDBNull(reader.GetOrdinal("filepath")) ? null : reader.GetString(reader.GetOrdinal("filepath"))
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("importerid")))
+                , reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
+                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
                 , parcel
-                , reader.IsDBNull(reader.GetOrdinal("parcelgroup")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("parcelgroup"))
+                , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
                 , request
-                , reader.IsDBNull(reader.GetOrdinal("pari")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("pari"))
-                , reader.IsDBNull(reader.GetOrdinal("gtls")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtls"))
-                , reader.IsDBNull(reader.GetOrdinal("gtlscur")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtlscur"))
-                , reader.IsDBNull(reader.GetOrdinal("gtlsrate")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("gtlsrate"))
-                , reader.IsDBNull(reader.GetOrdinal("ddspidy")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("ddspidy"))
-                , reader.IsDBNull(reader.GetOrdinal("westgate")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("westgate"))
-                , reader.IsDBNull(reader.GetOrdinal("mfk")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("mfk"))
-                , reader.IsDBNull(reader.GetOrdinal("amount")) ? 0 : reader.GetInt32(reader.GetOrdinal("amount"))
-                , reader.IsDBNull(reader.GetOrdinal("cellnumber")) ? 0M : reader.GetDecimal(reader.GetOrdinal("cellnumber"))
-                , reader.IsDBNull(reader.GetOrdinal("clientsumdiff")) ? 0M : reader.GetDecimal(reader.GetOrdinal("clientsumdiff"))
-                , reader.IsDBNull(reader.GetOrdinal("cost")) ? 0M : reader.GetDecimal(reader.GetOrdinal("cost"))
-                , reader.IsDBNull(reader.GetOrdinal("fondsum")) ? 0M : reader.GetDecimal(reader.GetOrdinal("fondsum"))
-                , reader.IsDBNull(reader.GetOrdinal("grossweight")) ? 0M : reader.GetDecimal(reader.GetOrdinal("grossweight"))
-                , reader.IsDBNull(reader.GetOrdinal("netweight")) ? 0M : reader.GetDecimal(reader.GetOrdinal("netweight"))
+                , reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
+                , reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
+                , reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
+                , reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
+                , reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
+                , reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
+                , reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
+                , reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
+                , reader.IsDBNull(this.Fields["cellnumber"]) ? 0M : reader.GetDecimal(this.Fields["cellnumber"])
+                , reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
+                , reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
+                , reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
+                , reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
+                , reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
                 );
-            Specification specsore = CustomBrokerWpf.References.SpecificationStore.UpdateItem(spec);
-            if (myparcel != null && myrequest==null )
+            Specification specsore = CustomBrokerWpf.References.SpecificationStore.UpdateItem(spec, this.FillType == lib.FillType.Refresh);
+            if ((this.FillType == lib.FillType.Refresh & specsore.Declaration?.DomainState == lib.DomainObjectState.Modified) || specsore.Declaration?.Stamp != declaration?.Stamp)
+            {
+                if (specsore.Declaration == null || declaration == null)
+                    specsore.Declaration = declaration;
+                else
+                    specsore.Declaration.UpdateProperties(declaration);
+            }
+            if (myparcel != null && myrequest == null)
             {
                 specsore.Amount = spec.Amount;
                 specsore.CellNumber = spec.CellNumber;
@@ -573,11 +1172,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 specsore.NetWeight = spec.NetWeight;
                 specsore.CustomersLegalsRefresh();
             }
-            specsore.InvoiceDTRates.Clear();
-            myratedbm.Command.Connection = addcon;
-            myratedbm.Specification = specsore;
-            myratedbm.Load();
-            if(myratedbm.Errors.Count>0) foreach (lib.DBMError err in myratedbm.Errors) this.Errors.Add(err);
+            //specsore.InvoiceDTRates.Clear();
+            //myratedbm.Command.Connection = addcon;
+            //myratedbm.Specification = specsore;
+            //myratedbm.Load();
+            //if(myratedbm.Errors.Count>0) foreach (lib.DBMError err in myratedbm.Errors) this.Errors.Add(err);
 
             return specsore;
         }
@@ -613,6 +1212,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             {
                 mytddbm.Errors.Clear();
                 if (!mytddbm.SaveItemChanches(item.Declaration))
+                {
+                    foreach (lib.DBMError err in mytddbm.Errors) this.Errors.Add(err);
+                    success = false;
+                }
+            }
+            if (item.HasPropertyOutdatedValue(nameof(Specification.Declaration)) && item.GetPropertyOutdatedValue(nameof(Specification.Declaration)) != null)
+            {
+                mytddbm.Errors.Clear();
+                if (!mytddbm.SaveItemChanches((Declaration)item.GetPropertyOutdatedValue(nameof(Specification.Declaration))))
                 {
                     foreach (lib.DBMError err in mytddbm.Errors) this.Errors.Add(err);
                     success = false;
@@ -682,7 +1290,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 switch (par.ParameterName)
                 {
                     case "@filepathtrue":
-                        par.Value=item.HasPropertyOutdatedValue(nameof(Specification.FilePath));
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Specification.FilePath));
                         break;
                     case "@declarationidtrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Specification.Declaration));
@@ -901,7 +1509,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     ChangingDomainProperty = name; this.DomainObject.Pari = value;
                 }
             }
-            get { return this.IsEnabled ? this.DomainObject.Pari : (decimal?)null; } }
+            get { return this.IsEnabled ? this.DomainObject.Pari : (decimal?)null; }
+        }
         public Request Request
         {
             //set
@@ -940,14 +1549,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get
             {
                 bool notequals = this.Declaration?.TotalSum != null || this.Cost.HasValue;
-                if (notequals && (this.Declaration?.TotalSum == null || !this.Cost.HasValue || decimal.Round(this.Declaration.TotalSum.Value - this.Cost.Value,2) == 0M))
+                if (notequals && (this.Declaration?.TotalSum == null || !this.Cost.HasValue || decimal.Round(this.Declaration.TotalSum.Value - this.Cost.Value, 2) == 0M))
                 {
                     decimal? invoice = this.DomainObject.Invoice;
                     notequals = invoice.HasValue;
                     if (this.Declaration?.TotalSum != null)
                         notequals = notequals && decimal.Round(this.Declaration.TotalSum.Value - invoice.Value, 2) != 0M;
                     else
-                        notequals = notequals && decimal.Round(this.Cost.Value - invoice.Value,2) != 0M;
+                        notequals = notequals && decimal.Round(this.Cost.Value - invoice.Value, 2) != 0M;
                 }
                 return notequals;
             }
@@ -965,6 +1574,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 if (mysync == null)
                 {
                     mysync = new SpecificationDetailSynchronizer();
+                    if (this.DomainObject.DetailsIsNull)
+                        this.DomainObject.DetailsGetAsync();
                     mysync.DomainCollection = this.DomainObject.Details;
                 }
                 if (mydetails == null)
@@ -1016,7 +1627,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         protected override void DomainObjectPropertyChanged(string property)
         {
-            switch(property)
+            switch (property)
             {
                 case nameof(Specification.Declaration):
                 case nameof(Specification.Invoice):
@@ -1079,6 +1690,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public SpecificationVMCommand(SpecificationVM vm, ListCollectionView view) : base(vm, view)
         {
             myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
+            myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
+            myselling1c = new RelayCommand(Selling1CExec, Selling1CCanExec);
         }
 
         private RelayCommand myspecfolderopen;
@@ -1107,6 +1720,111 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         private bool SpecFolderOpenCanExec(object parametr)
         { return this.VModel != null; }
+
+        private lib.TaskAsync.TaskAsync myExceltask;
+        private RelayCommand myspecadd;
+        public ICommand DetailLoad
+        {
+            get { return myspecadd; }
+        }
+        private void SpecAddExec(object parametr)
+        {
+            if (myExceltask == null)
+                myExceltask = new lib.TaskAsync.TaskAsync();
+            if (!myExceltask.IsBusy)
+            {
+                System.Text.StringBuilder path = new System.Text.StringBuilder();
+                string rootdir = CustomBrokerWpf.Properties.Settings.Default.DetailsFileRoot;
+                OpenFileDialog fd = new OpenFileDialog();
+                fd.Multiselect = false;
+                fd.CheckPathExists = true;
+                fd.CheckFileExists = true;
+                if (System.IO.Directory.Exists(CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault)) fd.InitialDirectory = CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault;
+                fd.Title = "Выбор файла разбивки";
+                fd.Filter = "Файлы Excel|*.xls;*.xlsx;*.xlsm;";
+                if (fd.ShowDialog().Value)
+                {
+                    try
+                    {
+                        if (this.VModel.DomainObject.Details.Count > 0)
+                        {
+                            if (System.Windows.MessageBox.Show("Разбивка уже загружена. Перезаписать?", "Загрузка разбивок", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.No)
+                                return;
+                            else
+                            {
+                                ObservableCollection<SpecificationDetailVM> detsvm = this.VModel.Details.SourceCollection as ObservableCollection<SpecificationDetailVM>;
+                                for (int i = 0; i < detsvm.Count; i++)
+                                {
+                                    if (detsvm[i].DomainState == lib.DomainObjectState.Added)
+                                    {
+                                        detsvm.RemoveAt(i);
+                                        i--;
+                                    }
+                                    else
+                                    {
+                                        SpecificationDetailVM item = detsvm[i];
+                                        this.VModel.Details.EditItem(item);
+                                        item.DomainState = lib.DomainObjectState.Deleted;
+                                        this.VModel.Details.CommitEdit();
+                                    }
+                                }
+                            }
+                        }
+                        if (!System.IO.Directory.Exists(rootdir))
+                            System.IO.Directory.CreateDirectory(rootdir);
+                        if (string.IsNullOrEmpty(this.VModel.FilePath)) this.VModel.DomainObject.BuildFileName(fd.FileName);
+                        path.Append(System.IO.Path.Combine(rootdir, this.VModel.FilePath));
+                        if (System.IO.File.Exists(path.ToString()))
+                        {
+                            if (!fd.FileName.Equals(path.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                System.IO.File.Delete(path.ToString());
+                                System.IO.File.Copy(fd.FileName, path.ToString());
+                            }
+                        }
+                        else
+                            System.IO.File.Copy(fd.FileName, path.ToString());
+                        if (CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault != System.IO.Path.GetDirectoryName(fd.FileName))
+                        {
+                            CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault = System.IO.Path.GetDirectoryName(fd.FileName);
+                            CustomBrokerWpf.Properties.Settings.Default.Save();
+                        }
+                        myExceltask.DoProcessing = OnExcelImport;
+                        myExceltask.Run(new object[2] { path.ToString(), this.VModel.DomainObject });
+                    }
+                    catch (Exception ex)
+                    {
+                        this.OpenPopup("Не удалось загрузить файл.\n" + ex.Message, true);
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Предыдущая обработка еще не завершена, подождите.", "Обработка данных", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Hand);
+            }
+        }
+        private bool SpecAddCanExec(object parametr)
+        { return (myExceltask == null || !myExceltask.IsBusy); }
+        private KeyValuePair<bool, string> OnExcelImport(object parm)
+        {
+            object[] param = parm as object[];
+            string filepath = (string)param[0];
+            Specification spec = (Specification)param[1];
+            return new KeyValuePair<bool, string>(false, "Разбивка загружена. " + spec.ImportDetail(filepath, myExceltask).ToString() + " строк обработано.");
+        }
+
+        private RelayCommand myselling1c;
+        public ICommand Selling1C
+        {
+            get { return myselling1c; }
+        }
+        private void Selling1CExec(object parametr)
+        {
+            this.VModel.DomainObject.Selling1C();
+            this.VModel.DomainObject.Income1C();
+        }
+        private bool Selling1CCanExec(object parametr)
+        { return !(this.VModel.IsReadOnly | string.IsNullOrEmpty(this.VModel.FilePath)); }
 
         protected override bool CanRefreshData()
         {

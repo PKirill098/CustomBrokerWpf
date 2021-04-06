@@ -22,7 +22,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo)
         {
-            int n = CheckStoragePoint(value.ToString());
+            int n = CheckStoragePoint((string)value);
             if (n > 0)
             {
                 if (requestid > 0)
@@ -36,10 +36,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 }
                 if (n > 0) return new ValidationResult(false, "Эта позиция уже используется заявкой № " + n.ToString() + " !");
             }
+            else if(n<0)
+                return new ValidationResult(false, "Позиция содержит недопустимые символы!");
             return new ValidationResult(true, null);
         }
         private int CheckStoragePoint(string point)
         {
+            if (string.IsNullOrEmpty(point)) return 0;
+            if (string.IsNullOrWhiteSpace(point)) return -1;
             using (SqlConnection con = new SqlConnection(KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString))
             {
                 SqlCommand com = new SqlCommand();
@@ -48,7 +52,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 com.CommandText = "dbo.RequestCheckStoragePoint";
                 SqlParameter p = new SqlParameter();
                 p.ParameterName = "@storagePoint";
-                p.SqlDbType = SqlDbType.NChar;
+                p.SqlDbType = SqlDbType.NVarChar;
                 p.Size = 6;
                 p.Value = point;
                 SqlParameter id = new SqlParameter();
@@ -68,7 +72,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     con.Close();
                 }
-                return (int)id.Value;
+                return (int)(id.Value??0);
             }
         }
     }

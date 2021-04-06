@@ -705,7 +705,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             {
                 this.LoadData();
             }
-            myrequests.Add(request);
             request.PropertyChanged += Request_PropertyChanged;
             //this.RequestAttached(myrequest);
         }
@@ -1292,7 +1291,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             //new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "P2", "", 200, "П23+П22+П24+П25+П27+П28+П29", null), myrequest),
             //new AlgorithmValuesRequestCon(myalgorithm, new Formula(0, 0, lib.DomainObjectState.Sealed, "P3", "", 200, "П23+П22+П24+П35+П25+П27+П28+П29", null), myrequest)
             };
-            foreach(AlgorithmValuesRequest item in valuess)
+            if(!myrequests.Contains(myrequest)) myrequests.Add(myrequest);
+            foreach (AlgorithmValuesRequest item in valuess)
                 item.FormulaInit();
         }
         protected void Request_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

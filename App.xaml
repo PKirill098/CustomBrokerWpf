@@ -55,6 +55,12 @@
             <Setter Property="TextAlignment" Value="Right"/>
             <Setter Property="Padding" Value="0,-1,0,-2" />
         </Style>
+        <Style x:Key="StyleTextBlockAlignmentRightTotal" TargetType="TextBlock" BasedOn="{StaticResource StyleTextBlockAlignmentRight}">
+            <Setter Property="Padding" Value="0,0,4,0"/>
+        </Style>
+        <Style x:Key="StyleTextBoxAlignmentRightTotal" TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentRight}">
+            <Setter Property="Padding" Value="0,-1,4,-2"/>
+        </Style>
         <Style x:Key="CheckBoxListStyle" TargetType="{x:Type ListBox}">
             <Setter Property="SelectionMode" Value="Multiple"/>
             <Setter Property="ItemContainerStyle">

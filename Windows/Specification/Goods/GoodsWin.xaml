@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:component="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        xmlns:coll="clr-namespace:System.Collections;assembly=mscorlib"
         xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
-        xmlns:lib="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+        xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
         xmlns:dmcl="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         mc:Ignorable="d"
         Title="ДС, СРТ" Name="winGoods" Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Maximized" FontSize="11" Language="ru-RU" Icon="/CustomBrokerWpf;component/Images/certificate.png" >
-    <TabControl x:Name="mainTabControl">
+    <TabControl x:Name="mainTabControl" SelectionChanged="TabControl_SelectionChanged">
         <TabItem Header="База" x:Name="GoodsTab">
             <Grid>
                 <Grid.Resources>
@@ -27,33 +28,33 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Click="AddButton_Click" ToolTip="Прокрутить для добавления номера" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=mainDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>
                     <Button ToolTip="Привязать файлы сертификатов" Command="{Binding Path=LinkSertFiles}" IsTabStop="False">
-                        <Image Source="Images/certificate.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/certificate.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                        <Image Source="Images/funnel_delete.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -92,7 +93,7 @@
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="6,6,4,6">
                         <ComboBox SelectedItem="{Binding Path=FilterGender}" ItemsSource="{Binding Source={StaticResource keyGenders}}" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" ToolTip="Выбор из списка" />
                         <Button Command="{Binding FilterGenderClear}" ToolTip="Очистить поле Пол" Margin="2,0,0,0">
-                            <Image Source="Images\clean.png" Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Button},Path=FontSize}"/>
+                            <Image Source="/CustomBrokerWpf;component/Images\clean.png" Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Button},Path=FontSize}"/>
                         </Button>
                     </StackPanel>
                     <TextBlock Text="Материал" Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Left" Margin="10,6,0,0" ToolTip="Любое слово из разделенных пробелом" />
@@ -141,28 +142,28 @@
                         </ControlTemplate>
                     </DataGrid.RowValidationErrorTemplate>
                     <DataGrid.Resources>
-                        <lib:CheckListBoxPopup x:Key="CertTypeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="ContextureFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="ProducerFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="TitleCountryFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="Cat1FilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="CertificateFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="ContractNmbrFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:DateFilterPopup x:Key="CertStopFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="DeclarantFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="CertTypeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="ContextureFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="ProducerFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="TitleCountryFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="Cat1FilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="CertificateFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="ContractNmbrFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:DateFilterPopup x:Key="CertStopFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="DeclarantFilterPopup" DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTemplateColumn>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Click="InfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
-                                        <Image Source="Images/form_blue.png" />
+                                        <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -174,7 +175,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -191,8 +192,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertTypeFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -210,7 +211,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -227,8 +228,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GoodsNameFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -239,14 +240,14 @@
                                 </Style>
                             </DataGridTextColumn.HeaderStyle>
                         </DataGridTextColumn>
-                        <DataGridComboBoxColumn Header="Пол" SelectedItemBinding="{Binding Path=Gender}" ItemsSource="{Binding Source={StaticResource keyGenders}}" DisplayMemberPath="Name" SortMemberPath="Name" Width="SizeToHeader" >
+                        <DataGridComboBoxColumn Header="Пол" SelectedItemBinding="{Binding Path=Gender}" ItemsSource="{Binding Source={StaticResource keyGenders}}" DisplayMemberPath="Name" SortMemberPath="Gender.Name" Width="SizeToHeader">
                             <DataGridComboBoxColumn.HeaderStyle>
                                 <Style TargetType="{x:Type DataGridColumnHeader}">
                                     <Setter Property="ContentTemplate">
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -263,8 +264,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" />
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.GenderFilterCommand}" />
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -291,7 +292,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -308,8 +309,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.MaterialFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -327,7 +328,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -344,8 +345,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContextureFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -364,7 +365,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -381,8 +382,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TNVEDFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -400,7 +401,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -417,8 +418,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.BrandFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -436,7 +437,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -453,8 +454,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ProducerFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -473,7 +474,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -490,8 +491,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.TitleCountryFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -514,7 +515,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -531,8 +532,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.Cat1FilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -579,7 +580,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -596,8 +597,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertificateFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -622,7 +623,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -639,8 +640,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.ContractNmbrFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -659,7 +660,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -671,7 +672,7 @@
                                             <ContextMenu StaysOpen="True" DataContext="{Binding }">
                                                 <MenuItem StaysOpenOnClick="True" Background="Transparent">
                                                     <MenuItem.Header>
-                                                        <lib:DateFilterUserControl DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" />
+                                                        <libui:DateFilterUserControl DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.CertStopFilterCommand}" />
                                                     </MenuItem.Header>
                                                 </MenuItem>
                                             </ContextMenu>
@@ -689,7 +690,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -706,8 +707,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.VendorCodeFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -725,7 +726,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -742,8 +743,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyGoodsDataContext}, Path=Data.DeclarantFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -779,10 +780,10 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>
                     <ComboBox ToolTip="Выбор цвета для текущего производителя" SelectedValue="{Binding Path=ProducerColor,Mode=OneWayToSource}" SelectedValuePath="Code" ItemsSource="{Binding Source={x:Static local:References.Colors}}" IsSynchronizedWithCurrentItem="False" >
                         <ComboBox.ItemTemplate>
@@ -795,17 +796,17 @@
                     </ComboBox>
                     <Separator/>
                     <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                        <Image Source="Images/funnel_delete.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
                     </Button>
                     <Separator/>
                     <Button Click="RefreshButton_Click" Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -841,7 +842,7 @@
                             <Setter Property="Foreground" Value="Black"/>
                             <Setter Property="Background" Value="{Binding Path=Goods.ColorMark}"/>
                         </Style>
-                        <lib:CheckListBoxPopup x:Key="Certificate2FilterPopup" DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" TextBlock.FontWeight="Normal" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="Certificate2FilterPopup" DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" TextBlock.FontWeight="Normal" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                         <Popup x:Key="PopupProducerFilter" DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand}" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade" AllowsTransparency="True" StaysOpen="False">
                             <Border BorderBrush = "Black" BorderThickness="1" Background="WhiteSmoke" CornerRadius="7">
                                 <Grid>
@@ -857,7 +858,7 @@
                                     </Grid.RowDefinitions>
                                     <Thumb Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Stretch" Cursor="SizeWE" Background="WhiteSmoke" Margin="0,10" DragDelta="OnThumbLeftDragDelta" Width="1"/>
                                     <Thumb Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Cursor="SizeNS" Background="WhiteSmoke" Margin="10,0" DragDelta="OnThumbTopDragDelta" Height="1" />
-                                    <lib:CheckListBoxUC Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
+                                    <libui:CheckListBoxUC Grid.Column="1" Grid.Row="1" FontWeight="Normal"/>
                                     <Thumb Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Stretch" Cursor="SizeWE" Background="WhiteSmoke" Margin="0,10" DragDelta="OnThumbRightDragDelta" Width="1" />
                                     <Thumb Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Cursor="SizeNS" Background="WhiteSmoke" Margin="10,0" DragDelta="OnThumbBottomDragDelta" Height="1" />
                                 </Grid>
@@ -874,7 +875,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -891,8 +892,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.CertificateFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -911,7 +912,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -928,8 +929,8 @@
                                                                 <RowDefinition/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <lib:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand}"/>
-                                                            <lib:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
+                                                            <libui:CheckListBoxUC DataContext="{Binding Source={StaticResource keyBranchDataContext}, Path=Data.ProducerFilterCommand}"/>
+                                                            <libui:ParentExpanderUC Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0" ParentType="{x:Type Grid}" Height="20" TargetMinHeight="120" TargetMinWidth="130" ExpanderVerticalAlignment="Stretch"/>
                                                         </Grid>
                                                     </MenuItem.Header>
                                                 </MenuItem>
@@ -961,30 +962,30 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Click="MappingAddButton_Click" ToolTip="Добавить новый товар" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=mappingDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                        <Image Source="Images/funnel_delete.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -1024,10 +1025,10 @@
                 </Grid>-->
                 <DataGrid x:Name="mappingDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" >
                     <DataGrid.Resources>
-                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand}" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                     </DataGrid.Resources>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
@@ -1049,7 +1050,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Click="MappingInfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
-                                        <Image Source="Images/form_blue.png" />
+                                        <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -1061,7 +1062,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1078,7 +1079,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1101,7 +1102,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1118,7 +1119,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1145,7 +1146,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyMappingDataContext}, Path=Data.GenderFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1168,27 +1169,27 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Command="New" ToolTip="Добавить материал" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="Delete" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button Command="Open" ToolTip="Изменить" >
-                        <Image Source="Images/edit.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/edit.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" Visibility="Visible">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <!--<Separator/>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>-->
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -1513,34 +1514,34 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Command="{Binding Path=Add}" CommandParameter="{Binding ElementName=GenderTreeView, Path=SelectedItem}" ToolTip="Добавить к выделенному элементу" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=GenderTreeView, Path=SelectedItem}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button ToolTip="Свернуть все" Padding="0" Click="ButtonCollapsed_Click">
-                        <Image Source="Images/navigate_close.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/navigate_close.png" />
                     </Button>
                     <Button ToolTip="Развернуть все" Padding="0" Click="ButtonExpended_Click" >
-                        <Image Source="Images/navigate_expand.png"  />
+                        <Image Source="/CustomBrokerWpf;component/Images/navigate_expand.png"  />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <Separator/>
                     <!--<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>-->
                     <!--<Separator/>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>-->
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -1599,30 +1600,30 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Click="TNVEDGroupAddButton_Click" ToolTip="Добавить новую группу" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=TNVEDGroupDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                        <Image Source="Images/funnel_delete.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -1634,9 +1635,9 @@
                 </ToolBar>
                 <DataGrid x:Name="TNVEDGroupDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" FrozenColumnCount="1" >
                     <DataGrid.Resources>
-                        <lib:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-                        <lib:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="GoodsNameFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand}" Width="300" Height="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="TNVEDFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="MaterialFilterPopup" DataContext="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand}" Width="300" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                     </DataGrid.Resources>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
@@ -1658,7 +1659,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Click="TNVEDGroupInfoBatchButton_Click" Tag="{Binding }" Height="16" Padding="0" Margin="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ToolTip="Подробные сведения" >
-                                        <Image Source="Images/form_blue.png" />
+                                        <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -1671,7 +1672,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.TNVEDFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1688,7 +1689,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.MaterialFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1715,7 +1716,7 @@
                                         <Setter.Value>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource keyTNVEDGroupDataContext}, Path=Data.GoodsNameFilterCommand.IconVisibile, Mode=OneWay}"/>
                                                     <TextBlock Text="{Binding}"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -1743,30 +1744,30 @@
                 </Grid.RowDefinitions>
                 <ToolBar Height="30">
                     <Button Click="MaterialAddButton_Click" ToolTip="Прокрутить для добавления" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/rPlus_01-66-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=materialDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
-                        <Image Source="Images/remove.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
                     </Button>
                     <Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
-                        <Image Source="Images/excel_import.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
                     </Button>
                     <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
-                        <Image Source="Images/excel_export.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
-                        <Image Source="Images/funnel_delete.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
                     </Button>
                     <Separator/>
                     <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
-                        <Image Source="Images/r2Refresh-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
                     </Button>
                     <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
-                        <Image Source="Images/Save.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
                     </Button>
                     <!--<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                        <Image Source="Images/rRemove-512.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
                     </Button>-->
                     <Separator/>
                     <Button Content="Закрыть" Click="CloseButton_Click"/>
@@ -1830,6 +1831,164 @@
                             <DataGridTextColumn.EditingElementStyle>
                                 <Style TargetType="TextBox">
                                     <Setter Property="MaxLength" Value="10"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Склонения" x:Name="VariationTab">
+            <Grid>
+                <Grid.Resources>
+                    <dmcl:BindingProxy x:Key="DataContext" Data="{Binding}"/>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <ToolBar Height="30">
+                    <Button Command="Delete" CommandParameter="{Binding ElementName=materialDataGrid, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="Visible">
+                        <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+                    </Button>
+                    <!--<Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
+                    </Button>-->
+                    <!--<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+                    </Button>-->
+                    <!--<Separator/>
+                    <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                        <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+                    </Button>-->
+                    <Separator/>
+                    <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
+                        <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Save}" ToolTip="Сохранить изменения">
+                        <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+                    </Button>
+                    <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                        <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Content="Закрыть" Click="CloseButton_Click"/>
+                    <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                        <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                            <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                        </Border>
+                    </Popup>
+                </ToolBar>
+                <DataGrid x:Name="VariationDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left">
+                    <DataGrid.CommandBindings>
+                        <CommandBinding Command="Delete" CanExecute="VariationDelete_CanExecute" Executed="VariationDelete_Executed" />
+                    </DataGrid.CommandBindings>
+                    <DataGrid.Resources>
+                        <libui:CheckListBoxPopup x:Key="PluralFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.PluralFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                        <libui:CheckListBoxPopup x:Key="SingularFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.SingularFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                    </DataGrid.Resources>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="{Binding Path=ColorMark, Mode=OneWay}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn CanUserSort="True" SortMemberPath="ColorMark">
+                            <DataGridTemplateColumn.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Rectangle Fill="Green" Grid.Row="0" Width="6" Height="6" />
+                                    <Rectangle Fill="Red" Grid.Column="1" Width="6" Height="6" />
+                                    <Rectangle Fill="Blue" Grid.Row="1" Width="6" Height="6" />
+                                    <Rectangle Fill="Yellow" Grid.Row="1" Grid.Column="1" Width="6" Height="6" />
+                                </Grid>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Rectangle Fill="{Binding Path=ColorMark}" RadiusX="2" RadiusY="2" Width="15" Height="15" Margin="1" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedValue="{Binding Path=ColorMark,Mode=TwoWay}" SelectedValuePath="Fill" TextSearch.TextPath="Fill" SelectionChanged="ColmarkComboBox_SelectionChanged" >
+                                        <ComboBox.ItemsSource>
+                                            <coll:ArrayList>
+                                                <Rectangle Fill="Transparent" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                                <Rectangle Fill="#FFE6B8B7" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                                <Rectangle Fill="#FF8DB4E2" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                                <Rectangle Fill="#FFBFBFBF" RadiusX="2" RadiusY="2" Width="13" Height="13" Margin="1" />
+                                            </coll:ArrayList>
+                                        </ComboBox.ItemsSource>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Множественное" Binding="{Binding Plural, UpdateSourceTrigger=LostFocus}">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="ToolTip" Value="Множественное число"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.PluralFilter.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="PluralFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="50"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Единственное"  Binding="{Binding Singular, UpdateSourceTrigger=LostFocus}">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="ToolTip" Value="Единственное число"/>
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SingularFilter.IconVisibile, Mode=OneWay}"/>
+                                                    <TextBlock Text="{Binding}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="MouseRightButtonUp" Handler="SingularFilterPopup_Open"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="MaxLength" Value="50"/>
                                 </Style>
                             </DataGridTextColumn.EditingElementStyle>
                         </DataGridTextColumn>

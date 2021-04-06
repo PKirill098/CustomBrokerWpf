@@ -1136,7 +1136,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public string FileOpenImage
         {
-            get { return string.IsNullOrEmpty(this.FilePath) ? "Images/add2.png" : "Images/certificate.png"; }
+            get { return string.IsNullOrEmpty(this.FilePath) ? "/CustomBrokerWpf;component/Images/add2.png" : "/CustomBrokerWpf;component/Images/certificate.png"; }
         }
         internal string myerrcode;
         private string myerrdesc;
@@ -1510,6 +1510,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal GoodsViewCommand()
         {
             mygdbm = new GoodsDBM();
+            mygdbm.Collection = new System.Collections.ObjectModel.ObservableCollection<Goods>();
             mygdbm.FillAsyncCompleted = () =>
             {
                 mygoodsnamefiltercommand = new GoodsNameCheckListBoxVM();

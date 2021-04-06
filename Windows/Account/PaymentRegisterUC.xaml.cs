@@ -242,25 +242,49 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
         {
             Window ObjectWin = null;
             lib.DomainBaseStamp prepay;
-            if (((sender as Button).Tag as PrepayCustomerRequestVM).Prepay.CBRate.HasValue)
-                prepay = ((sender as Button).Tag as PrepayCustomerRequestVM).Prepay;
-            else
-                prepay = ((sender as Button).Tag as PrepayCustomerRequestVM).CustomsInvoice;
-            foreach (Window item in myhost.OwnedWindows)
-                if (item.Name == "winPrepayCurrencyBuy" && ((item.DataContext as PrepayCurrencyBuyViewCommand).Prepay == prepay || (item.DataContext as PrepayCurrencyBuyViewCommand).Invoice == prepay))
+            PrepayCustomerRequestVM pcr = (sender as Button).Tag as PrepayCustomerRequestVM;
+            if (pcr.Prepay.CBRate.HasValue || pcr.Prepay.CurrencyBuys.Count > 0)
+            {
+                prepay = pcr.Prepay;
+                foreach (Window item in myhost.OwnedWindows)
+                    if (item.Name == "winPrepayCurrencyBuy" && (item.DataContext as PrepayCurrencyBuyViewCommand).Prepay == prepay)
                         ObjectWin = item;
-            if (ObjectWin == null)
-            {
-                ObjectWin = new PrepayCurrencyBuyWin();
-                ObjectWin.Owner = myhost;
-                ObjectWin.DataContext = new Classes.Domain.Account.PrepayCurrencyBuyViewCommand(prepay);
-                ObjectWin.WindowState = WindowState.Normal;
-                ObjectWin.Show();
+                if (ObjectWin == null)
+                {
+                    ObjectWin = new PrepayCurrencyBuyWin();
+                    ObjectWin.Title = ObjectWin.Title + " - предоплата";
+                    ObjectWin.Owner = myhost;
+                    ObjectWin.DataContext = new Classes.Domain.Account.PrepayCurrencyBuyViewCommand(prepay);
+                    ObjectWin.WindowState = WindowState.Normal;
+                    ObjectWin.Show();
+                }
+                else
+                {
+                    ObjectWin.Activate();
+                    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                }
             }
-            else
+            ObjectWin = null;
+            if (pcr.CustomsInvoice.FinalCurSum > 0M || pcr.CustomsInvoice.CurrencyBuys.Count > 0)
             {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                prepay = pcr.CustomsInvoice;
+                foreach (Window item in myhost.OwnedWindows)
+                    if (item.Name == "winPrepayCurrencyBuy" && (item.DataContext as PrepayCurrencyBuyViewCommand).Invoice == prepay)
+                        ObjectWin = item;
+                if (ObjectWin == null)
+                {
+                    ObjectWin = new PrepayCurrencyBuyWin();
+                    ObjectWin.Title = ObjectWin.Title + " - постоплата";
+                    ObjectWin.Owner = myhost;
+                    ObjectWin.DataContext = new Classes.Domain.Account.PrepayCurrencyBuyViewCommand(prepay);
+                    ObjectWin.WindowState = WindowState.Normal;
+                    ObjectWin.Show();
+                }
+                else
+                {
+                    ObjectWin.Activate();
+                    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                }
             }
         }
         private void PrepayCurrencyPayButton_Click(object sender, RoutedEventArgs e)
@@ -626,27 +650,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             {
                 try
                 {
-                    string path, err;
                     Classes.Domain.RequestVM item = ((sender as Button).Tag as PrepayCustomerRequestVM).Request;
-                    if (item.DomainState == lib.DomainObjectState.Unchanged)
-                    {
-                        err = item.MoveFolder();
-                        if (!string.IsNullOrEmpty(err))
-                            MessageBox.Show(err, "Папка документов");
-                    }
-                    else if (string.IsNullOrEmpty(item.DomainObject.DocDirPath) & item.DomainState != lib.DomainObjectState.Unchanged)
-                        MessageBox.Show("Сохраните изменения!", "Папка документов");
-
-                    if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
-                    {
-                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
-                        if (System.IO.Directory.Exists(path))
-                        {
-                            System.Diagnostics.Process.Start(path);
-                        }
-                        else if (MessageBox.Show("Папка документов " + path + " не найдена!/n/nСоздать заново?", "Папка документов", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
-                            item.DomainObject.DocDirPath = string.Empty;
-                    }
+                    item.DomainObject.DocFolderOpen();
                 }
                 catch (System.Exception ex)
                 {

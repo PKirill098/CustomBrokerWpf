@@ -73,6 +73,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                ,new SqlParameter("@groupid",System.Data.SqlDbType.Int)
                ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,25)
              };
+            mydeleteparams = new SqlParameter[] { myinsertupdateparams[0] };
         }
 
         protected override Manager CreateItem(SqlDataReader reader,SqlConnection addcon)
@@ -306,6 +307,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void SettingView()
         {
+            myview.Filter = (object item) => { return (item as ManagerVM).DomainObject.Unfile == 0; };
             myview.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name",System.ComponentModel.ListSortDirection.Ascending));
         }
     }

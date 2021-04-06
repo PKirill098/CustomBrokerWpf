@@ -36,14 +36,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         internal decimal? Value1User
         { get { return myvalue1user; } }
         public override decimal? Value1
-        { set
+        {
+            set
             {
                 if (this.Formula.Code != "П9" || myrequest.ValidateProperty(nameof(Request.InvoiceDiscount), this.Value1User, out myvalue1err, out _))
-                    SetProperty<decimal?>(ref myvalue1user, value, () => {
-                    this.PropertyChangedNotification("Value1Err");
-                    RequestSync1();
-                }); }
-            get { return myvalue1user ?? myvalue1; } }
+                    SetProperty<decimal?>(ref myvalue1user, value, () =>
+                    {
+                        this.PropertyChangedNotification("Value1Err");
+                        RequestSync1();
+                    });
+            }
+            get { return myvalue1user ?? myvalue1; }
+        }
         internal decimal? Value1Templ
         { set { SetProperty<decimal?>(ref myvalue1, value, () => { this.PropertyChangedNotification("Value1"); RequestSync1(); }); myvalue1err = string.Empty; this.PropertyChangedNotification("Value1Err"); } get { return myvalue1; } }
         public override bool Value1IsReadOnly
@@ -375,7 +379,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                                 decimal? p40 = null;
                                 foreach (AlgorithmValuesRequestCon values in myrequest.AlgorithmConCMD.Algorithm.Formulas)
                                 {
-                                    if (values.Formula.Code == "П40")
+                                    if (values.Formula.Code == "П40" && values.isValid2)
                                     {
                                         if (values.Value2.HasValue)
                                             p40 = this.Value1.Value * decimal.Divide(values.Value2.Value, this.Value2.Value) - this.Value1.Value;
@@ -426,7 +430,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 && !myvalue1user.HasValue // контролируем только расчетное значение
                 && this.DomainState == lib.DomainObjectState.Unchanged
                 && (mydbvalue1.HasValue != myvalue1.HasValue || (myvalue1.HasValue && !decimal.Equals(decimal.Round(mydbvalue1.Value, 4), decimal.Round(myvalue1.Value, 4)))))
-                    this.DomainState = lib.DomainObjectState.Modified;
+                this.DomainState = lib.DomainObjectState.Modified;
             return issuccess;
         }
         internal override bool SetValue2()
@@ -439,7 +443,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 && !myvalue2user.HasValue
                 && this.DomainState == lib.DomainObjectState.Unchanged
                 && (mydbvalue2.HasValue != myvalue2.HasValue || (myvalue2.HasValue && !decimal.Equals(decimal.Round(mydbvalue2.Value, 4), decimal.Round(myvalue2.Value, 4)))))
-                    this.DomainState = lib.DomainObjectState.Modified;
+                this.DomainState = lib.DomainObjectState.Modified;
             return issuccess;
         }
         protected override void RejectProperty(string property, object value)
@@ -470,7 +474,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             if (this.DomainState == lib.DomainObjectState.Unchanged // если наши расчетные значения отличны от в базе
                 && ((!myvalue1user.HasValue
                         && (mydbvalue1.HasValue != newitem.Value1.HasValue || (mydbvalue1.HasValue && !decimal.Equals(decimal.Round(mydbvalue1.Value, 4), decimal.Round(newitem.Value1.Value, 4)))))
-                    ||(!myvalue2user.HasValue
+                    || (!myvalue2user.HasValue
                         && (mydbvalue2.HasValue != newitem.Value2.HasValue || (mydbvalue2.HasValue && !decimal.Equals(decimal.Round(mydbvalue2.Value, 4), decimal.Round(newitem.Value2.Value, 4)))))
                 ))
                 this.DomainState = lib.DomainObjectState.Modified;
@@ -571,7 +575,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         private AlgorithmValuesStorage mystorage;
         private Request myrequest;
 
-        protected override AlgorithmValuesRequest CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override AlgorithmValuesRequest CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             int frmid = reader.GetInt32(reader.GetOrdinal("formulaid"));
             Formula formula = null;
@@ -707,7 +711,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             this.SelectParams[0].Value = myrequest.Id;
         }
-        protected override Algorithm CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Algorithm CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             return new Algorithm(0, lib.DomainObjectState.Sealed, reader.GetString(0), 0);
         }
@@ -790,28 +794,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         internal AlgorithmFormulaRequestCommand(Request request) : base(true)
         {
             myrequest = request;
-            App.Current.Dispatcher.Invoke(() => {
-            myadbm = new AlgorithmDBM();
-            myformulasynchronizer = new FormulaSynchronizer();
-            myvaluesstorage = new AlgorithmValuesStorage();
-            myfdbm = new FormulaDBM();
-            mywdbm = new AlgorithmWeightDBM();
-            mygwdbm = new AlgorithmGroupWeightDBM();
-            mygwdbm.Request = myrequest;
-            myardbm = new AlgorithmRequestDBM(myrequest);
-            myardbm.Request = myrequest;
-            myalgorithms = new ObservableCollection<Algorithm>();
-            myalgorithmformulas = new ObservableCollection<AlgorithmFormula>();
-            myvdbm = new AlgorithmValuesRequestDBM(null, null, this.ValuesStorage, myrequest);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                myadbm = new AlgorithmDBM();
+                myformulasynchronizer = new FormulaSynchronizer();
+                myvaluesstorage = new AlgorithmValuesStorage();
+                myfdbm = new FormulaDBM();
+                mywdbm = new AlgorithmWeightDBM();
+                mygwdbm = new AlgorithmGroupWeightDBM();
+                mygwdbm.Request = myrequest;
+                myardbm = new AlgorithmRequestDBM(myrequest);
+                myardbm.Request = myrequest;
+                myalgorithms = new ObservableCollection<Algorithm>();
+                myalgorithmformulas = new ObservableCollection<AlgorithmFormula>();
+                myvdbm = new AlgorithmValuesRequestDBM(null, null, this.ValuesStorage, myrequest);
 
-            myview1 = new ListCollectionView(myalgorithmformulas);
-            myview1.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
-            myview1.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return formula.DomainObject.FormulaType < 100; };
-            myview2 = new ListCollectionView(myalgorithmformulas);
-            myview2.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
-            myview2.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return formula.DomainObject.FormulaType > 100; };
-            this.LoadData();
-            myrequest.PropertyChanged += Request_PropertyChanged;
+                myview1 = new ListCollectionView(myalgorithmformulas);
+                myview1.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
+                myview1.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return formula.DomainObject.FormulaType < 100; };
+                myview2 = new ListCollectionView(myalgorithmformulas);
+                myview2.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
+                myview2.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return formula.DomainObject.FormulaType > 100; };
+                this.LoadData();
+                myrequest.PropertyChanged += Request_PropertyChanged;
             });
         }
 
@@ -1419,8 +1424,126 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     }
                     algfrm.Algorithms.Add(new AlgorithmValuesRequestVM(values));
                 }
+                if (myrequest.Status.Id < 500 && !string.IsNullOrEmpty(myrequest.Consolidate) & myrequest.AlgorithmConCMD?.Algorithm != null)
+                {
+                    int i = 0;
+                    decimal? p9 = null, p10 = null, cx = null;
+                    foreach (AlgorithmValuesRequest v in this.Algorithm.Formulas)
+                    {
+                        if (v.Formula.Code == "П9")
+                        {
+                            p9 = v.Value1;
+                            i++;
+                        }
+                        else if (v.Formula.Code == "П10")
+                        {
+                            p10 = v.Value1;
+                            i++;
+                        }
+                        if (i > 1) break;
+                    }
+                    foreach (AlgorithmValuesRequest v in this.Algorithm.Formulas)
+                    {
+                        if (!v.Value1User.HasValue)
+                        {
+                            if (p9.HasValue)
+                                switch (v.Formula.Code)
+                                {
+                                    case "П12":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "X1")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p9 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                    case "П17":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "X2")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p9 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                    case "П18":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "X3")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p9 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                    case "П19":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "X4")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p9 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                    case "П20":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "X5")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p9 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                }
+                            if (p10.HasValue)
+                                switch (v.Formula.Code)
+                                {
+                                    case "П13":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "W13")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            v.Value1Templ = p10 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                    case "П22":
+                                        foreach (AlgorithmValuesRequest convalues in myrequest.AlgorithmConCMD.Algorithm.Formulas)
+                                        {
+                                            if (convalues.Formula.Code == "W22")
+                                                cx = convalues.Value1;
+                                        }
+                                        if (cx.HasValue)
+                                        {
+                                            //values.Formula.Formula1 = string.Empty;
+                                            v.Value1Templ = p10 * cx.Value;
+                                            v.isValid1 = true;
+                                        }
+                                        break;
+                                }
+                        }
+                    }
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             { err.AppendLine(ex.Message); }
             //AlgorithmValuesPlus();
             myview1.MoveCurrentToPosition(-1);
@@ -1429,6 +1552,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 this.PopupText = err.ToString();
             else
                 this.Save.Execute(null);
-            }
+        }
     }
 }

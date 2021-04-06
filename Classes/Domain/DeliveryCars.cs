@@ -29,15 +29,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myimporter = importer;
             mystate = state;
             mynote = note;
-            if (this.DomainState == lib.DomainObjectState.Added)
-                mycarry = new ObservableCollection<DeliveryCarry>();
-            else
+            mycarry = new ObservableCollection<DeliveryCarry>();
+            if (this.DomainState != lib.DomainObjectState.Added)
             {
                 DeliveryCarryDBM rdbm = new DeliveryCarryDBM();
                 rdbm.Car = this;
                 rdbm.FillAsyncCompleted = () => { if (rdbm.Errors.Count > 0) throw new Exception(rdbm.ErrorMessage); else Count(); mycarry.CollectionChanged += Carry_CollectionChanged; };
+                rdbm.Collection = mycarry;
                 rdbm.FillAsync();
-                mycarry = rdbm.Collection;
             }
             this.PropertyChanged += RefreshViewPropertyChanged;
         }
@@ -134,11 +133,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (mycarry == null)
                 {
+                    mycarry = new ObservableCollection<DeliveryCarry>();
                     DeliveryCarryDBM rdbm = new DeliveryCarryDBM();
                     rdbm.Car = this;
                     rdbm.FillAsyncCompleted = () => { if (rdbm.Errors.Count > 0) throw new Exception(rdbm.ErrorMessage); else Count(); mycarry.CollectionChanged += Carry_CollectionChanged; };
+                    rdbm.Collection = mycarry;
                     rdbm.FillAsync();
-                    mycarry = rdbm.Collection;
                 }
                 return mycarry;
             }
@@ -692,7 +692,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycdbm = new DeliveryCarDBM();
             mydbm = mycdbm;
             mycdbm.isAll = false;
-            mycdbm.FillAsyncCompleted = () => { if (mycdbm.Errors.Count > 0) OpenPopup(mycdbm.ErrorMessage, true); };
+            mycdbm.Collection = new ObservableCollection<DeliveryCar>();
+            mycdbm.FillAsyncCompleted = () => { mytotal.StartCount(); if (mycdbm.Errors.Count > 0) OpenPopup(mycdbm.ErrorMessage, true); };
             mycdbm.FillAsync();
             mysync = new DeliveryCarSynchronizer();
             mysync.DomainCollection = mycdbm.Collection;
@@ -1066,6 +1067,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { CustomBrokerWpf.References.CarsViewCollector.RefreshViews(); }
         protected override void RefreshData(object parametr)
         {
+            mytotal.StopCount();
             mycdbm.FillAsync();
             DeliveryCarryDBM cdbm = new DeliveryCarryDBM();
             cdbm.FillAsync();
@@ -1114,7 +1116,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class DeliveryCarTotal : lib.TotalCollectionValues<DeliveryCarVM>
+    public class DeliveryCarTotal : lib.TotalValues.TotalViewValues<DeliveryCarVM>
     {
         internal DeliveryCarTotal(ListCollectionView view) : base(view) { }
 

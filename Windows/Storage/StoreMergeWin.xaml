@@ -122,8 +122,8 @@
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Дата поступления" Binding="{Binding Path=Date, StringFormat=\{0:d\}}" Width="SizeToHeader" />
-				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=CustomerName}" Width="SizeToHeader" />
 				<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=AgentName}" Width="SizeToHeader" />
+				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=CustomerName}" Width="SizeToHeader" />
                 <DataGridTextColumn Header="кол-во" Binding="{Binding Path=CellNumber, StringFormat=\{0:N0\}}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
                 <DataGridTextColumn Header="брутто" Binding="{Binding Path=GrossWeight, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
                 <DataGridTextColumn Header="объём" Binding="{Binding Path=Volume, StringFormat=\{0:N\}}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" />
@@ -217,8 +217,8 @@
                 </DataGridTextColumn>
 				<DataGridTextColumn Header="Дата поступления" Binding="{Binding Path=Request.StoreDate, StringFormat=\{0:d\}}" IsReadOnly="True"/>
 				<DataGridTextColumn Header="Группа менеджеров" Binding="{Binding Path=Request.ManagerGroupName}" IsReadOnly="True" />
-				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Request.Customer.Name}" Width="SizeToHeader" IsReadOnly="True" />
 				<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=Request.Agent.Name}" Width="SizeToHeader" IsReadOnly="True" />
+				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Request.Customer.Name}" Width="SizeToHeader" IsReadOnly="True" />
 				<DataGridTextColumn Header="Описание груза" Binding="{Binding Path=Request.Cargo}" Width="SizeToHeader" IsReadOnly="True" />
                 <!--<DataGridCheckBoxColumn Header="Фрахт" Binding="{Binding Path=isfreight, Mode=OneWay}" ClipboardContentBinding="{Binding Path=isfreight, Converter={StaticResource BooleanClipBoardConverter1}}" Width="SizeToHeader" />-->
                 <!--<DataGridTextColumn Header="Экспедитор" Binding="{Binding Path=itemName}" Width="SizeToHeader" IsReadOnly="True" />-->

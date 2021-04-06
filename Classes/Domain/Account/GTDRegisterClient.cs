@@ -1,5 +1,6 @@
 ﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain;
 using KirillPolyanskiy.DataModelClassLibrary;
+using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mydtsum = dtsum;
             myeurosum = eurosum;
             mygtd = gtd;
-            mygtd.PropertyChanged += this.GTD_PropertyChanged;
+            //mygtd.PropertyChanged += this.GTD_PropertyChanged;
             mygtd.Specification.PropertyChanged += this.Specification_PropertyChanged;
             mygtd.Specification.Declaration.PropertyChanged += this.Declaration_PropertyChanged;
             myselling = selling;
@@ -160,7 +161,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? ProfitDiff
         { get { return this.Profit - this.ProfitAlgR; } }
         public decimal? Rate
-        { get { return (mygtd.DTSum??0M)>0M ? mydtsum / mygtd.DTSum : null; } }
+        { get { return (mygtd.Specification.Declaration?.TotalSum ?? 0M)>0M ? mydtsum / mygtd.Specification.Declaration.TotalSum : null; } }
         private decimal? mysl;
         public decimal? SL
         { set {
@@ -269,39 +270,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myvatold = this.VAT;
             mywestgateold = this.WestGate;
         }
-        private void GTD_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch(e.PropertyName)
-            {
-                case nameof(GTDRegister.DTSum):
-                    this.CalculatedUpdate();
-                    this.PropertyChangedNotification(nameof(this.Rate));
-                    this.PropertyChangedNotification(nameof(this.CostLogistics));
-                    this.PropertyChangedNotification(nameof(this.CostPer));
-                    this.PropertyChangedNotification(nameof(this.CostTotal));
-                    this.PropertyChangedNotification(nameof(this.DDSpidy)); this.OnValueChanged(nameof(this.DDSpidy), myddspidyold, this.DDSpidy);
-                    this.PropertyChangedNotification(nameof(this.Fee)); this.OnValueChanged(nameof(this.Fee), myfeeold, this.Fee);
-                    this.PropertyChangedNotification(nameof(this.GTLS)); this.OnValueChanged(nameof(this.GTLS), mygtlsold, this.GTLS);
-                    this.PropertyChangedNotification(nameof(this.GTLSCur)); this.OnValueChanged(nameof(this.GTLSCur), mygtlscurold, this.GTLSCur);
-                    this.PropertyChangedNotification(nameof(this.MarkupTotal));
-                    this.PropertyChangedNotification(nameof(this.MFK)); this.OnValueChanged(nameof(this.MFK), mymfkold, this.MFK);
-                    this.PropertyChangedNotification(nameof(this.MFKRate));
-                    this.PropertyChangedNotification(nameof(this.MFKWithoutRate));
-                    this.PropertyChangedNotification(nameof(this.Pari)); this.OnValueChanged(nameof(this.Pari), mypariold, this.Pari);
-                    this.PropertyChangedNotification(nameof(this.Profit));
-                    this.PropertyChangedNotification(nameof(this.Profitability));
-                    this.PropertyChangedNotification(nameof(this.Tax)); this.OnValueChanged(nameof(this.Tax), mytaxold, this.Tax);
-                    this.PropertyChangedNotification(nameof(this.WestGate));
-                    this.PropertyChangedNotification(nameof(this.WestGateRate));
-                    this.PropertyChangedNotification(nameof(this.WestGateWithoutRate));
-                    this.PropertyChangedNotification(nameof(this.VAT)); this.OnValueChanged(nameof(this.VAT), myvatold, this.VAT);
-                    this.PropertyChangedNotification(nameof(this.VATPay));
-                    this.PropertyChangedNotification(nameof(this.VolumeProfit));
-                    this.PropertyChangedNotification(nameof(this.WestGate)); this.OnValueChanged(nameof(this.WestGate), mywestgateold, this.WestGate);
-                    this.OldUpdate();
-                    break;
-            }
-        }
+        //private void GTD_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        //{
+        //    switch(e.PropertyName)
+        //    {
+        //        case nameof(GTDRegister.DTSum):
+        //            this.CalculatedUpdate();
+        //            break;
+        //    }
+        //}
         private void Specification_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -431,17 +408,41 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 case nameof(Specification.Specification.Declaration.CBRate):
                 case nameof(Specification.Specification.Declaration.TotalSum):
                     this.CalculatedUpdate();
+                    this.PropertyChangedNotification(nameof(this.Rate));
+                    this.PropertyChangedNotification(nameof(this.CostLogistics));
+                    this.PropertyChangedNotification(nameof(this.CostPer));
+                    this.PropertyChangedNotification(nameof(this.CostTotal));
+                    this.PropertyChangedNotification(nameof(this.DDSpidy)); this.OnValueChanged(nameof(this.DDSpidy), myddspidyold, this.DDSpidy);
+                    this.PropertyChangedNotification(nameof(this.Fee)); this.OnValueChanged(nameof(this.Fee), myfeeold, this.Fee);
+                    this.PropertyChangedNotification(nameof(this.GTLS)); this.OnValueChanged(nameof(this.GTLS), mygtlsold, this.GTLS);
+                    this.PropertyChangedNotification(nameof(this.GTLSCur)); this.OnValueChanged(nameof(this.GTLSCur), mygtlscurold, this.GTLSCur);
+                    this.PropertyChangedNotification(nameof(this.MarkupTotal));
+                    this.PropertyChangedNotification(nameof(this.MFK)); this.OnValueChanged(nameof(this.MFK), mymfkold, this.MFK);
+                    this.PropertyChangedNotification(nameof(this.MFKRate));
+                    this.PropertyChangedNotification(nameof(this.MFKWithoutRate));
+                    this.PropertyChangedNotification(nameof(this.Pari)); this.OnValueChanged(nameof(this.Pari), mypariold, this.Pari);
+                    this.PropertyChangedNotification(nameof(this.Profit));
+                    this.PropertyChangedNotification(nameof(this.Profitability));
                     this.PropertyChangedNotification(nameof(this.ProfitAlgR)); this.OnValueChanged(nameof(this.ProfitAlgR), myprofitalgrold, this.ProfitAlgR);
                     this.PropertyChangedNotification(nameof(this.Selling));
                     this.PropertyChangedNotification(nameof(this.SellingRate));
                     this.PropertyChangedNotification(nameof(this.SellingWithoutRate));
-                    myprofitalgrold = this.ProfitAlgR;
+                    this.PropertyChangedNotification(nameof(this.Tax)); this.OnValueChanged(nameof(this.Tax), mytaxold, this.Tax);
+                    this.PropertyChangedNotification(nameof(this.WestGate));
+                    this.PropertyChangedNotification(nameof(this.WestGateRate));
+                    this.PropertyChangedNotification(nameof(this.WestGateWithoutRate));
+                    this.PropertyChangedNotification(nameof(this.VAT)); this.OnValueChanged(nameof(this.VAT), myvatold, this.VAT);
+                    this.PropertyChangedNotification(nameof(this.VATPay));
+                    this.PropertyChangedNotification(nameof(this.VolumeProfit));
+                    this.PropertyChangedNotification(nameof(this.WestGate)); this.OnValueChanged(nameof(this.WestGate), mywestgateold, this.WestGate);
+                    this.OldUpdate();
+                    //myprofitalgrold = this.ProfitAlgR;
                     break;
             }
         }
         internal void Unbind()
         {
-            mygtd.PropertyChanged -= this.GTD_PropertyChanged;
+            //mygtd.PropertyChanged -= this.GTD_PropertyChanged;
             mygtd.Specification.PropertyChanged -= this.Specification_PropertyChanged;
             mygtd.Specification.Declaration.PropertyChanged -= this.Declaration_PropertyChanged;
         }
@@ -925,7 +926,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class GTDRegisterClientTotal : lib.TotalCollectionValues<GTDRegisterClientVM>
+    public class GTDRegisterClientTotal : lib.TotalValues.TotalViewValues<GTDRegisterClientVM>, lib.Interfaces.IValueChanged<decimal>
     {
         internal GTDRegisterClientTotal(System.Windows.Data.ListCollectionView view) : base(view)
         {
@@ -936,8 +937,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public int ItemCount { set { myitemcount = value; } get { return myitemcount; } }
         private decimal mycc;
         public decimal CC { set { mycc = value; } get { return mycc; } }
-        private decimal myeurosum;
-        public decimal EuroSum { set { myeurosum = value; } get { return myeurosum; } }
+        //private decimal myeurosum;
+        //public decimal EuroSum { set { myeurosum = value; } get { return myeurosum; } }
         private decimal myddspidy;
         public decimal DDSpidy { set { myddspidy = value; } get { return myddspidy; } }
         private decimal mydtsum;
@@ -971,76 +972,110 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         protected override void Item_ValueChangedHandler(GTDRegisterClientVM sender, lib.Interfaces.ValueChangedEventArgs<object> e)
         {
-            decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M);
+            decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M), propertyoldvalue;
             switch (e.PropertyName)
             {
                 case nameof(GTDRegisterClientVM.CC):
+                    propertyoldvalue = mycc;
                     mycc += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.CC));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mycc);
                     break;
                 case nameof(GTDRegisterClientVM.MFK):
+                    propertyoldvalue = mymfk;
                     mymfk += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.MFK));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mymfk);
                     break;
                 case nameof(GTDRegisterClientVM.DDSpidy):
+                    propertyoldvalue = myddspidy;
                     myddspidy += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.DDSpidy));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myddspidy);
                     break;
                 case nameof(GTDRegisterClientVM.DTSum):
+                    propertyoldvalue = mydtsum;
                     mydtsum += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.DTSum));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mydtsum);
                     break;
-                case nameof(GTDRegisterClientVM.EuroSum):
-                    myeurosum += newvalue - oldvalue;
-                    PropertyChangedNotification(nameof(this.EuroSum));
-                    break;
+                //case nameof(GTDRegisterClientVM.EuroSum):
+                //    propertyoldvalue = myeurosum;
+                //    myeurosum += newvalue - oldvalue;
+                //    PropertyChangedNotification(nameof(this.EuroSum));
+                //    OnValueChanged(nameof(this.CC), propertyoldvalue, myeurosum);
+                //    break;
                 case nameof(GTDRegisterClientVM.Fee):
+                    propertyoldvalue = myfee;
                     myfee += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Fee));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myfee);
                     break;
                 case nameof(GTDRegisterClientVM.GTLS):
+                    propertyoldvalue = mygtls;
                     mygtls += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.GTLS));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mygtls);
                     break;
                 case nameof(GTDRegisterClientVM.GTLSCur):
+                    propertyoldvalue = mygtlscur;
                     mygtlscur += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.GTLSCur));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mygtlscur);
                     break;
                 case nameof(GTDRegisterClientVM.Pari):
+                    propertyoldvalue = mypari;
                     mypari += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Pari));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mypari);
                     break;
                 case nameof(GTDRegisterClientVM.ProfitAlgE):
+                    propertyoldvalue = myprofitalge;
                     myprofitalge += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.ProfitAlgE));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myprofitalge);
                     break;
                 case nameof(GTDRegisterClientVM.ProfitAlgR):
+                    propertyoldvalue = myprofitalgr;
                     myprofitalgr += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.ProfitAlgR));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myprofitalgr);
                     break;
                 case nameof(GTDRegisterClientVM.Selling):
+                    propertyoldvalue = myselling;
                     myselling += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Selling));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myselling);
                     break;
                 case nameof(GTDRegisterClientVM.SL):
+                    propertyoldvalue = mysl;
                     mysl += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.SL));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mysl);
                     break;
                 case nameof(GTDRegisterClientVM.Tax):
+                    propertyoldvalue = mytax;
                     mytax += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Tax));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mytax);
                     break;
                 case nameof(GTDRegisterClientVM.VAT):
+                    propertyoldvalue = myvat;
                     myvat += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Vat));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myvat);
                     break;
                 case nameof(GTDRegisterClientVM.Volume):
+                    propertyoldvalue = myvolume;
                     myvolume += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Volume));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, myvolume);
                     break;
                 case nameof(GTDRegisterClientVM.WestGate):
+                    propertyoldvalue = mywestgate;
                     mywestgate += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.WestGate));
+                    OnValueChanged(nameof(this.CC), propertyoldvalue, mywestgate);
                     break;
             }
         }
@@ -1048,7 +1083,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             myitemcount = 0;
             mycc = 0M;
-            myeurosum = 0M;
+            //myeurosum = 0M;
             myddspidy = 0M;
             mydtsum = 0M;
             myfee = 0M;
@@ -1075,7 +1110,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mygtls += item.GTLS ?? 0M;
             mygtlscur += item.GTLSCur ?? 0M;
             mymfk += item.MFK ?? 0M;
-            myeurosum += item.EuroSum ?? 0M;
+            //myeurosum += item.EuroSum ?? 0M;
             mypari += item.Pari ?? 0M;
             myprofitalge += item.ProfitAlgE ?? 0M;
             myprofitalgr += item.ProfitAlgR ?? 0M;
@@ -1096,7 +1131,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mygtls -= item.GTLS ?? 0M;
             mygtlscur -= item.GTLSCur ?? 0M;
             mymfk -= item.MFK ?? 0M;
-            myeurosum -= item.EuroSum ?? 0M;
+            //myeurosum -= item.EuroSum ?? 0M;
             mypari -= item.Pari ?? 0M;
             myprofitalge -= item.ProfitAlgE ?? 0M;
             myprofitalgr -= item.ProfitAlgR ?? 0M;
@@ -1117,7 +1152,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.PropertyChangedNotification(nameof(this.GTLS));
             this.PropertyChangedNotification(nameof(this.GTLSCur));
             this.PropertyChangedNotification(nameof(this.MFK));
-            this.PropertyChangedNotification(nameof(this.EuroSum));
+            //this.PropertyChangedNotification(nameof(this.EuroSum));
             this.PropertyChangedNotification(nameof(this.Pari));
             this.PropertyChangedNotification(nameof(this.ProfitAlgE));
             this.PropertyChangedNotification(nameof(this.ProfitAlgR));
@@ -1127,6 +1162,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.PropertyChangedNotification(nameof(this.Vat));
             this.PropertyChangedNotification(nameof(this.Volume));
             this.PropertyChangedNotification(nameof(this.WestGate));
+        }
+
+        public event ValueChangedEventHandler<decimal> ValueChanged;
+        public void OnValueChanged(string propertyname, decimal oldvalue, decimal newvalue)
+        {
+            if (ValueChanged != null)
+                ValueChanged(this, new lib.Interfaces.ValueChangedEventArgs<decimal>(propertyname, oldvalue, newvalue));
         }
     }
 

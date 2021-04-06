@@ -640,8 +640,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         internal MappingViewCommand()
         {
-            mydbm = new MappingDBM();
-            mydbm.FillAsyncCompleted = () =>
+            mymdbm = new MappingDBM();
+            mydbm = mymdbm;
+            mymdbm.FillAsyncCompleted = () =>
             {
                 mygoodsnamefiltercommand = new GoodsNameSinonimCheckListBoxVM();
                 mygoodsnamefiltercommand.DeferredFill = true;
@@ -661,9 +662,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 mymaterialfiltercommand.ExecCommand1 = () => { FilterRunExec(null); };
                 mymaterialfiltercommand.ExecCommand2 = () => { mymaterialfiltercommand.Clear(); };
             };
-            mydbm.FillAsync();
+            mymdbm.Fill();
             mysync = new MappingSynchronizer();
-            mysync.DomainCollection = mydbm.Collection;
+            mysync.DomainCollection = mymdbm.Collection;
             base.Collection = mysync.ViewModelCollection;
             mymaterials = new System.Windows.Data.ListCollectionView(References.Materials);
             mymaterials.Filter= delegate (object item) { Material mitem = item as Material; return Classes.Specification.MappingViewCommand.ViewFilterDefault(item) & (mitem.Id == 12 | mitem.Id == 13 | mitem.Upper?.Id == 15 | mitem.Upper?.Id == 16 | mitem.Upper?.Id == 22 | mitem.Upper?.Id == 23); };
@@ -685,9 +686,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mygenderfiltercommand.ExecCommand1 = () => { FilterRunExec(null); };
             mygenderfiltercommand.ExecCommand2 = () => { mygenderfiltercommand.Clear(); };
             mygenderfiltercommand.AreaFilterIsVisible = false;
+
+            mygoodsnamefiltercommand = new GoodsNameSinonimCheckListBoxVM();
+            mygoodsnamefiltercommand.DeferredFill = true;
+            mygoodsnamefiltercommand.ItemsSource = myview.OfType<MappingVM>();
+            mygoodsnamefiltercommand.ExecCommand1 = () => { FilterRunExec(null); };
+            mygoodsnamefiltercommand.ExecCommand2 = () => { mygoodsnamefiltercommand.Clear(); };
+
+            mytnvedfiltercommand = new MappingTNVEDGroupCheckListBoxVM();
+            mytnvedfiltercommand.DeferredFill = true;
+            mytnvedfiltercommand.ItemsSource = myview.OfType<MappingVM>();
+            mytnvedfiltercommand.ExecCommand1 = () => { FilterRunExec(null); };
+            mytnvedfiltercommand.ExecCommand2 = () => { mytnvedfiltercommand.Clear(); };
+
+            mymaterialfiltercommand = new MappingMaterialCheckListBoxVM();
+            mymaterialfiltercommand.DeferredFill = true;
+            mymaterialfiltercommand.ItemsSource = myview.OfType<MappingVM>();
+            mymaterialfiltercommand.ExecCommand1 = () => { FilterRunExec(null); };
+            mymaterialfiltercommand.ExecCommand2 = () => { mymaterialfiltercommand.Clear(); };
+
         }
 
-        private new MappingDBM mydbm;
+        private MappingDBM mymdbm;
         private MappingSynchronizer mysync;
         private lib.ExceptionHandler myexhandler;
         private System.ComponentModel.BackgroundWorker mybw;
@@ -1151,19 +1171,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public override bool SaveDataChanges()
         {
             bool isSuccess = !(myview.CurrentItem is MappingVM) || (myview.CurrentItem as MappingVM).Validate(true);
-            if (mydbm == null)
+            if (mymdbm == null)
             {
-                mydbm = new MappingDBM();
-                mydbm.Collection = mysync.DomainCollection;
+                mymdbm = new MappingDBM();
+                mymdbm.Collection = mysync.DomainCollection;
             }
             else
-                mydbm.Errors.Clear();
-            isSuccess &= mydbm.SaveCollectionChanches();
+                mymdbm.Errors.Clear();
+            isSuccess &= mymdbm.SaveCollectionChanches();
             if (!isSuccess)
             {
                 System.Text.StringBuilder err = new System.Text.StringBuilder();
                 if (myview.CurrentItem is MappingVM) err.Append((myview.CurrentItem as MappingVM).Errors);
-                err.AppendLine(mydbm.ErrorMessage);
+                err.AppendLine(mymdbm.ErrorMessage);
                 myexhandler.Handle(new Exception(err.ToString()));
                 myexhandler.ShowMessage();
             }
@@ -1189,8 +1209,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             References.Materials.Refresh();
             References.Genders.Refresh();
-            mydbm.Collection.Clear();
-            mydbm.Fill();
+            mymdbm.Collection.Clear();
+            mymdbm.Fill();
         }
         protected override bool CanRejectChanges()
         {

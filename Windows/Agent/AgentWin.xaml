@@ -94,7 +94,10 @@
 		<TextBlock Text="Наименование" Margin="5,0" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" />
         <TextBox Text="{Binding Path=CurrentItem.FullName}" Grid.Row="2" Grid.Column="1" Margin="3,2,3,0" MaxLength="100" />
 		<TextBlock Text="Дата регистрации" Margin="5,0" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBox Text="{Binding Path=CurrentItem.DayEntry, StringFormat=\{0:d\}, Mode=TwoWay}" Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" HorizontalAlignment="Left" MinWidth="60" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Margin="3,2,3,0" Orientation="Horizontal">
+            <TextBox Text="{Binding Path=CurrentItem.DayEntry, StringFormat=\{0:d\}, Mode=TwoWay}" HorizontalAlignment="Left" MinWidth="60" />
+            <TextBlock Text="{Binding Path=CurrentItem.Creater}"/>
+        </StackPanel>
 		<TextBlock Text="Рекомендован" Margin="5,0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" />
         <TextBox Text="{Binding Path=CurrentItem.Recommend}" Grid.Row="4" Grid.Column="1" Margin="3,2,3,0" MaxLength="100" />
 		<TextBlock Text="Состояние" Margin="5,0" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Right" />

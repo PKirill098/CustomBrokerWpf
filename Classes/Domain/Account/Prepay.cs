@@ -33,11 +33,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
             myrater = new CurrencyRateProxy(CustomBrokerWpf.References.CurrencyRate);
             myrater.PropertyChanged += Rater_PropertyChanged;
-            //if (!myinvoicedate.HasValue)
-            //{
-            //    myrater.RateDate = DateTime.Today;
-            //    this.Percent = this.GetPercent();
-            //}
         }
         public Prepay(int id, long stamp, DateTime? updated,string updater, lib.DomainObjectState mstate
              , Agent agent, decimal? cbrate, DateTime? currencypaiddate, CustomerLegal customer, bool dealpassport, decimal eurosum, Importer importer, decimal initsum, DateTime? invoicedate, string invoicenumber, decimal percent, decimal refund, DateTime shipplandate
@@ -131,42 +126,47 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             set
             {
-                if (value.HasValue)
-                {
-                    DateTime maxdate = this.CurrencyPays.Count((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted; }) > 0 ? this.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.PayDate : DateTime.MinValue; }).Date : DateTime.MinValue.Date;
-                    if (maxdate > value.Value)
-                        System.Windows.MessageBox.Show("Дата оплаты поставщику не может быть меньше даты платежа!", "Дата оплаты поставщику", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
-                    else
-                    {
-                        //if (maxdate < value.Value)
-                        //{
-                        //    AgentCustomerBalanceDBM bdbm = new AgentCustomerBalanceDBM() { Agent = this.Agent, Customer = this.Customer, MinBalance = 0M, Importer = this.Importer };
-                        //    decimal balance = bdbm.GetFirst()?.Balance ?? 0M;
-                        //    if (this.EuroSum - this.CurrencyPaySum - balance > 0.0099M)
-                        //    {
-                        //        PrepayCurrencyPay pay = new PrepayCurrencyPay(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null, value.Value, this.EuroSum - this.CurrencyPaySum - balance, this);
-                        //        this.CurrencyPays.Add(pay);
-                        //        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
-                        //    }
-                        //}
-                        SetProperty<DateTime?>(ref mycurrencypaiddate, value);
-                    }
-                }
+                if (this.UpdatingSample)
+                    SetProperty<DateTime?>(ref mycurrencypaiddate, value);
                 else
                 {
-                    if (mycurrencypaiddate.HasValue && System.Windows.MessageBox.Show("Удалить все оплаты поставщику?", "Дата оплаты поставщику", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+                    if (value.HasValue)
                     {
-                        List<PrepayCurrencyPay> del = new List<PrepayCurrencyPay>();
-                        foreach (PrepayCurrencyPay item in this.CurrencyPays)
-                            if (item.DomainState == lib.DomainObjectState.Added)
-                                del.Add(item);
-                            else
-                                item.DomainState = lib.DomainObjectState.Deleted;
-                        foreach (PrepayCurrencyPay item in del)
-                            this.CurrencyPays.Remove(item);
+                        DateTime maxdate = this.CurrencyPays.Count((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted; }) > 0 ? this.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.DomainState < lib.DomainObjectState.Deleted ? item.PayDate : DateTime.MinValue; }).Date : DateTime.MinValue.Date;
+                        if (maxdate > value.Value)
+                            System.Windows.MessageBox.Show("Дата оплаты поставщику не может быть меньше даты платежа!", "Дата оплаты поставщику", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Stop);
+                        else
+                        {
+                            //if (maxdate < value.Value)
+                            //{
+                            //    AgentCustomerBalanceDBM bdbm = new AgentCustomerBalanceDBM() { Agent = this.Agent, Customer = this.Customer, MinBalance = 0M, Importer = this.Importer };
+                            //    decimal balance = bdbm.GetFirst()?.Balance ?? 0M;
+                            //    if (this.EuroSum - this.CurrencyPaySum - balance > 0.0099M)
+                            //    {
+                            //        PrepayCurrencyPay pay = new PrepayCurrencyPay(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null, value.Value, this.EuroSum - this.CurrencyPaySum - balance, this);
+                            //        this.CurrencyPays.Add(pay);
+                            //        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+                            //    }
+                            //}
+                            SetProperty<DateTime?>(ref mycurrencypaiddate, value);
+                        }
                     }
-                    SetProperty<DateTime?>(ref mycurrencypaiddate, value);
-                    this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+                    else
+                    {
+                        if (mycurrencypaiddate.HasValue && System.Windows.MessageBox.Show("Удалить все оплаты поставщику?", "Дата оплаты поставщику", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+                        {
+                            List<PrepayCurrencyPay> del = new List<PrepayCurrencyPay>();
+                            foreach (PrepayCurrencyPay item in this.CurrencyPays)
+                                if (item.DomainState == lib.DomainObjectState.Added)
+                                    del.Add(item);
+                                else
+                                    item.DomainState = lib.DomainObjectState.Deleted;
+                            foreach (PrepayCurrencyPay item in del)
+                                this.CurrencyPays.Remove(item);
+                        }
+                        SetProperty<DateTime?>(ref mycurrencypaiddate, value);
+                        this.PropertyChangedNotification(nameof(this.CurrencyPaySum));
+                    }
                 }
             }
             get
@@ -199,7 +199,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private decimal? myfundsum;
         public decimal? FundSum
         {
-            set { SetProperty<decimal?>(ref myfundsum, value); }
+            set 
+            {
+                //SetProperty<decimal?>(ref myfundsum, value); 
+                if (myfundsum != value)
+                {
+                    myfundsum = value;
+                    this.PropertyChangedNotification(nameof(this.FundSum));
+                }
+            }
             get
             {
                 if (myfundsum == null)
@@ -220,8 +228,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public Importer Importer
         { set { SetProperty<Importer>(ref myimporter, value); } get { return myimporter; } }
         private decimal myinitsum;
-        public decimal InitSum
-        { set { SetProperty<decimal>(ref myinitsum, value); } get { return myinitsum; } }
         private DateTime? myinvoicedate;
         public DateTime? InvoiceDate
         {
@@ -235,13 +241,33 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     if (myinvoicedate.HasValue)
                     {
                         myrater.RateDate = myinvoicedate.Value;
+                        PrepayCustomerRequestDBM rpdbm = new PrepayCustomerRequestDBM();
+                        rpdbm.FillType = lib.FillType.Initial; // Update  from DB no changed
+                        rpdbm.Prepay = this;
+                        rpdbm.Fill();
+                        if (rpdbm.Errors.Count > 0)
+                        {
+                            System.Windows.Window active = null;
+                            foreach (System.Windows.Window win in System.Windows.Application.Current.Windows)
+                                if (win.IsActive) { active = win; break; }
+                            active.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                            {
+                                Common.PopupCreator.GetPopup(text: "Не удалось расчитать сумму счета!/nУдалите дату счета и укажите ее повторно./n" + rpdbm.ErrorMessage
+                               , background: System.Windows.Media.Brushes.LightPink
+                               , foreground: System.Windows.Media.Brushes.Red
+                               , staysopen: false
+                               ).IsOpen = true;
+                            }));
+                        }
+                        else
+                            this.EuroSum = rpdbm.Collection.Sum((PrepayCustomerRequest rp) => { return rp.EuroSum; });
                     }
-                    //else
-                    //{
-                    //    myrater.RateDate = DateTime.Today;
-                    //}
+                    else
+                        this.EuroSum = 0M;
                 };
                 SetProperty<DateTime?>(ref myinvoicedate, value, action);
+                EventLoger log = new EventLoger() { What = "Prepay", Message = (myinvoicedate?.ToShortDateString() ?? "NULL") + " : UpdatingSample " + this.UpdatingSample.ToString(), ObjectId = this.Id };
+                log.Execute();
             }
             get { return myinvoicedate; }
         }
@@ -326,8 +352,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             {
                 decimal? sum = myeurosum * (1M + this.Percent) * this.CBRate;
                 if (sum.HasValue)
-                    sum = decimal.Round(sum.Value); //decimal.Divide(decimal.Ceiling(decimal.Multiply(sum.Value, 100M)), 100M);
-
+                    sum = decimal.Round(sum.Value);
                 return sum;
             }
         }
@@ -336,6 +361,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public DateTime ShipPlanDate
         { set { SetProperty<DateTime>(ref myshipplandate, value); } get { return myshipplandate; } }
 
+        private ObservableCollection<PrepayCustomerRequest> myrequestprepay;
         private ObservableCollection<PrepayRubPay> myrubpays; //created at boot
         internal ObservableCollection<PrepayRubPay> RubPays
         {
@@ -374,12 +400,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.EuroSum = templ.EuroSum;
             if (templ.FundSumIsNull) // не запрашивать когда не нужна
             { 
-                this.FundSum = null; 
+                this.FundSum = null; // refresh
             }
             else
                 this.FundSum = templ.FundSum + templ.EuroSum - this.EuroSum;
             this.Importer = templ.Importer;
-            this.InitSum = templ.InitSum;
             this.InvoiceDate = templ.InvoiceDate;
             this.InvoiceNumber = templ.InvoiceNumber;
             this.CurrencyPaidDate = templ.CurrencyPaidDate;
@@ -410,9 +435,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
                 case nameof(this.Importer):
                     this.Importer = (Importer)value;
-                    break;
-                case nameof(this.InitSum):
-                    this.InitSum = (decimal)value;
                     break;
                 case nameof(this.InvoiceDate):
                     this.InvoiceDate = (DateTime?)value;
@@ -546,10 +568,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 this.CBRate = myrater.EURRate;
             }
         }
-        internal void SetRubSum()
-        {
-
-        }
     }
 
     internal class PrepayStore : lib.DomainStorageLoad<Prepay, PrepayDBM>
@@ -675,7 +693,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 mycpdbm.Fill();
                 item.CurrencyPays = mycpdbm.Collection;
             }
-            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
+            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item,this.FillType==lib.FillType.Refresh);
             myrdbm.Collection = null;
             mycbdbm.Collection = null;
             mycpdbm.Collection = null;
@@ -778,9 +796,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     case "@importerid":
                         par.Value = item.Importer?.Id;
                         break;
-                    case "@initsum":
-                        par.Value = item.InitSum;
-                        break;
                     case "@invoicedate":
                         par.Value = item.InvoiceDate;
                         break;
@@ -820,9 +835,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         break;
                     case "@importeridupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Prepay.Importer));
-                        break;
-                    case "@initsumupd":
-                        par.Value = item.HasPropertyOutdatedValue(nameof(Prepay.InitSum));
                         break;
                     case "@invoicedateupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Prepay.InvoiceDate));
@@ -1270,7 +1282,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     //    }
     //}
 
-    //public class CurrencyPayTotal : lib.TotalCollectionValues<PrepayVM>
+    //public class CurrencyPayTotal : lib.TotalValues.TotalViewValues<PrepayVM>
     //{
     //    internal CurrencyPayTotal(ListCollectionView view) : base(view)
     //    {

@@ -216,6 +216,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         { set { if (myvalue2editable) SetProperty<decimal?>(ref myvalue2, value); } get { return myvalue2; } }
         protected string myvalue2err;
         public virtual string Value2Err { set { myvalue2err = value; this.PropertyChangedNotification("Value2Err"); } get { return myvalue2err; } }
+        #region FuncValue
+        private string myformula1;
+        private Func<bool> myfunc1;
+        internal Func<bool> FuncValue1
+        { 
+            set
+            {
+                if (value != null & string.IsNullOrEmpty(myformula1))
+                {
+                    myformula1 = myformula.Formula1;
+                    myformula.Formula1 = "ПРОГРАММА";
+                }
+                else if (!(value != null | string.IsNullOrEmpty(myformula1)))
+                {
+                    myformula.Formula1 = myformula1;
+                    myformula1 = string.Empty;
+                }
+                myfunc1 = value; 
+            }
+        }
+        private string myformula2;
+        private Func<string,decimal?> myfunc2;
+        internal Func<string, decimal?> FuncValue2
+        { 
+            set 
+            {
+                if (value != null & string.IsNullOrEmpty(myformula2))
+                {
+                    myformula2 = myformula.Formula2;
+                    myformula.Formula2 = "ПРОГРАММА";
+                }
+                else if(!(value != null | string.IsNullOrEmpty(myformula2)))
+                {
+                    myformula.Formula2 = myformula2;
+                    myformula2 = string.Empty;
+                }
+                    myfunc2 = value; 
+            }
+        }
+        #endregion
 
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
@@ -265,19 +305,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             bool iserr=false;
             decimal? oldvalue = myvalue1;
-            if (myformula.Code != "П9" && string.IsNullOrWhiteSpace(myformula.Formula1))
-                myvalue1editable = false;
-            if ((myformula.FormulaType<100 && myformula.Code!="П1" && myformula.Code != "П4") || string.IsNullOrWhiteSpace(myformula.Formula1))
-                myvalue1editable = true;
-            else
+            if (myfunc1 != null)
             {
                 myvalue1editable = false;
-                decimal v;
-                if (decimal.TryParse(myformula.Formula1, out v))
-                    myvalue1 = v;
+                iserr = myfunc1();
+            }
+            else
+            {
+                if (myformula.Code != "П9" && string.IsNullOrWhiteSpace(myformula.Formula1))
+                    myvalue1editable = false;
+                if ((myformula.FormulaType < 100 && myformula.Code != "П1" && myformula.Code != "П4") || string.IsNullOrWhiteSpace(myformula.Formula1))
+                    myvalue1editable = true;
                 else
                 {
-                    myvalue1 = Calculate(myformula.Formula1, 1, out iserr);
+                    myvalue1editable = false;
+                    decimal v;
+                    if (decimal.TryParse(myformula.Formula1, out v))
+                        myvalue1 = v;
+                    else
+                    {
+                        myvalue1 = Calculate(myformula.Formula1, 1, out iserr);
+                    }
                 }
             }
             if (oldvalue.HasValue != myvalue1.HasValue || (myvalue1.HasValue && !decimal.Equals(oldvalue.Value, myvalue1.Value)))
@@ -907,6 +955,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override AlgorithmValuesVM Wrap(AlgorithmValues fill)
         {
             return new AlgorithmValuesVM(fill);
+        }
+    }
+
+    internal class AlgorithmFuncValue
+    {
+        private string myformula;
+        private Func<bool> myfunc;
+        internal Func<bool> FuncValue
+        {
+            set
+            {
+                //if (value != null & string.IsNullOrEmpty(myformula))
+                //{
+                //    myformula = myformula.Formula1;
+                //    myformula.Formula1 = "ПРОГРАММА";
+                //}
+                //else if (!(value != null | string.IsNullOrEmpty(myformula)))
+                //{
+                //    myformula.Formula1 = myformula;
+                //    myformula = string.Empty;
+                //}
+                myfunc = value;
+            }
         }
     }
 }

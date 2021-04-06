@@ -13,9 +13,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     public class Agent : lib.DomainBaseStamp
     {
         public Agent(int id, long stamp, lib.DomainObjectState domainstate
-            ,DateTime dateentry,string fullname,string name,string recommend,byte state
+            ,string creater, DateTime dateentry,string fullname,string name,string recommend,byte state
             ) : base(id, stamp, null, null, domainstate)
         {
+            mycreater = creater;
             mydateentry = dateentry;
             myfullname = fullname;
             myname = name;
@@ -23,10 +24,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mystate = state;
         }
         public Agent(string fullname, string name) : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , DateTime.Today, fullname, name, null, 0)
+            ,string.Empty, DateTime.Today, fullname, name, null, 0)
         { }
         public Agent():this( null, null) { }
 
+        private string mycreater;
+        public string Creater
+        { get { return mycreater; } }
         private DateTime mydateentry;
         public DateTime DayEntry
         {
@@ -169,12 +173,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override Agent CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            Agent agent = new Agent(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
-                , reader.GetDateTime(reader.GetOrdinal("agentDayEntry"))
-                , reader.IsDBNull(reader.GetOrdinal("agentFullName")) ? null : reader.GetString(reader.GetOrdinal("agentFullName"))
-                , reader.GetString(reader.GetOrdinal("agentName"))
-                , reader.IsDBNull(reader.GetOrdinal("agentRecommend")) ? null : reader.GetString(reader.GetOrdinal("agentRecommend"))
-                , reader.GetByte(reader.GetOrdinal("agentState"))
+            Agent agent = new Agent(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
+                , reader.IsDBNull(this.Fields["creater"]) ? null : reader.GetString(this.Fields["creater"])
+                , reader.GetDateTime(this.Fields["agentDayEntry"])
+                , reader.IsDBNull(this.Fields["agentFullName"]) ? null : reader.GetString(this.Fields["agentFullName"])
+                , reader.GetString(this.Fields["agentName"])
+                , reader.IsDBNull(this.Fields["agentRecommend"]) ? null : reader.GetString(this.Fields["agentRecommend"])
+                , reader.GetByte(this.Fields["agentState"])
                 );
             agent = CustomBrokerWpf.References.AgentStore.UpdateItem(agent);
             if(myadbm != null)
@@ -275,6 +280,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public AgentVM():this(new Agent()) { }
 
+        public string Creater
+        { get { return this.IsEnabled ? this.DomainObject.Creater : null; } }
         public DateTime? DayEntry
         {
             set

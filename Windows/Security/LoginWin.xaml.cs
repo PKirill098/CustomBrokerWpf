@@ -15,6 +15,8 @@ namespace KirillPolyanskiy.HotelWpf
         internal string Result1 { get { return myresult1; } }
         internal string myresult2;
         internal string Result2 { get { return myresult2; } }
+        internal string myresult3;
+        internal string Result3 { get { return myresult3; } }
 
         public LoginWin()
         {
@@ -71,6 +73,7 @@ namespace KirillPolyanskiy.HotelWpf
                     {
                         myresult1 = (string)cmd.Parameters[3].Value;
                         myresult2 = string.IsNullOrEmpty(newpasswordBox.Password) ? passwordBox.Password : newpasswordBox.Password;
+                        myresult3 = textBox1.Text;
                         this.DialogResult = true;
                         this.Close();
                     }

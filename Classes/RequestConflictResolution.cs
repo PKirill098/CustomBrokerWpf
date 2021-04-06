@@ -54,8 +54,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (needupdate) currentrow.ColorMark = dbrow.ColorMark;
             ischeck = ischeck & CheckField(originalrow.RequestDate, currentrow.RequestDate, dbrow.RequestDate, out needupdate);
             if (needupdate) currentrow.RequestDate = dbrow.RequestDate;
-            ischeck = ischeck & CheckField(originalrow.Specification, currentrow.Specification, dbrow.Specification.UpdateWhen, out needupdate);
-            if (needupdate) currentrow.Specification = dbrow.Specification.UpdateWhen;
+            ischeck = ischeck & CheckField(originalrow.Specification, currentrow.Specification, dbrow.Specification?.UpdateWhen, out needupdate);
+            if (needupdate) currentrow.Specification = dbrow.Specification?.UpdateWhen;
             ischeck = ischeck & CheckField(originalrow.StorageDate, currentrow.StorageDate, dbrow.StoreDate, out needupdate);
             if (needupdate) currentrow.StorageDate = dbrow.StoreDate;
             ischeck = ischeck & CheckField(originalrow.ParcelGroup, currentrow.ParcelGroup, dbrow.ParcelGroup, out needupdate);

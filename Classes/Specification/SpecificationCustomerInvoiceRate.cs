@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
-
+// Не используется Удалить файл из проекта
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
     public class SpecificationCustomerInvoiceRate
@@ -43,7 +43,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         protected override void TakeItem(SpecificationCustomerInvoiceRate item)
         {
-            Specification.InvoiceDTRatesAdd(item);
+            //Specification.InvoiceDTRatesAdd(item);
         }
     }
 }

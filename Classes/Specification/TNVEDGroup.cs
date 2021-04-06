@@ -437,6 +437,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         internal TNVEDGroupViewCommand()
         {
+            mysync = new TNVEDGroupSynchronizer();
+            mysync.DomainCollection = new ObservableCollection<TNVEDGroup>();
             mygdbm = new TNVEDGroupDBM();
             mydbm = mygdbm;
             mygdbm.FillAsyncCompleted = () => {
@@ -463,9 +465,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     mymaterialfiltercommand.ExecCommand2 = () => { mymaterialfiltercommand.Clear(); };
                 }
             };
+            mygdbm.Collection = mysync.DomainCollection;
             mygdbm.FillAsync();
-            mysync = new TNVEDGroupSynchronizer();
-            mysync.DomainCollection = mygdbm.Collection;
             base.Collection = mysync.ViewModelCollection;
             mymaterials = new System.Windows.Data.ListCollectionView(References.Materials);
             mymaterials.Filter = delegate (object item) { Material mitem = item as Material; return Classes.Specification.MappingViewCommand.ViewFilterDefault(item) & (mitem.Id == 12 | mitem.Id == 13 | mitem.Upper?.Id == 15 | mitem.Upper?.Id == 16 | mitem.Upper?.Id == 22 | mitem.Upper?.Id == 23); };

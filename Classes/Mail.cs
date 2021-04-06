@@ -20,7 +20,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             smtphost = "smtp.mail.ru";
             imaphost = "imap.mail.ru";
             user = "pk73@mail.ru";
-            password = "1QAZxsw2";
+            password = "dC0A3178-cAC";
 #else
             mailbox = "order@art-delivery.ru";
             smtphost = "mail.nic.ru";

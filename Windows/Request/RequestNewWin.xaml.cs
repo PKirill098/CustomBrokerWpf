@@ -142,25 +142,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void AlgorithmConButton_Click(object sender, RoutedEventArgs e)
         {
-            Window ObjectWin = null;
-            foreach (Window item in this.OwnedWindows)
+            Classes.Domain.RequestVMCommand cmd = this.DataContext as Classes.Domain.RequestVMCommand;
+            if (cmd.VModel.Parcel != null)
             {
-                if (item.Name == "winAlgorithm" & item.DataContext is Classes.Domain.Algorithm.AlgorithmConsolidateCommand) ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new AlgorithmWin();
-                ObjectWin.Owner = this;
-                ObjectWin.DataContext = (this.DataContext as Classes.Domain.RequestVMCommand).AlgorithmConCommand;
-                ObjectWin.WindowState = WindowState.Normal;
-                ObjectWin.SizeToContent = SizeToContent.WidthAndHeight;
-                ObjectWin.Show();
+                Window ObjectWin = null;
+                foreach (Window item in this.OwnedWindows)
+                {
+                    if (item.Name == "winAlgorithm" & item.DataContext is Classes.Domain.Algorithm.AlgorithmConsolidateCommand) ObjectWin = item;
+                }
+                if (ObjectWin == null)
+                {
+                    ObjectWin = new AlgorithmWin();
+                    ObjectWin.Owner = this;
+                    ObjectWin.DataContext = cmd.AlgorithmConCommand;
+                    ObjectWin.WindowState = WindowState.Normal;
+                    ObjectWin.SizeToContent = SizeToContent.WidthAndHeight;
+                    ObjectWin.Show();
+                }
+                else
+                {
+                    ObjectWin.Activate();
+                    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                }
             }
             else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
+                cmd.OpenPopup("Необходимо включить заявку в перевозку!", false);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

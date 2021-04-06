@@ -173,5 +173,120 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             ppp.IsOpen = true;
             e.Handled = true;
         }
+
+        private void Copy_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+        private void Copy_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (MainDataGrid.SelectedCells.Count == 1)
+            {
+                DataGridCellInfo cell = MainDataGrid.SelectedCells[0];
+                if (cell.IsValid & cell.Item is VendorCodeVM)
+                {
+                    DataObject data;
+                    switch (MainDataGrid.SelectedCells[0].Column.SortMemberPath)
+                    {
+                        case nameof(VendorCodeVM.Updated):
+                            data = new DataObject(typeof(DateTime),(cell.Item as VendorCodeVM).Updated);
+                            break;
+                        default:
+                            string str;
+                            char[] trim = new char[] {(char)10, (char)13};
+                            switch (MainDataGrid.SelectedCells[0].Column.SortMemberPath)
+                            {
+                                case nameof(VendorCodeVM.Code):
+                                    str = (cell.Item as VendorCodeVM).Code;
+                                    break;
+                                case nameof(VendorCodeVM.Brand):
+                                    str = (cell.Item as VendorCodeVM).Brand;
+                                    break;
+                                case nameof(VendorCodeVM.Goods):
+                                    str = (cell.Item as VendorCodeVM).Goods;
+                                    break;
+                                case nameof(VendorCodeVM.Description):
+                                    str = (cell.Item as VendorCodeVM).Description;
+                                    break;
+                                case nameof(VendorCodeVM.Contexture):
+                                    str = (cell.Item as VendorCodeVM).Contexture;
+                                    break;
+                                case nameof(VendorCodeVM.Gender):
+                                    str = (cell.Item as VendorCodeVM).Gender;
+                                    break;
+                                case nameof(VendorCodeVM.TNVED):
+                                    str = (cell.Item as VendorCodeVM).TNVED;
+                                    break;
+                                case nameof(VendorCodeVM.Translation):
+                                    str = (cell.Item as VendorCodeVM).Translation;
+                                    break;
+                                case nameof(VendorCodeVM.CountryRU):
+                                    str = (cell.Item as VendorCodeVM).CountryRU;
+                                    break;
+                                case nameof(VendorCodeVM.Note):
+                                    str = (cell.Item as VendorCodeVM).Note;
+                                    break;
+                                default:
+                                    str = string.Empty;
+                                    break;
+                            }
+                            str = str.TrimEnd(trim);
+                            data = new DataObject(typeof(string), str);
+                            break;
+                    }
+                    Clipboard.SetDataObject(data, false);
+                }
+            }
+        }
+        private void Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (!e.CanExecute)
+                e.CanExecute = Clipboard.ContainsText();
+        }
+        private void Paste_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (Clipboard.ContainsText() && MainDataGrid.SelectedCells.Count > 0)
+            {
+                char[] trim = new char[] { (char)10, (char)13 };
+                string text = Clipboard.GetText().TrimEnd(trim);
+                foreach (DataGridCellInfo cell in MainDataGrid.SelectedCells)
+                { 
+                    VendorCodeVM item = cell.Item as VendorCodeVM;
+                    switch (cell.Column.SortMemberPath)
+                    {
+                        case nameof(VendorCodeVM.Code):
+                            item.Code= text;
+                            break;
+                        case nameof(VendorCodeVM.Brand):
+                            item.Brand = text;
+                            break;
+                        case nameof(VendorCodeVM.Goods):
+                            item.Goods = text;
+                            break;
+                        case nameof(VendorCodeVM.Description):
+                            item.Description = text;
+                            break;
+                        case nameof(VendorCodeVM.Contexture):
+                            item.Contexture = text;
+                            break;
+                        case nameof(VendorCodeVM.Gender):
+                            item.Gender = text;
+                            break;
+                        case nameof(VendorCodeVM.TNVED):
+                            item.TNVED = text;
+                            break;
+                        case nameof(VendorCodeVM.Translation):
+                            item.Translation = text;
+                            break;
+                        case nameof(VendorCodeVM.CountryRU):
+                            item.CountryRU = text;
+                            break;
+                        case nameof(VendorCodeVM.Note):
+                            item.Note = text;
+                            break;
+                    }
+                }
+            }
+        }
     }
 }

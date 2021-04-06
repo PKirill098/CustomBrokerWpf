@@ -209,7 +209,7 @@
 								</Grid.ColumnDefinitions>
 								<Grid.RowDefinitions>
 									<RowDefinition SharedSizeGroup="r0"/>
-									<RowDefinition SharedSizeGroup="r0"/>
+									<!--<RowDefinition SharedSizeGroup="r0"/>-->
 									<RowDefinition SharedSizeGroup="r0"/>
 									<RowDefinition SharedSizeGroup="r0"/>
 									<RowDefinition SharedSizeGroup="r0"/>
@@ -234,28 +234,28 @@
 										<TextBox Text="{Binding Path=ParcelNumberEntire, Mode=OneWay}" Margin="3,2,3,0" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" Background="#eff6ff"  />
 									</Border>
 								</Grid>
-								<Border Grid.Row="1" BorderThickness="0,1,0,0">
+								<!--<Border Grid.Row="1" BorderThickness="0,1,0,0">
 									<TextBlock Text="Тип"/>
 								</Border>
 								<Border Grid.Row="1" Grid.Column="1" BorderThickness="1,1,0,0">
 									<TextBlock Text="{Binding Path=ParcelType.Name}" Margin="2" />
-								</Border>
-								<Border Grid.Row="2" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
+								</Border>-->
+								<Border Grid.Row="1" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
 									<TextBlock Text="Статус"/>
 								</Border>
-								<Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,0">
+								<Border Grid.Row="1" Grid.Column="1" BorderThickness="1,1,0,0">
 									<TextBlock Text="{Binding Path=Status.Name}" Margin="2" />
 								</Border>
-								<Border Grid.Row="3" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
+								<Border Grid.Row="2" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
 									<TextBlock Text="Груз"/>
 								</Border>
-								<Border Grid.Row="3" Grid.Column="1" BorderThickness="1,1,0,0">
+								<Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,0">
 									<TextBlock Text="{Binding Path=GoodsType.Name}" />
 								</Border>
-								<Border Grid.Row="4" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
+								<Border Grid.Row="3" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
 									<TextBlock Text="Машина"/>
 								</Border>
-								<Grid Grid.Row="4" Grid.Column="1">
+								<Grid Grid.Row="3" Grid.Column="1">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition/>
 										<ColumnDefinition Width="Auto"/>
@@ -271,10 +271,10 @@
 										<TextBox Text="{Binding Path=ShipmentNumber,Mode=OneWay}" IsReadOnly="True" MaxLength="6" TextAlignment="Center" VerticalAlignment="Center" BorderThickness="0" />
 									</Border>
 								</Grid>
-								<Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
+								<Border Grid.Row="4" BorderBrush="White" BorderThickness="0,1,0,0">
 									<TextBlock Text="Декларации"/>
 								</Border>
-								<Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
 									<TextBox Text="{Binding Path=Declaration, Mode=OneWay}" IsReadOnly="True" MaxLength="106" Margin="3,2,3,0" TextAlignment="Left" TextWrapping="WrapWithOverflow" BorderThickness="0" Padding="2,0"/>
 								</Border>
 							</Grid>
@@ -450,45 +450,45 @@
 									<TextBlock Text="Объем / Мест"/>
 								</Border>
 								<Border Grid.Row="1" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="volumeTextBox" Text="{Binding RequestTotal.Volume, Mode=OneWay, StringFormat=\{0:N4\}}" Foreground="{Binding Path=VolumeForeground}"  IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="volumeTextBox" Text="{Binding Total.Volume, Mode=OneWay, StringFormat=\{0:N4\}}" Foreground="{Binding Path=VolumeForeground}"  IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="1" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="cellNumberTextBox" Text="{Binding Path=RequestTotal.CellNumber,Mode=OneWay}" Foreground="{Binding Path=CellNumberForeground}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="cellNumberTextBox" Text="{Binding Path=Total.CellNumber,Mode=OneWay}" Foreground="{Binding Path=CellNumberForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес (факт / док)"/>
 								</Border>
 								<Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="actualWeightTextBox" Text="{Binding Path=RequestTotal.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" Foreground="{Binding ActualWeightForeground, FallbackValue=Black}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="actualWeightTextBox" Text="{Binding Path=Total.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" Foreground="{Binding ActualWeightForeground, FallbackValue=Black}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="officialWeightTextBox" Text="{Binding Path=RequestTotal.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" Foreground="{Binding Path=OfficialWeightForeground}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="officialWeightTextBox" Text="{Binding Path=Total.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" Foreground="{Binding Path=OfficialWeightForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="3" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес, разница"/>
 								</Border>
 								<Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="offactWeightTextBox" Text="{Binding Path=RequestTotal.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="offactWeightTextBox" Text="{Binding Path=Total.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
 										<TextBlock Text="Стоимость\Cкидка"/>
 								</Border>
 								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="goodValueTextBox" Text="{Binding Path=RequestTotal.Invoice, Mode=OneWay, StringFormat=\{0:N2\}}" Foreground="{Binding Path=InvoiceForeground}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="goodValueTextBox" Text="{Binding Path=Total.Invoice, Mode=OneWay, StringFormat=\{0:N2\}}" Foreground="{Binding Path=InvoiceForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-									<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox x:Name="goodValueDiscountTextBox" Text="{Binding Path=RequestTotal.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox x:Name="goodValueDiscountTextBox" Text="{Binding Path=Total.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
 									<TextBlock Text="Cкидка ТД\ТЭО"/>
 								</Border>
 								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox Text="{Binding Path=RequestTotal.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox Text="{Binding Path=Total.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox Text="{Binding Path=RequestTotal.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+								<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=Total.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" Foreground="{Binding Path=InvoiceDiscountForeground}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
@@ -530,55 +530,55 @@
 									<TextBlock Text="Объем / Мест"/>
 								</Border>
 								<Border Grid.Row="1" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DVolumeTextBox" Text="{Binding Path=RequestTotalD.Volume, StringFormat=\{0:N4\},Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DVolumeTextBox" Text="{Binding Path=TotalDelivery.Volume, StringFormat=\{0:N4\},Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="1" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DCellNumberTextBox" Text="{Binding Path=RequestTotalD.CellNumber, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DCellNumberTextBox" Text="{Binding Path=TotalDelivery.CellNumber, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес (факт / док)"/>
 								</Border>
 								<Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DActualWeightTextBox" Text="{Binding Path=RequestTotalD.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DActualWeightTextBox" Text="{Binding Path=TotalDelivery.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DOfficialWeightTextBox" Text="{Binding Path=RequestTotalD.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DOfficialWeightTextBox" Text="{Binding Path=TotalDelivery.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="3" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес, разница"/>
 								</Border>
 								<Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DOffactWeightTextBox" Text="{Binding Path=RequestTotalD.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DOffactWeightTextBox" Text="{Binding Path=TotalDelivery.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость\Скидка"/>
 								</Border>
 								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DGoodValueTextBox" Text="{Binding Path=RequestTotalD.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DGoodValueTextBox" Text="{Binding Path=TotalDelivery.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="DGoodValueDiscountTextBox" Text="{Binding Path=RequestTotalD.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="DGoodValueDiscountTextBox" Text="{Binding Path=TotalDelivery.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
 										<TextBlock Text="Cкидка ТД\ТЭО"/>
 								</Border>
-									<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox Text="{Binding Path=RequestTotalD.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox Text="{Binding Path=RequestTotalD.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=TotalDelivery.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=TotalDelivery.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox Text="{Binding Path=DDeliveryPrice, StringFormat=\{0:N2\}}" IsTabStop="False" />
+                                        <TextBox Text="{Binding Path=DDeliveryPrice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="7" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Сумма страховки"/>
 								</Border>
 								<Border Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox Text="{Binding Path=DInsurancePrice, StringFormat=\{0:N2\}}" IsTabStop="False" />
+                                        <TextBox Text="{Binding Path=DInsurancePrice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 							</Grid>
 						</Border>
@@ -610,45 +610,45 @@
 									<TextBlock Grid.Row="1" Grid.Column="0" Text="Объем / Мест"/>
 								</Border>
 								<Border Grid.Row="1" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TVolumeTextBox" Text="{Binding Path=RequestTotalT.Volume, StringFormat=\{0:N4\},Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+                                        <TextBox x:Name="TVolumeTextBox" Text="{Binding Path=TotalTrade.Volume, StringFormat=\{0:N4\},Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="1" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TCellNumberTextBox" Text="{Binding Path=RequestTotalT.CellNumber,Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="TCellNumberTextBox" Text="{Binding Path=TotalTrade.CellNumber,Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес (факт / док)"/>
 								</Border>
 								<Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TActualWeightTextBox" Text="{Binding Path=RequestTotalT.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="TActualWeightTextBox" Text="{Binding Path=TotalTrade.ActualWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="2" Grid.Column="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TOfficialWeightTextBox" Text="{Binding Path=RequestTotalT.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="TOfficialWeightTextBox" Text="{Binding Path=TotalTrade.OfficialWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="3" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Вес, разница"/>
 								</Border>
 								<Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TOffactWeightTextBox" Text="{Binding Path=RequestTotalT.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="TOffactWeightTextBox" Text="{Binding Path=TotalTrade.DifferenceWeight, StringFormat=\{0:N4\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
 								<Border Grid.Row="4" Grid.Column="0" BorderThickness="0,1,0,0">
 										<TextBlock Text="Стоимость\Скидка"/>
 								</Border>
 								<Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox x:Name="TGoodValueTextBox" Text="{Binding Path=RequestTotalT.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox x:Name="TGoodValueTextBox" Text="{Binding Path=TotalTrade.Invoice, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-									<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox x:Name="TGoodValueDiscountTextBox" Text="{Binding Path=RequestTotalT.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
+								<Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox x:Name="TGoodValueDiscountTextBox" Text="{Binding Path=TotalTrade.InvoiceDiscount, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="5" Grid.Column="0" BorderThickness="1,1,0,0">
 										<TextBlock Text="Cкидка ТД\ТЭО"/>
 								</Border>
 								<Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-									<TextBox Text="{Binding Path=RequestTotalT.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+									<TextBox Text="{Binding Path=TotalTrade.InvoiceDiscountTD, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
 								</Border>
-									<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
-										<TextBox Text="{Binding Path=RequestTotalT.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
-									</Border>
-									<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
+								<Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="1" BorderThickness="1,1,0,0">
+									<TextBox Text="{Binding Path=TotalTrade.InvoiceDiscountTEO, StringFormat=\{0:N2\}, Mode=OneWay}" IsReadOnly="True" IsTabStop="False" />
+								</Border>
+								<Border Grid.Row="6" Grid.Column="0" BorderThickness="0,1,0,0">
 									<TextBlock Text="Стоимость, дт"/>
 								</Border>
 								<Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
@@ -707,13 +707,13 @@
 													<ColumnDefinition Width="18"/>
 													<ColumnDefinition Width="18"/>
 													<ColumnDefinition Width="18"/>
-													<ColumnDefinition Width="18"/>
+													<!--<ColumnDefinition Width="18"/>-->
 												</Grid.ColumnDefinitions>
 												<Button ToolTip="Каталог" Tag="{Binding}" Click="RequestFolderOpen_Click" Grid.Column="0"  Margin="2,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" BorderBrush="{x:Null}" Background="{x:Null}">
 													<Image Source="/CustomBrokerWpf;component/Images/cat.png"/>
 												</Button>
 												<Image ToolTip="Группа менеджеров" Grid.Column="1" Source="{Binding Path=ManagerGroupImage}" Margin="2,0"/>
-												<ComboBox Grid.Column="2" SelectedIndex="{Binding Path=StateInv,TargetNullValue=0,Mode=OneWay}" ToolTip="Инвойс" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
+												<!--<ComboBox Grid.Column="2" SelectedIndex="{Binding Path=StateInv,TargetNullValue=0,Mode=OneWay}" ToolTip="Инвойс" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
 													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 														<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
 													</ComboBoxItem>
@@ -723,9 +723,9 @@
 													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 														<Image Source="/CustomBrokerWpf;component/Images/inv_2.png" Height="14" Margin="0"/>
 													</ComboBoxItem>
-												</ComboBox>
-												<Image Grid.Column="3" ToolTip="Спецификация_Разбивка" Source="{Binding Path=StateExcImagePath,Mode=OneWay}" Height="14"  Margin="2,0"/>
-												<ComboBox Grid.Column="4" SelectedIndex="{Binding Path=StateDoc,TargetNullValue=0,Mode=OneWay}" ToolTip="Сопроводительные документы" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
+												</ComboBox>-->
+                                                <Image Grid.Column="2" ToolTip="Разбивка загружена" Source="{Binding Path=StateExcImagePath,Mode=OneWay}" Height="14"  Margin="2,0"/>
+                                                <ComboBox Grid.Column="3" SelectedIndex="{Binding Path=StateDoc,TargetNullValue=0,Mode=OneWay}" ToolTip="МАРКИРОВКА" Style="{StaticResource ComboBoxButtonLess}" Height="14" Margin="2,0" Padding="0">
 													<ComboBoxItem Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 														<Image Source="/CustomBrokerWpf;component/Images/plus.gif" Height="14" Margin="0"/>
 													</ComboBoxItem>
@@ -736,13 +736,20 @@
 														<Image Source="/CustomBrokerWpf;component/Images/doc_2.png" Height="14" Margin="0"/>
 													</ComboBoxItem>
 												</ComboBox>
-												<Button Grid.Column="5" ToolTip="Отправка уведомления &quot;Ваша поставка готова к выдаче&quot;" Margin="2,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" BorderBrush="{x:Null}" Background="{x:Null}">
+												<Button Grid.Column="4" ToolTip="Отправка уведомления &quot;Ваша поставка готова к выдаче&quot;" Margin="2,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" BorderBrush="{x:Null}" Background="{x:Null}">
 													<Image Source="{Binding Path=MailStateTakeGoods9Image}"/>
 												</Button>
 											</Grid>
 										</DataTemplate>
 									</DataGridTemplateColumn.CellTemplate>
 								</DataGridTemplateColumn>
+								<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=AgentName, Mode=OneWay, TargetNullValue=''}" Width="150">
+									<DataGridTextColumn.CellStyle>
+										<Style TargetType="DataGridCell">
+											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+										</Style>
+									</DataGridTextColumn.CellStyle>
+								</DataGridTextColumn>
 								<DataGridTextColumn Header="Клиент" Binding="{Binding Path=CustomerName, TargetNullValue=''}" Width="150">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="DataGridCell">
@@ -771,13 +778,6 @@
 										</DataTemplate>
 									</DataGridTemplateColumn.CellTemplate>
 								</DataGridTemplateColumn>
-								<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=AgentName, Mode=OneWay, TargetNullValue=''}" Width="150">
-									<DataGridTextColumn.CellStyle>
-										<Style TargetType="DataGridCell">
-											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-										</Style>
-									</DataGridTextColumn.CellStyle>
-								</DataGridTextColumn>
 								<DataGridTextColumn Header="Импортер" Binding="{Binding Path=Importer.Name, Mode=OneWay}"  Width="100">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="DataGridCell">
@@ -926,6 +926,11 @@
 						</StackPanel>
 					</Grid>
 					<GridSplitter Grid.Row="6" Grid.ColumnSpan="2" Height="5" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="3,0" IsTabStop="False" />
+                    <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Margin="0,2" Orientation="Horizontal" Visibility="Visible">
+                        <Button ToolTip="Подготовить реализацию для 1С" Command="{Binding Path=Selling1C}" CommandParameter="{Binding ElementName=SpecificationDataGrid, Path=SelectedItems}" Margin="4,1" IsTabStop="False" Background="Transparent" Visibility="{Binding Path=CurrentItem.SpecificationAreaVisibility,Mode=OneWay}">
+                            <Image Source="/CustomBrokerWpf;component/Images/1C.jpg" />
+                        </Button>
+                    </StackPanel>
 					<DataGrid x:Name="SpecificationDataGrid" ItemsSource="{Binding Path=CurrentItem.Specifications}" Grid.Row="7" Grid.ColumnSpan="2" Visibility="{Binding Path=CurrentItem.SpecificationAreaVisibility,Mode=OneWay}" IsEnabled="{Binding IsEnabled}" Background="#e0f7e3"
                               CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" IsTabStop="False" FrozenColumnCount="1" RowHeaderWidth="15" CanUserResizeRows="False" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke"
                               >
@@ -1086,8 +1091,8 @@
 								</DataGridTextColumn.HeaderStyle>
 							</DataGridTextColumn>
 							<DataGridTextColumn Header="Кол-во" Binding="{Binding Path=Amount, Mode=OneWay, StringFormat=\{0:N0\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
-							<DataGridTextColumn Header="Нетто" Binding="{Binding Path=NetWeight, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 							<DataGridTextColumn Header="Брутто" Binding="{Binding Path=GrossWeight, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
+							<DataGridTextColumn Header="Нетто" Binding="{Binding Path=NetWeight, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 							<DataGridTextColumn Header="Кол-во мест" Binding="{Binding Path= CellNumber, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
 						</DataGrid.Columns>
 					</DataGrid>

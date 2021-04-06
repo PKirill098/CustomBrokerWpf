@@ -970,16 +970,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 			stores = new ListCollectionView(CustomBrokerWpf.References.Stores);
 			stores.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
 			
+			mysync = new StorageDataSynchronizer();
+			mysync.DomainCollection = new System.Collections.ObjectModel.ObservableCollection<StorageData>();
+			base.Collection = mysync.ViewModelCollection;
 			myfilter = new lib.SQLFilter.SQLFilter("storage", "AND",CustomBrokerWpf.References.ConnectionString);
 			myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
 			mymaindbm = new StorageDataDBM();
 			mymaindbm.Filter = myfilter;
 			mydbm = mymaindbm;
+			mymaindbm.Collection = mysync.DomainCollection;
 			mymaindbm.FillAsyncCompleted = () => { if (mydbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); };
 			mymaindbm.FillAsync();
-			mysync = new StorageDataSynchronizer();
-			mysync.DomainCollection = mymaindbm.Collection;
-			base.Collection = mysync.ViewModelCollection;
 
 			mymathdbm = new StorageMathDBM();
 			mymathsync = new StorageMathSynchronizer();
@@ -1545,7 +1546,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 						{ win.Owner = window; break; }
 					if (win.ShowDialog() ?? false)
 					{
-						if (win.Agent?.Id == 0)
+						if ((win.Agent?.Id??0M) == 0)
 						{
 							agent = new Agent(math.StorageData.AgentName, math.StorageData.AgentName);
 							myadbm.SaveItemChanches(agent);
@@ -1602,7 +1603,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 						{ win.Owner = window; break; }
 					if (win.ShowDialog() ?? false)
 					{
-						if (win.Agent?.Id == 0)
+						if ((win.Agent?.Id ?? 0M) == 0)
 						{
 							customer = new Customer(math.StorageData.CustomerName, math.StorageData.CustomerName);
 							mycdbm.SaveItemChanches(customer);

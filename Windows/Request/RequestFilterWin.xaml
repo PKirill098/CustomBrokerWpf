@@ -145,8 +145,8 @@
                             </ComboBox.Items>
                         </ComboBox>
                         <TextBox x:Name="goodValueTextBox" Grid.Row="1" Grid.Column="8" Margin="2,0" TextChanged="goodValueTextBox_TextChanged" />
-                        <TextBlock Text="Тип перевозки" Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" Visibility="Visible"/>
-                        <ComboBox x:Name="parceltypeComboBox" Grid.Row="0" Grid.Column="10" DisplayMemberPath="parceltypename" SelectedValuePath="parceltypeid" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="parceltypeComboBox_SelectionChanged" Visibility="Visible" IsEditable="True"/>
+                        <TextBlock Text="Тип перевозки" Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" Visibility="Collapsed"/>
+                        <ComboBox x:Name="parceltypeComboBox" Grid.Row="0" Grid.Column="10" DisplayMemberPath="parceltypename" SelectedValuePath="parceltypeid" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="parceltypeComboBox_SelectionChanged" Visibility="Collapsed" IsEditable="True"/>
                         <TextBlock Text="Фрахт" Grid.Row="1" Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="2,0" Visibility="Visible"/>
                         <ComboBox x:Name="frieghtComboBox" Grid.Row="1" Grid.Column="10" VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="frieghtComboBox_SelectionChanged" Visibility="Visible">
                             <ComboBoxItem Content=""/>

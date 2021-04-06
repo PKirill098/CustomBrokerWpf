@@ -108,7 +108,7 @@
 				</Grid>
 			</Button>
 		</Grid>
-		<DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}" CanUserDeleteRows="False" CanUserAddRows="False" SelectionChanged="MainDataGrid_SelectionChanged">
+		<DataGrid x:Name="MainDataGrid" Grid.Row="2" ItemsSource="{Binding Path=Items}" CanUserDeleteRows="False" CanUserAddRows="False">
 			<DataGrid.Columns>
 				<DataGridCheckBoxColumn Binding="{Binding Path=Selected,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False" CanUserSort="False">
 					<DataGridCheckBoxColumn.CellStyle>

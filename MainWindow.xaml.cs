@@ -764,6 +764,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             this.Close();
         }
 
+        private int mychildwindowscount;
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = Request_Closing();
@@ -775,7 +776,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 mychildwindows[i].Close();
                 i = i + 1 - c1 + mychildwindows.Count;
             }
-            if (mychildwindows.Count > 0) e.Cancel = true;
+            if (mychildwindows.Count > 0)
+            {
+                if (mychildwindows.Count != mychildwindowscount)
+                { 
+                    e.Cancel = true;
+                    mychildwindowscount = mychildwindows.Count;
+                }
+                //else
+                //    App.Current.Shutdown();
+            }
             else
             {
                 this.RequestFilter.Dispose();
@@ -1217,28 +1227,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 try
                 {
-                    string path, err;
                     Classes.Domain.RequestVM item = (sender as Button).Tag as Classes.Domain.RequestVM;
                     myrequestdischanger.EndEdit();
-                    if (item.DomainState == lib.DomainObjectState.Unchanged)
-                    {
-                        err = item.MoveFolder();
-                        if (!string.IsNullOrEmpty(err))
-                            MessageBox.Show(err, "Папка документов");
-                    }
-                    else if (string.IsNullOrEmpty(item.DomainObject.DocDirPath) & item.DomainState != lib.DomainObjectState.Unchanged)
-                        MessageBox.Show("Сохраните изменения!", "Папка документов");
-
-                    if (!string.IsNullOrEmpty(item.DomainObject.DocDirPath))
-                    {
-                        path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + item.DomainObject.DocDirPath;
-                        if (Directory.Exists(path))
-                        {
-                            System.Diagnostics.Process.Start(path);
-                        }
-                        else if (MessageBox.Show("Папка документов " + path + " не найдена!/n/nСоздать заново?", "Папка документов", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
-                            item.DomainObject.DocDirPath = string.Empty;
-                    }
+                    item.DomainObject.DocFolderOpen();
                 }
                 catch (Exception ex)
                 {
@@ -2050,7 +2041,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     rows[i] = this.NoParcelRequestDataGrid.SelectedItems[i] as Classes.Domain.RequestVM;
                 }
                 this.NoParcelRequestDataGrid.SelectedItems.Clear();
-                //NoParcelRequestDataGrid.SelectionChanged -= NoParcelRequestDataGrid_SelectionChanged;
                 foreach (Classes.Domain.RequestVM row in rows)
                 {
                     try
@@ -2059,7 +2049,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         {
                             myparcelcmd.CurrentItem.ParcelRequests.EditItem(row);
                             myparcelcmd.CurrentItem.Requests.EditItem(row);
-                            row.DomainObject.Parcel = null;
+                            //row.DomainObject.Parcel = null;
                             row.DomainObject.Parcel = myparcelcmd.CurrentItem.DomainObject;
                             row.DomainObject.Status = myparcelcmd.CurrentItem.Status;
                             myparcelcmd.CurrentItem.Requests.CommitEdit();
@@ -2069,7 +2059,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     catch (Exception ex)
                     { MessageBox.Show(ex.Message, "Поставка заявки в загрузку"); }
                 }
-                //NoParcelRequestDataGrid.SelectionChanged += NoParcelRequestDataGrid_SelectionChanged;
             }
             else
             {
@@ -2086,7 +2075,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     rows[i] = this.ParcelRequestDataGrid.SelectedItems[i] as Classes.Domain.RequestVM;
                 }
-                //int n=0, dn = 0, tn = 0; decimal v=0,dv = 0M, tv = 0M, aw=0,daw = 0M, taw = 0M, ow=0,dow = 0M, tow = 0M, c=0,dc = 0M, tc = 0M, cd=0,dcd = 0M, tcd = 0M;
                 ParcelRequestDataGrid.SelectionChanged -= ParcelRequestDataGrid_SelectionChanged;
                 foreach (Classes.Domain.RequestVM row in rows)
                 {
@@ -2102,72 +2090,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                             myparcelcmd.CurrentItem.Requests.CommitEdit();
                             myparcelcmd.CurrentItem.ParcelRequests.CommitEdit();
                         }
-                        //if (row.Volume.HasValue) { v = v + row.Volume.Value; if (row.Importer?.Id == 2) dv = dv + row.Volume.Value; else if(row.Importer?.Id == 1) tv = tv + row.Volume.Value; }
-                        //if (row.ActualWeight.HasValue) { aw = aw + row.ActualWeight.Value; if (row.Importer?.Id == 2) daw = daw + row.ActualWeight.Value; else if (row.Importer?.Id == 1) taw = taw + row.ActualWeight.Value; }
-                        //if (row.OfficialWeight.HasValue) { ow = ow + row.OfficialWeight.Value; if (row.Importer?.Id == 2) dow = dow + row.OfficialWeight.Value; else if (row.Importer?.Id == 1) tow = tow + row.OfficialWeight.Value; }
-                        //if (row.CellNumber.HasValue) { n = n + row.CellNumber.Value; if (row.Importer?.Id == 2) dn = dn + row.CellNumber.Value; else if (row.Importer?.Id == 1) tn = tn + row.CellNumber.Value; }
-                        //if (row.Invoice.HasValue) { c = c + row.Invoice.Value; if (row.Importer?.Id == 2) dc = dc + row.Invoice.Value; else if (row.Importer?.Id == 1) tc = tc + row.Invoice.Value; }
-                        //if (row.InvoiceDiscount.HasValue) { cd = cd + row.InvoiceDiscount.Value; if (row.Importer?.Id == 2) dcd = dcd + row.InvoiceDiscount.Value; else if (row.Importer?.Id == 1) tcd = tcd + row.InvoiceDiscount.Value; }
                     }
                     catch (Exception ex)
                     { MessageBox.Show(ex.Message, "Снятие заявки с загрузки"); }
                 }
                 ParcelRequestDataGrid.SelectionChanged += ParcelRequestDataGrid_SelectionChanged;
-                //this.DVolumeTextBox.Text = (decimal.Parse(this.DVolumeTextBox.Text) - dv).ToString("N4");
-                //this.TVolumeTextBox.Text = (decimal.Parse(this.TVolumeTextBox.Text) - tv).ToString("N4");
-                //this.volumeTextBox.Text = (decimal.Parse(this.volumeTextBox.Text) - v).ToString("N4");
-                //if (dv + tv != v)
-                //    this.volumeTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.volumeTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.volumeFreeTextBox.Text = (decimal.Parse(this.volumeFreeTextBox.Text) + v).ToString("N4");
-                //this.DActualWeightTextBox.Text = (decimal.Parse(this.DActualWeightTextBox.Text) - daw).ToString("N4");
-                //this.TActualWeightTextBox.Text = (decimal.Parse(this.TActualWeightTextBox.Text) - taw).ToString("N4");
-                //this.actualWeightTextBox.Text = (decimal.Parse(this.actualWeightTextBox.Text) - aw).ToString("N4");
-                //if (daw + taw != aw)
-                //    this.actualWeightTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.actualWeightTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.actualWeightFreeTextBox.Text = (decimal.Parse(this.actualWeightFreeTextBox.Text) + aw).ToString("N4");
-                //this.DOfficialWeightTextBox.Text = (decimal.Parse(this.DOfficialWeightTextBox.Text) - dow).ToString("N4");
-                //this.TOfficialWeightTextBox.Text = (decimal.Parse(this.TOfficialWeightTextBox.Text) - tow).ToString("N4");
-                //this.officialWeightTextBox.Text = (decimal.Parse(this.officialWeightTextBox.Text) - ow).ToString("N4");
-                //if (dow + tow != ow)
-                //    this.officialWeightFreeTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.officialWeightFreeTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.officialWeightFreeTextBox.Text = (decimal.Parse(this.officialWeightFreeTextBox.Text) + ow).ToString("N4");
-                //this.DOffactWeightTextBox.Text = (decimal.Parse(this.DActualWeightTextBox.Text) - decimal.Parse(this.DOfficialWeightTextBox.Text)).ToString("N4");
-                //this.TOffactWeightTextBox.Text = (decimal.Parse(this.TActualWeightTextBox.Text) - decimal.Parse(this.TOfficialWeightTextBox.Text)).ToString("N4");
-                //this.offactWeightTextBox.Text = (decimal.Parse(this.actualWeightTextBox.Text) - decimal.Parse(this.officialWeightTextBox.Text)).ToString("N4");
-                //this.offactWeightFreeTextBox.Text = (decimal.Parse(this.actualWeightFreeTextBox.Text) - decimal.Parse(this.officialWeightFreeTextBox.Text)).ToString("N4");
-                //this.DGoodValueTextBox.Text = (decimal.Parse(this.DGoodValueTextBox.Text) - dc).ToString("N2");
-                //this.TGoodValueTextBox.Text = (decimal.Parse(this.TGoodValueTextBox.Text) - tc).ToString("N2");
-                //this.goodValueTextBox.Text = (decimal.Parse(this.goodValueTextBox.Text) - c).ToString("N2");
-                //if (dc + tc != c)
-                //    this.goodValueTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.goodValueTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.DGoodValueDiscountTextBox.Text = (decimal.Parse(this.DGoodValueDiscountTextBox.Text) - dcd).ToString("N2");
-                //this.TGoodValueDiscountTextBox.Text = (decimal.Parse(this.TGoodValueDiscountTextBox.Text) - tcd).ToString("N2");
-                //this.goodValueDiscountTextBox.Text = (decimal.Parse(this.goodValueDiscountTextBox.Text) - cd).ToString("N2");
-                //if (dcd + tcd != cd)
-                //    this.goodValueDiscountTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.goodValueDiscountTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.goodValueFreeTextBox.Text = (decimal.Parse(this.goodValueFreeTextBox.Text) + c).ToString("N2");
-                //this.DCellNumberTextBox.Text = (Int16.Parse(this.DCellNumberTextBox.Text) - dn).ToString();
-                //this.TCellNumberTextBox.Text = (Int16.Parse(this.TCellNumberTextBox.Text) - tn).ToString();
-                //this.cellNumberTextBox.Text = (Int16.Parse(this.cellNumberTextBox.Text) - n).ToString();
-                //if (dn + tn != n)
-                //    this.cellNumberFreeTextBox.Foreground = Brushes.Red;
-                //else
-                //    this.cellNumberFreeTextBox.Foreground = TVolumeTextBox.Foreground;
-                //this.cellNumberFreeTextBox.Text = (Int16.Parse(this.cellNumberFreeTextBox.Text) + n).ToString();
-                //decimal.TryParse(lorryvolumeTextBox.Text, out dv);
-                //decimal.TryParse(lorryWeightTextBox.Text, out dow);
-                //if (!(dv < decimal.Parse(this.volumeTextBox.Text))) this.volumeTextBox.Foreground = this.lorryvolumeTextBox.Foreground;
-                //if (!(dow < decimal.Parse(this.actualWeightTextBox.Text))) this.actualWeightTextBox.Foreground = this.lorryWeightTextBox.Foreground;
             }
             else
             {
@@ -2188,30 +2115,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private void NoParcelRequestDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGridCellInfo cellinf;
-            //int countnoready = 0;
             if (!(e.OriginalSource is DataGrid) || myparcelcmd.CurrentItem == null) return;
             Classes.Domain.RequestVM[] noreadyrowview = new Classes.Domain.RequestVM[NoParcelRequestDataGrid.Items.Count];
             foreach (Classes.Domain.RequestVM rowview in e.AddedItems)
             {
-                if (!(rowview is Classes.Domain.RequestVM)) break;
-                //if (!rowview.Specification.HasValue)
-                //{
-                //    noreadyrowview[countnoready] = rowview;
-                //    countnoready++;
-                //    continue;
-                //}
+                if (!(rowview is Classes.Domain.RequestVM)) continue;
+                rowview.Selected = true;
                 if (rowview.ParcelGroup.HasValue)
                 {
                     foreach (Classes.Domain.RequestVM viewrow in myparcelcmd.CurrentItem.Requests)
                     {
                         if (viewrow.ParcelGroup.HasValue && rowview.ParcelGroup == viewrow.ParcelGroup && !NoParcelRequestDataGrid.SelectedItems.Contains(viewrow))
                         {
-                            //if (!viewrow.Specification.HasValue)
-                            //{
-                            //    noreadyrowview[countnoready] = viewrow;
-                            //    countnoready++;
-                            //    continue;
-                            //}
                             NoParcelRequestDataGrid.SelectedItems.Add(viewrow);
                             foreach (DataGridColumn colm in this.NoParcelRequestDataGrid.Columns)
                             {
@@ -2222,15 +2137,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         }
                     }
                 }
-                //decimal v = 0M, m = 0M;
-                //decimal.TryParse(lorryvolumeTextBox.Text, out v);
-                //decimal.TryParse(lorryWeightTextBox.Text, out m);
-                //if (v < decimal.Parse(this.volumeTextBox.Text)) this.volumeTextBox.Foreground = Brushes.Red;
-                //if (m < decimal.Parse(this.actualWeightTextBox.Text)) this.actualWeightTextBox.Foreground = Brushes.Red;
             }
             foreach (Classes.Domain.RequestVM rowview in e.RemovedItems)
             {
                 if (!(rowview is Classes.Domain.RequestVM)) continue;
+                rowview.Selected = false;
                 if (rowview.ParcelGroup.HasValue)
                 {
                     foreach (Classes.Domain.RequestVM viewrow in NoParcelRequestDataGrid.SelectedItems)
@@ -2247,135 +2158,66 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         }
                     }
                 }
-                //if (rowview.Volume.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.Volume = -rowview.Volume.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.Volume = -rowview.Volume.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.Volume = -rowview.Volume.Value;
-                //    myparcelcmd.CurrentItem.VolumeFree = rowview.Volume.Value;
-                //}
-                //if (rowview.ActualWeight.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.ActualWeight = -rowview.ActualWeight.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.ActualWeight = -rowview.ActualWeight.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.ActualWeight = -rowview.ActualWeight.Value;
-                //    myparcelcmd.CurrentItem.ActualWeightFree = rowview.ActualWeight.Value;
-                //}
-                //if (rowview.OfficialWeight.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.OfficialWeight = -rowview.OfficialWeight.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.OfficialWeight = -rowview.OfficialWeight.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.OfficialWeight = -rowview.OfficialWeight.Value;
-                //    myparcelcmd.CurrentItem.OfficialWeightFree = rowview.OfficialWeight.Value;
-                //}
-                //if (rowview.Invoice.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.Invoice = -rowview.Invoice.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.Invoice = -rowview.Invoice.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.Invoice = -rowview.Invoice.Value;
-                //    myparcelcmd.CurrentItem.InvoiceFree = rowview.Invoice.Value;
-                //}
-                //if (rowview.InvoiceDiscount.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.InvoiceDiscount = -rowview.InvoiceDiscount.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.InvoiceDiscount = -rowview.InvoiceDiscount.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.InvoiceDiscount = -rowview.InvoiceDiscount.Value;
-                //    myparcelcmd.CurrentItem.InvoiceDiscountFree = rowview.InvoiceDiscount.Value;
-                //}
-                //if (rowview.CellNumber.HasValue)
-                //{
-                //    if (rowview.Importer?.Id == 2)
-                //        myparcelcmd.CurrentItem.RequestTotalD.CellNumber = -rowview.CellNumber.Value;
-                //    else if (rowview.Importer?.Id == 1)
-                //        myparcelcmd.CurrentItem.RequestTotalT.CellNumber = -rowview.CellNumber.Value;
-                //    myparcelcmd.CurrentItem.RequestTotal.CellNumber = -rowview.CellNumber.Value;
-                //    myparcelcmd.CurrentItem.CellNumberFree = rowview.CellNumber.Value;
-                //}
-                //decimal v = 0M, m = 0M;
-                //decimal.TryParse(lorryvolumeTextBox.Text, out v);
-                //decimal.TryParse(lorryWeightTextBox.Text, out m);
-                //if (!(v < decimal.Parse(this.volumeTextBox.Text))) this.volumeTextBox.Foreground = this.lorryvolumeTextBox.Foreground;
-                //if (!(m < decimal.Parse(this.actualWeightTextBox.Text))) this.actualWeightTextBox.Foreground = this.lorryWeightTextBox.Foreground;
             }
-            //if (countnoready > 0)
-            //{
-            //    NoParcelRequestDataGrid.SelectionChanged -= NoParcelRequestDataGrid_SelectionChanged;
-            //    for (int i = 0; i < countnoready; i++)
-            //    {
-            //        if (NoParcelRequestDataGrid.SelectedItems.Contains(noreadyrowview[i])) NoParcelRequestDataGrid.SelectedItems.Remove(noreadyrowview[i]);
-            //        MessageBox.Show("Заявка " + noreadyrowview[i].StorePointDate + " не может быть поставлена в загрузку т.к. отсутствует спецификация!", "Постановка в загрузку", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            //    }
-            //    NoParcelRequestDataGrid.SelectionChanged += NoParcelRequestDataGrid_SelectionChanged;
-            //}
 
-            myparcelcmd.CurrentItem.RequestTotal.ResetPre();
-            myparcelcmd.CurrentItem.RequestTotalD.ResetPre();
-            myparcelcmd.CurrentItem.RequestTotalT.ResetPre();
+            //myparcelcmd.CurrentItem.RequestTotal.ResetPre();
+            //myparcelcmd.CurrentItem.RequestTotalD.ResetPre();
+            //myparcelcmd.CurrentItem.RequestTotalT.ResetPre();
             myparcelcmd.CurrentItem.ResetFree();
             foreach (Classes.Domain.RequestVM rowview in NoParcelRequestDataGrid.SelectedItems)
             {
                 if (rowview.Volume.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.Volume = rowview.Volume.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.Volume = rowview.Volume.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.Volume = rowview.Volume.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.Volume = rowview.Volume.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.Volume = rowview.Volume.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.Volume = rowview.Volume.Value;
                     myparcelcmd.CurrentItem.VolumeFree = -rowview.Volume.Value;
                 }
                 if (rowview.ActualWeight.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.ActualWeight = rowview.ActualWeight.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.ActualWeight = rowview.ActualWeight.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.ActualWeight = rowview.ActualWeight.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.ActualWeight = rowview.ActualWeight.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.ActualWeight = rowview.ActualWeight.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.ActualWeight = rowview.ActualWeight.Value;
                     myparcelcmd.CurrentItem.ActualWeightFree = -rowview.ActualWeight.Value;
                 }
                 if (rowview.OfficialWeight.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.OfficialWeight = rowview.OfficialWeight.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.OfficialWeight = rowview.OfficialWeight.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.OfficialWeight = rowview.OfficialWeight.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.OfficialWeight = rowview.OfficialWeight.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.OfficialWeight = rowview.OfficialWeight.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.OfficialWeight = rowview.OfficialWeight.Value;
                     myparcelcmd.CurrentItem.OfficialWeightFree = -rowview.OfficialWeight.Value;
                 }
                 if (rowview.Invoice.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.Invoice = rowview.Invoice.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.Invoice = rowview.Invoice.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.Invoice = rowview.Invoice.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.Invoice = rowview.Invoice.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.Invoice = rowview.Invoice.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.Invoice = rowview.Invoice.Value;
                     myparcelcmd.CurrentItem.InvoiceFree = -rowview.Invoice.Value;
                 }
                 if (rowview.InvoiceDiscount.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.InvoiceDiscount = rowview.InvoiceDiscount.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.InvoiceDiscount = rowview.InvoiceDiscount.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.InvoiceDiscount = rowview.InvoiceDiscount.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.InvoiceDiscount = rowview.InvoiceDiscount.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.InvoiceDiscount = rowview.InvoiceDiscount.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.InvoiceDiscount = rowview.InvoiceDiscount.Value;
                     myparcelcmd.CurrentItem.InvoiceDiscountFree = -rowview.InvoiceDiscount.Value;
                 }
                 if (rowview.CellNumber.HasValue)
                 {
-                    if (rowview.Importer?.Id == 2)
-                        myparcelcmd.CurrentItem.RequestTotalD.CellNumber = rowview.CellNumber.Value;
-                    else if (rowview.Importer?.Id == 1)
-                        myparcelcmd.CurrentItem.RequestTotalT.CellNumber = rowview.CellNumber.Value;
-                    myparcelcmd.CurrentItem.RequestTotal.CellNumber = rowview.CellNumber.Value;
+                    //if (rowview.Importer?.Id == 2)
+                    //    myparcelcmd.CurrentItem.RequestTotalD.CellNumber = rowview.CellNumber.Value;
+                    //else if (rowview.Importer?.Id == 1)
+                    //    myparcelcmd.CurrentItem.RequestTotalT.CellNumber = rowview.CellNumber.Value;
+                    //myparcelcmd.CurrentItem.RequestTotal.CellNumber = rowview.CellNumber.Value;
                     myparcelcmd.CurrentItem.CellNumberFree = -rowview.CellNumber.Value;
                 }
             }
@@ -2383,10 +2225,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //private bool mygroupselect;
         private void ParcelRequestDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //bool groupselect=false;
             DataGridCellInfo cellinf;
             if (!(e.OriginalSource is DataGrid) || myparcelcmd.CurrentItem == null) return;
-            //if (!mygroupselect) { mygroupselect = true; groupselect = true; }
             foreach (Classes.Domain.RequestVM rowview in e.RemovedItems)
             {
                 if (!(rowview is Classes.Domain.RequestVM)) continue;
@@ -2429,38 +2269,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     }
                 }
             }
-            //if (mygroupselect & groupselect)
-            //{
-            //    decimal c = 0M, v = 0M, wo = 0M, wa = 0M, p = 0M;
-            //    if (ParcelRequestDataGrid.SelectedItems.Count > 1)
-            //    {
-            //        foreach (Classes.Domain.RequestVM rowview in ParcelRequestDataGrid.SelectedItems)
-            //        {
-            //            if (!(rowview is Classes.Domain.RequestVM)) continue;
-            //            c += rowview.CellNumber ?? 0M;
-            //            v += rowview.Volume ?? 0M;
-            //            wo += rowview.OfficialWeight ?? 0M;
-            //            wa += rowview.ActualWeight ?? 0M;
-            //            p += rowview.InvoiceDiscount ?? 0M;
-            //        }
-            //        cellNumberFreeTextBox.Text = c.ToString("N0");
-            //        VolumeTextBox.Text = v.ToString("N4");
-            //        OfficialWeightTextBox.Text = wo.ToString("N4");
-            //        actualWeightFreeTextBox.Text = wa.ToString("N4");
-            //        offactWeightFreeTextBox.Text = (wa - wo).ToString("N4");
-            //        goodValueFreeTextBox.Text = p.ToString("N2");
-            //    }
-            //    else
-            //    {
-            //        cellNumberFreeTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.CellNumber ?? 0M).ToString("N0");
-            //        VolumeTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.Volume ?? 0M).ToString("N4");
-            //        OfficialWeightTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.OfficialWeight ?? 0M).ToString("N4");
-            //        actualWeightFreeTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.ActualWeight ?? 0M).ToString("N4");
-            //        offactWeightFreeTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.DifferenceWeight ?? 0M).ToString("N4");
-            //        goodValueFreeTextBox.Text = (myparcelcmd.CurrentItem.RequestTotal.InvoiceDiscount ?? 0M).ToString("N2");
-            //    }
-            //}
-            //if (groupselect) { mygroupselect = false; groupselect = false; }
         }
         //private bool ParcelRequestDataGridRowChanged;
         //private void ParcelRequestDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
@@ -2476,80 +2284,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //        viewRequest.Filter = (object item) => { return false; };
         //}
 
-        //private void ExcelReport(int? importerid,bool isNew)
-        //{
-        //    excel.Application exApp = new excel.Application();
-        //    excel.Application exAppProt = new excel.Application();
-        //    excel.Workbook exWb;
-        //    try
-        //    {
-        //        int i = 2;
-        //        exApp.SheetsInNewWorkbook = 1;
-        //        exWb = exApp.Workbooks.Add(Type.Missing);
-        //        excel.Worksheet exWh = exWb.Sheets[1];
-        //        excel.Range r;
-        //        exWh.Name = ParcelNumberList.Text;
-        //        exWh.Cells[1, 1] = "Позиция по складу"; exWh.Cells[1, 2] = "Дата поступления"; exWh.Cells[1, 3] = "Группа загрузки"; exWh.Cells[1, 4] = "Клиент"; exWh.Cells[1, 5] = "Юр. лица"; exWh.Cells[1, 6] = "Поставщик"; exWh.Cells[1, 7] = "Импортер"; exWh.Cells[1, 8] = "Группа менеджеров";
-        //        exWh.Cells[1, 9] = "Кол-во мест"; exWh.Cells[1, 10] = "Вес по док, кг"; exWh.Cells[1, 11] = "Вес факт, кг"; exWh.Cells[1, 12] = "Объем, м3"; exWh.Cells[1, 13] = "Инвойс"; exWh.Cells[1, 14] = "Инвойс, cо скидкой"; exWh.Cells[1, 15] = "Услуга"; exWh.Cells[1, 16] = "Примечание менеджера";
-        //        r = exWh.Columns[9, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        r = exWh.Columns[10, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        r = exWh.Columns[11, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        r = exWh.Columns[12, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        r = exWh.Columns[13, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        r = exWh.Columns[14, Type.Missing]; r.NumberFormat = "#,##0.00";
-        //        foreach (Classes.Domain.RequestVM itemRow in viewParcelRequest)
-        //        {
-        //            if (importerid != itemRow.Importer?.Id || (isNew && itemRow.StoreInform.HasValue)) continue;
-        //            if (!string.IsNullOrEmpty(itemRow.StorePoint)) exWh.Cells[i, 1] = itemRow.StorePoint;
-        //            if (itemRow.StoreDate.HasValue) exWh.Cells[i, 2] = itemRow.StoreDate;
-        //            if (itemRow.ParcelGroup.HasValue) exWh.Cells[i, 3] = itemRow.ParcelGroup;
-        //            if (!string.IsNullOrEmpty(itemRow.CustomerName)) exWh.Cells[i, 4] = itemRow.CustomerName;
-        //            if (!string.IsNullOrEmpty(itemRow.CustomerLegalsNames)) exWh.Cells[i, 5] = itemRow.CustomerLegalsNames;
-        //            if (!string.IsNullOrEmpty(itemRow.AgentName)) exWh.Cells[i, 6] = itemRow.AgentName;
-        //            if (!string.IsNullOrEmpty(itemRow.Importer?.Name)) exWh.Cells[i, 7] = itemRow.Importer.Name;
-        //            if (!string.IsNullOrEmpty(itemRow.ManagerGroupName)) exWh.Cells[i, 8] = itemRow.ManagerGroupName;
-        //            if (itemRow.CellNumber.HasValue) exWh.Cells[i, 9] = itemRow.CellNumber.Value;
-        //            if (itemRow.OfficialWeight.HasValue) exWh.Cells[i, 10] = itemRow.OfficialWeight.Value;
-        //            if (itemRow.ActualWeight.HasValue) exWh.Cells[i, 11] = itemRow.ActualWeight.Value;
-        //            if (itemRow.Volume.HasValue) exWh.Cells[i, 12] = itemRow.Volume.Value;
-        //            if (itemRow.Invoice.HasValue) exWh.Cells[i, 13] = itemRow.Invoice.Value;
-        //            if (itemRow.InvoiceDiscount.HasValue) exWh.Cells[i, 14] = itemRow.InvoiceDiscount.Value;
-        //            if (!string.IsNullOrEmpty(itemRow.ServiceType)) exWh.Cells[i, 15] = itemRow.ServiceType;
-        //            if (!string.IsNullOrEmpty(itemRow.ManagerNote)) exWh.Cells[i, 16] = itemRow.ManagerNote;
-        //            i++;
-        //        }
-        //        if (i > 2)
-        //        {
-        //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
-        //            string filename = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath + @"\" + ((ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери":string.Empty)) + ".xlsx";
-        //            if (File.Exists(filename))
-        //                File.Delete(filename);
-        //            exWb.SaveAs(Filename: filename);
-        //            exApp.Visible = true;
-        //        }
-        //        else
-        //            exWb.Close(false);
-        //        exWh = null;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (exApp != null)
-        //        {
-        //            foreach (excel.Workbook itemBook in exApp.Workbooks)
-        //            {
-        //                itemBook.Close(false);
-        //            }
-        //            exApp.Quit();
-        //        }
-        //        MessageBox.Show(ex.Message, "Создание заявки", MessageBoxButton.OK, MessageBoxImage.Error);
-        //    }
-        //    finally
-        //    {
-        //        exApp = null;
-        //        if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
-        //        exAppProt = null;
-        //    }
-        //}
         private void ParcelRequestDataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             e.Cancel = e.Row.Item != null && !(e.Row.Item as RequestVM).DomainObject.Blocking();
@@ -2711,7 +2445,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             string path = null, num = null;
             if (myparcelcmd.CurrentItem != null)
             {
-                path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + myparcelcmd.CurrentItem.DocDirPath;
+                path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + myparcelcmd.CurrentItem.ParcelNumber ?? string.Empty;
                 if (!Directory.Exists(path))
                 {
                     System.IO.Directory.CreateDirectory(path);

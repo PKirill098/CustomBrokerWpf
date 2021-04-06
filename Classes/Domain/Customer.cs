@@ -1418,6 +1418,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         this.OpenPopup("Загрузка данных\n" + mydbm.ErrorMessage, true);
                     task.Start();
                 };
+            (mydbm as CustomerDBM).Collection = new ObservableCollection<Customer>();  
             (mydbm as CustomerDBM).FillAsync();
             mysync.DomainCollection = (mydbm as CustomerDBM).Collection;
             base.Collection = mysync.ViewModelCollection;
