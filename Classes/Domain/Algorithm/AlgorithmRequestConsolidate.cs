@@ -1483,7 +1483,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         internal bool RequestAttached(Request request)
         {
-            if (request.Consolidate != this.Group || request.ParcelId != myparcel.Id) throw new Exception("Присоединение заявки к чужой консолидации.\nЗаявка " + request.Id + " консолидация " + mygroup + " перевозка " + myparcel.Id);
+            if (request.Consolidate != this.Group || request.ParcelId != myparcel?.Id) throw new Exception("Присоединение заявки к чужой консолидации.\nЗаявка " + request.Id + " консолидация " + mygroup + " перевозка " + myparcel.Id);
             if (myrequests.Contains(request)) return true;
             if (myrequests.Count == 0)
             {

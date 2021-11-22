@@ -968,6 +968,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 		internal StorageDataManager()
 		{
 			stores = new ListCollectionView(CustomBrokerWpf.References.Stores);
+			CustomBrokerWpf.References.Stores.RefreshViewAdd(stores);
 			stores.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
 			
 			mysync = new StorageDataSynchronizer();

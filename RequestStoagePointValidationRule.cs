@@ -29,10 +29,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     if (requestid == n) n = 0;
                 }
-                if (this.currDataGrid!=null && (this.currDataGrid.CurrentItem is DataRowView))
+                if (this.currDataGrid!=null && (this.currDataGrid.CurrentItem is Classes.Domain.RequestVM))
                 {
-                    CustomBrokerWpf.RequestDS.tableRequestRow row = (this.currDataGrid.CurrentItem as DataRowView).Row as CustomBrokerWpf.RequestDS.tableRequestRow;
-                   if (row.requestId == n) n = 0;
+                   if ((this.currDataGrid.CurrentItem as Classes.Domain.RequestVM).Id == n) n = 0;
                 }
                 if (n > 0) return new ValidationResult(false, "Эта позиция уже используется заявкой № " + n.ToString() + " !");
             }

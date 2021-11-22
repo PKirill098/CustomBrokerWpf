@@ -62,10 +62,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
             }
         }
-        internal bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte messageey)
         {
             bool isvalid = true;
             errmsg = null;
+            messageey = 0;
             switch (propertyname)
             {
                 case nameof(this.PayDate):
@@ -340,10 +341,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             switch (propertyname)
             {
                 case nameof(this.PayDate):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaydate, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaydate, out errmsg, out _);
                     break;
                 case nameof(this.CurSum):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycursum, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycursum, out errmsg, out _);
                     break;
             }
             if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
@@ -525,6 +526,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 if (myagents == null)
                 {
                     myagents = new ListCollectionView(CustomBrokerWpf.References.AgentNames);
+                    CustomBrokerWpf.References.AgentNames.RefreshViewAdd(myagents);
                     myagents.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
                 return myagents;

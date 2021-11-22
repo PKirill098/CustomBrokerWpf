@@ -17,8 +17,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (e.Column.ColumnName == "parcelgroup")
                 {
-                    System.Data.DataRow[] grow = this.Select("parcelgroup=" + e.ProposedValue + " AND customerId<>" + (e.Row as RequestDS.tableRequestRow).customerId);
-                    if (grow.Length > 0) throw new System.Data.ConstraintException("В группу(спецификацию) могут быть включены только заявки одного клиента.!");
+                    //System.Data.DataRow[] grow = this.Select("parcelgroup=" + e.ProposedValue + " AND customerId<>" + (e.Row as RequestDS.tableRequestRow).customerId);
+                    //if (grow.Length > 0) throw new System.Data.ConstraintException("В группу(спецификацию) могут быть включены только заявки одного клиента.!");
                 }
             }
         }

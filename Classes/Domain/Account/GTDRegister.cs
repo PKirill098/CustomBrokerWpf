@@ -48,8 +48,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         public decimal? CC
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.CC ?? 0M; }); } }
-        public string Client
-        { get { return myclients.Count > 1 ? null : myclients.Min((GTDRegisterClient item) => { return item.Client?.Name; }); } }
+        public CustomerLegal Client
+        { get { return myclients.Count > 1 ? null : myclients.Min((GTDRegisterClient item) => { return item.Client; }); } }
         public decimal? CostLogistics
         { get { return (this.Specification.Pari??0M) + (this.SLWithoutRate??0M) + (this.Specification.GTLS??0M) + (this.Specification.DDSpidy??0M) + (this.Specification.WestGateWithoutRate??0M) + (this.Specification.MFK ?? 0M); } }
         public decimal? CostPer
@@ -640,7 +640,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsLoaded && this.IsEnabled ? myspec : null; } }
         public decimal? CC
         { get { return this.DomainObject.CC; } }
-        public string Client
+        public CustomerLegal Client
         { get { return this.DomainObject.Client; } }
         public System.Windows.Visibility ClientsVisible
         { get { return this.DomainObject.Clients.Count > 1 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed; } }
@@ -1629,7 +1629,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                 break;
                             case "AgentName":
                             case nameof(Declaration.Number):
-                            case nameof(GTDRegister.Client):
+                            case "ClientName":
                                 exWh.Columns[column, Type.Missing].NumberFormat = "@";
                                 break;
                             case nameof(GTDRegister.CostPer):
@@ -1689,8 +1689,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             case nameof(GTDRegister.SellingRate):
                                 exWh.Cells[row, column] = item.SellingRate;
                                 break;
-                            case nameof(GTDRegister.Client):
-                                exWh.Cells[row, column] = item.Client;
+                            case "ClientName":
+                                exWh.Cells[row, column] = item.Client?.Name;
                                 break;
                             case nameof(GTDRegister.Rate):
                                 exWh.Cells[row, column] = item.Rate;
@@ -1818,7 +1818,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                     case nameof(GTDRegister.SellingRate):
                                         exWh.Cells[row, column] = client.SellingRate;
                                         break;
-                                    case nameof(GTDRegister.Client):
+                                    case "ClientName":
                                         exWh.Cells[row, column] = client.Client.Name;
                                         break;
                                     case nameof(GTDRegister.Rate):

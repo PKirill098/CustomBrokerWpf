@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
+using excel = Microsoft.Office.Interop.Excel;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
-using excel = Microsoft.Office.Interop.Excel;
-using System.Collections.ObjectModel;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -13,6 +15,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public Customer(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
             , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            ,int? parcelcount,DateTime? parcellastdate
             ) : base(id, stamp, updated, updater, dstate)
         {
             myaccount = account;
@@ -24,22 +27,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycorraccount = corraccount;
             mydayentry = dayentry;
             mydeliverytype = deliverytype;
+            mydeliverytype_ = deliverytype.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", deliverytype.Value) : null;
             myfullname = fullname;
             myinn = inn;
             mymanagergroup = managergroup;
             myname = name;
             mynotespecial = notespecial;
+            myparcelcount = parcelcount;
+            myparcellastdate = parcellastdate;
             mypayaccount = payaccount;
             mypaytypeid = paytypeid;
             myrecommend = recommend;
             mystate = state;
             mystatus = status;
+
+            myparcellock = new object();
         }
-        public Customer(string fullname,string name) : this(id: lib.NewObjectId.NewId, stamp: 0, updater: null, updated: null, dstate: lib.DomainObjectState.Added
+        public Customer(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
+            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            ) : this(id,stamp,updater,updated,dstate
+            ,account, bankaccount, bankbic, bankname, contractdate,contractnum,corraccount,dayentry,deliverytype,fullname,inn,managergroup,name,notespecial,payaccount,paytypeid,recommend,state,status
+            , null, null) {}
+        public Customer(string fullname, string name) : this(id: lib.NewObjectId.NewId, stamp: 0, updater: null, updated: null, dstate: lib.DomainObjectState.Added
             , account: null, bankaccount: null, bankbic: null, bankname: null, contractdate: null, contractnum: null, corraccount: null, dayentry: DateTime.Now, deliverytype: null, fullname: fullname, inn: null, managergroup: null, name: name, notespecial: null, payaccount: null, paytypeid: null, recommend: null, state: 0, status: "Заявка"
             )
         { }
-        public Customer() : this( fullname: null, name: null) { }
+        public Customer() : this(fullname: null, name: null) { }
 
         private int? myaccount;
         public int? Account
@@ -112,10 +125,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<int?>(ref mydeliverytype, value);
+                base.SetProperty<int?>(ref mydeliverytype, value,()=> {
+                    
+                    mydeliverytype_ = value.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id",mydeliverytype.Value) : null;
+                    this.PropertyChangedNotification(nameof(this.DeliveryType_));
+                });
             }
             get { return mydeliverytype; }
         }
+        private lib.ReferenceSimpleItem mydeliverytype_;
+        public lib.ReferenceSimpleItem DeliveryType_
+        { get { return mydeliverytype_; } }
         private string myfullname;
         public string FullName
         {
@@ -152,11 +172,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return myname; }
         }
+        public System.Windows.FontWeight NameFontWeight
+        { get { return this.isNoteSpecial ? System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal; } }
         private string mynotespecial;
         public string NoteSpecial
         {
             set { SetProperty<string>(ref mynotespecial, value); }
             get { return mynotespecial; }
+        }
+        public bool isNoteSpecial
+        { get { return !string.IsNullOrWhiteSpace(mynotespecial); } }
+        private int? myparcelcount;
+        private object myparcellock;
+        private int myparcelinitprocess = -1;
+        public int? ParcelCount
+        { set { SetProperty<int?>(ref myparcelcount, value); }
+            get {
+                lock(myparcellock)
+                    if(myparcelinitprocess < 0)
+                    {
+                        myparcelinitprocess= System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId;
+                    }
+                if (myparcelinitprocess > 0 && myparcelinitprocess == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
+                {
+
+                    myparcelinitprocess = 0;
+                }
+                return myparcelcount; } }
+        private DateTime? myparcellastdate;
+        public DateTime? ParcelLastDate
+        {
+            set { SetProperty<DateTime?>(ref myparcellastdate, value); }
+            get
+            {
+                lock (myparcellock)
+                    if (myparcelinitprocess < 0)
+                    {
+                        myparcelinitprocess = System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId;
+                    }
+                if (myparcelinitprocess > 0 && myparcelinitprocess == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
+                {
+
+                    myparcelinitprocess = 0;
+                }
+                return myparcellastdate;
+            }
         }
         private int? mypayaccount;
         public int? PayAccount
@@ -345,6 +405,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.ManagerGroup = newitem.ManagerGroup;
             this.Name = newitem.Name;
             this.NoteSpecial = newitem.NoteSpecial;
+            if(newitem.ParcelCount!=null) this.ParcelCount = newitem.ParcelCount;
+            if (newitem.ParcelLastDate != null) this.ParcelLastDate = newitem.ParcelLastDate;
             this.PayAccount = newitem.PayAccount;
             this.PayType = newitem.PayType;
             this.Recommend = newitem.Recommend;
@@ -368,7 +430,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 new SqlParameter("@param1", System.Data.SqlDbType.Int),
                 new SqlParameter("@param2", System.Data.SqlDbType.Int),
-                new SqlParameter("@param3", System.Data.SqlDbType.NVarChar,100)
+                new SqlParameter("@param3", System.Data.SqlDbType.NVarChar,100),
+                new SqlParameter("@param4", System.Data.SqlDbType.Bit),
+                new SqlParameter("@param5", System.Data.SqlDbType.Int)
             };
             myinsertparams = new SqlParameter[]
            {
@@ -439,8 +503,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private string myname;
         internal string Name
         { set { myname = value; } get { return myname; } }
+        private bool myall;
+        internal bool All
+        { set { myall = value; } get { return myall; } }
+        private lib.SQLFilter.SQLFilter myfilter;
+        internal lib.SQLFilter.SQLFilter Filter
+        { set { myfilter = value; } get { return myfilter; } }
 
-        protected override Customer CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Customer CreateItem(SqlDataReader reader, SqlConnection addcon)
         {
             Customer newitem = new Customer(id: reader.GetInt32(0), stamp: reader.GetInt32(this.Fields["stamp"]), updater: reader.IsDBNull(this.Fields["updtWho"]) ? null : reader.GetString(this.Fields["updtWho"]), updated: reader.IsDBNull(this.Fields["updtDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["updtDate"]), dstate: lib.DomainObjectState.Unchanged
                 , account: null
@@ -462,8 +532,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , recommend: reader.IsDBNull(this.Fields["customerRecommend"]) ? null : reader.GetString(this.Fields["customerRecommend"])
                 , state: reader.GetByte(this.Fields["customerState"])
                 , status: reader.IsDBNull(this.Fields["customerStatus"]) ? null : reader.GetString(this.Fields["customerStatus"])
+                , parcelcount: this.Fields.ContainsKey("parcelcount") ? reader.GetInt32(this.Fields["parcelcount"]) : (int?)null
+                , parcellastdate: this.Fields.ContainsKey("parcellastdate") && !reader.IsDBNull(this.Fields["parcellastdate"]) ? reader.GetDateTime(this.Fields["parcellastdate"]) : (DateTime?)null
                 );
-            return CustomBrokerWpf.References.CustomerStore.UpdateItem(newitem);
+            Customer olditem = CustomBrokerWpf.References.CustomerStore.UpdateItem(newitem);
+            if (this.FillType==lib.FillType.Refresh | newitem.ParcelCount != null)
+            {
+                olditem.ParcelCount = newitem.ParcelCount;
+                olditem.ParcelLastDate = newitem.ParcelLastDate;
+            }
+            return olditem;
         }
         protected override void GetOutputSpecificParametersValue(Customer item) { }
         protected override bool SaveChildObjects(Customer item)
@@ -583,7 +661,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
-            this.SelectParams[2].Value = myname;
+            foreach (SqlParameter par in SelectParams)
+                switch (par.ParameterName)
+                {
+                    case "@param3":
+                        par.Value = myname;
+                        break;
+                    case "@param4":
+                        par.Value = myall;
+                        break;
+                    case "@param5":
+                        par.Value = myfilter?.FilterWhereId;
+                        break;
+                }
         }
 
         internal void RefreshCollection()
@@ -784,6 +874,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.DeliveryType : null; }
         }
+        public lib.ReferenceSimpleItem DeliveryType_
+        {
+            get { return this.IsEnabled ? this.DomainObject.DeliveryType_ : null; }
+        }
         public string FullName
         {
             set
@@ -846,6 +940,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? myname : null; }
         }
+        public System.Windows.FontWeight NameFontWeight
+        { get { return this.isNoteSpecial ? System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal; } }
         public string NoteSpecial
         {
             set
@@ -860,6 +956,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.NoteSpecial : null; }
         }
+        public bool isNoteSpecial
+        { get { return this.IsEnabled & this.DomainObject.isNoteSpecial; } }
+        public int? ParcelCount
+        { get { return this.IsEnabled ? this.DomainObject.ParcelCount : null; } }
+        public DateTime? ParcelLastDate
+        { get { return this.IsEnabled ? this.DomainObject.ParcelLastDate : null; } }
         public int? PayAccount
         {
             set
@@ -947,6 +1049,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mylegals = new ListCollectionView(mylsync.ViewModelCollection);
                     mylegals.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
                     mylegals.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+                    mylegals.MoveCurrentToPosition(-1);
                 }
                 return mylegals;
             }
@@ -1249,6 +1352,130 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
+    public class CustomerCommand : lib.ViewModelCommand<Customer, CustomerVM, CustomerDBM>
+    {
+        public CustomerCommand(CustomerVM vm, ListCollectionView view) : base(vm, view)
+        {
+            mymanadgergroups = new ListCollectionView(CustomBrokerWpf.References.ManagerGroups);
+            mymanadgergroups.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            try
+            {
+                ReferenceDS referenceDS = CustomBrokerWpf.References.ReferenceDS;
+                if (referenceDS.DeliveryType.Count == 0)
+                {
+                    ReferenceDSTableAdapters.DeliveryType thisDeliveryTypeAdapter = new ReferenceDSTableAdapters.DeliveryType();
+                    thisDeliveryTypeAdapter.Fill(referenceDS.DeliveryType);
+                }
+                mydeliverytypes = new System.Data.DataView(referenceDS.DeliveryType, string.Empty, string.Empty, System.Data.DataViewRowState.Unchanged | System.Data.DataViewRowState.ModifiedCurrent);
+                if (referenceDS.tablePaymentType.Count == 0)
+                {
+                    ReferenceDSTableAdapters.PaymentTypeAdapter thisPaymentTypeAdapter = new ReferenceDSTableAdapters.PaymentTypeAdapter();
+                    thisPaymentTypeAdapter.Fill(referenceDS.tablePaymentType);
+                }
+                mypaymenttypes = new System.Data.DataView(referenceDS.tablePaymentType, string.Empty, string.Empty, System.Data.DataViewRowState.Unchanged | System.Data.DataViewRowState.ModifiedCurrent);
+                if (referenceDS.tableLegalEntity.Count == 0) referenceDS.LegalEntityRefresh();
+                myaccountsettlements = referenceDS.tableLegalEntity.DefaultView;
+                if (referenceDS.tableTown.Count == 0)
+                {
+                    ReferenceDSTableAdapters.TownAdapter thisTownAdapter = new ReferenceDSTableAdapters.TownAdapter();
+                    thisTownAdapter.Fill(referenceDS.tableTown);
+                }
+                mytowns = new System.Data.DataView(referenceDS.tableTown, string.Empty, string.Empty, System.Data.DataViewRowState.Unchanged | System.Data.DataViewRowState.ModifiedCurrent);
+                if (referenceDS.tableAddressType.Count == 0)
+                {
+                    ReferenceDSTableAdapters.AddressTypeAdapter thisAddressTypeAdapter = new ReferenceDSTableAdapters.AddressTypeAdapter();
+                    thisAddressTypeAdapter.Fill(referenceDS.tableAddressType);
+                }
+                myaddresstypes = new System.Data.DataView(referenceDS.tableAddressType, string.Empty, string.Empty, System.Data.DataViewRowState.Unchanged | System.Data.DataViewRowState.ModifiedCurrent);
+                if (referenceDS.ContactPointTypeTb.Rows.Count == 0)
+                {
+                    ReferenceDSTableAdapters.ContactPointTypeAdapter AdapterContactPointType = new ReferenceDSTableAdapters.ContactPointTypeAdapter();
+                    AdapterContactPointType.Fill(referenceDS.ContactPointTypeTb);
+                }
+                if (referenceDS.tableContactType.Count == 0)
+                {
+                    ReferenceDSTableAdapters.ContactTypeAdapter thisContactTypeAdapter = new ReferenceDSTableAdapters.ContactTypeAdapter();
+                    thisContactTypeAdapter.Fill(referenceDS.tableContactType);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is System.Data.SqlClient.SqlException)
+                {
+                    System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
+                    System.Text.StringBuilder errs = new System.Text.StringBuilder();
+                    foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
+                    {
+                        errs.Append(sqlerr.Message + "\n");
+                    }
+                    this.OpenPopup("Загрузка данных\n" + errs.ToString(), true);
+                }
+                else
+                {
+                    this.OpenPopup("Загрузка данных\n" + ex.Message + "\n" + ex.Source, true);
+                }
+            }
+        }
+
+        private System.Data.DataView mycontacttypes;
+        public System.Data.DataView ContactTypes
+        { get { return mycontacttypes; } }
+        private System.Data.DataView mypointtypes;
+        public System.Data.DataView ContactPointTypes
+        { get { return mypointtypes; } }
+        private ListCollectionView mystates;
+        public ListCollectionView States
+        {
+            get
+            {
+                if (mystates == null)
+                {
+                    mystates = new ListCollectionView(CustomBrokerWpf.References.CustomerRowStates);
+                }
+                return mystates;
+            }
+        }
+        private ListCollectionView mymanadgergroups;
+        public ListCollectionView ManagerGroups
+        { get { return mymanadgergroups; } }
+        private System.Data.DataView mydeliverytypes;
+        public System.Data.DataView DeliveryTypes
+        { get { return mydeliverytypes; } }
+        private System.Data.DataView mypaymenttypes;
+        public System.Data.DataView PaymentTypes
+        { get { return mypaymenttypes; } }
+        private System.Data.DataView myaccountsettlements;
+        public System.Data.DataView AccountSettlements
+        { get { return myaccountsettlements; } }
+        private System.Data.DataView mytowns;
+        public System.Data.DataView Towns
+        { get { return mytowns; } }
+        private System.Data.DataView myaddresstypes;
+        public System.Data.DataView AddressTypes
+        { get { return myaddresstypes; } }
+
+        protected override bool CanRefreshData()
+        {
+            return true;
+        }
+        protected override void RefreshData(object parametr)
+        {
+            mydbm.ItemId = myvm.DomainObject.Id;
+            mydbm.GetFirst();
+        }
+        public override bool SaveDataChanges()
+        {
+            bool needrefresh = this.VModel.DomainObject.HasPropertyOutdatedValue(nameof(Customer.State));
+            bool succses = base.SaveDataChanges();
+            if (needrefresh)
+            {
+                CustomBrokerWpf.References.CustomersName.Refresh();
+                CustomBrokerWpf.References.AgentNames.RefreshViews();
+            }
+            return succses;
+        }
+    }
+
     public class CustomerCurrentCommand : lib.ViewModelCurrentItemCommand<CustomerVM>
     {
         internal CustomerCurrentCommand()
@@ -1404,21 +1631,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public CustomerViewCommand()
         {
-            mydbm = new CustomerDBM();
+            mydbm = new CustomerDBM(); // default not load old
             mysync = new CustomerSynchronizer();
-            System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(() =>
-                {
-                    foreach (CustomerVM citem in mysync.ViewModelCollection)
-                        foreach (CustomerContactVM contact in citem.Contacts)
-                            contact.Points.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { contact.Points.Filter = (object point) => { return (point as ContactPointVM).Value.Contains("@"); }; }));
-                });
+            //System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(() =>
+            //    {
+            //        foreach (CustomerVM citem in mysync.ViewModelCollection)
+            //            foreach (CustomerContactVM contact in citem.Contacts)
+            //                contact.Points.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { contact.Points.Filter = (object point) => { return (point as ContactPointVM).Value.Contains("@"); }; }));
+            //    });
             (mydbm as CustomerDBM).FillAsyncCompleted = () =>
                 {
                     if (mydbm.Errors.Count > 0)
                         this.OpenPopup("Загрузка данных\n" + mydbm.ErrorMessage, true);
-                    task.Start();
+                    //task.Start();
                 };
-            (mydbm as CustomerDBM).Collection = new ObservableCollection<Customer>();  
+            (mydbm as CustomerDBM).Collection = new ObservableCollection<Customer>();
+            (mydbm as CustomerDBM).All = true;
             (mydbm as CustomerDBM).FillAsync();
             mysync.DomainCollection = (mydbm as CustomerDBM).Collection;
             base.Collection = mysync.ViewModelCollection;
@@ -1433,6 +1661,49 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycustomerlegalfilter = new CustomerLegalCheckListBoxVM();
             mycustomerlegalfilter.ExecCommand1 = () => { this.FilterRunExec(null); };
             mycustomerlegalfilter.CustomerFilter = mycustomerfilter;
+
+            #region Filter
+            myfilter = new lib.SQLFilter.SQLFilter("client", "AND", CustomBrokerWpf.References.ConnectionString);
+            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+            mylegalfiltergroup = myfilter.GroupAdd(myfilter.FilterWhereId, "legal", "OR");
+            myinnfiltergroup = myfilter.GroupAdd(myfilter.FilterWhereId, "inn", "OR");
+            (mydbm as CustomerDBM).Filter = myfilter;
+
+            mycustomerfillfilter = new CustomerCheckListBoxVMFill();
+            mycustomerfillfilter.DeferredFill = true;
+            mycustomerfillfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mycustomerfillfilter.ExecCommand1 = () => { FilterRunNewExec(null); };
+            mycustomerfillfilter.ExecCommand2 = () => { mycustomerfillfilter.Clear(); };
+            mycustomerfillfilter.ItemsSource = myview.OfType<CustomerVM>();
+            mylegalfilter = new CustomerLegalCheckListBoxVMFill();
+            mylegalfilter.DeferredFill = true;
+            mylegalfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mylegalfilter.ExecCommand1 = () => { FilterRunNewExec(null); };
+            mylegalfilter.ExecCommand2 = () => { mylegalfilter.Clear(); };
+            mylegalfilter.ItemsSource = myview.OfType<CustomerVM>();
+            //mycustomerlegalfillfilter.FillDefault = () =>
+            //{
+            //    bool empty = this.FilterEmpty;
+            //    if (empty)
+            //        foreach (CustomerLegal item in mycustomerlegalfillfilter.DefaultList)
+            //            mycustomerlegalfillfilter.Items.Add(item);
+            //    return empty;
+            //};
+            myinnfilter = new CustomerINNCheckListBoxVMFill();
+            myinnfilter.DeferredFill = true;
+            myinnfilter.ExecCommand1 = () => { FilterRunNewExec(null); };
+            myinnfilter.ExecCommand2 = () => { myinnfilter.Clear(); };
+            myinnfilter.ItemsSource = myview.OfType<CustomerVM>();
+            myparcelcountfilter = new libui.NumberFilterVM();
+            myparcelcountfilter.ExecCommand1 = () => { FilterRunNewExec(null); };
+            myparcelcountfilter.ExecCommand2 = () => { myparcelcountfilter.Clear(); };
+            myparcellastdatefilter = new libui.DateFilterVM();
+            myparcellastdatefilter.ExecCommand1 = () => { FilterRunNewExec(null); };
+            myparcellastdatefilter.ExecCommand2 = () => { myparcellastdatefilter.Clear(); };
+
+            myfilterrunnew = new RelayCommand(FilterRunNewExec, FilterRunNewCanExec);
+            myfilterclearnew = new RelayCommand(FilterClearNewExec, FilterClearNewCanExec);
+            #endregion
         }
 
         CustomerSynchronizer mysync;
@@ -1442,6 +1713,432 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private CustomerLegalCheckListBoxVM mycustomerlegalfilter;
         public CustomerLegalCheckListBoxVM CustomerLegalFilter
         { get { return mycustomerlegalfilter; } }
+
+        #region Filter
+        private lib.SQLFilter.SQLFilter myfilter;
+        internal lib.SQLFilter.SQLFilter Filter
+        { get { return myfilter; } }
+
+        private int mylegalfiltergroup;
+        private int myinnfiltergroup;
+
+        private CustomerCheckListBoxVMFill mycustomerfillfilter;
+        public CustomerCheckListBoxVMFill CustomerFillFilter
+        { get { return mycustomerfillfilter; } }
+        private CustomerLegalCheckListBoxVMFill mylegalfilter;
+        public CustomerLegalCheckListBoxVMFill LegalFilter
+        { get { return mylegalfilter; } }
+        private CustomerINNCheckListBoxVMFill myinnfilter;
+        public CustomerINNCheckListBoxVMFill INNFilter
+        { get { return myinnfilter; } }
+        private libui.NumberFilterVM myparcelcountfilter;
+        public libui.NumberFilterVM ParcelCountFilter
+        { get { return myparcelcountfilter; } }
+        private libui.DateFilterVM myparcellastdatefilter;
+        public libui.DateFilterVM ParcelLastDateFilter
+        { get { return myparcellastdatefilter; } }
+
+        private bool FilterEmpty
+        {
+            get
+            {
+                return !(mylegalfilter.FilterOn || mycustomerfillfilter.FilterOn);
+            }
+        }
+        private void FilterActualise()
+        {
+            if (mycustomerfillfilter.FilterOn)
+            {
+                string[] items = new string[mycustomerfillfilter.SelectedItems.Count];
+                for (int i = 0; i < mycustomerfillfilter.SelectedItems.Count; i++)
+                    items[i] = (mycustomerfillfilter.SelectedItems[i] as Customer).Id.ToString();
+                myfilter.SetList(myfilter.FilterWhereId, "client", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "client", new string[0]);
+            List<lib.SQLFilter.SQLFilterCondition> conds = myfilter.ConditionGet(mylegalfiltergroup, "legalnull");
+            if (mylegalfilter.FilterOn)
+            {
+                bool isNullOrEmpty = false;
+                string[] items = new string[mylegalfilter.SelectedItems.Count];
+                for (int i = 0; i < mylegalfilter.SelectedItems.Count; i++)
+                {
+                    CustomerLegal legal = mylegalfilter.SelectedItems[i] as CustomerLegal;
+                    if (legal.Id < 0)
+                        isNullOrEmpty = true;
+                    else
+                        items[isNullOrEmpty ? i - 1 : i] = legal.Id.ToString();
+                }
+                if (isNullOrEmpty) Array.Resize(ref items, items.Length - 1);
+                //if (string.IsNullOrEmpty(items[0]))
+                //    myfilter.SetList(mylegalfiltergroup, "legal", new string[0]);
+                //else
+                myfilter.SetList(mylegalfiltergroup, "legal", items);
+                if (isNullOrEmpty & conds.Count == 0)
+                    myfilter.ConditionAdd(mylegalfiltergroup, "legalnull", "Null");
+                else if (!isNullOrEmpty && conds.Count > 0)
+                    myfilter.ConditionDel(conds[0].propertyid);
+            }
+            else
+            {
+                myfilter.SetList(mylegalfiltergroup, "legal", new string[0], false);
+                if (conds.Count > 0)
+                    myfilter.ConditionDel(conds[0].propertyid);
+            }
+            if (myinnfilter.FilterOn)
+            {
+                bool isNullOrEmpty = false;
+                string[] items = new string[myinnfilter.SelectedItems.Count];
+                for (int i = 0; i < myinnfilter.SelectedItems.Count; i++)
+                {
+                    items[i] = (string)myinnfilter.SelectedItems[i];
+                    if (string.IsNullOrEmpty(items[i]))
+                        isNullOrEmpty = true;
+                }
+                myfilter.SetList(myinnfiltergroup, "inn", items, isNullOrEmpty);
+            }
+            else
+                myfilter.SetList(myinnfiltergroup, "inn", new string[0], false);
+            NumberFilterRun(myparcelcountfilter, "parcelcount");
+            myfilter.SetDate(myfilter.FilterWhereId, "parcellastdate", "parcellastdate", myparcellastdatefilter.DateStart, myparcellastdatefilter.DateStop, myparcellastdatefilter.IsNull);
+        }
+        private void NumberFilterRun(libui.NumberFilterVM filter, string property)
+        {
+            List<lib.SQLFilter.SQLFilterCondition> cond = myfilter.ConditionGet(myfilter.FilterWhereId, property);
+            if (filter.FilterOn)
+            {
+                if (!filter.IsNotNull)
+                {
+                    if (cond.Count > 0)
+                    {
+                        if (!cond[0].propertyOperator.Equals("IS NULL"))
+                        {
+                            myfilter.ConditionValuesDel(cond[0].propertyid);
+                            myfilter.ConditionUpd(cond[0].propertyid, "IS NULL");
+                        }
+                    }
+                    else
+                        myfilter.ConditionAdd(myfilter.FilterWhereId, property, "IS NULL");
+                }
+                else if (filter.IsRange)
+                    myfilter.SetRange(myfilter.FilterWhereId, property, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture), filter.NumberStop?.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                else
+                {
+                    myfilter.ConditionValuesDel(cond[0].propertyid);
+                    myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                }
+            }
+            else if (cond.Count > 0)
+                myfilter.ConditionDel(cond[0].propertyid);
+        }
+
+        private RelayCommand myfilterrunnew;
+        public ICommand FilterRunNew
+        {
+            get { return myfilterrunnew; }
+        }
+        private void FilterRunNewExec(object parametr)
+        {
+            this.EndEdit();
+            FilterActualise();
+            RefreshData(null);
+        }
+        private bool FilterRunNewCanExec(object parametr)
+        { return true; }
+        private RelayCommand myfilterclearnew;
+        public ICommand FilterClearNew
+        {
+            get { return myfilterclearnew; }
+        }
+        private void FilterClearNewExec(object parametr)
+        {
+            mycustomerfillfilter.Clear();
+            mycustomerfillfilter.IconVisibileChangedNotification();
+            mylegalfilter.Clear();
+            mylegalfilter.IconVisibileChangedNotification();
+            myinnfilter.Clear();
+            myinnfilter.IconVisibileChangedNotification();
+            this.OverallFilterSet = string.Empty;
+            this.FilterWin = new ItemFilter[1] { new ItemFilter("State", "=", "0") };
+        }
+        private bool FilterClearNewCanExec(object parametr)
+        { return true; }
+
+        private string myoverallfilter;
+        public string OverallFilter
+        {
+            set
+            {
+                myoverallfilter = value;
+                this.PropertyChangedNotification("OverallFilter");
+                this.Items.Filter = OverallFilterOn;
+            }
+            get { return myoverallfilter; }
+        }
+        public string OverallFilterSet
+        {
+            set
+            {
+                myoverallfilter = value;
+                this.PropertyChangedNotification("OverallFilter");
+            }
+        }
+        internal ItemFilter[] FilterWin = new ItemFilter[1] { new ItemFilter("State", "=", "0") };
+        internal bool OverallFilterOn(object item)
+        {
+            bool where = lib.ViewModelViewCommand.ViewFilterDefault(item);
+            CustomerVM citem = item as CustomerVM;
+            
+            if (where & !string.IsNullOrEmpty(myoverallfilter))
+            {
+                where = false;
+                string filter = myoverallfilter.ToLower();
+                if (citem.FullName?.ToLower().IndexOf(filter) > -1 || citem.Name?.ToLower().IndexOf(filter) > -1)
+                    where = true;
+                else
+                {
+                    if (citem.Legals.Count > 0)
+                        foreach (CustomerLegalVM legal in citem.Legals.OfType<CustomerLegalVM>())
+                        {
+                            if (legal.FullName?.ToLower().IndexOf(filter) > -1 || legal.Name?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            else if (legal.INN?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            if (!where)
+                            {
+                                foreach (AliasVM alias in legal.Aliases.OfType<AliasVM>())
+                                    if (alias?.Name?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                            }
+                            if (!where)
+                            {
+                                foreach (CustomerAddressVM address in legal.Addresses.OfType<CustomerAddressVM>())
+                                    if (address?.AddressDescription?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else if (address?.Locality?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else if (address?.Town?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else if (address?.AddressTypeID > 0)
+                                    {
+                                        if (CustomBrokerWpf.References.ReferenceDS.tableAddressType.Count == 0)
+                                        {
+                                            ReferenceDSTableAdapters.AddressTypeAdapter thisAddressTypeAdapter = new ReferenceDSTableAdapters.AddressTypeAdapter();
+                                            thisAddressTypeAdapter.Fill(CustomBrokerWpf.References.ReferenceDS.tableAddressType);
+                                        }
+                                        if (CustomBrokerWpf.References.ReferenceDS.tableAddressType.FindByaddresstypeID(address.AddressTypeID.Value).addresstypeName.ToLower().IndexOf(filter) > -1)
+                                            where = true; break;
+                                    }
+                            }
+                            if (!where)
+                            {
+                                foreach (CustomerContactVM contact in legal.Contacts.OfType<CustomerContactVM>())
+                                    if (contact?.FullName.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else
+                                    {
+                                        foreach (ContactPointVM point in contact.Points.OfType<ContactPointVM>())
+                                            if (point?.Name?.ToLower().IndexOf(filter) > -1)
+                                            { where = true; break; }
+                                            else if (point?.Value?.ToLower().IndexOf(filter) > -1)
+                                            { where = true; break; }
+                                            else if (!string.IsNullOrEmpty(point?.Value) && point?.Value?.ToLower().Replace("(", string.Empty).Replace(")", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).IndexOf(filter) > -1)
+                                            { where = true; break; }
+                                        if (where) break;
+                                    }
+                            }
+                        }
+                    if (!where)
+                    {
+                        foreach (AliasVM alias in citem.Aliases.OfType<AliasVM>())
+                            if (alias?.Name?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                    }
+                    if (!where)
+                    {
+                        foreach (CustomerAddressVM address in citem.Addresses.OfType<CustomerAddressVM>())
+                            if (address?.AddressDescription?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            else if (address?.Locality?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            else if (address?.Town?.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            else if (address?.AddressTypeID > 0)
+                            {
+                                if (CustomBrokerWpf.References.ReferenceDS.tableAddressType.Count == 0)
+                                {
+                                    ReferenceDSTableAdapters.AddressTypeAdapter thisAddressTypeAdapter = new ReferenceDSTableAdapters.AddressTypeAdapter();
+                                    thisAddressTypeAdapter.Fill(CustomBrokerWpf.References.ReferenceDS.tableAddressType);
+                                }
+                                if (CustomBrokerWpf.References.ReferenceDS.tableAddressType.FindByaddresstypeID(address.AddressTypeID.Value).addresstypeName.ToLower().IndexOf(filter) > -1)
+                                    where = true; break;
+                            }
+                    }
+                    if (!where)
+                    {
+                        foreach (CustomerContactVM contact in citem.Contacts.OfType<CustomerContactVM>())
+                            if (contact?.FullName.ToLower().IndexOf(filter) > -1)
+                            { where = true; break; }
+                            else
+                            {
+                                foreach (ContactPointVM point in contact.Points.OfType<ContactPointVM>())
+                                    if (point?.Name?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else if (point?.Value?.ToLower().IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                    else if (!string.IsNullOrEmpty(point?.Value) && point?.Value?.ToLower().Replace("(", string.Empty).Replace(")", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).IndexOf(filter) > -1)
+                                    { where = true; break; }
+                                if (where) break;
+                            }
+                    }
+                    if (!where && citem.ParcelLastDate?.ToShortDateString().IndexOf(filter) > -1)
+                        where = true;
+                }
+            }
+
+            string[] ids;
+            if (where)
+                foreach (ItemFilter filter in this.FilterWin)
+                {
+                    if (!where) break;
+                    if (!(filter is ItemFilter)) continue;
+                    switch (filter.PropertyName)
+                    {
+                        case "AliasCustomer":
+                            where = false;
+                            foreach (Classes.Domain.AliasVM alias in citem.Aliases.OfType<Classes.Domain.AliasVM>())
+                            {
+                                if (alias.Name?.ToLower().IndexOf(filter.Value) > -1)
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case "CustomerRecipient":
+                            where = false;
+                            foreach (Classes.Domain.RecipientVM rsp in citem.Recipients.OfType<Classes.Domain.RecipientVM>())
+                            {
+                                if (rsp.Name.IndexOf(filter.Value) > -1 || rsp.FullName?.IndexOf(filter.Value) > -1)
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case "managergroupID":
+                            where = false;
+                            ids = filter.Value.Split(',');
+                            foreach (string id in ids)
+                                if (citem.ManagerGroup.HasValue && citem.ManagerGroup.Value == int.Parse(id))
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            break;
+                        case "paytypeID":
+                            where = false;
+                            ids = filter.Value.Split(',');
+                            foreach (string id in ids)
+                                if (citem.PayType.HasValue && citem.PayType.Value == int.Parse(id))
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            break;
+                        case "deliverytypeID":
+                            where = false;
+                            ids = filter.Value.Split(',');
+                            foreach (string id in ids)
+                                if (citem.DeliveryType.HasValue && citem.DeliveryType.Value == int.Parse(id))
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            break;
+                        case "customerID":
+                            where = citem.Id.ToString() == filter.Value;
+                            break;
+                        case "customerDayEntry":
+                            if (filter.Operation == "Between")
+                                where = citem.DayEntry >= DateTime.Parse(filter.Value.Substring(0, filter.Value.IndexOf(' '))) && citem.DayEntry < DateTime.Parse(filter.Value.Substring(filter.Value.IndexOf(' ') + 1));
+                            else if (filter.Operation == ">")
+                                where = citem.DayEntry >= DateTime.Parse(filter.Value);
+                            else if (filter.Operation == "<")
+                                where = citem.DayEntry < DateTime.Parse(filter.Value);
+                            break;
+                        case "customerRecommend":
+                            where = (citem.Recommend?.ToLower().IndexOf(filter.Value) ?? -1) > -1;
+                            break;
+                        case "customerNoteSpecial":
+                            where = (citem.NoteSpecial?.ToLower().IndexOf(filter.Value) ?? -1) > -1;
+                            break;
+                        case "Town":
+                            where = false;
+                            foreach (Classes.Domain.CustomerAddressVM adr in citem.Addresses.OfType<Classes.Domain.CustomerAddressVM>())
+                            {
+                                if (adr.Town?.ToLower() == filter.Value)
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case "Locality":
+                            where = false;
+                            foreach (Classes.Domain.CustomerAddressVM adr in citem.Addresses.OfType<Classes.Domain.CustomerAddressVM>())
+                            {
+                                if ((adr.Locality?.ToLower().IndexOf(filter.Value) ?? -1) > -1)
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case "FIO":
+                            where = false;
+                            foreach (Classes.Domain.CustomerContactVM cnt in citem.Contacts.OfType<Classes.Domain.CustomerContactVM>())
+                            {
+                                if ((cnt.Name?.ToLower().IndexOf(filter.Value) ?? -1) > -1 || (cnt.SurName?.ToLower().IndexOf(filter.Value) ?? -1) > -1 || (cnt.ThirdName?.ToLower().IndexOf(filter.Value) ?? -1) > -1)
+                                {
+                                    where = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case "PointValue":
+                            where = false;
+                            foreach (Classes.Domain.CustomerContactVM cnt in citem.Contacts.OfType<Classes.Domain.CustomerContactVM>())
+                            {
+                                foreach (Classes.Domain.ContactPointVM pnt in cnt.Points.OfType<Classes.Domain.ContactPointVM>())
+                                    if (pnt.Value?.ToLower().IndexOf(filter.Value) > -1)
+                                    {
+                                        where = true;
+                                        break;
+                                    }
+                                if (where) break;
+                            }
+                            break;
+                        case "State":
+                            if (string.IsNullOrEmpty(myoverallfilter))
+                            {
+                                where = false;
+                                ids = filter.Value.Split(',');
+                                foreach (string state in ids)
+                                {
+                                    if ((citem.State ?? 0) == int.Parse(state))
+                                    {
+                                        where = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            return where;
+        }
+        #endregion
 
         private RelayCommand myfilterrun;
         public ICommand FilterRun
@@ -1481,6 +2178,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             break;
                         }
             }
+
             return where;
         }
         private RelayCommand myfilterclear;
@@ -1494,6 +2192,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycustomerfilter.IconVisibileChangedNotification();
             mycustomerlegalfilter.Clear();
             mycustomerlegalfilter.IconVisibileChangedNotification();
+            myoverallfilter = string.Empty;
+            myfilterclearnew.Execute(null);
+            myfilterrunnew.Execute(null);
             this.FilterRunExec(null);
         }
         private bool FilterClearCanExec(object parametr)
@@ -1588,7 +2289,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override bool CanAddData(object parametr)
         {
-            return false;
+            return true;
         }
         protected override bool CanDeleteData(object parametr)
         {
@@ -1608,13 +2309,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void OtherViewRefresh()
         {
+            CustomBrokerWpf.References.CustomersName.Refresh();
+            CustomBrokerWpf.References.CustomersName.RefreshViews();
         }
 
+        protected override void AddData(object parametr)
+        {
+            base.AddData(parametr);
+        }
         protected override void RefreshData(object parametr)
         {
-
+            mydbm.Fill();
+            // refresh CustomersName in another views
+            CustomBrokerWpf.References.CustomersName.Refresh();
+            CustomBrokerWpf.References.CustomersName.RefreshViews();
         }
-
         protected override void RejectChanges(object parametr)
         {
 
@@ -1684,6 +2393,88 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 };
             else
                 this.ItemsView.Filter = null;
+        }
+    }
+
+    public class CustomerCheckListBoxVMFill : libui.CheckListBoxVMFill<CustomerVM, Customer>
+    {
+        internal CustomerCheckListBoxVMFill() : base()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.GetDisplayPropertyValueFunc = (item) => { return ((Customer)item).Name; };
+        }
+
+        //private List<Customer> mydefaultlist;
+        //internal List<Customer> DefaultList
+        //{
+        //    get
+        //    {
+        //        if (mydefaultlist == null)
+        //        {
+        //            mydefaultlist = new List<Customer>(); // из за долгой загрузки
+        //            CustomerDBM dbm = new CustomerDBM();
+        //            dbm.All = true;
+        //            dbm.Fill();
+        //            mydefaultlist = dbm.Collection.ToList<Customer>();
+        //        }
+        //        return mydefaultlist;
+        //    }
+        //}
+
+        protected override void AddItem(CustomerVM item)
+        {
+            if (!Items.Contains(item.DomainObject)) Items.Add(item.DomainObject);
+        }
+    }
+    public class CustomerLegalCheckListBoxVMFill : libui.CheckListBoxVMFill<CustomerVM, CustomerLegal>
+    {
+        internal CustomerLegalCheckListBoxVMFill() : base()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.GetDisplayPropertyValueFunc = (item) => { return ((CustomerLegal)item).Name; };
+            legal0 = new CustomerLegal();
+        }
+
+        //private List<CustomerLegal> mydefaultlist;
+        //internal List<CustomerLegal> DefaultList
+        //{
+        //    get
+        //    {
+        //        if (mydefaultlist == null)
+        //        {
+        //            mydefaultlist = new List<CustomerLegal>(); // из за долгой загрузки
+        //            CustomerLegalDBM dbm = new CustomerLegalDBM();
+        //            dbm.Fill();
+        //            mydefaultlist = dbm.Collection.ToList<CustomerLegal>();
+        //        }
+        //        return mydefaultlist;
+        //    }
+        //}
+
+        private CustomerLegal legal0;
+        protected override void AddItem(CustomerVM item)
+        {
+            if (item.Legals.OfType<CustomerLegalVM>().Count() > 0)
+                foreach (CustomerLegalVM legal in item.Legals.OfType<CustomerLegalVM>())
+                { if (!Items.Contains(legal.DomainObject ?? legal0)) Items.Add(legal.DomainObject ?? legal0); }
+            else if (!Items.Contains(legal0)) Items.Add(legal0);
+        }
+    }
+    public class CustomerINNCheckListBoxVMFill : libui.CheckListBoxVMFill<CustomerVM, string>
+    {
+        internal CustomerINNCheckListBoxVMFill() : base()
+        {
+            //this.DisplayPath = "Name";
+            //this.SearchPath = "Name";
+            //this.GetDisplayPropertyValueFunc = (item) => { return ((CustomerLegalVM)item).Name; };
+        }
+
+        protected override void AddItem(CustomerVM item)
+        {
+            foreach (CustomerLegalVM legal in item.Legals.OfType<CustomerLegalVM>())
+                if (!Items.Contains(legal.INN ?? string.Empty)) Items.Add(legal.INN ?? string.Empty);
         }
     }
 }

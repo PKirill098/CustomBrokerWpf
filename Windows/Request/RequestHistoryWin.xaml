@@ -216,6 +216,20 @@
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Валюта" Binding="{Binding Path=Request.CurrencyName}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="40">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="False">
+                                    <Setter Property="Background" Value="{Binding Path=InvoiceDiscountBackground}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{Binding Path=InvoiceDiscountBackgroundSelected}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Услуга" Binding="{Binding Path=Request.ServiceType, TargetNullValue=''}">
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">

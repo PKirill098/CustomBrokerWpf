@@ -61,10 +61,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
             }
         }
-        internal virtual bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
         {
             bool isvalid = true;
             errmsg = null;
+            errmsgkey = 0;
             switch (propertyname)
             {
                 case nameof(this.CurSum):
@@ -210,10 +211,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             switch (propertyname)
             {
                 case nameof(this.BuyDate):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mybuydate, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mybuydate, out errmsg, out _);
                     break;
                 case nameof(this.CurSum):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycursum, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycursum, out errmsg, out _);
                     break;
             }
             if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);

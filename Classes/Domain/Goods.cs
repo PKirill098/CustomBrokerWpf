@@ -585,17 +585,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeletecommandtext = "spec.GoodsDel_sp";
         }
 
-        public override int? ItemId
-        {
-            get
-            {
-                return (int)SelectParams[0].Value;
-            }
-            set
-            {
-                SelectParams[0].Value = value;
-            }
-        }
         public bool? Ending
         {
             get
@@ -1507,9 +1496,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mygdbm = gdbm;
             MyInit(mygdbm);
         }
-        internal GoodsViewCommand()
+        internal GoodsViewCommand(bool ending)
         {
             mygdbm = new GoodsDBM();
+            mygdbm.Ending = ending;
             mygdbm.Collection = new System.Collections.ObjectModel.ObservableCollection<Goods>();
             mygdbm.FillAsyncCompleted = () =>
             {
@@ -1612,6 +1602,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mygdbm.FillAsync();
             MyInit(mygdbm);
         }
+        internal GoodsViewCommand():this(false) { }
         private void MyInit(GoodsDBM gdbm)
         {
             mydbm = gdbm;

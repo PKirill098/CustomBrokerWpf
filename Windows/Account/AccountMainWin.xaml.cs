@@ -210,7 +210,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             if ((sender as DataGrid)?.CurrentItem is Classes.Domain.RequestVM)
             {
-                if ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "StorePointDate")
+                if (e.OriginalSource is TextBlock && ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "StorePointDate" || (sender as DataGrid).CurrentCell.Column?.SortMemberPath == "Id"))
                 {
                     RequestNewWin newWin = null;
                     DataGrid dg = sender as DataGrid;

@@ -21,12 +21,12 @@
 			<Separator/>
 			<Button Content="Закрыть" Click="CloseButton_Click"/>
 		</ToolBar>
-		<DataGrid Grid.Row="1" Name="mainDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" HeadersVisibility="None" HorizontalAlignment="Center">
+		<DataGrid Grid.Row="1" Name="mainDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" HeadersVisibility="None" Margin="2">
 			<DataGrid.CommandBindings>
 				<CommandBinding Command="Delete" CanExecute="Delete_CanExecute" Executed="Delete_Execute"/>
 			</DataGrid.CommandBindings>
 			<DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Path=Name}" />
+                <DataGridTextColumn Binding="{Binding Path=Name}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

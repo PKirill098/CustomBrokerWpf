@@ -831,7 +831,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelDBM : lib.DBManagerStamp<Parcel>
+    public class ParcelDBM : lib.DBManagerStamp<Parcel>
     {
         public ParcelDBM()
         {
@@ -1302,7 +1302,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        internal bool CheckGroup()
+        internal bool CheckGroup(Parcel parcel=null)
         {
             bool isSuccess = true;
             SqlCommand com = new SqlCommand();
@@ -1323,18 +1323,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 try
                 {
                     con.Open();
-                    foreach (Parcel item in this.Collection)
-                    {
-                        if (this.SaveFilter(item))
+                    if(parcel == null)
+                        foreach (Parcel item in this.Collection)
                         {
-                            parId.Value = item.Id;
-                            com.ExecuteNonQuery();
-                            if ((byte)parRez.Value != 0)
+                            if (this.SaveFilter(item))
                             {
-                                this.Errors.Add(new DataModelClassLibrary.DBMError(item, "Не все группы заявок поставлены в загрузку " + item.ParcelNumberEntire + " полностью!", "group"));
-                                isSuccess = false;
+                                parId.Value = item.Id;
+                                com.ExecuteNonQuery();
+                                if ((byte)parRez.Value != 0)
+                                {
+                                    this.Errors.Add(new DataModelClassLibrary.DBMError(item, "Не все группы заявок поставлены в загрузку " + item.ParcelNumberEntire + " полностью!", "group"));
+                                    isSuccess = false;
+                                }
                             }
-
+                        }
+                    else
+                    {
+                        parId.Value = parcel.Id;
+                        com.ExecuteNonQuery();
+                        if ((byte)parRez.Value != 0)
+                        {
+                            this.Errors.Add(new DataModelClassLibrary.DBMError(parcel, "Не все группы заявок поставлены в загрузку " + parcel.ParcelNumberEntire + " полностью!", "group"));
+                            isSuccess = false;
                         }
                     }
                 }
@@ -1354,10 +1364,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public ParcelVM(Parcel item) : base(item)
         {
+            mylock = new object();
             ValidetingProperties.AddRange(new string[] { "ParcelType", "Requests", "ShipPlanDate" });
             DeleteRefreshProperties.AddRange(new string[] { "Carrier", "CarrierPerson", "CarrierTel", "CrossedBorder", "Declaration", "DocDirPath", "GoodsType", "Lorry", "LorryRegNum", "LorryTonnage", "LorryVIN", "LorryVolume", "ParcelNumber", "ParcelNumberEntire", "ParcelType", "Prepared", "RateDate", "ShipDate", "ShipPlanDate", "ShipmentNumber", "Status", "TerminalIn", "TerminalOut", "TrailerRegNum", "TrailerVIN", "Trucker", "TruckerTel", "Unloaded", "UsdRate" });
             InitProperties();
         }
+        public ParcelVM():this(new Parcel()) { }
 
         public string Carrier
         {
@@ -1855,13 +1867,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.ShipDate)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -1875,13 +1887,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.Prepared)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -1895,13 +1907,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.CrossedBorder)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -1915,13 +1927,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.TerminalIn)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -1935,13 +1947,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.TerminalOut)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -1955,13 +1967,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (this.DomainObject.MailState.UnLoaded)
                 {
                     case 1:
-                        path = "Images/mail_1.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
                         break;
                     case 2:
-                        path = "Images/mail_3.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
                         break;
                     default:
-                        path = "Images/mail_2.png";
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
                         break;
                 }
                 return path;
@@ -2244,7 +2256,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (myrequests == null)
                 {
                     myrequests = new ListCollectionView(myrsync.ViewModelCollection);
-                    myrequests.Filter = (object item) => { return this.Status.Id < 60 && (item as RequestVM).DomainObject.Parcel == null && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                    myrequests.Filter = (object item) => { return this.Status?.Id < 60 && (item as RequestVM).DomainObject.Parcel == null && lib.ViewModelViewCommand.ViewFilterDefault(item); };
                     myrequests.SortDescriptions.Add(new SortDescription("CustomerName", ListSortDirection.Ascending));
                     myrequests.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
                     myrequests.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
@@ -2324,25 +2336,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
+        private object mylock;
         private Specification.SpecificationSynchronizer myssync;
         private ListCollectionView myspecifications;
         public ListCollectionView Specifications
         {
             get
             {
-                if (myssync == null)
-                {
-                    myssync = new Specification.SpecificationSynchronizer();
-                    myssync.DomainCollection = this.DomainObject.Specifications;
-                }
                 if (myspecifications == null)
                 {
-                    myspecifications = new ListCollectionView(myssync.ViewModelCollection);
-                    myspecifications.Filter = (object item) => { return lib.ViewModelViewCommand.ViewFilterDefault(item); };
-                    myspecifications.SortDescriptions.Add(new SortDescription("Request.StorePointDate", ListSortDirection.Ascending));
-                    myspecifications.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
-                    myspecifications.SortDescriptions.Add(new SortDescription("Consolidate", ListSortDirection.Ascending));
-                    myspecifications.MoveCurrentToPosition(-1);
+                    lock (mylock)
+                    {
+                        if (myssync == null)
+                        {
+                            myssync = new Specification.SpecificationSynchronizer();
+                            myssync.DomainCollection = this.DomainObject.Specifications;
+                        }
+                        if (myspecifications == null)
+                        {
+                            myspecifications = new ListCollectionView(myssync.ViewModelCollection);
+                            myspecifications.Filter = (object item) => { return lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                            myspecifications.SortDescriptions.Add(new SortDescription("Request.StorePointDate", ListSortDirection.Ascending));
+                            myspecifications.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
+                            myspecifications.SortDescriptions.Add(new SortDescription("Consolidate", ListSortDirection.Ascending));
+                            myspecifications.MoveCurrentToPosition(-1);
+                        }
+                    }
                 }
                 return myspecifications;
             }
@@ -2493,35 +2512,40 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "DependentNew":
                     int i = 0;
-                    RequestVM[] removed = new RequestVM[this.DomainObject.Requests.Count];
-                    foreach (RequestVM item in myrsync.ViewModelCollection)
+                    if (myrsync != null)
                     {
-                        if (item.DomainState == lib.DomainObjectState.Added)
+                        RequestVM[] removed = new RequestVM[this.DomainObject.Requests.Count];
+                        foreach (RequestVM item in myrsync.ViewModelCollection)
                         {
-                            removed[i] = item;
-                            i++;
+                            if (item.DomainState == lib.DomainObjectState.Added)
+                            {
+                                removed[i] = item;
+                                i++;
+                            }
+                            else
+                                item.RejectChanges();
                         }
-                        else
-                            item.RejectChanges();
+                        foreach (RequestVM item in removed)
+                            if (item != null) myrsync.ViewModelCollection.Remove(item);
+                        this.Requests.Refresh();
+                        this.ParcelRequests.Refresh();
                     }
-                    foreach (RequestVM item in removed)
-                        if (item != null) myrsync.ViewModelCollection.Remove(item);
-                    this.Requests.Refresh();
-                    this.ParcelRequests.Refresh();
-
-                    Specification.SpecificationVM[] specremoved = new Specification.SpecificationVM[this.DomainObject.Specifications.Count];
-                    foreach (Specification.SpecificationVM item in myssync.ViewModelCollection)
+                    if (myssync != null)
                     {
-                        if (item.DomainState == lib.DomainObjectState.Added)
+                        Specification.SpecificationVM[] specremoved = new Specification.SpecificationVM[this.DomainObject.Specifications.Count];
+                        foreach (Specification.SpecificationVM item in myssync.ViewModelCollection)
                         {
-                            specremoved[i] = item;
-                            i++;
+                            if (item.DomainState == lib.DomainObjectState.Added)
+                            {
+                                specremoved[i] = item;
+                                i++;
+                            }
+                            else
+                                item.RejectChanges();
                         }
-                        else
-                            item.RejectChanges();
+                        foreach (Specification.SpecificationVM item in specremoved)
+                            if (item != null) myssync.ViewModelCollection.Remove(item);
                     }
-                    foreach (Specification.SpecificationVM item in specremoved)
-                        if (item != null) myssync.ViewModelCollection.Remove(item);
                     break;
             }
         }
@@ -2572,130 +2596,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ParcelCurItemCommander : lib.ViewModelCurrentItemCommand<ParcelVM>
+    internal class ParcelCommands
     {
-        internal ParcelCurItemCommander() : base()
-        {
-            myfilter = new SQLFilter("parcel", "AND");
-            mypdbm = new ParcelDBM();
-            mydbm = mypdbm;
-            mypdbm.Filter = myfilter.FilterWhereId;
-            mypdbm.FillAsyncCompleted = () =>
-            {
-                if (mydbm.Errors.Count > 0)
-                    OpenPopup(mydbm.ErrorMessage, true);
-                mypdbm.FillType = lib.FillType.Refresh;
-                mypdbm.RequestRefreshFill = true; // load request for new parcel
-                SettingView();
-            };
-            mypdbm.Collection = new ObservableCollection<Parcel>();
-            mypdbm.FillAsync();
-            base.Collection = mypdbm.Collection;
-            base.DeleteQuestionHeader = "Удалить перевозку?";
+        internal Action<string,bool> OpenPopup { set; get; }
+        internal Func<bool> EndEdit { set; get; }
+        internal Func<bool> SaveDataChanges { set; get; }
 
-            myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
-            mysetstoreinform = new RelayCommand(SetStoreInformExec, SetStoreInformCanExec);
-            mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
-            mycreateexcelreport = new RelayCommand(CreateExcelReportExec, CreateExcelReportCanExec);
-            mysendmail = new RelayCommand(SendMailExec, SendMailCanExec);
-            myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
-            myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
-            myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
-            mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
-            myselling1c = new RelayCommand(Selling1CExec, Selling1CCanExec);
-        }
-
-        ParcelDBM mypdbm;
-        private SQLFilter myfilter;
-        internal SQLFilter Filter
+        internal void FolderOpenExec(ParcelVM parcel)
         {
-            set
+            if (parcel != null)
             {
-                if (!SaveDataChanges())
-                    this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
-                else
+                string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + parcel.ParcelNumber ?? string.Empty;
+                if (!Directory.Exists(path))
                 {
-                    myfilter.RemoveCurrentWhere();
-                    myfilter = value;
-                    this.Refresh.Execute(null);
+                    System.IO.Directory.CreateDirectory(path);
+                }
+                System.Diagnostics.Process.Start(path);
+            }
+        }
+        internal void SetStoreInformExec(ParcelVM parcel)
+        {
+            parcel.ParcelRequests.CommitEdit();
+            foreach (RequestVM item in parcel.ParcelRequests)
+            {
+                if (!item.StoreInform.HasValue)
+                {
+                    item.StoreInform = DateTime.Today;
                 }
             }
-            get { return myfilter; }
+            parcel.ParcelRequests.CommitEdit();
         }
-
-        private RelayCommand myfolderopen;
-        public ICommand FolderOpen
+        internal void MoveSpecificationExec(ParcelVM parcel)
         {
-            get { return myfolderopen; }
-        }
-        private void FolderOpenExec(object parametr)
-        {
-            try
-            {
-                if (this.CurrentItem != null)
-                {
-                    string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + this.CurrentItem.ParcelNumber ?? string.Empty;
-                    if (!Directory.Exists(path))
-                    {
-                        System.IO.Directory.CreateDirectory(path);
-                    }
-                    System.Diagnostics.Process.Start(path);
-                }
-            }
-            catch (Exception ex)
-            {
-                this.OpenPopup("Папка документов\n" + ex.Message, true);
-            }
-        }
-        private bool FolderOpenCanExec(object parametr)
-        { return true; }
-
-        private RelayCommand mysetstoreinform;
-        public ICommand SetStoreInform
-        {
-            get { return mysetstoreinform; }
-        }
-        private void SetStoreInformExec(object parametr)
-        {
-            if (this.CurrentItem == null) return;
-            if (this.EndEdit())
-            {
-                this.CurrentItem.ParcelRequests.CommitEdit();
-                foreach (RequestVM item in this.CurrentItem.ParcelRequests)
-                {
-                    if (!item.StoreInform.HasValue)
-                    {
-                        item.StoreInform = DateTime.Today;
-                    }
-                }
-                this.CurrentItem.ParcelRequests.CommitEdit();
-            }
-            else
-                this.OpenPopup("Не удалось применить изменения! Проверте корректность и полноту данных.", true);
-        }
-        private bool SetStoreInformCanExec(object parametr)
-        { return this.CurrentItem != null; }
-
-        private RelayCommand mymovespecification;
-        public ICommand MoveSpecification
-        {
-            get { return mymovespecification; }
-        }
-        private void MoveSpecificationExec(object parametr)
-        {
-            if (this.EndEdit() && this.SaveDataChanges() && this.CurrentItem != null && this.CurrentItem.ParcelType.Id == 1)
+            if (this.EndEdit() && this.SaveDataChanges() && parcel != null && parcel.ParcelType.Id == 1)
             {
                 FileInfo[] files;
                 DirectoryInfo dirIn = new DirectoryInfo(@"V:\Отправки");
                 if (dirIn.Exists)
                 {
-                    if (dirIn.GetDirectories(this.CurrentItem.ParcelNumber + "_*").Length > 0)
+                    if (dirIn.GetDirectories(parcel.ParcelNumber + "_*").Length > 0)
                     {
-                        dirIn = dirIn.GetDirectories(this.CurrentItem.ParcelNumber + "_*")[0];
+                        dirIn = dirIn.GetDirectories(parcel.ParcelNumber + "_*")[0];
                         DirectoryInfo dirOut = new DirectoryInfo(@"V:\Спецификации");
                         if (dirOut.Exists)
                         {
-                            foreach (Classes.Domain.RequestVM row in this.CurrentItem.ParcelRequests)
+                            foreach (Classes.Domain.RequestVM row in parcel.ParcelRequests)
                             {
                                 if (!row.DomainObject.ParcelId.HasValue) continue;
                                 files = dirOut.GetFiles("*" + row.StorePoint + "*");
@@ -2722,34 +2667,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             this.OpenPopup("Перенос спецификаций\n" + @"Папка 'V:\Спецификации' не найдена!", true);
                     }
                     else
-                        this.OpenPopup("Перенос спецификаций\n" + @"Папка 'V:\Отправки\" + this.CurrentItem.ParcelNumber + "_...' не найдена!", true);
+                        this.OpenPopup("Перенос спецификаций\n" + @"Папка 'V:\Отправки\" + parcel.ParcelNumber + "_...' не найдена!", true);
                 }
                 else
                     this.OpenPopup("Перенос спецификаций\n" + @"Папка 'V:\Отправки' не найдена!", true);
             }
         }
-        private bool MoveSpecificationCanExec(object parametr)
-        { return this.CurrentItem?.ParcelType?.Id == 1; }
-
-        private RelayCommand mycreateexcelreport;
-        public ICommand CreateExcelReport
-        {
-            get { return mycreateexcelreport; }
-        }
-        private void CreateExcelReportExec(object parametr)
+        internal void CreateExcelReportExec(ParcelVM parcel, object parametr)
         {
             bool isNew;
-            if (this.CurrentItem != null && parametr is bool)
+            if (parcel != null && parametr is bool)
             {
                 isNew = (bool)parametr;
-                ExcelReport(null, isNew);
-                ExcelReport(1, isNew);
-                ExcelReport(2, isNew);
+                ExcelReport(parcel, null, isNew);
+                ExcelReport(parcel, 1, isNew);
+                ExcelReport(parcel, 2, isNew);
             }
         }
-        private bool CreateExcelReportCanExec(object parametr)
-        { return this.CurrentItem != null; }
-        private void ExcelReport(int? importerid, bool isNew)
+        private void ExcelReport(ParcelVM parcel,int? importerid, bool isNew)
         {
             excel.Application exApp = new excel.Application();
             excel.Application exAppProt = new excel.Application();
@@ -2761,7 +2696,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 exWb = exApp.Workbooks.Add(Type.Missing);
                 excel.Worksheet exWh = exWb.Sheets[1];
                 excel.Range r;
-                exWh.Name = this.CurrentItem.ParcelNumberEntire;
+                exWh.Name = parcel.ParcelNumberEntire;
                 exWh.Cells[1, 1] = "Позиция по складу"; exWh.Cells[1, 2] = "Дата поступления"; exWh.Cells[1, 3] = "Группа загрузки"; exWh.Cells[1, 4] = "Клиент"; exWh.Cells[1, 5] = "Юр. лица"; exWh.Cells[1, 6] = "Поставщик"; exWh.Cells[1, 7] = "Импортер"; exWh.Cells[1, 8] = "Группа менеджеров";
                 exWh.Cells[1, 9] = "Кол-во мест"; exWh.Cells[1, 10] = "Вес по док, кг"; exWh.Cells[1, 11] = "Вес факт, кг"; exWh.Cells[1, 12] = "Объем, м3"; exWh.Cells[1, 13] = "Инвойс"; exWh.Cells[1, 14] = "Инвойс, cо скидкой"; exWh.Cells[1, 15] = "Услуга"; exWh.Cells[1, 16] = "Примечание менеджера";
                 r = exWh.Columns[9, Type.Missing]; r.NumberFormat = "#,##0.00";
@@ -2770,7 +2705,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 r = exWh.Columns[12, Type.Missing]; r.NumberFormat = "#,##0.00";
                 r = exWh.Columns[13, Type.Missing]; r.NumberFormat = "#,##0.00";
                 r = exWh.Columns[14, Type.Missing]; r.NumberFormat = "#,##0.00";
-                foreach (Classes.Domain.RequestVM itemRow in this.CurrentItem.ParcelRequests)
+                foreach (Classes.Domain.RequestVM itemRow in parcel.ParcelRequests)
                 {
                     if (importerid != itemRow.Importer?.Id || (isNew && itemRow.StoreInform.HasValue)) continue;
                     if (!string.IsNullOrEmpty(itemRow.StorePoint)) exWh.Cells[i, 1] = itemRow.StorePoint;
@@ -2794,7 +2729,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 if (i > 2)
                 {
-                    string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, "Отправки", this.CurrentItem.DocDirPath, this.CurrentItem.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
+                    string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, "Отправки", parcel.DocDirPath, parcel.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
                     if (File.Exists(filename))
                         File.Delete(filename);
                     exWb.SaveAs(Filename: filename);
@@ -2827,22 +2762,163 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        private RelayCommand mysendmail;
-        public ICommand SendMail
+        internal void RequestExcelExec(ParcelVM parcel)
         {
-            get { return mysendmail; }
+            if (parcel == null) return;
+            if (myrequestexceltask == null)
+                myrequestexceltask = new lib.TaskAsync.TaskAsync();
+
+            if (!myrequestexceltask.IsBusy)
+            {
+                this.EndEdit();
+                myrequestexceltask.DoProcessing = RequestExcelProcessing;
+                myrequestexceltask.Run(parcel);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Предыдущая обработка еще не завершена, подождите.", "Обработка данных", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Hand);
+            }
         }
-        private void SendMailExec(object parametr)
+        private lib.TaskAsync.TaskAsync myrequestexceltask;
+        private KeyValuePair<bool, string> RequestExcelProcessing(object parm)
+        {
+            ParcelVM parcel = parm as ParcelVM;
+            foreach (Classes.Domain.RequestVM item in parcel.ParcelRequests)
+                if (item.Importer == null)
+                {
+                    throw new Exception("В заявке " + item.StorePointDate + " не указан импортер!");
+                }
+            myrequestexceltask.ProgressChange(5);
+
+            string path = null, num = null;
+            if (parcel != null)
+            {
+                path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + parcel.ParcelNumber ?? string.Empty;
+                if (!Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path);
+                }
+            }
+            else
+                return new KeyValuePair<bool, string>(true, "Необходимо выбрать перевозку!");
+            myrequestexceltask.ProgressChange(7);
+            excel.Application exApp = new excel.Application();
+            excel.Application exAppProt = new excel.Application();
+            excel.Workbook exWb;
+            ListCollectionView view = null;
+            try
+            {
+                exApp.Visible = false;
+                exApp.DisplayAlerts = false;
+                exApp.ScreenUpdating = false;
+                exApp.SheetsInNewWorkbook = 1;
+                view = new ListCollectionView(parcel.ParcelRequests.SourceCollection as System.Collections.IList);
+                view.SortDescriptions.Add(new SortDescription("CustomerName", ListSortDirection.Ascending));
+                view.SortDescriptions.Add(new SortDescription("ParcelGroup", ListSortDirection.Ascending));
+                view.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+                view.Filter = (object item) => { Classes.Domain.RequestVM ritem = item as Classes.Domain.RequestVM; return ritem.Importer?.Name == "ДЕЛИВЕРИ" & ritem.DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                if (view.Count > 0)
+                {
+                    string templ = Environment.CurrentDirectory + @"\Templates\Заявка на перевозку GTLS GmbH АД.xltx";
+                    if (!System.IO.File.Exists(templ))
+                        throw new Exception("Шаблон Заявка на перевозку GTLS GmbH АД.xltx не найден!");
+                    else
+                    {
+                        int r = 24;
+                        exWb = exApp.Workbooks.Add(templ);
+                        excel.Worksheet exWh = exWb.Sheets[1];
+                        myrequestexceltask.ProgressChange(10);
+                        foreach (Classes.Domain.RequestVM item in view)
+                        {
+                            if (r > 24)
+                            {
+                                exWh.Rows[(r - 2).ToString() + ":" + (r - 1).ToString()].Copy();
+                                exWh.Rows[r.ToString() + ":" + r.ToString()].Insert(excel.XlInsertShiftDirection.xlShiftDown);
+                            }
+                            exWh.Cells[r, 3] = r / 2 - 11;
+                            if (item.CellNumber.HasValue) exWh.Cells[r, 4] = item.CellNumber.Value;
+                            if (item.Volume.HasValue) exWh.Cells[r, 8] = item.Volume.Value;
+                            if (item.OfficialWeight.HasValue) exWh.Cells[r, 17] = item.OfficialWeight.Value;
+
+                            r += 2;
+                            myrequestexceltask.ProgressChange(10 + (int)(45 * ((r - 24) / view.Count) / 2));
+                        }
+                        exWb.SaveAs(path + @"\Заявка на перевозку_АД_" + num);
+                    }
+                }
+                view.Filter = (object item) => { Classes.Domain.RequestVM ritem = item as Classes.Domain.RequestVM; return ritem.Importer?.Name == "ТРЕЙД" & ritem.DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+                if (view.Count > 0)
+                {
+                    string templ = Environment.CurrentDirectory + @"\Templates\Заявка на перевозку GTLS GmbH АТ.xltx";
+                    if (!System.IO.File.Exists(templ))
+                        throw new Exception("Шаблон Заявка на перевозку GTLS GmbH АТ.xltx не найден!");
+                    else
+                    {
+                        int r = 24;
+                        exWb = exApp.Workbooks.Add(templ);
+                        excel.Worksheet exWh = exWb.Sheets[1];
+                        foreach (Classes.Domain.RequestVM item in view)
+                        {
+                            if (r > 24)
+                            {
+                                exWh.Rows[(r - 2).ToString() + ":" + (r - 1).ToString()].Copy();
+                                exWh.Rows[r.ToString() + ":" + r.ToString()].Insert(excel.XlInsertShiftDirection.xlShiftDown);
+                            }
+                            exWh.Cells[r, 3] = r / 2 - 11;
+                            if (item.CellNumber.HasValue) exWh.Cells[r, 4] = item.CellNumber.Value;
+                            if (item.Volume.HasValue) exWh.Cells[r, 8] = item.Volume.Value;
+                            if (item.OfficialWeight.HasValue) exWh.Cells[r, 17] = item.OfficialWeight.Value;
+
+                            r += 2;
+                            myrequestexceltask.ProgressChange(55 + (int)(45 * ((r - 24) / view.Count) / 2));
+                        }
+                        exWb.SaveAs(path + @"\Заявка на перевозку_АТ_" + num);
+                    }
+                }
+
+                exApp.Visible = true;
+                exApp.DisplayAlerts = true;
+                exApp.ScreenUpdating = true;
+            }
+            catch (Exception ex)
+            {
+                if (exApp != null)
+                {
+                    foreach (excel.Workbook itemBook in exApp.Workbooks)
+                    {
+                        itemBook.Close(false);
+                    }
+                    exApp.Quit();
+                }
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (view != null)
+                {
+                    view.DetachFromSourceCollection();
+                    view = null;
+                }
+                exApp = null;
+                if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+                exAppProt = null;
+            }
+
+            myrequestexceltask.ProgressChange(100);
+            return new KeyValuePair<bool, string>(false, parcel.ParcelRequests.Count.ToString() + " строк обработано");
+        }
+
+        internal void SendMailExec(ParcelVM parcel, object parametr)
         {
             if (parametr != null)
             {
                 bool iserr = false;
                 int state = int.Parse((string)parametr);
-                this.CurrentItem.DomainObject.MailState.Send(state);
-                if (this.CurrentItem.DomainObject.MailState.SendErrors.Count > 0)
+                parcel.DomainObject.MailState.Send(state);
+                if (parcel.DomainObject.MailState.SendErrors.Count > 0)
                 {
                     System.Text.StringBuilder text = new System.Text.StringBuilder();
-                    foreach (lib.DBMError err in this.CurrentItem.DomainObject.MailState.SendErrors)
+                    foreach (lib.DBMError err in parcel.DomainObject.MailState.SendErrors)
                     {
                         text.AppendLine(err.Message);
                         iserr |= !string.Equals(err.Code, "0");
@@ -2853,19 +2929,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             }
         }
-        private bool SendMailCanExec(object parametr)
-        { return this.CurrentItem != null; }
-
-        private RelayCommand myspecfolderopen;
-        public ICommand SpecFolderOpen
-        {
-            get { return myspecfolderopen; }
-        }
-        private void SpecFolderOpenExec(object parametr)
+        internal void SpecFolderOpenExec(ParcelVM parcel)
         {
             try
             {
-                if (this.CurrentItem != null)
+                if (parcel != null)
                 {
                     string path = CustomBrokerWpf.Properties.Settings.Default.DetailsFileRoot;
                     if (!Directory.Exists(path))
@@ -2880,16 +2948,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.OpenPopup("Папка документов\n" + ex.Message, true);
             }
         }
-        private bool SpecFolderOpenCanExec(object parametr)
-        { return true; }
 
         private lib.TaskAsync.TaskAsync myexceltask;
-        private RelayCommand myspecadd;
-        public ICommand SpecAdd
+        private KeyValuePair<bool, string> OnExcelImport(object parm)
         {
-            get { return myspecadd; }
+            object[] param = parm as object[];
+            string filepath = (string)param[0];
+            Specification.Specification spec = (Specification.Specification)param[1];
+            return new KeyValuePair<bool, string>(false, "Разбивка загружена. " + spec.ImportDetail(filepath, myexceltask).ToString() + " строк обработано.");
         }
-        private void SpecAddExec(object parametr)
+        internal void SpecAddExec(ParcelVM parcel, object parametr)
         {
             if (myexceltask == null)
                 myexceltask = new lib.TaskAsync.TaskAsync();
@@ -2913,7 +2981,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         {
                             if (!System.IO.Directory.Exists(rootdir))
                                 System.IO.Directory.CreateDirectory(rootdir);
-                            Specification.Specification spec = this.CurrentItem.DomainObject.Specifications.FirstOrDefault<Specification.Specification>((Specification.Specification item) => { return ViewModelViewCommand.ViewFilterDefault(item) && item.Consolidate == request.Consolidate && item.ParcelGroup == (string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null) && item.Request == (string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null); });
+                            Specification.Specification spec = parcel.DomainObject.Specifications.FirstOrDefault<Specification.Specification>((Specification.Specification item) => { return ViewModelViewCommand.ViewFilterDefault(item) && item.Consolidate == request.Consolidate && item.ParcelGroup == (string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null) && item.Request == (string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null); });
                             if (spec != null)
                             {
                                 if (spec.Details.Count > 0)
@@ -2923,7 +2991,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                     else
                                     {
                                         Specification.SpecificationVM specvm = null;
-                                        foreach (Specification.SpecificationVM vm in this.CurrentItem.Specifications)
+                                        foreach (Specification.SpecificationVM vm in parcel.Specifications)
                                             if (vm.DomainObject == spec) specvm = vm;
                                         ObservableCollection<Specification.SpecificationDetailVM> detsvm = specvm.Details.SourceCollection as ObservableCollection<Specification.SpecificationDetailVM>;
                                         for (int i = 0; i < detsvm.Count; i++)
@@ -2947,15 +3015,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             else
                             {
                                 spec = new Specification.Specification(
-                                    parcel: this.CurrentItem.DomainObject,
+                                    parcel: parcel.DomainObject,
                                     consolidate: request.Consolidate,
                                     parcelgroup: string.IsNullOrEmpty(request.Consolidate) ? request.ParcelGroup : null,
                                     request: string.IsNullOrEmpty(request.Consolidate) & !request.ParcelGroup.HasValue ? request.DomainObject : null,
                                     agent: CustomBrokerWpf.References.AgentStore.GetItemLoad(request.AgentId ?? 0, out _),
                                     importer: request.Importer);
                                 spec.CustomersLegalsRefresh();
-                                this.CurrentItem.Specifications.AddNewItem(new Specification.SpecificationVM(spec));
-                                this.CurrentItem.Specifications.CommitNew();
+                                parcel.Specifications.AddNewItem(new Specification.SpecificationVM(spec));
+                                parcel.Specifications.CommitNew();
                             }
                             if (string.IsNullOrEmpty(spec.FilePath)) spec.BuildFileName(fd.FileName);
                             path.Append(System.IO.Path.Combine(rootdir, spec.FilePath));
@@ -2991,64 +3059,47 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 System.Windows.MessageBox.Show("Предыдущая обработка еще не завершена, подождите.", "Обработка данных", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Hand);
             }
         }
-        private bool SpecAddCanExec(object parametr)
-        { return this.CurrentItem != null & (myexceltask == null || !myexceltask.IsBusy); }
-        private KeyValuePair<bool, string> OnExcelImport(object parm)
-        {
-            object[] param = parm as object[];
-            string filepath = (string)param[0];
-            Specification.Specification spec = (Specification.Specification)param[1];
-            return new KeyValuePair<bool, string>(false, "Разбивка загружена. " + spec.ImportDetail(filepath, myexceltask).ToString() + " строк обработано.");
-        }
+        internal bool SpecAddCanExec(ParcelVM parcel)
+        { return parcel != null & (myexceltask == null || !myexceltask.IsBusy); }
 
-        private RelayCommand myspecdel;
-        public ICommand SpecDel
-        {
-            get { return myspecdel; }
-        }
-        private void SpecDelExec(object parametr)
+        internal void SpecDelExec(ParcelVM parcel, object parametr)
         {
             if ((parametr is System.Collections.IEnumerable | parametr is IViewModelBaseItem) && System.Windows.MessageBox.Show("Удалить выделенные спецификации", "Удаление", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
             {
                 if (parametr is System.Collections.IEnumerable)
                 {
                     List<IViewModelBaseItem> list = new List<IViewModelBaseItem>();
-                    if (this.CurrentItem.Specifications.IsAddingNew) this.CurrentItem.Specifications.CancelNew();
-                    if (this.CurrentItem.Specifications.CanCancelEdit) this.CurrentItem.Specifications.CancelEdit();
+                    if (parcel.Specifications.IsAddingNew) parcel.Specifications.CancelNew();
+                    if (parcel.Specifications.CanCancelEdit) parcel.Specifications.CancelEdit();
                     foreach (object item in parametr as System.Collections.IEnumerable)
                     {
                         if (item is IViewModelBaseItem) list.Add(item as IViewModelBaseItem);
                     }
                     foreach (Specification.SpecificationVM item in list)
                     {
-                        this.CurrentItem.Specifications.EditItem(item);
+                        parcel.Specifications.EditItem(item);
                         item.DomainState = lib.DomainObjectState.Deleted;
-                        this.CurrentItem.Specifications.CommitEdit();
+                        parcel.Specifications.CommitEdit();
                     }
                 }
                 else if (parametr is Specification.SpecificationVM)
                 {
                     Specification.SpecificationVM item = parametr as Specification.SpecificationVM;
-                    this.CurrentItem.Specifications.EditItem(item);
+                    parcel.Specifications.EditItem(item);
                     item.DomainState = lib.DomainObjectState.Deleted;
-                    this.CurrentItem.Specifications.CommitEdit();
+                    parcel.Specifications.CommitEdit();
                 }
             }
         }
-        private bool SpecDelCanExec(object parametr)
-        { return this.CurrentItem != null && !this.CurrentItem.DomainObject.SpecificationsIsNull && this.CurrentItem.Specifications.CurrentItem != null; }
+        internal bool SpecDelCanExec(ParcelVM parcel)
+        { return parcel != null && !parcel.DomainObject.SpecificationsIsNull && parcel.Specifications.CurrentItem != null; }
 
-        private RelayCommand mytdload;
-        public ICommand TDLoad
-        {
-            get { return mytdload; }
-        }
-        private void TDLoadExec(object parametr)
+        internal void TDLoadExec(object parametr)
         {
             if (parametr is Specification.SpecificationVM)
             {
                 Specification.Specification spec = (parametr as Specification.SpecificationVM).DomainObject;
-                EventLoger log = new EventLoger() { What = "DT", Message = (spec?.Declaration?.Number ?? "Новая") + " Start Parcel", ObjectId= (spec?.Declaration?.Id ?? 0) };
+                EventLoger log = new EventLoger() { What = "DT", Message = (spec?.Declaration?.Number ?? "Новая") + " Start Parcel", ObjectId = (spec?.Declaration?.Id ?? 0) };
                 log.Execute();
                 string err = spec.LoadDeclaration();
                 if (string.IsNullOrEmpty(err))
@@ -3060,23 +3111,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 log.Execute();
             }
         }
-        private bool TDLoadCanExec(object parametr)
-        { return true; }
 
-        private RelayCommand myselling1c;
-        public ICommand Selling1C
+        internal void Selling1CExec(ParcelVM parcel, object parametr)
         {
-            get { return myselling1c; }
-        }
-        private void Selling1CExec(object parametr)
-        {
-            if (parametr is System.Collections.IEnumerable & this.CurrentItem != null)
+            if (parametr is System.Collections.IEnumerable & parcel != null)
             {
                 List<Specification.SpecificationVM> speclist = (parametr as System.Collections.IEnumerable).OfType<Specification.SpecificationVM>().ToList();
                 if (speclist.Count == 0)
                 {
                     if (System.Windows.MessageBox.Show("Подготовить реализацию для всех разбивок?", "Реализация для 1С", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.OK)
-                        speclist = this.CurrentItem.Specifications.SourceCollection.OfType<Specification.SpecificationVM>().ToList();
+                        speclist = parcel.Specifications.SourceCollection.OfType<Specification.SpecificationVM>().ToList();
                     else
                         return;
                 }
@@ -3084,52 +3128,100 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (!string.IsNullOrEmpty(item.FilePath))
                     {
                         item.DomainObject.Income1C();
-                        item.DomainObject.Selling1C(); 
+                        item.DomainObject.Selling1C();
                     }
             }
         }
-        private bool Selling1CCanExec(object parametr)
-        { return this.CurrentItem != null && this.CurrentItem.Specifications.Count > 0; }
+        internal bool Selling1CCanExec(ParcelVM parcel)
+        { return parcel != null && parcel.Specifications.Count > 0; }
 
-        private ListCollectionView mystates;
-        public ListCollectionView States
+
+        internal bool ParcelIsNull(ParcelVM parcel)
+        { return parcel != null; }
+        internal bool MoveSpecificationCanExec(ParcelVM parcel)
+        { return parcel?.ParcelType?.Id == 1; }
+
+        internal ListCollectionView InitStats()
         {
-            get
-            {
-                if (mystates == null)
-                {
-                    mystates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    mystates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    mystates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
-                }
-                return mystates;
-            }
+            ListCollectionView states = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            states.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+            states.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
+            return states;
         }
-        private ListCollectionView myrequeststates;
-        public ListCollectionView RequestStates
+        internal ListCollectionView InitGoods()
         {
-            get
-            {
-                if (myrequeststates == null)
-                {
-                    myrequeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    myrequeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    myrequeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
-                }
-                return myrequeststates;
-            }
+            ListCollectionView goodstypes = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
+            goodstypes.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            return goodstypes;
         }
-        private ListCollectionView mygoodstypes;
-        public ListCollectionView GoodsTypes
+        internal ListCollectionView InitManagers()
+        {
+            ListCollectionView managers = null;
+            if (CustomBrokerWpf.References.CurrentUserRoles.Contains("TopManagers"))
+                managers = new ListCollectionView(CustomBrokerWpf.References.Managers);
+            else if (CustomBrokerWpf.References.CurrentManager != null)
+            {
+                managers = new ListCollectionView(new List<Manager>() { new Manager(), CustomBrokerWpf.References.CurrentManager });
+                managers.Filter = (object item) => { return (item as Manager).Unfile == 0; };
+            }
+            return managers;
+        }
+    }
+
+    public class ParcelCommander : lib.ViewModelCommand<Parcel, ParcelVM, ParcelDBM>
+    {
+        public ParcelCommander(ParcelVM parcel, ListCollectionView view) : base(parcel, view) 
+        {
+            base.PropertyChanged += ParcelCommander_PropertyChanged;
+            mycommands = new ParcelCommands() { 
+                OpenPopup = this.OpenPopup,
+                EndEdit = this.EndEdit,
+                SaveDataChanges=this.SaveDataChanges
+            };
+            
+            mycreateexcelreport = new RelayCommand(CreateExcelReportExec, CreateExcelReportCanExec);
+            myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
+            mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
+            myrequestexcel = new RelayCommand(RequestExcelExec, RequestExcelCanExec);
+            myselling1c = new RelayCommand(Selling1CExec, Selling1CCanExec);
+            mysendmail = new RelayCommand(SendMailExec, SendMailCanExec);
+            mysetstoreinform = new RelayCommand(SetStoreInformExec, SetStoreInformCanExec);
+            myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
+            myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
+            myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
+            mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
+
+            mymanagers = mycommands.InitManagers();
+            mystates = mycommands.InitStats();
+            mygoodstypes = mycommands.InitGoods();
+        }
+
+        private void ParcelCommander_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName==nameof(base.VModel))
+                this.PropertyChangedNotification(nameof(this.Title));
+        }
+
+        public string Title
+        { get { return "Отправка " + VModel.ParcelNumberEntire; } }
+        public System.Windows.Visibility ChooseVisible
+        { get { return System.Windows.Visibility.Collapsed; } }
+        public System.Windows.Visibility CloseVisible
+        { get { return System.Windows.Visibility.Visible; } }
+
+
+        private ListCollectionView myagents;
+        public ListCollectionView Agents
         {
             get
             {
-                if (mygoodstypes == null)
+                if (myagents == null)
                 {
-                    mygoodstypes = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
-                    mygoodstypes.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                    myagents = new ListCollectionView(CustomBrokerWpf.References.AgentNames);
+                    CustomBrokerWpf.References.AgentNames.RefreshViewAdd(myagents);
+                    myagents.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
-                return mygoodstypes;
+                return myagents;
             }
         }
         private System.Data.DataView mycustomers;
@@ -3146,17 +3238,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mycustomers;
             }
         }
-        private ListCollectionView myagents;
-        public ListCollectionView Agents
+        private ListCollectionView mygoodstypes;
+        public ListCollectionView GoodsTypes
         {
             get
             {
-                if (myagents == null)
-                {
-                    myagents = new ListCollectionView(CustomBrokerWpf.References.AgentNames);
-                    myagents.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-                }
-                return myagents;
+                if (mygoodstypes == null)
+                    mygoodstypes = mycommands.InitGoods();
+                return mygoodstypes;
             }
         }
         private ListCollectionView myimporters;
@@ -3172,6 +3261,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return myimporters;
             }
         }
+        private ListCollectionView myloaddescriptions;
+        public ListCollectionView LoadDescriptions
+        {
+            get
+            {
+                if (myloaddescriptions == null)
+                {
+                    myloaddescriptions = new ListCollectionView(CustomBrokerWpf.References.GoodsTypesParcel);
+                    myloaddescriptions.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                return myloaddescriptions;
+            }
+        }
+        private ListCollectionView mymanagers;
+        public ListCollectionView Managers
+        { get { return mymanagers; } }
+        private ListCollectionView myrequeststates;
+        public ListCollectionView RequestStates
+        {
+            get
+            {
+                if (myrequeststates == null)
+                {
+                    myrequeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+                    myrequeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+                    myrequeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
+                }
+                return myrequeststates;
+            }
+        }
         private ListCollectionView myservicetypes;
         public ListCollectionView ServiceTypes
         {
@@ -3182,6 +3301,706 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myservicetypes = new ListCollectionView(CustomBrokerWpf.References.ServiceTypes);
                 }
                 return myservicetypes;
+            }
+        }
+        private ListCollectionView mystates;
+        public ListCollectionView States
+        {
+            get
+            {
+                if (mystates == null)
+                {
+                    mystates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+                    mystates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+                    mystates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
+                }
+                return mystates;
+            }
+        }
+
+        ParcelCommands mycommands;
+
+        private RelayCommand mycreateexcelreport;
+        public ICommand CreateExcelReport
+        {
+            get { return mycreateexcelreport; }
+        }
+        private void CreateExcelReportExec(object parametr)
+        {
+            mycommands.CreateExcelReportExec(this.VModel, parametr);
+        }
+        private bool CreateExcelReportCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand myfolderopen;
+        public ICommand FolderOpen
+        {
+            get { return myfolderopen; }
+        }
+        private void FolderOpenExec(object parametr)
+        {
+            try
+            {
+                mycommands.FolderOpenExec(this.VModel);
+            }
+            catch (Exception ex)
+            {
+                this.OpenPopup("Папка документов\n" + ex.Message, true);
+            }
+        }
+        private bool FolderOpenCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand mysetstoreinform;
+        public ICommand SetStoreInform
+        {
+            get { return mysetstoreinform; }
+        }
+        private void SetStoreInformExec(object parametr)
+        {
+            if (this.VModel == null) return;
+            if (this.EndEdit())
+            {
+                mycommands.SetStoreInformExec(this.VModel);
+            }
+            else
+                this.OpenPopup("Не удалось применить изменения! Проверте корректность и полноту данных.", true);
+        }
+        private bool SetStoreInformCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand myrequestexcel;
+        public ICommand RequestExcel
+        { get { return myrequestexcel; } }
+        private void RequestExcelExec(object parametr)
+        {
+            mycommands.RequestExcelExec(this.VModel);
+        }
+        private bool RequestExcelCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand mymovespecification;
+        public ICommand MoveSpecification
+        {
+            get { return mymovespecification; }
+        }
+        private void MoveSpecificationExec(object parametr)
+        {
+            mycommands.MoveSpecificationExec(this.VModel);
+        }
+        private bool MoveSpecificationCanExec(object parametr)
+        { return mycommands.MoveSpecificationCanExec(this.VModel); }
+
+        private RelayCommand mysendmail;
+        public ICommand SendMail
+        {
+            get { return mysendmail; }
+        }
+        private void SendMailExec(object parametr)
+        {
+            mycommands.SendMailExec(this.VModel, parametr);
+        }
+        private bool SendMailCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand myspecfolderopen;
+        public ICommand SpecFolderOpen
+        {
+            get { return myspecfolderopen; }
+        }
+        private void SpecFolderOpenExec(object parametr)
+        {
+            mycommands.SpecFolderOpenExec(this.VModel);
+        }
+        private bool SpecFolderOpenCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.VModel); }
+
+        private RelayCommand myspecadd;
+        public ICommand SpecAdd
+        {
+            get { return myspecadd; }
+        }
+        private void SpecAddExec(object parametr)
+        {
+            mycommands.SpecAddExec(this.VModel, parametr);
+        }
+        private bool SpecAddCanExec(object parametr)
+        { return mycommands.SpecAddCanExec(this.VModel); }
+
+        private RelayCommand myspecdel;
+        public ICommand SpecDel
+        {
+            get { return myspecdel; }
+        }
+        private void SpecDelExec(object parametr)
+        {
+            mycommands.SpecDelExec(this.VModel, parametr);
+        }
+        private bool SpecDelCanExec(object parametr)
+        { return mycommands.SpecDelCanExec(this.VModel); }
+
+        private RelayCommand mytdload;
+        public ICommand TDLoad
+        {
+            get { return mytdload; }
+        }
+        private void TDLoadExec(object parametr)
+        {
+            mycommands.TDLoadExec(parametr);
+        }
+        private bool TDLoadCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand myselling1c;
+        public ICommand Selling1C
+        {
+            get { return myselling1c; }
+        }
+        private void Selling1CExec(object parametr)
+        {
+            mycommands.Selling1CExec(this.VModel, parametr);
+        }
+        private bool Selling1CCanExec(object parametr)
+        { return mycommands.Selling1CCanExec(this.VModel); }
+
+        protected override bool CanDeleteData(object parametr)
+        {
+            return base.VModel?.Status.Id < 40 && base.VModel?.ParcelRequests.Count > 0;
+        }
+        protected override void RefreshData(object parametr)
+        {
+            this.VModel.ParcelRequestsTotal.StopCount();
+            this.VModel.ParcelRequestsTotalDelivery.StopCount();
+            this.VModel.ParcelRequestsTotalTrade.StopCount();
+            this.VModel.ParcelRequestsTotalSelected.StopCount();
+            this.VModel.RequestsTotalSelected?.StopCount();
+            this.VModel.RequestsTotalSelectedDelivery?.StopCount();
+            this.VModel.RequestsTotalSelectedTrade?.StopCount();
+            CustomBrokerWpf.References.ParcelLastShipdate.Update();
+            base.RefreshData(parametr);
+            if (this.VModel.IsEnabled)
+            {
+                this.VModel.Requests.Refresh();
+                this.VModel.ParcelRequests.Refresh();
+                this.VModel.DomainObject.SpecificationsRefresh();
+                this.VModel.ParcelRequestsTotal.StartCount();
+                this.VModel.ParcelRequestsTotalDelivery.StartCount();
+                this.VModel.ParcelRequestsTotalTrade.StartCount();
+                this.VModel.ParcelRequestsTotalSelected.StartCount();
+                this.VModel.RequestsTotalSelected?.StartCount();
+                this.VModel.RequestsTotalSelectedDelivery?.StartCount();
+                this.VModel.RequestsTotalSelectedTrade?.StartCount();
+            }
+        }
+        public override bool SaveDataChanges()
+        {
+            DirectoryInfo dir = new DirectoryInfo(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\");
+            if (!dir.Exists) dir.Create();
+            bool isSuccess = true;
+            System.Text.StringBuilder err = new System.Text.StringBuilder();
+            err.AppendLine("Изменения не сохранены");
+            isSuccess = this.VModel == null || !(this.VModel.DomainState == lib.DomainObjectState.Added || this.VModel.DomainState == lib.DomainObjectState.Modified) || this.VModel.Validate(true);
+            if (!isSuccess)
+                err.AppendLine(this.VModel.Errors);
+            if (this.VModel != null && this.VModel.Status.Id == 50)
+            {
+                foreach (RequestVM item in this.VModel.ParcelRequests)
+                {
+                    if (item.DomainState == lib.DomainObjectState.Added || item.DomainState == lib.DomainObjectState.Modified)
+                    {
+                        if (!item.Validate(true))
+                        {
+                            err.AppendLine(item.Errors);
+                            isSuccess = false;
+                        }
+                    }
+                }
+                foreach (RequestVM item in this.VModel.Requests)
+                {
+                    if (item.DomainState == lib.DomainObjectState.Added || item.DomainState == lib.DomainObjectState.Modified)
+                    {
+                        if (!item.Validate(true))
+                        {
+                            err.AppendLine(item.Errors);
+                            isSuccess = false;
+                        }
+                    }
+                }
+            }
+            Parcel parcel = this.VModel.DomainObject;
+            if (mydbm == null)
+                mydbm = new ParcelDBM();
+            else
+                mydbm.Errors.Clear();
+            if (parcel.DomainState == lib.DomainObjectState.Added)
+            {
+                if (!mydbm.SaveItemChanches(parcel))
+                {
+                    isSuccess = false;
+                    err.AppendLine(mydbm.ErrorMessage);
+                }
+                try
+                {
+                    if (parcel.DocDirPath != null & !Directory.Exists(dir.FullName + "\\" + parcel.DocDirPath)) dir.CreateSubdirectory(parcel.DocDirPath);
+                }
+                catch (Exception ex)
+                {
+                    err.AppendLine("Сохранение изменений/n" + "Не удалось создать папку для документов Доставки " + parcel.ParcelNumberEntire + " !\n" + ex.Message);
+                }
+                mydbm.Errors.Clear();
+                if (!mydbm.CheckGroup(parcel))
+                    foreach (lib.DBMError erm in mydbm.Errors)
+                    {
+                        err.AppendLine(erm.Message);
+                        if (erm.Code != "group")
+                            isSuccess = false;
+                    }
+            }
+            else if (parcel.DomainState == lib.DomainObjectState.Modified)
+            { 
+                if (parcel.DocDirPath != parcel.ParcelNumberEntire)
+                {
+                    try
+                    {
+                        DirectoryInfo parceldir = new DirectoryInfo(dir.FullName + "\\" + parcel.DocDirPath);
+                        if (parceldir.Exists)
+                            parceldir.MoveTo(dir.FullName + "\\" + parcel.ParcelNumberEntire);
+                        else
+                            if (!Directory.Exists(dir.FullName + "\\" + parcel.ParcelNumber)) dir.CreateSubdirectory(parcel.ParcelNumber);
+                        parcel.DocDirPath = parcel.ParcelNumberEntire;
+                    }
+                    catch (Exception ex)
+                    {
+                        err.AppendLine("Сохранение изменений\nНе удалось переименовать папку для документов Доставки!\n\n" + ex.Message);
+                    }
+
+                }
+                if (!mydbm.SaveItemChanches(parcel))
+                {
+                    isSuccess = false;
+                    err.AppendLine(mydbm.ErrorMessage);
+                }
+                mydbm.Errors.Clear();
+                if (!mydbm.CheckGroup(parcel))
+                    foreach (lib.DBMError erm in mydbm.Errors)
+                    {
+                        err.AppendLine(erm.Message);
+                        if (erm.Code != "group")
+                            isSuccess = false;
+                    }
+            }
+            else
+                if (!mydbm.SaveItemChanches(parcel))
+                {
+                    isSuccess = false;
+                    err.AppendLine(mydbm.ErrorMessage);
+                }
+
+            if (!isSuccess) this.PopupText = err.ToString();
+            return isSuccess;
+        }
+    }
+
+    public class ParcelViewCommander : lib.ViewModelViewCommand, lib.Interfaces.IFilterWindowOwner
+    {
+        internal ParcelViewCommander() : base()
+        {
+            mycommands = new ParcelCommands();
+            myfilter = new lib.SQLFilter.SQLFilter("parcel", "AND", CustomBrokerWpf.References.ConnectionString);
+            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+            mypdbm = new ParcelDBM();
+            mydbm = mypdbm;
+            mypdbm.Filter = myfilter.FilterWhereId;
+            mysync = new ParcelSynchronizer();
+            if (CustomBrokerWpf.References.Parcels == null)
+            {
+                CustomBrokerWpf.References.Parcels = new ObservableCollection<Parcel>();
+                mypdbm.Collection = CustomBrokerWpf.References.Parcels;
+                mypdbm.FillAsyncCompleted = () =>
+                {
+                    if (mydbm.Errors.Count > 0)
+                        OpenPopup(mydbm.ErrorMessage, true);
+                    mypdbm.FillType = lib.FillType.Refresh;
+                    mypdbm.RequestRefreshFill = true; // load request for new parcel
+                    SettingView();
+                };
+                mypdbm.FillAsync();
+                mysync.DomainCollection = mypdbm.Collection;
+                base.Collection = mysync.ViewModelCollection;
+            }
+            else
+            {
+                mypdbm.Collection = CustomBrokerWpf.References.Parcels;
+                mypdbm.FillType = lib.FillType.Refresh;
+                mypdbm.RequestRefreshFill = true; // load request for new parcel
+                mysync.DomainCollection = mypdbm.Collection;
+                base.Collection = mysync.ViewModelCollection;
+                SettingView();
+            }
+
+            base.DeleteQuestionHeader = "Удалить перевозку?";
+            mystates = mycommands.InitStats();
+            mygoodstypes = mycommands.InitGoods();
+            myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel.png";
+        }
+
+        private ListCollectionView mystates;
+        public ListCollectionView States
+        {
+            get
+            {
+                if (mystates == null)
+                    mystates = mycommands.InitStats();
+                return mystates;
+            }
+        }
+        private ListCollectionView mygoodstypes;
+        public ListCollectionView GoodsTypes
+        {
+            get
+            {
+                if (mygoodstypes == null)
+                    mygoodstypes = mycommands.InitGoods();
+                return mygoodstypes;
+            }
+        }
+
+        ParcelCommands mycommands;
+        ParcelDBM mypdbm;
+        ParcelSynchronizer mysync;
+        private lib.SQLFilter.SQLFilter myfilter;
+        public lib.SQLFilter.SQLFilter Filter
+        {
+            get { return myfilter; }
+        }
+        private bool myisshowfilterwindow;
+        public bool IsShowFilterWindow {
+            set
+            {
+                myisshowfilterwindow = value;
+                this.PropertyChangedNotification(nameof(this.IsShowFilterWindow));
+            }
+            get { return myisshowfilterwindow; }
+        }
+        public void RunFilter(lib.Filter.FilterItem[] filters)
+        {
+            if (!SaveDataChanges())
+                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
+            else
+            {
+                this.Refresh.Execute(null);
+            }
+        }
+        private string myfilterbuttonimagepath;
+        public string FilterButtonImagePath
+        { get { return myfilterbuttonimagepath; } }
+        public string IsFiltered
+        { get { return myfilter.isEmpty ? string.Empty : "Фильтр!"; } }
+
+        protected override void OtherViewRefresh()
+        {
+            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items);
+        }
+        protected override void RefreshData(object parametr)
+        {
+            CustomBrokerWpf.References.ParcelLastShipdate.Update();
+            mypdbm.Filter = myfilter.FilterWhereId;
+            mypdbm.Fill();
+            ParcelSetFilterButtonImage();
+        }
+        protected override void SettingView()
+        {
+            myview.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
+            myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
+            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items);
+        }
+
+        private void ParcelSetFilterButtonImage()
+        {
+            //string uribitmap;
+            if (myfilter.isEmpty) myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel.png";
+            else myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel_preferences.png";
+            this.PropertyChangedNotification(nameof(this.FilterButtonImagePath));
+            this.PropertyChangedNotification(nameof(this.IsFiltered));
+            //System.Windows.Media.Imaging.BitmapImage bi3 = new System.Windows.Media.Imaging.BitmapImage(new Uri(uribitmap, UriKind.Relative));
+            //(ParcelFilterButton.Content as Image).Source = bi3;
+        }
+    }
+
+    public class ParcelCurItemCommander : lib.ViewModelCurrentItemCommand<ParcelVM>, lib.Interfaces.IFilterWindowOwner
+    {
+        internal ParcelCurItemCommander() : base()
+        {
+            mycommands = new ParcelCommands() {
+                OpenPopup = this.OpenPopup,
+                EndEdit = this.EndEdit,
+                SaveDataChanges = this.SaveDataChanges
+            };
+            myfilter = new lib.SQLFilter.SQLFilter("parcel", "AND", CustomBrokerWpf.References.ConnectionString);
+            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+            mypdbm = new ParcelDBM();
+            mydbm = mypdbm;
+            mypdbm.Filter = myfilter.FilterWhereId;
+            mypdbm.FillAsyncCompleted = () =>
+            {
+                if (mydbm.Errors.Count > 0)
+                    OpenPopup(mydbm.ErrorMessage, true);
+                mypdbm.FillType = lib.FillType.Refresh;
+                mypdbm.RequestRefreshFill = true; // load request for new parcel
+                SettingView();
+            };
+            mypdbm.Collection = new ObservableCollection<Parcel>();
+            mypdbm.FillAsync();
+            base.Collection = mypdbm.Collection;
+            CustomBrokerWpf.References.Parcels = mypdbm.Collection;
+            base.DeleteQuestionHeader = "Удалить перевозку?";
+
+            mycreateexcelreport = new RelayCommand(CreateExcelReportExec, CreateExcelReportCanExec);
+            myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
+            mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
+            myrequestexcel = new RelayCommand(RequestExcelExec, RequestExcelCanExec);
+            myselling1c = new RelayCommand(Selling1CExec, Selling1CCanExec);
+            mysendmail = new RelayCommand(SendMailExec, SendMailCanExec);
+            mysetstoreinform = new RelayCommand(SetStoreInformExec, SetStoreInformCanExec);
+            myspecadd = new RelayCommand(SpecAddExec, SpecAddCanExec);
+            myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
+            myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
+            mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
+            
+            mymanagers = mycommands.InitManagers();
+            mystates = mycommands.InitStats();
+            mygoodstypes = mycommands.InitGoods();
+        }
+
+        ParcelCommands mycommands;
+        ParcelDBM mypdbm;
+        private lib.SQLFilter.SQLFilter myfilter;
+        public lib.SQLFilter.SQLFilter Filter
+        {
+            get { return myfilter; }
+        }
+        private bool myisshowfilterwindow;
+        public bool IsShowFilterWindow
+        {
+            set
+            {
+                myisshowfilterwindow = value;
+                this.PropertyChangedNotification(nameof(this.IsShowFilterWindow));
+            }
+            get { return myisshowfilterwindow; }
+        }
+        public void RunFilter(lib.Filter.FilterItem[] filters)
+        {
+                if (!SaveDataChanges())
+                    this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
+                else
+                {
+                    this.Refresh.Execute(null);
+                }
+        }
+        private string myfilterbuttonimagepath;
+        public string FilterButtonImagePath
+        { get { return myfilterbuttonimagepath; } }
+        public string IsFiltered
+        { get { return myfilter.isEmpty ? string.Empty : "Фильтр!"; } }
+
+        public System.Windows.Visibility ChooseVisible
+        { get { return System.Windows.Visibility.Visible; } }
+        public System.Windows.Visibility CloseVisible
+        { get { return System.Windows.Visibility.Collapsed; } }
+
+        private RelayCommand myfolderopen;
+        public ICommand FolderOpen
+        {
+            get { return myfolderopen; }
+        }
+        private void FolderOpenExec(object parametr)
+        {
+            try
+            {
+                mycommands.FolderOpenExec(this.CurrentItem);
+            }
+            catch (Exception ex)
+            {
+                this.OpenPopup("Папка документов\n" + ex.Message, true);
+            }
+        }
+        private bool FolderOpenCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private RelayCommand mysetstoreinform;
+        public ICommand SetStoreInform
+        {
+            get { return mysetstoreinform; }
+        }
+        private void SetStoreInformExec(object parametr)
+        {
+            if (this.CurrentItem == null) return;
+            if (this.EndEdit())
+            {
+                mycommands.SetStoreInformExec(this.CurrentItem);
+            }
+            else
+                this.OpenPopup("Не удалось применить изменения! Проверте корректность и полноту данных.", true);
+        }
+        private bool SetStoreInformCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private RelayCommand mymovespecification;
+        public ICommand MoveSpecification
+        {
+            get { return mymovespecification; }
+        }
+        private void MoveSpecificationExec(object parametr)
+        {
+                mycommands.MoveSpecificationExec(this.CurrentItem);
+        }
+        private bool MoveSpecificationCanExec(object parametr)
+        { return mycommands.MoveSpecificationCanExec(this.CurrentItem); }
+
+        private RelayCommand mycreateexcelreport;
+        public ICommand CreateExcelReport
+        {
+            get { return mycreateexcelreport; }
+        }
+        private void CreateExcelReportExec(object parametr)
+        {
+            mycommands.CreateExcelReportExec(this.CurrentItem, parametr);
+        }
+        private bool CreateExcelReportCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private RelayCommand mysendmail;
+        public ICommand SendMail
+        {
+            get { return mysendmail; }
+        }
+        private void SendMailExec(object parametr)
+        {
+            mycommands.SendMailExec(this.CurrentItem, parametr);
+        }
+        private bool SendMailCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private RelayCommand myspecfolderopen;
+        public ICommand SpecFolderOpen
+        {
+            get { return myspecfolderopen; }
+        }
+        private void SpecFolderOpenExec(object parametr)
+        {
+            mycommands.SpecFolderOpenExec(this.CurrentItem);
+        }
+        private bool SpecFolderOpenCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private RelayCommand myspecadd;
+        public ICommand SpecAdd
+        {
+            get { return myspecadd; }
+        }
+        private void SpecAddExec(object parametr)
+        {
+            mycommands.SpecAddExec(this.CurrentItem, parametr);
+        }
+        private bool SpecAddCanExec(object parametr)
+        { return mycommands.SpecAddCanExec(this.CurrentItem); }
+
+        private RelayCommand myspecdel;
+        public ICommand SpecDel
+        {
+            get { return myspecdel; }
+        }
+        private void SpecDelExec(object parametr)
+        {
+            mycommands.SpecDelExec(this.CurrentItem, parametr);
+        }
+        private bool SpecDelCanExec(object parametr)
+        { return mycommands.SpecDelCanExec(this.CurrentItem); }
+
+        private RelayCommand mytdload;
+        public ICommand TDLoad
+        {
+            get { return mytdload; }
+        }
+        private void TDLoadExec(object parametr)
+        {
+            mycommands.TDLoadExec(parametr);
+        }
+        private bool TDLoadCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand myselling1c;
+        public ICommand Selling1C
+        {
+            get { return myselling1c; }
+        }
+        private void Selling1CExec(object parametr)
+        {
+            mycommands.Selling1CExec(this.CurrentItem, parametr);
+        }
+        private bool Selling1CCanExec(object parametr)
+        { return mycommands.Selling1CCanExec(this.CurrentItem); }
+
+        private RelayCommand myrequestexcel;
+        public ICommand RequestExcel
+        { get { return myrequestexcel; } }
+        private void RequestExcelExec(object parametr)
+        {
+            mycommands.RequestExcelExec(this.CurrentItem);
+        }
+        private bool RequestExcelCanExec(object parametr)
+        { return mycommands.ParcelIsNull(this.CurrentItem); }
+
+        private ListCollectionView myagents;
+        public ListCollectionView Agents
+        {
+            get
+            {
+                if (myagents == null)
+                {
+                    myagents = new ListCollectionView(CustomBrokerWpf.References.AgentNames);
+                    CustomBrokerWpf.References.AgentNames.RefreshViewAdd(myagents);
+                    myagents.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                return myagents;
+            }
+        }
+        private System.Data.DataView mycustomers;
+        public System.Data.DataView Customers
+        {
+            get
+            {
+                if (mycustomers == null)
+                {
+                    ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
+                    if (refds.tableCustomerName.Count == 0) refds.CustomerNameRefresh();
+                    mycustomers = new System.Data.DataView(refds.tableCustomerName, string.Empty, "customerName", System.Data.DataViewRowState.CurrentRows);
+                }
+                return mycustomers;
+            }
+        }
+        private ListCollectionView mygoodstypes;
+        public ListCollectionView GoodsTypes
+        {
+            get
+            {
+                if (mygoodstypes == null)
+                    mygoodstypes = mycommands.InitGoods();
+                return mygoodstypes;
+            }
+        }
+        private ListCollectionView myimporters;
+        public ListCollectionView Importers
+        {
+            get
+            {
+                if (myimporters == null)
+                {
+                    myimporters = new ListCollectionView(CustomBrokerWpf.References.Importers);
+                    myimporters.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                return myimporters;
             }
         }
         private ListCollectionView myloaddescriptions;
@@ -3195,6 +4014,49 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myloaddescriptions.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
                 return myloaddescriptions;
+            }
+        }
+        private ListCollectionView mymanagers;
+        public ListCollectionView Managers
+        { get { return mymanagers; } }
+        private ListCollectionView myrequeststates;
+        public ListCollectionView RequestStates
+        {
+            get
+            {
+                if (myrequeststates == null)
+                {
+                    myrequeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+                    myrequeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+                    myrequeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
+                }
+                return myrequeststates;
+            }
+        }
+        private ListCollectionView myservicetypes;
+        public ListCollectionView ServiceTypes
+        {
+            get
+            {
+                if (myservicetypes == null)
+                {
+                    myservicetypes = new ListCollectionView(CustomBrokerWpf.References.ServiceTypes);
+                }
+                return myservicetypes;
+            }
+        }
+        private ListCollectionView mystates;
+        public ListCollectionView States
+        {
+            get
+            {
+                if (mystates == null)
+                {
+                    mystates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+                    mystates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+                    mystates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
+                }
+                return mystates;
             }
         }
 
@@ -3338,11 +4200,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void OtherViewRefresh()
         {
             CustomBrokerWpf.References.ParcelNumbers.RefreshAsinc();
+            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items);
         }
         protected override void RefreshData(object parametr)
         {
             Parcel current = this.CurrentItem?.DomainObject;
-            mypdbm.Filter = myfilter.FilterWhereId;
+            //mypdbm.Filter = myfilter.FilterWhereId;
             //mypdbm.FillAsyncCompleted = () =>
             //{
             //    this.Items.MoveCurrentTo(current);
@@ -3359,6 +4222,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.CurrentItem.RequestsTotalSelected?.StopCount();
             this.CurrentItem.RequestsTotalSelectedDelivery?.StopCount();
             this.CurrentItem.RequestsTotalSelectedTrade?.StopCount();
+            CustomBrokerWpf.References.ParcelLastShipdate.Update();
+            mypdbm.Filter = myfilter.FilterWhereId;
             mypdbm.Fill();
             this.Items.MoveCurrentTo(current);
             if (this.CurrentItem != null)
@@ -3366,14 +4231,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.CurrentItem.Requests.Refresh();
                 this.CurrentItem.ParcelRequests.Refresh();
                 this.CurrentItem.DomainObject.SpecificationsRefresh();
+                this.CurrentItem.ParcelRequestsTotal.StartCount();
+                this.CurrentItem.ParcelRequestsTotalDelivery.StartCount();
+                this.CurrentItem.ParcelRequestsTotalTrade.StartCount();
+                this.CurrentItem.ParcelRequestsTotalSelected.StartCount();
+                this.CurrentItem.RequestsTotalSelected?.StartCount();
+                this.CurrentItem.RequestsTotalSelectedDelivery?.StartCount();
+                this.CurrentItem.RequestsTotalSelectedTrade?.StartCount();
             }
-            this.CurrentItem.ParcelRequestsTotal.StartCount();
-            this.CurrentItem.ParcelRequestsTotalDelivery.StartCount();
-            this.CurrentItem.ParcelRequestsTotalTrade.StartCount();
-            this.CurrentItem.ParcelRequestsTotalSelected.StartCount();
-            this.CurrentItem.RequestsTotalSelected?.StartCount();
-            this.CurrentItem.RequestsTotalSelectedDelivery?.StartCount();
-            this.CurrentItem.RequestsTotalSelectedTrade?.StartCount();
+            ParcelSetFilterButtonImage();
         }
         protected override void RejectChanges(object parametr)
         {
@@ -3405,6 +4271,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.SettingView();
             myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
             myview.MoveCurrentToFirst();
+            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items);
+        }
+
+        private void ParcelSetFilterButtonImage()
+        {
+            //string uribitmap;
+            if (myfilter.isEmpty) myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel.png";
+            else myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel_preferences.png";
+            this.PropertyChangedNotification(nameof(this.FilterButtonImagePath));
+            this.PropertyChangedNotification(nameof(this.IsFiltered));
+            //System.Windows.Media.Imaging.BitmapImage bi3 = new System.Windows.Media.Imaging.BitmapImage(new Uri(uribitmap, UriKind.Relative));
+            //(ParcelFilterButton.Content as Image).Source = bi3;
         }
     }
 

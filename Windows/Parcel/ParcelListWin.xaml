@@ -2,35 +2,18 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
-        Title="Перевозки" Name="winParcelList" Language="ru-RU" Height="267" Width="1183" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/truck_blue.png" WindowState="Maximized">
+        xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        Title="Список отправок" Name="winParcelList" Language="ru-RU" Height="267" Width="1183" FontSize="11" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/truck_blue.png" WindowState="Maximized">
     <Window.Resources>
-        <CollectionViewSource x:Key="keyTypeVS" />
-        <CollectionViewSource x:Key="keyStatusVS" />
-        <CollectionViewSource x:Key="keyGoodsVS" />
+        <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
     </Window.Resources>
     <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition />
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ToolBar Height="35">
-            <!--<my:MainMenuUC VerticalAlignment="Center"/>
-            <Separator/>-->
-            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click">
-                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" />
-            </ToggleButton>
-            <Separator/>
-            <Button ToolTip="Обновить данные" Click="RefreshButton_Click">
-                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
-            </Button>
-            <Separator/>
-            <Button ToolTip="Отменить несохраненные изменения" Click="RejectButton_Click" Visibility="Visible">
-                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
-            </Button>
-            <Button ToolTip="Сохранить изменения в БД" Click="SaveButton_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
-                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
-            </Button>
-            <Separator/>
             <Button ToolTip="Добавить перевозку" Click="ButtonAdd_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
                 <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
             </Button>
@@ -38,9 +21,6 @@
                 <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
             </Button>
             <Separator/>
-            <Button Command="Cut" ToolTip="Вырезать" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}">
-                <Image Source="/CustomBrokerWpf;component/Images/cut.png" />
-            </Button>
             <Button Command="Copy" ToolTip="Копировать">
                 <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
             </Button>
@@ -48,21 +28,35 @@
                 <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
             </Button>
             <Separator/>
+            <Button ToolTip="Обновить данные" Command="{Binding SaveRefresh}" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Save}" Visibility="{Binding Source={StaticResource keyVisibilityManagers}, Path=Visibility}" IsTabStop="False">
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
+            </Button>
+            <Button ToolTip="Отменить несохраненные изменения" Command="{Binding Path=Reject}" IsTabStop="False" Visibility="Visible">
+                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+            </Button>
+            <ToggleButton ToolTip="Изменить фильтр" x:Name="FilterButton" Click="FilterButton_Click" IsChecked="{Binding Path=IsShowFilterWindow}" IsTabStop="False">
+                <Image Source="{Binding Path=FilterButtonImagePath}" />
+            </ToggleButton>
+            <Separator/>
             <Button x:Name="thisCloseButton" Content="Закрыть" Click="CloseButton_Click"/>
-            <Popup Name="popInf" StaysOpen="False" Placement="Mouse" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
-                <Border BorderBrush="Beige" BorderThickness="2" Background="WhiteSmoke" CornerRadius="7">
-                    <TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
                 </Border>
             </Popup>
         </ToolBar>
-        <DataGrid Name="parcelDataGrid" IsSynchronizedWithCurrentItem="True"  AutoGenerateColumns="False" EnableRowVirtualization="True" Grid.Row="2" SelectionUnit="FullRow" VerticalAlignment="Top"
-                  CommandManager.PreviewExecuted="mainDataGrid_PreviewExecuted" Validation.Error="mainDataGrid_Error" RowHeaderWidth="10" CanUserDeleteRows="False" CanUserResizeRows="False" ColumnWidth="SizeToCells">
+        <DataGrid Name="ParcelDataGrid" IsSynchronizedWithCurrentItem="True"  AutoGenerateColumns="False" EnableRowVirtualization="True" Grid.Row="1" SelectionUnit="FullRow" VerticalAlignment="Top"
+                  CommandManager.PreviewExecuted="mainDataGrid_PreviewExecuted" Validation.Error="mainDataGrid_Error" RowHeaderWidth="10" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" ColumnWidth="SizeToCells"
+                   MouseDoubleClick="DataGrid_MouseDoubleClick"
+                  ItemsSource="{Binding Items}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="№" Binding="{Binding Path=fullNumber}" IsReadOnly="True" />
-                <DataGridComboBoxColumn Header="Тип*" SelectedValueBinding="{Binding Path=parceltype}" DisplayMemberPath="parceltypename" SelectedValuePath="parceltypeid" ItemsSource="{Binding Source={StaticResource keyTypeVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Visibility="Collapsed"/>
-                <DataGridComboBoxColumn Header="Статус*" SelectedValueBinding="{Binding Path=parcelstatus}" DisplayMemberPath="name" SelectedValuePath="rowId" ItemsSource="{Binding Source={StaticResource keyStatusVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
-                <DataGridComboBoxColumn Header="Груз" SelectedValueBinding="{Binding Path=goodstype}" DisplayMemberPath="Name" SelectedValuePath="Id" ItemsSource="{Binding Source={StaticResource keyGoodsVS}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
-                <DataGridTextColumn Header="Отправка" Binding="{Binding Path=shipnumber, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}">
+                <DataGridTextColumn Header="№" Binding="{Binding Path=ParcelNumberEntire}" SortMemberPath="ParcelNumberOrder" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="Статус*" SelectedItemBinding="{Binding Path=Status}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.States}" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                <DataGridComboBoxColumn Header="Груз" SelectedItemBinding="{Binding Path=GoodsType}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.GoodsTypes}" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                <DataGridTextColumn Header="Отправка" Binding="{Binding Path=ParcelNumber, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}" Width="SizeToHeader">
                     <DataGridTextColumn.EditingElementStyle>
                         <Style TargetType="{x:Type TextBox}">
                             <Setter Property="MaxLength" Value="6"/>
@@ -70,27 +64,46 @@
                         </Style>
                     </DataGridTextColumn.EditingElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Декларация" Binding="{Binding Path=declaration}" />
-                <DataGridTextColumn Header="Отгрузка план*" Binding="{Binding Path=shipplandate, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
-                <DataGridTextColumn Header="Отгрузка факт" Binding="{Binding Path=shipdate, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
-                <DataGridTextColumn Header="Оформлено" Binding="{Binding Path=preparation, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
-                <DataGridTextColumn Header="Ввезено" Binding="{Binding Path=borderdate, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
-                <DataGridTextColumn Header="Терминал" Binding="{Binding Path=terminalin, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
-                <DataGridTextColumn Header="Растаможено" Binding="{Binding Path=terminalout, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
-                <DataGridTextColumn Header="Выгружено" Binding="{Binding Path=unloaded, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
-                <DataGridTextColumn Header="Машина номер" Binding="{Binding Path=lorry}" />
-                <DataGridTextColumn Header="Машина знак" Binding="{Binding Path=lorryregnum}" />
-                <DataGridTextColumn Header="Машина VIN" Binding="{Binding Path=lorryvin}" />
-                <DataGridTextColumn Header="Прицеп" Binding="{Binding Path=trailerregnum}" />
-                <DataGridTextColumn Header="Прицеп VIN" Binding="{Binding Path=trailervin}" />
-                <DataGridTextColumn Header="Объем" Binding="{Binding Path=lorryvolume}" />
-                <DataGridTextColumn Header="Тоннаж" Binding="{Binding Path=lorrytonnage}" />
-                <DataGridTextColumn Header="Перевозчик" Binding="{Binding Path=carrier}" />
-                <DataGridTextColumn Header="Контактное лицо" Binding="{Binding Path=carrierperson}" />
-                <DataGridTextColumn Header="Контактное лицо тел." Binding="{Binding Path=carriertel}" />
-                <DataGridTextColumn Header="Водитель" Binding="{Binding Path=trucker}" />
-                <DataGridTextColumn Header="Водитель тел." Binding="{Binding Path=truckertel}" />
+                <DataGridTextColumn Header="Декларация" Binding="{Binding Path=Declaration}" Width="SizeToHeader">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="MaxLength" Value="106"/>
+                            <Setter Property="Padding" Value="0,-1,0,-2" />
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Отгрузка план*" Binding="{Binding Path=ShipPlanDate, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
+                <DataGridTextColumn Header="Отгрузка факт" Binding="{Binding Path=ShipDate, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
+                <DataGridTextColumn Header="Оформлено" Binding="{Binding Path=Prepared, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
+                <DataGridTextColumn Header="Ввезено" Binding="{Binding Path=CrossedBorder, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
+                <DataGridTextColumn Header="Терминал" Binding="{Binding Path=TerminalIn, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
+                <DataGridTextColumn Header="Растаможено" Binding="{Binding Path=TerminalOut, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}"/>
+                <DataGridTextColumn Header="Выгружено" Binding="{Binding Path=Unloaded, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true, StringFormat=\{0:d\}}" />
+                <DataGridTextColumn Header="Машина номер" Binding="{Binding Path=Lorry}" />
+                <DataGridTextColumn Header="Машина знак" Binding="{Binding Path=LorryRegNum}" />
+                <DataGridTextColumn Header="Машина VIN" Binding="{Binding Path=LorryVIN}" />
+                <DataGridTextColumn Header="Прицеп знак" Binding="{Binding Path=TrailerRegNum}" />
+                <DataGridTextColumn Header="Прицеп VIN" Binding="{Binding Path=TrailerVIN}" />
+                <DataGridTextColumn Header="Объем" Binding="{Binding Path=LorryVolume}" />
+                <DataGridTextColumn Header="Тоннаж" Binding="{Binding Path=LorryTonnage}" />
+                <DataGridTextColumn Header="Перевозчик" Binding="{Binding Path=Carrier}" />
+                <DataGridTextColumn Header="Контактное лицо" Binding="{Binding Path=CarrierPerson}" />
+                <DataGridTextColumn Header="Контактное лицо тел." Binding="{Binding Path=CarrierTel}" />
+                <DataGridTextColumn Header="Водитель" Binding="{Binding Path=Trucker}" />
+                <DataGridTextColumn Header="Водитель тел." Binding="{Binding Path=TruckerTel}" />
             </DataGrid.Columns>
         </DataGrid>
+        <StatusBar Grid.Row="9" Background="Transparent" Grid.ColumnSpan="2" HorizontalContentAlignment="Right">
+            <StatusBarItem HorizontalAlignment="Right">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="30"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Path=IsFiltered}" />
+                    <TextBlock Text="{Binding Path=Items.Count}" Grid.Column="1" HorizontalAlignment="Right"/>
+                </Grid>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

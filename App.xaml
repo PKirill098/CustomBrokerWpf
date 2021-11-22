@@ -18,6 +18,7 @@
         <my:VisibilityAccountsLAccounts x:Key="keyVisibilityAccountsLAccounts"/>
         <my:VisibilityAlgorithmWriters x:Key="keyVisibilityAlgorithmWriters"/>
         <conv:NoDisplayNewId x:Key="keyNoDisplayNewId"/>
+        <conv:NoNullValueBackConverter x:Key="keyNotNullConverter"/>
         <Style TargetType="Window">
             <Setter Property="FontSize" Value="11"/>
         </Style>
@@ -88,6 +89,76 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="AcceptsReturn" Value="True"/>
         </Style>
+        <Style x:Key="ComboBoxButtonLess" TargetType="{x:Type ComboBox}"
+                                xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+            <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid x:Name="MainGrid" SnapsToDevicePixels="true">
+                            <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}" Placement="Bottom">
+                                <Themes:SystemDropShadowChrome x:Name="Shdw" Color="Transparent" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=MainGrid}">
+                                    <Border x:Name="DropDownBorder" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+                                        <ScrollViewer x:Name="DropDownScrollViewer">
+                                            <Grid RenderOptions.ClearTypeHint="Enabled">
+                                                <Canvas HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0">
+                                                    <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=DropDownBorder}" Height="{Binding ActualHeight, ElementName=DropDownBorder}" Width="{Binding ActualWidth, ElementName=DropDownBorder}"/>
+                                                </Canvas>
+                                                <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Themes:SystemDropShadowChrome>
+                            </Popup>
+                            <ToggleButton BorderBrush="{TemplateBinding BorderBrush}" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <ContentPresenter ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Content="{TemplateBinding SelectionBoxItem}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasDropShadow" SourceName="PART_Popup" Value="true">
+                                <Setter Property="Margin" TargetName="Shdw" Value="0,0,5,5"/>
+                                <Setter Property="Color" TargetName="Shdw" Value="#71000000"/>
+                            </Trigger>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter Property="Height" TargetName="DropDownBorder" Value="95"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                <Setter Property="Background" Value="#FFF4F4F4"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsGrouping" Value="true"/>
+                                    <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                            </MultiTrigger>
+                            <Trigger Property="ScrollViewer.CanContentScroll" SourceName="DropDownScrollViewer" Value="false">
+                                <Setter Property="Canvas.Top" TargetName="OpaqueRect" Value="{Binding VerticalOffset, ElementName=DropDownScrollViewer}"/>
+                                <Setter Property="Canvas.Left" TargetName="OpaqueRect" Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DataGridRowStyleDefault" TargetType="{x:Type DataGridRow}">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="False">
+                    <Setter Property="Background" Value="#e0f7e3"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style TargetType="DataGrid">
             <Setter Property="AlternatingRowBackground" Value="WhiteSmoke"/>
             <Setter Property="AlternationCount" Value="2"/>
@@ -108,6 +179,19 @@
 					</Style>
 				</Setter.Value>
 			</Setter>-->
+            <Setter Property="ColumnHeaderStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                        <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
 			<Setter Property="RowHeaderStyle">
 				<Setter.Value>
 					<Style TargetType="DataGridRowHeader">
@@ -120,18 +204,8 @@
 					</Style>
 				</Setter.Value>
 			</Setter>
-			<Setter Property="RowStyle">
-				<Setter.Value>
-					<Style TargetType="{x:Type DataGridRow}">
-						<Style.Triggers>
-							<Trigger Property="IsSelected" Value="False">
-								<Setter Property="Background" Value="#e0f7e3"/>
-							</Trigger>
-						</Style.Triggers>
-					</Style>
-				</Setter.Value>
-			</Setter>
-			<Setter Property="ContextMenu">
+            <Setter Property="RowStyle" Value="{StaticResource DataGridRowStyleDefault}"/>
+            <Setter Property="ContextMenu">
 				<Setter.Value>
 					<ContextMenu FocusManager.IsFocusScope="True">
 						<MenuItem Command="ApplicationCommands.Copy" Header="Копировать" Height="22">

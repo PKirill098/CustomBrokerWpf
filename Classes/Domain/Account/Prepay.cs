@@ -509,10 +509,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
             }
         }
-        internal bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte messageey)
         {
             bool isvalid = true;
             errmsg = null;
+            messageey = 0;
             switch (propertyname)
             {
                 case nameof(this.CurrencyBoughtDate):
@@ -1041,7 +1042,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             get { return this.IsEnabled ? this.DomainObject.Importer : null; }
         }
-        private DateTime? myrubpaiddate;
         public decimal? RateDiffPer
         { get { return this.IsEnabled ? this.DomainObject.RateDiffPer : (decimal?)null; } }
         public string RateDiffResult
@@ -1050,11 +1050,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsEnabled ? this.DomainObject.Refund : (decimal?)null; } }
         public decimal? RubDebt
         { get { return this.IsEnabled ? this.DomainObject.RubDebt : (decimal?)null; } }
+        private DateTime? myrubpaiddate;
         public DateTime? RubPaidDate
         {
             set
             {
-                if (!this.IsReadOnly && (myrubpaiddate.HasValue != value.HasValue || (value.HasValue && DateTime.Equals(myrubpaiddate, value.Value))))
+                if (!this.IsReadOnly && (myrubpaiddate.HasValue != value.HasValue || (value.HasValue && !DateTime.Equals(myrubpaiddate, value.Value))))
                 {
                     string name = nameof(this.RubPaidDate);
                     if (!myUnchangedPropertyCollection.ContainsKey(name))
@@ -1168,10 +1169,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             switch (propertyname)
             {
                 case nameof(this.RubPaidDate):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, myrubpaiddate, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, myrubpaiddate, out errmsg, out _);
                     break;
                 case nameof(this.CurrencyBoughtDate):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycurrencyboughtdate, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mycurrencyboughtdate, out errmsg, out _);
                     break;
             }
             if(isvalid)

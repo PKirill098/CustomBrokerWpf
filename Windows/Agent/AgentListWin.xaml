@@ -1,0 +1,172 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.AgentListWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
+        mc:Ignorable="d"
+        xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+        xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+        Title="Поставщики"  Name="winAgentList" Loaded="Window_Loaded" Closing="Window_Closing" Height="600" Width="900" Language="ru-RU" FontSize="11">
+    <Grid>
+        <Grid.Resources>
+            <lib:BindingProxy x:Key="DataContext" Data="{Binding}"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToolBar Height="32">
+            <Button ToolTip="Добавить поставщика" Click="AddButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Separator/>
+            <Button Command="{Binding Path=FilterRun}" ToolTip="Обновить информацию">
+                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+            </Button>
+            <Separator/>
+            <TextBox Text="{Binding Path=OverallFilter, UpdateSourceTrigger=PropertyChanged}" Width="200" ToolTip="Условие фильтрации для Наименование, Контакты, Адреса, Псевдонимы"/>
+            <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_new.png" />
+            </Button>
+            <Separator/>
+            <Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+        <DataGrid x:Name="MainDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="True"
+                   MouseDoubleClick="MainDataGrid_MouseDoubleClick">
+            <DataGrid.Resources>
+                <libui:CheckListBoxPopup x:Key="NameFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.NameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="FullNameFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FullNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="StateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.StateFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="CreaterFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CreaterFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="RecommendFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.RecommendFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:DateFilterPopup x:Key="DayEntryFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.DayEntryFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Имя" Binding="{Binding Path=Name, TargetNullValue='', Mode=TwoWay}" Width="200" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.NameFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="NameFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Наименование" Binding="{Binding Path=FullName, TargetNullValue='', Mode=TwoWay}" Width="*" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FullNameFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="FullNameFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Дата регистрации" Binding="{Binding Path=DayEntry, TargetNullValue='', StringFormat=\{0:d\}, Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="SizeToHeader" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DayEntryFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="DayEntryFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Зарегистрирован" Binding="{Binding Path=Creater, TargetNullValue='', Mode=OneWay}" Width="SizeToHeader" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CreaterFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="CreaterFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Рекомендован" Binding="{Binding Path=Recommend, TargetNullValue='', Mode=TwoWay}" Width="SizeToHeader" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.RecommendFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="RecommendFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Состояние" Binding="{Binding Path=StateReferenceSimple.Name, TargetNullValue='', Mode=TwoWay}" Width="SizeToHeader" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.StateFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="StateFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StatusBar Grid.Row="2" Background="#FFF0F0F0">
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding Path=Items.Count}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

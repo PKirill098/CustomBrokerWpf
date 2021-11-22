@@ -1,4 +1,4 @@
-﻿using KirillPolyanskiy.CustomBrokerWpf.Domain.References;
+﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References;
 using System;
 using System.Data.SqlClient;
 using lib = KirillPolyanskiy.DataModelClassLibrary;

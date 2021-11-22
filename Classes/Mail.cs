@@ -26,7 +26,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             smtphost = "mail.nic.ru";
             imaphost = "mail.nic.ru";
             user="order@art-delivery.ru";
-            password = "GHJiop67*";
+            password = "RHB#Paml*37w!1";
 #endif
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("АРТ ДЕЛИВЕРИ", mailbox));

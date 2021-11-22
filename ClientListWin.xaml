@@ -31,7 +31,7 @@
                 </Border>
             </Popup>
         </ToolBar>
-        <DataGrid Grid.Row="1" x:Name="MainDataGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" RowDetailsVisibilityMode="VisibleWhenSelected" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" CanUserAddRows="False" CanUserDeleteRows="False"
+        <DataGrid Grid.Row="1" x:Name="MainDataGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Single"
                  EnableRowVirtualization="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" CanUserResizeRows="False" FrozenColumnCount="1">
             <DataGrid.Resources>
                 <libbind:DataGridCellBorderConverter x:Key="CellBorderConverter"/>

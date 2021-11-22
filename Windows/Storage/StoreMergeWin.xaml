@@ -220,8 +220,6 @@
 				<DataGridTextColumn Header="Поставщик" Binding="{Binding Path=Request.Agent.Name}" Width="SizeToHeader" IsReadOnly="True" />
 				<DataGridTextColumn Header="Клиент" Binding="{Binding Path=Request.Customer.Name}" Width="SizeToHeader" IsReadOnly="True" />
 				<DataGridTextColumn Header="Описание груза" Binding="{Binding Path=Request.Cargo}" Width="SizeToHeader" IsReadOnly="True" />
-                <!--<DataGridCheckBoxColumn Header="Фрахт" Binding="{Binding Path=isfreight, Mode=OneWay}" ClipboardContentBinding="{Binding Path=isfreight, Converter={StaticResource BooleanClipBoardConverter1}}" Width="SizeToHeader" />-->
-                <!--<DataGridTextColumn Header="Экспедитор" Binding="{Binding Path=itemName}" Width="SizeToHeader" IsReadOnly="True" />-->
 				<DataGridTextColumn Header="Кол-во мест" Binding="{Binding Path=Request.CellNumber}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" />
 				<DataGridTextColumn Header="Вес по док, кг" Binding="{Binding Path=Request.OfficialWeight}" ElementStyle="{StaticResource MoneyStyleView}" />
 				<DataGridTextColumn Header="Объем, м3" Binding="{Binding Path=Request.Volume}" ElementStyle="{StaticResource MoneyStyleView}" Width="SizeToHeader" />

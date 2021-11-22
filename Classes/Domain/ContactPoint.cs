@@ -169,17 +169,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams = new SqlParameter[] { parid };
         }
 
-        public override int? ItemId
-        {
-            set
-            {
-                SelectParams[0].Value = value;
-            }
-            get
-            {
-                return (int?)SelectParams[0].Value;
-            }
-        }
         protected override ContactPoint CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             return new ContactPoint(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.IsDBNull(1) ? null : reader.GetString(1), reader.GetString(2));

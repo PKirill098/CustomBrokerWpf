@@ -139,6 +139,12 @@
 								<EventSetter Event="MouseRightButtonUp" Handler="CustomerFilterPopup_Open"/>
 							</Style>
 						</DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                                <Setter Property="FontWeight" Value="{Binding Prepay.Customer.NameFontWeight}"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
 					</DataGridTextColumn>
 					<DataGridTemplateColumn CanUserSort="False" SortMemberPath="Template1" Width="SizeToCells">
 						<DataGridTemplateColumn.CellTemplate>

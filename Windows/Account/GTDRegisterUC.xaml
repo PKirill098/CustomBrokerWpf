@@ -112,7 +112,14 @@
                                 <DataGridTextColumn Binding="{Binding Path=Selling, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=SellingWithoutRate, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=SellingRate, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
-                                <DataGridTextColumn Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}"/>
+                                <DataGridTextColumn Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                                            <Setter Property="FontWeight" Value="{Binding Client.NameFontWeight}"/>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
                                 <DataGridTextColumn Binding="{Binding Path=Rate, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Fee, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Tax, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
@@ -348,7 +355,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Покупатель" Binding="{Binding Path=Client, TargetNullValue='', Mode=OneWay}">
+                    <DataGridTextColumn Header="Покупатель" Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Покупатель"/>
@@ -365,6 +372,12 @@
                                 <EventSetter Event="MouseRightButtonUp" Handler="ClientFilterPopup_Open"/>
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
+                                <Setter Property="FontWeight" Value="{Binding Client.NameFontWeight}"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="Коэф-нт" Binding="{Binding Path=Rate, TargetNullValue='', Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>

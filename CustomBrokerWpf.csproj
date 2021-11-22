@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KirillPolyanskiy.CustomBrokerWpf</RootNamespace>
     <AssemblyName>CustomBrokerWpf</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -157,29 +157,69 @@
     <Compile Include="Classes\Domain\Account\PrepayCurrencyPay.cs" />
     <Compile Include="Classes\Domain\Account\PrepayExpire.cs" />
     <Compile Include="Classes\Domain\Account\Selling.cs" />
-    <Compile Include="Classes\Domain\AgentAlias.cs" />
+    <Compile Include="Classes\Domain\Address.cs" />
+    <Compile Include="Classes\Domain\Agent\AgentAddress.cs" />
+    <Compile Include="Classes\Domain\Agent\AgentAlias.cs" />
+    <Compile Include="Classes\Domain\Agent\AgentBrand.cs" />
+    <Compile Include="Classes\Domain\Agent\AgentContact.cs" />
+    <Compile Include="Classes\Domain\Agent\Brand.cs" />
+    <Compile Include="Classes\Domain\Agent\Contract.cs" />
+    <Compile Include="Classes\Domain\Contact.cs" />
+    <Compile Include="Classes\Domain\DomainBaseClass.cs" />
     <Compile Include="Classes\Domain\Manager.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
+    <Compile Include="Classes\Domain\ParcelLastShipdate.cs" />
+    <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
     <Compile Include="Classes\Domain\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
+    <Compile Include="Classes\Domain\Storage\Warehouse.cs" />
+    <Compile Include="Classes\Domain\Storage\WarehouseAddress.cs" />
+    <Compile Include="Classes\Domain\Storage\WarehouseContact.cs" />
     <Compile Include="Classes\EventLoger.cs" />
-    <Compile Include="Classes\Specification\SellingFactors.cs" />
-    <Compile Include="Classes\Specification\SpecificationCustomerInvoiceRate.cs" />
-    <Compile Include="Classes\Specification\Variation.cs" />
+    <Compile Include="Classes\Domain\Specification\SellingFactors.cs" />
+    <Compile Include="Classes\Domain\Specification\SpecificationCustomerInvoiceRate.cs" />
+    <Compile Include="Classes\Domain\Specification\Variation.cs" />
     <Compile Include="ManagersWin.xaml.cs">
       <DependentUpon>ManagersWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Client\PaymentTypeWin.xaml.cs">
+      <DependentUpon>PaymentTypeWin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Account\PrepayExpireWin.xaml.cs">
       <DependentUpon>PrepayExpireWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Agent\AgentItemWin.xaml.cs">
+      <DependentUpon>AgentItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Agent\AgentListWin.xaml.cs">
+      <DependentUpon>AgentListWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Client\ClientItemWin.xaml.cs">
+      <DependentUpon>ClientItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Client\ClientNewWin.xaml.cs">
+      <DependentUpon>ClientNewWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelItemWin.xaml.cs">
+      <DependentUpon>ParcelItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Parcel\ParcelUC.xaml.cs">
+      <DependentUpon>ParcelUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RichTextWin.xaml.cs">
+      <DependentUpon>RichTextWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Storage\WarehouseItemWin.xaml.cs">
+      <DependentUpon>WarehouseItemWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Storage\WarehouseWin.xaml.cs">
+      <DependentUpon>WarehouseWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Storage\StorageAgentIdentify.xaml.cs">
       <DependentUpon>StorageAgentIdentify.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Account\AccountMainWin.xaml.cs">
       <DependentUpon>AccountMainWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AccountWin.xaml.cs">
-      <DependentUpon>AccountWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Account\CustomsInvoicePayWin.xaml.cs">
       <DependentUpon>CustomsInvoicePayWin.xaml</DependentUpon>
@@ -201,14 +241,14 @@
     </Compile>
     <Compile Include="Classes\ChartManager.cs" />
     <Compile Include="Classes\ConcurrencyManager.cs" />
-    <Compile Include="Classes\CountryVM.cs" />
+    <None Include="Trash\CountryVM.cs" />
     <Compile Include="Classes\CurrencyRate.cs" />
     <Compile Include="Classes\Domain\Account\PaymentRegister.cs" />
     <Compile Include="Classes\Domain\Account\Prepay.cs" />
     <Compile Include="Classes\Domain\Account\CurrencyBuy.cs" />
     <Compile Include="Classes\Domain\Account\PrepayCustomerRequest.cs" />
     <Compile Include="Classes\Domain\Account\PrepayRubPay.cs" />
-    <Compile Include="Classes\Domain\Agent.cs" />
+    <Compile Include="Classes\Domain\Agent\Agent.cs" />
     <Compile Include="Classes\Domain\Algorithm\Algorithm.cs" />
     <Compile Include="Classes\Domain\Algorithm\AlgorithmFormula.cs" />
     <Compile Include="Classes\Domain\Algorithm\AlgorithmRequest.cs" />
@@ -231,7 +271,6 @@
     <Compile Include="Classes\Domain\CustomerAddress.cs" />
     <Compile Include="Classes\Domain\CustomerContact.cs" />
     <Compile Include="Classes\Domain\CustomerLegal.cs" />
-    <Compile Include="Classes\Domain\DomainBaseClass.cs" />
     <Compile Include="Classes\Domain\EventLog.cs" />
     <Compile Include="Classes\Domain\Gender.cs" />
     <Compile Include="Classes\Domain\Goods.cs" />
@@ -241,24 +280,22 @@
     <Compile Include="Classes\Domain\References\Countries.cs" />
     <Compile Include="Classes\Domain\References\PriceCategory.cs" />
     <Compile Include="Classes\Domain\Reminder.cs" />
-    <Compile Include="Classes\Domain\Request.cs" />
-    <Compile Include="Classes\Domain\RequestCustomerLegal.cs" />
-    <Compile Include="Classes\Domain\RequestHistory.cs" />
-    <Compile Include="Classes\Domain\RequestItem.cs" />
-    <Compile Include="Classes\Domain\RequestMailState.cs" />
+    <Compile Include="Classes\Domain\Request\Request.cs" />
+    <Compile Include="Classes\Domain\Request\RequestCustomerLegal.cs" />
+    <Compile Include="Classes\Domain\Request\RequestHistory.cs" />
+    <Compile Include="Classes\Domain\Request\RequestMailState.cs" />
     <Compile Include="Classes\EventLogType.cs" />
     <Compile Include="Classes\ExceptionHandler.cs" />
     <Compile Include="Classes\Domain\References\Principals.cs" />
     <Compile Include="Classes\Mail.cs" />
     <Compile Include="Classes\MailSMS.cs" />
     <Compile Include="Classes\Parameter.cs" />
-    <Compile Include="Classes\Specification\Declaration.cs" />
-    <Compile Include="Classes\Specification\RequestItemNote.cs" />
-    <Compile Include="Classes\Specification\Specification.cs" />
-    <Compile Include="Classes\Specification\SpecificationDetail.cs" />
-    <Compile Include="Classes\Specification\TNVEDGoods.cs" />
-    <Compile Include="Classes\Specification\TNVEDGroup.cs" />
-    <Compile Include="Classes\Specification\VendorCode.cs" />
+    <Compile Include="Classes\Domain\Specification\Declaration.cs" />
+    <Compile Include="Classes\Domain\Specification\Specification.cs" />
+    <Compile Include="Classes\Domain\Specification\SpecificationDetail.cs" />
+    <Compile Include="Classes\Domain\Specification\TNVEDGoods.cs" />
+    <Compile Include="Classes\Domain\Specification\TNVEDGroup.cs" />
+    <Compile Include="Classes\Domain\Specification\VendorCode.cs" />
     <Compile Include="Classes\StartAsyncProgram.cs" />
     <Compile Include="ClientLegalWin.xaml.cs">
       <DependentUpon>ClientLegalWin.xaml</DependentUpon>
@@ -267,29 +304,22 @@
       <DependentUpon>ClientListWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\IntColorConverter.cs" />
-    <Compile Include="Classes\Specification\Description.cs" />
-    <Compile Include="Classes\Specification\GoodsSynonym.cs" />
-    <Compile Include="Classes\Specification\Mapping.cs" />
-    <Compile Include="Classes\Specification\MappingGender.cs" />
-    <Compile Include="Classes\Specification\Material.cs" />
+    <Compile Include="Classes\Domain\Specification\Description.cs" />
+    <Compile Include="Classes\Domain\Specification\GoodsSynonym.cs" />
+    <Compile Include="Classes\Domain\Specification\Mapping.cs" />
+    <Compile Include="Classes\Domain\Specification\MappingGender.cs" />
+    <Compile Include="Classes\Domain\Specification\Material.cs" />
     <Compile Include="Classes\ViewModelBaseClass.cs" />
-    <Compile Include="Classes\WayBill.cs" />
     <Compile Include="ContractorWin.xaml.cs">
       <DependentUpon>ContractorWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanClipBoardConverter.cs" />
-    <Compile Include="AccountTransactionsDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
-    </Compile>
     <Compile Include="Classes\UserRoles.cs" />
     <Compile Include="Classes\AccountEntry.cs" />
     <Compile Include="Classes\AmountWords.cs" />
     <Compile Include="Classes\DataGridColumnManagerVM.cs" />
     <Compile Include="Classes\DinamicPropertyBinding.cs" />
     <Compile Include="Classes\Domain\Expenditure.cs" />
-    <Compile Include="Classes\Invoice.cs" />
     <Compile Include="Classes\ListNotifyChanged.cs" />
     <Compile Include="Classes\Domain\References\References.cs" />
     <Compile Include="Classes\RelayCommand.cs" />
@@ -304,7 +334,7 @@
     <Compile Include="Converters\LegalClientMultyBinding.cs" />
     <Compile Include="Converters\NullDateConverter.cs" />
     <Compile Include="Converters\PaymentPayEnableConverter.cs" />
-    <Compile Include="CountriesWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\CountriesWin.xaml.cs">
       <DependentUpon>CountriesWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Account\CurrencyBuyWin.xaml.cs">
@@ -334,20 +364,6 @@
     <Compile Include="ImporterWin.xaml.cs">
       <DependentUpon>ImporterWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="InvoiceDS.cs">
-      <DependentUpon>InvoiceDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="InvoiceDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>InvoiceDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="InvoiceListWin.xaml.cs">
-      <DependentUpon>InvoiceListWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="InvoiceWin.xaml.cs">
-      <DependentUpon>InvoiceWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\Security\LoginWin.xaml.cs">
       <DependentUpon>LoginWin.xaml</DependentUpon>
     </Compile>
@@ -356,9 +372,6 @@
     </Compile>
     <Compile Include="MailTemplateWin.xaml.cs">
       <DependentUpon>MailTemplateWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MainMenuUC.xaml.cs">
-      <DependentUpon>MainMenuUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="MappingWin.xaml.cs">
       <DependentUpon>MappingWin.xaml</DependentUpon>
@@ -371,9 +384,6 @@
     </Compile>
     <Compile Include="Windows\Parcel\ParcelReportChartWin.xaml.cs">
       <DependentUpon>ParcelReportChartWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentlistUC.xaml.cs">
-      <DependentUpon>PaymentlistUC.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Account\CustomsInvoiceWin.xaml.cs">
       <DependentUpon>CustomsInvoiceWin.xaml</DependentUpon>
@@ -420,65 +430,8 @@
     <Compile Include="Windows\Specification\VendorCodeWin.xaml.cs">
       <DependentUpon>VendorCodeWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewTextWin.xaml.cs">
-      <DependentUpon>ViewTextWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WayBillClientWin.xaml.cs">
-      <DependentUpon>WayBillClientWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="CustomerMoveLegalDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="CustomerMoveLegalWin.xaml.cs">
-      <DependentUpon>CustomerMoveLegalWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="DataGridColumnsJoiner.cs" />
-    <Compile Include="CustomerBalanceFilterWin.xaml.cs">
-      <DependentUpon>CustomerBalanceFilterWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="CustomerBalanceWin.xaml.cs">
-      <DependentUpon>CustomerBalanceWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="DebtorsWin.xaml.cs">
-      <DependentUpon>DebtorsWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FreightDS.cs">
-      <DependentUpon>FreightDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="FreightDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FreightDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="FreightWin.xaml.cs">
-      <DependentUpon>FreightWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="InvoiceExcelWin.xaml.cs">
-      <DependentUpon>InvoiceExcelWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="InvoicePaymentWin.xaml.cs">
-      <DependentUpon>InvoicePaymentWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="LegalBalanceDetailsWin.xaml.cs">
-      <DependentUpon>LegalBalanceDetailsWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="LegalBalanceWin.xaml.cs">
-      <DependentUpon>LegalBalanceWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="LegalEntityWin.xaml.cs">
-      <DependentUpon>LegalEntityWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Converters\NoNullValueConverterClass.cs" />
-    <Compile Include="ParcelCostDS.cs">
-      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="ParcelCostDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
-    </Compile>
     <Compile Include="ParcelDS.cs">
       <DependentUpon>ParcelDS.xsd</DependentUpon>
     </Compile>
@@ -499,32 +452,6 @@
     <Compile Include="Windows\Parcel\ParcelReportWin.xaml.cs">
       <DependentUpon>ParcelReportWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Parcel\ParcelWin.xaml.cs">
-      <DependentUpon>ParcelWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentDoubleWin.xaml.cs">
-      <DependentUpon>PaymentDoubleWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentDS.cs">
-      <DependentUpon>PaymentDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>PaymentDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentListFilterWin.xaml.cs">
-      <DependentUpon>PaymentListFilterWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentListWin.xaml.cs">
-      <DependentUpon>PaymentListWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentObjWin.xaml.cs">
-      <DependentUpon>PaymentObjWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PaymentWin.xaml.cs">
-      <DependentUpon>PaymentWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="ReferenceDS.cs">
       <DependentUpon>ReferenceDS.xsd</DependentUpon>
     </Compile>
@@ -533,20 +460,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ReferenceDS.xsd</DependentUpon>
     </Compile>
-    <Compile Include="Classes\RequestConflictResolution.cs" />
-    <Compile Include="Windows\Request\RequestItemWin.xaml.cs">
-      <DependentUpon>RequestItemWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RequestStoagePointValidationRule.cs" />
     <Compile Include="RequestTotalConverter.cs" />
-    <Compile Include="SQLConnection.cs" />
     <Compile Include="Classes\SQLFilterClass.cs" />
-    <Compile Include="ClientFilterWin.xaml.cs">
+    <Compile Include="Windows\Client\ClientFilterWin.xaml.cs">
       <DependentUpon>ClientFilterWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ContactPointConverter.cs" />
     <Compile Include="Converters\ChildRelationConverter.cs" />
-    <Compile Include="ClientWin.xaml.cs">
+    <Compile Include="Windows\Client\ClientWin.xaml.cs">
       <DependentUpon>ClientWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="ContactPointTypeWin.xaml.cs">
@@ -567,14 +489,6 @@
     <Compile Include="Converters\NoNullValueBackConverter.cs" />
     <Compile Include="RecipientWin.xaml.cs">
       <DependentUpon>RecipientWin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RequestDS.cs">
-      <DependentUpon>RequestDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="RequestDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>RequestDS.xsd</DependentUpon>
     </Compile>
     <Compile Include="Windows\Request\RequestFilterWin.xaml.cs">
       <DependentUpon>RequestFilterWin.xaml</DependentUpon>
@@ -598,26 +512,59 @@
     <Compile Include="TownWin.xaml.cs">
       <DependentUpon>TownWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Request\RequestWin.xaml.cs">
-      <DependentUpon>RequestWin.xaml</DependentUpon>
-    </Compile>
     <Page Include="ManagersWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Client\PaymentTypeWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\Account\PrepayExpireWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Agent\AgentItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Agent\AgentListWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Client\ClientItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Client\ClientNewWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Parcel\ParcelUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RichTextWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Storage\WarehouseItemWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Storage\WarehouseWin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Storage\StorageAgentIdentify.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Account\AccountMainWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="AccountWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -657,7 +604,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ClientFilterWin.xaml">
+    <Page Include="Windows\Client\ClientFilterWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -669,7 +616,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ClientWin.xaml">
+    <Page Include="Windows\Client\ClientWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -685,15 +632,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CountriesWin.xaml">
+    <Page Include="Windows\Dictionaries\CountriesWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Account\CurrencyBuyWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomerMoveLegalWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -709,27 +652,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="CustomerBalanceFilterWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomerBalanceWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="DebtorsWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="DeliveryTypeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ForwarderWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="FreightWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -761,34 +688,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="InvoiceExcelWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="InvoicePaymentWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="InvoiceListWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="InvoiceWin.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="LegalBalanceDetailsWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LegalBalanceWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LegalEntityWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\Security\LoginWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -798,10 +697,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MailTemplateWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainMenuUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -864,38 +759,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Parcel\ParcelWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentDoubleWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentListFilterWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentlistUC.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentListWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentTypeWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentObjWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PaymentWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\Account\CustomsInvoiceWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -940,10 +803,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Request\RequestItemWin.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Windows\Request\RequestNewWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -984,10 +843,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Request\RequestWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UserConflictResolutionWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -996,19 +851,8 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ViewTextWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="WayBillClientWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PaymentTypeWin.xaml.cs">
-      <DependentUpon>PaymentTypeWin.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -1029,28 +873,6 @@
     <None Include="app.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="AccountTransactionsDS.xsc">
-      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
-    </None>
-    <None Include="AccountTransactionsDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>AccountTransactionsDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="AccountTransactionsDS.xss">
-      <DependentUpon>AccountTransactionsDS.xsd</DependentUpon>
-    </None>
-    <None Include="InvoiceDS.xsc">
-      <DependentUpon>InvoiceDS.xsd</DependentUpon>
-    </None>
-    <None Include="InvoiceDS.xsd">
-      <SubType>Designer</SubType>
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>InvoiceDS.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="InvoiceDS.xss">
-      <DependentUpon>InvoiceDS.xsd</DependentUpon>
-    </None>
     <None Include="packages.config" />
     <None Include="Templates\GetAllGoods.xltx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1067,39 +889,6 @@
     <None Include="Templates\ТТН.xltx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CustomerMoveLegalDS.xsc">
-      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
-    </None>
-    <None Include="CustomerMoveLegalDS.xsd">
-      <SubType>Designer</SubType>
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>CustomerMoveLegalDS.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="CustomerMoveLegalDS.xss">
-      <DependentUpon>CustomerMoveLegalDS.xsd</DependentUpon>
-    </None>
-    <None Include="FreightDS.xsc">
-      <DependentUpon>FreightDS.xsd</DependentUpon>
-    </None>
-    <None Include="FreightDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>FreightDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="FreightDS.xss">
-      <DependentUpon>FreightDS.xsd</DependentUpon>
-    </None>
-    <None Include="ParcelCostDS.xsc">
-      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
-    </None>
-    <None Include="ParcelCostDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>ParcelCostDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="ParcelCostDS.xss">
-      <DependentUpon>ParcelCostDS.xsd</DependentUpon>
-    </None>
     <None Include="ParcelDS.xsc">
       <DependentUpon>ParcelDS.xsd</DependentUpon>
     </None>
@@ -1110,16 +899,6 @@
     </None>
     <None Include="ParcelDS.xss">
       <DependentUpon>ParcelDS.xsd</DependentUpon>
-    </None>
-    <None Include="PaymentDS.xsc">
-      <DependentUpon>PaymentDS.xsd</DependentUpon>
-    </None>
-    <None Include="PaymentDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>PaymentDS.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="PaymentDS.xss">
-      <DependentUpon>PaymentDS.xsd</DependentUpon>
     </None>
     <None Include="Properties\DataSources\RequestHistoryEntities.datasource" />
     <None Include="ReferenceDS.xsc">
@@ -1138,17 +917,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="RequestDS.xsc">
-      <DependentUpon>RequestDS.xsd</DependentUpon>
-    </None>
-    <None Include="RequestDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>RequestDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="RequestDS.xss">
-      <DependentUpon>RequestDS.xsd</DependentUpon>
-    </None>
     <None Include="Templates\Freight.xltx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1600,6 +1368,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\1C.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\help2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windows\NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,8 +9,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ToolBar Height="30">
             <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
@@ -35,7 +35,7 @@
                 </Border>
             </Popup>
         </ToolBar>
-        <DataGrid x:Name="mainDataGrid" Grid.Row="2" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" >
+        <DataGrid x:Name="mainDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalScrollBarVisibility="Auto" >
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Style.Triggers>
@@ -94,5 +94,10 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <StatusBar Grid.Row="2" Background="#FFF0F0F0">
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding Path=Items.Count}"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

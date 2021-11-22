@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
-        Title="Юридическое лицо" Foreground="#666666" Background="#ffffff" Language="ru-RU" Height="760" Width="700" FontSize="10" Icon="/CustomBrokerWpf;component/Images/security_agent.png" Loaded="Window_Loaded" Closing="Window_Closing" >
+        Title="Юридическое лицо" Name="winClientLegal" Foreground="#666666" Background="#ffffff" Language="ru-RU" Height="760" Width="700" FontSize="10" Icon="/CustomBrokerWpf;component/Images/security_agent.png" Loaded="Window_Loaded" Closing="Window_Closing" >
     <Window.Resources>
         <my:UpperCaseFirstConverter x:Key="keyUpperCaseFirstConverter" />
         <my:ChildRelationConverter x:Key="keyChildRelationConverter" />

@@ -681,7 +681,8 @@
 								</Style>
 							</DataGrid.RowStyle>
 							<DataGrid.Columns>
-								<DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
+                                <DataGridTextColumn Header="№" Binding="{Binding Path=Id, Converter={StaticResource keyNoDisplayNewId}}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                                <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
 								<DataGridTextColumn Header="Статус" Binding="{Binding Path=Status.Name}" IsReadOnly="True" SortMemberPath="Status.Id" Width="64"/>
 								<DataGridTextColumn Header="Группа" Binding="{Binding Path=ParcelGroup, UpdateSourceTrigger=LostFocus, TargetNullValue='',NotifyOnValidationError=True}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}">
 									<DataGridTextColumn.HeaderStyle>
@@ -750,7 +751,14 @@
 										</Style>
 									</DataGridTextColumn.CellStyle>
 								</DataGridTextColumn>
-								<DataGridTextColumn Header="Клиент" Binding="{Binding Path=CustomerName, TargetNullValue=''}" Width="150">
+                                <DataGridTextColumn Header="Торговые марки" Binding="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" Width="150" CanUserSort="True" SortMemberPath="BrandNames" ClipboardContentBinding="{Binding Path=BrandNames}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="ToolTip" Value="{Binding Path=BrandNames}"/>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=CustomerName, TargetNullValue=''}" Width="150">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="DataGridCell">
 											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
@@ -898,7 +906,8 @@
 										</Style>
 									</DataGridTextColumn.HeaderStyle>
 								</DataGridTextColumn>
-								<DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
+                                <DataGridTextColumn Header="Менеджер" CanUserSort="True" Binding="{Binding Manager.NameComb, Mode=OneWay}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
 								<DataGridTemplateColumn>
 									<DataGridTemplateColumn.CellTemplate>
 										<DataTemplate>

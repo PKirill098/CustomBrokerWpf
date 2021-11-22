@@ -22,6 +22,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycustomer = customer;
             mydayentry = dayentry;
             mydeliverytype = deliverytype;
+            mydeliverytype_ = deliverytype.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", deliverytype.Value) : null;
             myfullname = fullname;
             myinn = inn;
             mymanagergroup = managergroup;
@@ -117,10 +118,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<int?>(ref mydeliverytype, value);
+                base.SetProperty<int?>(ref mydeliverytype, value, () => {
+
+                    mydeliverytype_ = value.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", mydeliverytype.Value) : null;
+                    this.PropertyChangedNotification(nameof(this.DeliveryType_));
+                });
             }
             get { return mydeliverytype; }
         }
+        private lib.ReferenceSimpleItem mydeliverytype_;
+        public lib.ReferenceSimpleItem DeliveryType_
+        { get { return mydeliverytype_; } }
         private string myfullname;
         public string FullName
         {
@@ -157,12 +165,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return myname; }
         }
+        public System.Windows.FontWeight NameFontWeight
+        { get { return this.isNoteSpecial ? System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal; } }
         private string mynotespecial;
         public string NoteSpecial
         {
             set { SetProperty<string>(ref mynotespecial, value); }
             get { return mynotespecial; }
         }
+        public bool isNoteSpecial
+        { get { return !string.IsNullOrWhiteSpace(mynotespecial); } }
         private int? mypayaccount;
         public int? PayAccount
         {
@@ -789,6 +801,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.DeliveryType : null; }
         }
+        public lib.ReferenceSimpleItem DeliveryType_
+        {
+            get { return this.IsEnabled ? this.DomainObject.DeliveryType_ : null; }
+        }
         public string FullName
         {
             set
@@ -851,6 +867,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? myname : null; }
         }
+        public System.Windows.FontWeight NameFontWeight
+        { get { return this.isNoteSpecial ? System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal; } }
         public string NoteSpecial
         {
             set
@@ -865,6 +883,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.NoteSpecial : null; }
         }
+        public bool isNoteSpecial
+        { get { return this.IsEnabled & this.DomainObject.isNoteSpecial; } }
         public int? PayAccount
         {
             set

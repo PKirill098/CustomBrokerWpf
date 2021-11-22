@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
-        Title="Агент" Height="500" Width="628" Language="ru-RU" FontSize="11" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/businessman.png">
+        Title="Агент" Name="winAgent" Height="500" Width="628" Language="ru-RU" FontSize="11" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/CustomBrokerWpf;component/Images/businessman.png">
     <Window.Resources>
         <my:UpperCaseFirstConverter x:Key="keyUpperCaseFirstConverter" />
         <my:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
@@ -64,16 +64,16 @@
             <Button ToolTip="Удалить агента" Command="{Binding Delete}">
                 <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
             </Button>
-            <Separator/>
-            <!--<Button Command="Cut" ToolTip="Вырезать">
+            <!--<Separator/>
+            <Button Command="Cut" ToolTip="Вырезать">
                 <Image Source="/CustomBrokerWpf;component/Images/cut.png" />
-            </Button>-->
+            </Button>
             <Button Command="Copy" ToolTip="Копировать">
                 <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
             </Button>
             <Button Command="Paste" ToolTip="Вставить">
                 <Image Source="/CustomBrokerWpf;component/Images/paste.png" />
-            </Button>
+            </Button>-->
             <Separator/>
             <Button ToolTip="Обновить данные" Command="{Binding Refresh}" Margin="10,0,0,0">
                 <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />

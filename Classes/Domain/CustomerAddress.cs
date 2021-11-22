@@ -1,38 +1,18 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
-    public class CustomerAddress : lib.DomainBaseReject
+    public class CustomerAddress : Address
     {
         public CustomerAddress(int addressid, lib.DomainObjectState dstate
             ,string addressdescription, byte addresstypeid, int customerid, string locality, string town
-            ) : base(addressid, dstate)
+            ) : base(addressid, dstate, addressdescription, addresstypeid, locality, town)
         {
-            myaddressdescription = addressdescription;
-            myaddresstypeid = addresstypeid;
             mycustomerid = customerid;
-            mylocality = locality;
-            mytown = town;
         }
-        public CustomerAddress() : this(lib.NewObjectId.NewId, lib.DomainObjectState.Added,null,0,0,null,null) { }
+        public CustomerAddress() : this(lib.NewObjectId.NewId,lib.DomainObjectState.Added,null,0,0,null,null) { }
 
-        private string myaddressdescription;
-        public string AddressDescription
-        {
-            set { SetProperty<string>(ref myaddressdescription, value, () => { this.PropertyChangedNotification("FullAddressDescription"); }); }
-            get { return myaddressdescription; }
-        }
-        private byte myaddresstypeid;
-        public byte AddressTypeID
-        {
-            set
-            {
-                SetProperty<byte>(ref myaddresstypeid, value);
-            }
-            get { return myaddresstypeid; }
-        }
         private int mycustomerid;
         public int CustomerId
         {
@@ -41,35 +21,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 SetProperty<int>(ref mycustomerid, value);
             }
             get { return mycustomerid; }
-        }
-        private string mylocality;
-        public string Locality
-        {
-            set { SetProperty<string>(ref mylocality, value,()=> { this.PropertyChangedNotification("FullAddress"); this.PropertyChangedNotification("FullAddressDescription"); }); }
-            get { return mylocality; }
-        }
-        private string mytown;
-        public string Town
-        {
-            set { SetProperty<string>(ref mytown, value, () => { this.PropertyChangedNotification("FullAddress"); this.PropertyChangedNotification("FullAddressDescription"); }); }
-            get { return mytown; }
-        }
-        public string FullAddress
-        { get { return (mytown ?? string.Empty) + ((string.IsNullOrWhiteSpace(mytown) | string.IsNullOrWhiteSpace(mylocality)) ? string.Empty : ", ") + (mylocality ?? string.Empty); } }
-        public string FullAddressDescription
-        { get { return (FullAddress ?? string.Empty) + ("( " + myaddressdescription + " )")??string.Empty; } }
-
-        protected override void RejectProperty(string property, object value)
-        {
-            throw new NotImplementedException();
-        }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
-        {
-            CustomerAddress newitem = (CustomerAddress)sample;
-            this.AddressDescription = newitem.AddressDescription;
-            if (!this.HasPropertyOutdatedValue("AddressTypeID")) this.AddressTypeID = newitem.AddressTypeID;
-            if (!this.HasPropertyOutdatedValue("Locality")) this.Locality = newitem.Locality;
-            if (!this.HasPropertyOutdatedValue("Town")) this.Town = newitem.Town;
         }
     }
 
@@ -109,21 +60,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams = new SqlParameter[] { parid };
         }
 
-        public override int? ItemId
-        {
-            set
-            {
-                SelectParams[0].Value=value;
-            }
-            get
-            {
-                return (int?)SelectParams[0].Value;
-            }
-        }
-
         protected override CustomerAddress CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-           return new CustomerAddress(reader.GetInt32(2), lib.DomainObjectState.Unchanged, reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(3) ? (byte)0 : reader.GetByte(1), reader.GetInt32(0), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
+           return new CustomerAddress(reader.GetInt32(2), lib.DomainObjectState.Unchanged, reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(1) ? (byte)0 : reader.GetByte(1), reader.GetInt32(0), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
         }
         protected override void GetOutputParametersValue(CustomerAddress item)
         {
@@ -148,17 +87,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetParametersValue(CustomerAddress item)
         {
-            myupdateparams[0].Value = item.Id;
-            myupdateparams[1].Value = item.HasPropertyOutdatedValue("AddressDescription");
-            myupdateparams[2].Value = item.HasPropertyOutdatedValue("Locality");
-            myupdateparams[3].Value = item.HasPropertyOutdatedValue("Town");
-            myupdateparams[4].Value = item.HasPropertyOutdatedValue("AddressTypeID");
-            myinsertupdateparams[0].Value = this.ItemId;
-            myinsertupdateparams[1].Value = item.AddressTypeID;
-            myinsertupdateparams[2].Value = item.AddressDescription;
-            myinsertupdateparams[3].Value = item.Locality;
-            myinsertupdateparams[4].Value = item.Town;
-            return true;
+            bool success = true;
+            if (item.AddressTypeID == 0)
+            {
+                this.Errors.Add(new lib.DBMError(item, "Не указан вид адреса!", ""));
+                success = false;
+            }
+            else
+            {
+                myupdateparams[0].Value = item.Id;
+                myupdateparams[1].Value = item.HasPropertyOutdatedValue("AddressDescription");
+                myupdateparams[2].Value = item.HasPropertyOutdatedValue("Locality");
+                myupdateparams[3].Value = item.HasPropertyOutdatedValue("Town");
+                myupdateparams[4].Value = item.HasPropertyOutdatedValue("AddressTypeID");
+                myinsertupdateparams[0].Value = this.ItemId;
+                myinsertupdateparams[1].Value = item.AddressTypeID;
+                myinsertupdateparams[2].Value = item.AddressDescription;
+                myinsertupdateparams[3].Value = item.Locality;
+                myinsertupdateparams[4].Value = item.Town;
+            }
+            return success;
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
@@ -171,8 +119,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public CustomerAddressVM(CustomerAddress item):base(item)
         {
-            ValidetingProperties.AddRange(new string[] { "AddressTypeID" });
-            DeleteRefreshProperties.AddRange(new string[] { "AddressTypeID" });
+            ValidetingProperties.AddRange(new string[] { nameof(this.AddressTypeID) });
+            DeleteRefreshProperties.AddRange(new string[] { nameof(this.AddressTypeID) });
             InitProperties();
         }
         public CustomerAddressVM():this(new CustomerAddress()) { }
@@ -285,8 +233,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             string errmsg = null;
             switch (propertyname)
             {
-                case "AddressTypeID":
-                    if (!this.AddressTypeID.HasValue)
+                case nameof(this.AddressTypeID):
+                    if (!this.AddressTypeID.HasValue || this.AddressTypeID==0)
                     {
                         errmsg = "Необходимо указать вид адреса!";
                         isvalid = false;
@@ -298,7 +246,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool DirtyCheckProperty()
         {
-            return myaddresstypeid!= this.DomainObject.AddressTypeID;
+            return myaddresstypeid != this.DomainObject.AddressTypeID;
         }
     }
 

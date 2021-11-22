@@ -1,4 +1,4 @@
-﻿using KirillPolyanskiy.CustomBrokerWpf.Domain.References;
+﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -58,13 +58,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectProcedure = true;
         }
 
-        internal CustomBrokerWpf.Domain.References.Country[] Countries { set; get; }
+        internal Country[] Countries { set; get; }
 
         protected override BranchCountry CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             if(this.Countries==null)
             {
-                this.Countries = new CustomBrokerWpf.Domain.References.Country[reader.FieldCount - 1];
+                this.Countries = new Country[reader.FieldCount - 1];
                 for (int i = 1; i < reader.FieldCount; i++)
                 {
                     this.Countries[i - 1] = CustomBrokerWpf.References.Countries.FindFirstItem("Code", int.Parse(reader.GetName(i)));
@@ -131,7 +131,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private GoodsDBM mygdbm;
         private ListCollectionView myview;
         public ListCollectionView Items { get { return myview; } }
-        public CustomBrokerWpf.Domain.References.Country[] Countries
+        public Country[] Countries
         {
             get
             {
@@ -396,8 +396,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
                 maxc = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Column;
                 ExcelTask.ProgressChange(5);
-                CustomBrokerWpf.Domain.References.Country country;
-                KeyValuePair<int, CustomBrokerWpf.Domain.References.Country>[] countries = new KeyValuePair<int, CustomBrokerWpf.Domain.References.Country>[maxc+1];
+                Country country;
+                KeyValuePair<int, Country>[] countries = new KeyValuePair<int, Country>[maxc+1];
                 for (int c = 3; c <= maxc; c++)
                 {
                     sert = (exWh.Cells[1, c].Text as string).Trim();
@@ -407,7 +407,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         if (country != null)
                         {
                             int i = 0;
-                            foreach (CustomBrokerWpf.Domain.References.Country thiscountry in mydbm.Countries)
+                            foreach (Country thiscountry in mydbm.Countries)
                             {
                                 if (country == thiscountry)
                                 {

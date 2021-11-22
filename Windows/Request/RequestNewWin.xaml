@@ -22,46 +22,53 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <ToolBar Height="30" Grid.ColumnSpan="8">
-            <Button ToolTip="Добавить" Command="New">
-                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+        <DockPanel Margin="4">
+        <ToolBar HorizontalAlignment="Right" ToolBarTray.IsLocked="True" DockPanel.Dock="Right" Margin="-4,0,0,0">
+            <Button HorizontalAlignment="Right" Click="HelpButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/Help2.png" />
             </Button>
-            <Button Command="Delete" ToolTip="Удалить" IsTabStop="False">
-                <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
-            </Button>
-            <Separator/>
-            <Button Click="HistoryOpen_Click" Tag="{Binding Path=VModel}" Margin="0,0,10,0" >
-                <Image Source="/CustomBrokerWpf;component/Images/his.png" />
-            </Button>
-            <Button Command="{Binding SendEmail}" ToolTip="Отправить письмо Гюзаль Закировой" IsTabStop="False">
-                <Image Source="/CustomBrokerWpf;component/Images/mail2.png" />
-            </Button>
-            <Separator/>
-            <ToggleButton IsChecked="{Binding Path=IsEditable}" ToolTip="Включить\выключить режим редактирования" IsTabStop="False">
-                <Image Source="/CustomBrokerWpf;component/Images/edit.png" />
-            </ToggleButton>
-            <Separator/>
-            <!--<Button ToolTip="Загрузить разбивку" Command="{Binding Path=DetailsAdd}">
-                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
-            </Button>
-            <Separator/>-->
-            <Button Command="{Binding Path=RefreshSave}" ToolTip="Обновить информацию" Margin="10,0,0,0">
-                <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
-            </Button>
-            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
-                <Image Source="/CustomBrokerWpf;component/Images/save.png" />
-            </Button>
-            <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
-                <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
-            </Button>
-            <Separator/>
-            <Button Content="Закрыть" Click="CloseButton_Click"/>
-            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
-                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
-                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
-                </Border>
-            </Popup>
         </ToolBar>
+        <ToolBar Height="30" ToolBarTray.IsLocked="True">
+                <Button ToolTip="Добавить" Command="New">
+                    <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+                </Button>
+                <Button Command="Delete" ToolTip="Удалить" IsTabStop="False">
+                    <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+                </Button>
+                <Separator/>
+                <Button Click="HistoryOpen_Click" Tag="{Binding Path=VModel}" Margin="0,0,10,0" >
+                    <Image Source="/CustomBrokerWpf;component/Images/his.png" />
+                </Button>
+                <Button Command="{Binding SendEmail}" ToolTip="Отправить письмо Гюзаль Закировой" IsTabStop="False">
+                    <Image Source="/CustomBrokerWpf;component/Images/mail2.png" />
+                </Button>
+                <Separator/>
+                <ToggleButton IsChecked="{Binding Path=IsEditable}" ToolTip="Включить\выключить режим редактирования" IsTabStop="False">
+                    <Image Source="/CustomBrokerWpf;component/Images/edit.png" />
+                </ToggleButton>
+                <Separator/>
+                <!--<Button ToolTip="Загрузить разбивку" Command="{Binding Path=DetailsAdd}">
+                    <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+                </Button>
+                <Separator/>-->
+                <Button Command="{Binding Path=RefreshSave}" ToolTip="Обновить информацию" Margin="10,0,0,0">
+                    <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+                </Button>
+                <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}">
+                    <Image Source="/CustomBrokerWpf;component/Images/save.png" />
+                </Button>
+                <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" >
+                    <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+                </Button>
+                <Separator/>
+                <Button Content="Закрыть" Click="CloseButton_Click"/>
+                <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
+                    <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                        <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                    </Border>
+                </Popup>
+            </ToolBar>
+        </DockPanel>
         <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Grid>
                 <Grid.Resources>
@@ -90,6 +97,7 @@
                             <RowDefinition SharedSizeGroup="r1"/>
                             <RowDefinition Height="100"/>
                             <RowDefinition SharedSizeGroup="r1"/>
+                            <RowDefinition Height="100"/>
                             <RowDefinition SharedSizeGroup="r1"/>
                             <RowDefinition SharedSizeGroup="r1"/>
                             <RowDefinition SharedSizeGroup="r1"/>
@@ -113,38 +121,41 @@
                             <TextBlock Text="Поставщик*" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="4" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Импортер*" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Торговые марки" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Заявка" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Импортер*" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Позиция по складу" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Заявка" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Группа" ToolTip="Группа загрузки" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Позиция по складу" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="8" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Вес, кг (док / факт)" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Группа" ToolTip="Группа загрузки" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="9" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Объем / Места" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Вес, кг (док / факт)" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="10" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Инвойс / Со скидкой" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Объем / Места" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Примечание склада" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Инвойс / Со скидкой" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
-                            <TextBlock Text="Примечание менеджера" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Примечание склада" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="13" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Примечание менеджера" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="14" BorderBrush="White" BorderThickness="0,1,0,0">
                             <TextBlock Text="Примечание клиенту" HorizontalAlignment="Right"/>
                         </Border>
                         <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <DockPanel Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3">
-                                <Button ToolTip="Открыть карточку клиента" Click="CustomerButton_Click" Tag="{Binding Path=CustomerName}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
+                                <Button ToolTip="Открыть карточку клиента" Click="CustomerButton_Click" Tag="{Binding Path=Customer}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
                                     <Image Source="/CustomBrokerWpf;component/Images/businessman2.png" />
                                 </Button>
                                 <ComboBox SelectedValue="{Binding Path=CustomerId, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
@@ -182,16 +193,36 @@
                         </DataGrid>
                         <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <DockPanel>
-                                <Button ToolTip="Открыть карточку поставщика" Click="AgentButton_Click" Tag="{Binding Path=AgentName}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
+                                <Button ToolTip="Открыть карточку поставщика" Click="AgentButton_Click" Tag="{Binding Path=Agent}" Height="19" Margin="0,0,2,0" DockPanel.Dock="Right" Background="#e0f7e3">
                                     <Image Source="/CustomBrokerWpf;component/Images/businessman.png" />
                                 </Button>
                                 <ComboBox SelectedValue="{Binding Path=AgentId, TargetNullValue=0}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                             </DockPanel>
                         </Border>
-                        <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <DataGrid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" ItemsSource="{Binding Path=Brands}" CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="None" AutoGenerateColumns="False" BorderBrush="White" BorderThickness="1,1,0,0" Background="#e0f7e3" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" RowBackground="#e0f7e3" SelectionUnit="Cell" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Binding="{Binding Path=Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsThreeState="False" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}">
+                                    <DataGridCheckBoxColumn.ElementStyle>
+                                        <Style TargetType="CheckBox" BasedOn="{StaticResource ErrorStyle}">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="IsEnabled" Value="{Binding Source={StaticResource MainDataContext}, Path=Data.IsEditable, Mode=OneWay}"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.ElementStyle>
+                                    <DataGridCheckBoxColumn.EditingElementStyle >
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.EditingElementStyle>
+                                </DataGridCheckBoxColumn>
+                                <DataGridTextColumn Binding="{Binding Path=Brand.Name}" ToolTipService.ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}"  IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedItem="{Binding Path=Importer}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" DockPanel.Dock="Left" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                         </Border>
-                        <Border Grid.Row="5" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Id, Mode=OneWay,Converter={StaticResource NoDisplayNewIdCNV}}" IsReadOnly="True" IsTabStop="False" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -204,7 +235,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox MaxLength="6" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox" BasedOn="{StaticResource StyleTextBoxAlignmentCenterErr}">
@@ -226,7 +257,7 @@
                                 </TextBox.Text>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="8" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=ParcelGroup, TargetNullValue='', NotifyOnValidationError=True}" ToolTip="Группа загрузки" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -240,7 +271,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="8" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -254,7 +285,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=Volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -267,7 +298,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="11" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=Invoice, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -306,7 +337,7 @@
                             <Run Text="Поставщик"/>
                         </Hyperlink>
                     </Label>-->
-                        <Border Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=StoreNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -319,7 +350,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=ManagerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -332,7 +363,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="14" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=CustomerNote, NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" ToolTip="Не объединяется в группе" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="100" VerticalAlignment="Center" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -345,7 +376,10 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <TextBlock Text="Страна" HorizontalAlignment="Right"/>
+                        </Border>
+                        <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Path=RequestDate, Mode=OneWay, StringFormat=\{0:d\}, TargetNullValue=''}" IsReadOnly="True" TextAlignment="Center" VerticalAlignment="Bottom" MinWidth="100" BorderThickness="0" Margin="0,0,0,4">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -358,7 +392,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox  Text="{Binding Path=StoreDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -372,7 +406,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=SpecificationDate, StringFormat=\{0:d\}, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue=''}" ToolTip="Дата получения спецификации" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -386,7 +420,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -399,7 +433,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=CellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -412,7 +446,7 @@
                                 </TextBox.Style>
                             </TextBox>
                         </Border>
-                        <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="11" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                             <TextBox Text="{Binding Path=InvoiceDiscount, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Center" VerticalAlignment="Center" MinWidth="100" BorderThickness="0" BorderBrush="{x:Null}" Margin="1,0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -426,22 +460,34 @@
                             </TextBox>
                         </Border>
                         <Border Grid.Row="5" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <ComboBox SelectedValue="{Binding Path=Country}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.Countries}" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Страна"/>
+                        </Border>
+                        <Border Grid.Row="6" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0" ToolTip="Группа менеджеров">
                             <TextBlock Text="{Binding Path=ManagerGroupName}" VerticalAlignment="Center" TextAlignment="Center"/>
                         </Border>
-                        <Border Grid.Row="6" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="7" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0" ToolTip="Менеджер">
+                            <Grid VerticalAlignment="Center" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="8*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="1" SelectedItem="{Binding Path=Manager}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Managers}" DisplayMemberPath="NameComb" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2" Grid.ColumnSpan="2"/>
+                                <TextBlock Text="{Binding Path=Manager.NameComb}" TextAlignment="Center" Grid.ColumnSpan="1"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <Grid VerticalAlignment="Center" >
                                 <ComboBox SelectedItem="{Binding Path=Status,Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" Visibility="{Binding Path=StatusVisible}" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2"/>
                                 <TextBlock Text="{Binding Path=ParcelNumber, Mode=OneWay}" Visibility="{Binding Path=ParcelNumberVisible}" TextAlignment="Center"/>
                             </Grid>
                         </Border>
-                        <Border Grid.Row="7" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0"/>
-                        <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
                         </Border>
-                        <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                         </Border>
-                        <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
+                        <Border Grid.Row="11" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedIndex="{Binding Path=Currency, Mode=TwoWay}" Background="#e0f7e3" BorderBrush="#e0f7e3" BorderThickness="0" Margin="2" ToolTip="Валюта">
                                 <ComboBoxItem IsSelected="True">EURO</ComboBoxItem>
                                 <ComboBoxItem>USD</ComboBoxItem>
@@ -1654,7 +1700,7 @@
                                                     </DataGridTextColumn>
                                                 </DataGrid.Columns>
                                             </DataGrid>
-                                            <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Резерв вылюты" ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ." Background="#FFF7E0E0" Padding="40,0,0,0"/>
+                                            <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Резерв валюты" ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ." Background="#FFF7E0E0" Padding="40,0,0,0"/>
                                             <DataGrid Grid.Row="2" ItemsSource="{Binding PrePrepays, Mode=OneWay}" HeadersVisibility="None" Background="#f7e0e0" RowBackground="#FFF7E0E0" BorderThickness="0,1,0,0" BorderBrush="White" CanUserDeleteRows="False" HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" SelectedIndex="-1" SelectionUnit="Cell" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
                                                       ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ.">
                                                 <DataGrid.Columns>

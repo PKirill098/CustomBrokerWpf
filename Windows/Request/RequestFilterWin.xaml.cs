@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
+using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
 {
@@ -12,6 +12,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
     /// </summary>
     public partial class RequestFilterWin : Window
     {
+        private lib.Interfaces.IFilterWindowOwner myfilterowner;
+        internal lib.Interfaces.IFilterWindowOwner FilterOwner
+        {
+            set { myfilterowner = value; }
+            get { return myfilterowner; }
+        }
+
         private bool isChanchedRequestId;
         private bool isChanchedRequestDate;
         private bool isChanchedSpecDate;
@@ -36,7 +43,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private bool isChanchedParcelType;
         private int idRequestId = 0;
 
-        private SQLFilter filter;
         public RequestFilterWin()
         {
             InitializeComponent();
@@ -60,33 +66,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             System.Data.DataView forwarderview = new System.Data.DataView(ds.tableForwarder, string.Empty, "[itemName]", System.Data.DataViewRowState.CurrentRows);
             forwarderListBox.ItemsSource = forwarderview;
-            if (ds.tableParcelType.Count == 0) ds.ParcelTypeRefresh();
-            System.Data.DataView parceltypeview = new System.Data.DataView(ds.tableParcelType);
-            this.parceltypeComboBox.ItemsSource = parceltypeview;
+            //if (ds.tableParcelType.Count == 0) ds.ParcelTypeRefresh();
+            //System.Data.DataView parceltypeview = new System.Data.DataView(ds.tableParcelType);
+            this.parceltypeComboBox.Items.Add("EURO"); this.parceltypeComboBox.Items.Add("USD");
             if (ds.tableCustomerName.Count == 0) ds.CustomerNameRefresh();
             System.Data.DataView customerview = new System.Data.DataView(ds.tableCustomerName, string.Empty, "[customerName]", System.Data.DataViewRowState.CurrentRows);
             this.customerListBox.ItemsSource = customerview;
             System.Windows.Data.ListCollectionView agentview = new System.Windows.Data.ListCollectionView(CustomBrokerWpf.References.AgentNames);
+            CustomBrokerWpf.References.AgentNames.RefreshViewAdd(agentview);
             agentview.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
             agentListBox.DisplayMemberPath = "Name";
             agentListBox.SetValue(TextSearch.TextPathProperty, "Name");
             agentListBox.ItemsSource = agentview;
-            if (this.Owner is RequestWin)
-                filter = (this.Owner as RequestWin).Filter;
-            else
-                filter = (this.Owner as MainWindow).RequestFilter;
-            
             Fill();
         }
         private void Fill()
         {
-            List<SQLFilterCondition> listCond;
-            List<SQLFilterValue> listValue;
-            List<SQLFilterCondition> RequestIdCond = filter.ConditionGet(filter.FilterWhereId, "RequestId");
+            List<lib.SQLFilter.SQLFilterCondition> listCond;
+            List<lib.SQLFilter.SQLFilterValue> listValue;
+            List<lib.SQLFilter.SQLFilterCondition> RequestIdCond = myfilterowner.Filter.ConditionGet(myfilterowner.Filter.FilterWhereId, "RequestId");
             if (RequestIdCond.Count > 0)
             {
                 idRequestId = RequestIdCond[0].propertyid;
-                List<SQLFilterValue> values = filter.ValueGet(idRequestId);
+                List<lib.SQLFilter.SQLFilterValue> values = myfilterowner.Filter.ValueGet(idRequestId);
                 switch (RequestIdCond[0].propertyOperator.ToLower())
                 {
                     case "between":
@@ -118,17 +120,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
 
             string date1, date2;
-            filter.PullDate(filter.FilterWhereId, "RequestDate", "requestDate", out date1, out date2);
+            myfilterowner.Filter.PullDate(myfilterowner.Filter.FilterWhereId, "RequestDate", "requestDate", out date1, out date2);
             startRequestDatePicker.Text = date1;
             stopRequestDatePicker.Text = date2;
-            filter.PullDate(filter.FilterWhereId, "SpecDate", "specification", out date1, out date2);
+            myfilterowner.Filter.PullDate(myfilterowner.Filter.FilterWhereId, "SpecDate", "specification", out date1, out date2);
             startSpecDatePicker.Text = date1;
             stopSpecDatePicker.Text = date2;
-            filter.PullDate(filter.FilterWhereId, "StorageDate", "storageDate", out date1, out date2);
+            myfilterowner.Filter.PullDate(myfilterowner.Filter.FilterWhereId, "StorageDate", "storageDate", out date1, out date2);
             startStorageDatePicker.Text = date1;
             stopStorageDatePicker.Text = date2;
 
-            listCond = filter.ConditionGet(filter.FilterWhereId, "storagePoint");
+            listCond = myfilterowner.Filter.ConditionGet(myfilterowner.Filter.FilterWhereId, "storagePoint");
             if (listCond.Count > 0)
             {
                 switch (listCond[0].propertyOperator.ToLower())
@@ -140,43 +142,43 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         this.storagePointComboBox.SelectedIndex = 1;
                         break;
                 }
-                listValue = filter.ValueGet(listCond[0].propertyid);
+                listValue = myfilterowner.Filter.ValueGet(listCond[0].propertyid);
                 if (listValue.Count > 0) this.storagePointTextBox.Text = listValue[0].value;
             }
 
             string text; byte selindex;
-            filter.PullNumber(filter.FilterWhereId, "cellNumber", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "cellNumber", out text, out selindex);
             this.cellNumberComboBox.SelectedIndex = selindex;
             this.cellNumberTextBox.Text = text;
-            filter.PullNumber(filter.FilterWhereId, "volume", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "volume", out text, out selindex);
             this.volumeComboBox.SelectedIndex = selindex;
             this.volumeTextBox.Text = text;
-            filter.PullNumber(filter.FilterWhereId, "officialWeight", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "officialWeight", out text, out selindex);
             this.officialWeightComboBox.SelectedIndex = selindex;
             this.officialWeightTextBox.Text = text;
-            filter.PullNumber(filter.FilterWhereId, "actualWeight", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "actualWeight", out text, out selindex);
             this.actualWeightComboBox.SelectedIndex = selindex;
             this.actualWeightTextBox.Text = text;
-            filter.PullNumber(filter.FilterWhereId, "goodValue", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "goodValue", out text, out selindex);
             this.goodValueComboBox.SelectedIndex = selindex;
             this.goodValueTextBox.Text = text;
-            filter.PullNumber(filter.FilterWhereId, "parceltype", out text, out selindex);
+            myfilterowner.Filter.PullNumber(myfilterowner.Filter.FilterWhereId, "currency", out text, out selindex);
             if(text!= string.Empty) this.parceltypeComboBox.SelectedValue = byte.Parse(text);
 
-            filter.PullString(filter.FilterWhereId, "CustomerNote", out text);
+            myfilterowner.Filter.PullString(myfilterowner.Filter.FilterWhereId, "CustomerNote", out text);
             this.customerNoteTextBox.Text = text;
-            filter.PullString(filter.FilterWhereId, "storageNote", out text);
+            myfilterowner.Filter.PullString(myfilterowner.Filter.FilterWhereId, "storageNote", out text);
             this.storageNoteTextBox.Text = text;
-            filter.PullString(filter.FilterWhereId, "managerNote", out text);
+            myfilterowner.Filter.PullString(myfilterowner.Filter.FilterWhereId, "managerNote", out text);
             this.managerNoteTextBox.Text = text;
 
-            filter.PullListBox(filter.FilterWhereId, "status", "rowId", this.statusListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "managerGroupId", "managergroupID", this.managerGroupListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "customerId", "customerID", this.customerListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "loadDescription", "Name", this.goodsListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "agentId", "Id", this.agentListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "storeid", "Id", this.storeListBox, true);
-            filter.PullListBox(filter.FilterWhereId, "forwarder", "itemId", this.forwarderListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "status", "rowId", this.statusListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "managerGroupId", "managergroupID", this.managerGroupListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "customerId", "customerID", this.customerListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "loadDescription", "Name", this.goodsListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "agentId", "Id", this.agentListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "storeid", "Id", this.storeListBox, true);
+            myfilterowner.Filter.PullListBox(myfilterowner.Filter.FilterWhereId, "forwarder", "itemId", this.forwarderListBox, true);
  
             isChanchedRequestId = false;
             isChanchedRequestDate = false;
@@ -203,10 +205,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void winRequestFilter_Closed(object sender, EventArgs e)
         {
-            if(this.Owner is RequestWin)
-                (this.Owner as RequestWin).IsShowFilter = false;
-            else
-                (this.Owner as MainWindow).RequestIsShowFilter = false;
+            myfilterowner.IsShowFilterWindow = false;
         }
 
         private void RunFilterButton_Click(object sender, RoutedEventArgs e)
@@ -216,17 +215,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 IInputElement focelm = FocusManager.GetFocusedElement(this);
                 FocusManager.SetFocusedElement(this, RunFilterButton);
                 Actualization();
-                if (this.Owner is RequestWin)
                 {
-                    (this.Owner as RequestWin).ClientFilter = null;
-                    (this.Owner as RequestWin).StoragePointFilter = null;
-                    (this.Owner as RequestWin).runFilter();
-                }
-                else
-                {
-                    (this.Owner as MainWindow).RequestClientFilter = null;
-                    (this.Owner as MainWindow).RequestStoragePointFilter = string.Empty;
-                    (this.Owner as MainWindow).RequestRunFilter();
+                    (myfilterowner as Classes.Domain.RequestViewCommand).RequestClientFilter = null;
+                    (myfilterowner as Classes.Domain.RequestViewCommand).RequestStoragePointFilter = string.Empty;
+                    myfilterowner.RunFilter(null);
                 }
                 FocusManager.SetFocusedElement(this, focelm);
             }
@@ -262,38 +254,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     if (oper.Length > 0)
                     {
-                        filter.ConditionUpd(idRequestId, oper);
-                        filter.ConditionValuesDel(idRequestId);
-                        if (text1.Length > 0) filter.ConditionValueAdd(idRequestId, text1, 0);
-                        if (text2.Length > 0) filter.ConditionValueAdd(idRequestId, text2, 0);
+                        myfilterowner.Filter.ConditionUpd(idRequestId, oper);
+                        myfilterowner.Filter.ConditionValuesDel(idRequestId);
+                        if (text1.Length > 0) myfilterowner.Filter.ConditionValueAdd(idRequestId, text1, 0);
+                        if (text2.Length > 0) myfilterowner.Filter.ConditionValueAdd(idRequestId, text2, 0);
                     }
                     else
                     {
-                        filter.ConditionDel(idRequestId);
+                        myfilterowner.Filter.ConditionDel(idRequestId);
                         idRequestId = 0;
                     }
                 }
                 else if (oper.Length > 0)
                 {
-                    idRequestId = filter.ConditionAdd(filter.FilterWhereId, "RequestId", oper);
-                    if (text1.Length > 0) filter.ConditionValueAdd(idRequestId, text1, 0);
-                    if (text2.Length > 0) filter.ConditionValueAdd(idRequestId, text2, 0);
+                    idRequestId = myfilterowner.Filter.ConditionAdd(myfilterowner.Filter.FilterWhereId, "RequestId", oper);
+                    if (text1.Length > 0) myfilterowner.Filter.ConditionValueAdd(idRequestId, text1, 0);
+                    if (text2.Length > 0) myfilterowner.Filter.ConditionValueAdd(idRequestId, text2, 0);
                 }
                 isChanchedRequestId = false;
             }
             if (isChanchedRequestDate)
             {
-                filter.SetDate(filter.FilterWhereId, "RequestDate", "requestDate", startRequestDatePicker.SelectedDate, stopRequestDatePicker.SelectedDate);
+                myfilterowner.Filter.SetDate(myfilterowner.Filter.FilterWhereId, "RequestDate", "requestDate", startRequestDatePicker.SelectedDate, stopRequestDatePicker.SelectedDate);
                 isChanchedRequestDate = false;
             }
             if (isChanchedSpecDate)
             {
-                filter.SetDate(filter.FilterWhereId, "SpecDate", "specification", startSpecDatePicker.SelectedDate, stopSpecDatePicker.SelectedDate);
+                myfilterowner.Filter.SetDate(myfilterowner.Filter.FilterWhereId, "SpecDate", "specification", startSpecDatePicker.SelectedDate, stopSpecDatePicker.SelectedDate);
                 isChanchedSpecDate = false;
             }
             if (isChanchedStorageDate)
             {
-                filter.SetDate(filter.FilterWhereId, "StorageDate", "storageDate", startStorageDatePicker.SelectedDate, stopStorageDatePicker.SelectedDate);
+                myfilterowner.Filter.SetDate(myfilterowner.Filter.FilterWhereId, "StorageDate", "storageDate", startStorageDatePicker.SelectedDate, stopStorageDatePicker.SelectedDate);
                 isChanchedStorageDate = false;
             }
             if (true)
@@ -308,71 +300,71 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         oper = "is null";
                         break;
                 }
-                List<SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "storagePoint");
+                List<lib.SQLFilter.SQLFilterCondition> cond = myfilterowner.Filter.ConditionGet(myfilterowner.Filter.FilterWhereId, "storagePoint");
                 if (cond.Count > 0)
                 {
                     if (storagePointComboBox.SelectedIndex == 0 & storagePointTextBox.Text.Length == 0)
                     {
-                        filter.ConditionDel(cond[0].propertyid);
+                        myfilterowner.Filter.ConditionDel(cond[0].propertyid);
                     }
                     else
                     {
-                        if (cond[0].propertyOperator != oper) filter.ConditionUpd(cond[0].propertyid, oper);
-                        List<SQLFilterValue> val = filter.ValueGet(cond[0].propertyid);
+                        if (cond[0].propertyOperator != oper) myfilterowner.Filter.ConditionUpd(cond[0].propertyid, oper);
+                        List<lib.SQLFilter.SQLFilterValue> val = myfilterowner.Filter.ValueGet(cond[0].propertyid);
                         if (val.Count > 0)
                         {
-                            filter.ConditionValueUpd(val[0].valueId, storagePointTextBox.Text, 0);
+                            myfilterowner.Filter.ConditionValueUpd(val[0].valueId, storagePointTextBox.Text, 0);
                         }
                         else
                         {
-                            filter.ConditionValueAdd(cond[0].propertyid, storagePointTextBox.Text, 0);
+                            myfilterowner.Filter.ConditionValueAdd(cond[0].propertyid, storagePointTextBox.Text, 0);
                         }
                     }
                 }
                 else if (!(storagePointComboBox.SelectedIndex == 0 & storagePointTextBox.Text.Length == 0))
                 {
-                    filter.ConditionValueAdd(filter.ConditionAdd(filter.FilterWhereId, "storagePoint", oper), storagePointTextBox.Text, 0);
+                    myfilterowner.Filter.ConditionValueAdd(myfilterowner.Filter.ConditionAdd(myfilterowner.Filter.FilterWhereId, "storagePoint", oper), storagePointTextBox.Text, 0);
                 }
                 isChanchedStoragePoint = false;
             }
             if (isChanchedcellNumber)
             {
-                filter.SetNumber(filter.FilterWhereId, "cellNumber", cellNumberComboBox.SelectedIndex, cellNumberTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "cellNumber", (lib.SQLFilter.Operators)cellNumberComboBox.SelectedIndex, cellNumberTextBox.Text);
                 isChanchedcellNumber = false;
             }
             if (isChanchedvolume)
             {
-                filter.SetNumber(filter.FilterWhereId, "volume", volumeComboBox.SelectedIndex, volumeTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "volume", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, volumeTextBox.Text);
                 isChanchedvolume = false;
             }
             if (isChanchedofficialWeight)
             {
-                filter.SetNumber(filter.FilterWhereId, "officialWeight", officialWeightComboBox.SelectedIndex, officialWeightTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "officialWeight", (lib.SQLFilter.Operators)officialWeightComboBox.SelectedIndex, officialWeightTextBox.Text);
                 isChanchedofficialWeight = false;
             }
             if (isChanchedactualWeight)
             {
-                filter.SetNumber(filter.FilterWhereId, "actualWeight", actualWeightComboBox.SelectedIndex, actualWeightTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "actualWeight", (lib.SQLFilter.Operators)actualWeightComboBox.SelectedIndex, actualWeightTextBox.Text);
                 isChanchedactualWeight = false;
             }
             if (isChanchedgoodValue)
             {
-                filter.SetNumber(filter.FilterWhereId, "goodValue", goodValueComboBox.SelectedIndex, goodValueTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "goodValue", (lib.SQLFilter.Operators)goodValueComboBox.SelectedIndex, goodValueTextBox.Text);
                 isChanchedgoodValue = false;
             }
             if (isChanchedCustomerNote)
             {
-                filter.SetString(filter.FilterWhereId, "CustomerNote", customerNoteTextBox.Text);
+                myfilterowner.Filter.SetString(myfilterowner.Filter.FilterWhereId, "CustomerNote", customerNoteTextBox.Text);
                 isChanchedCustomerNote = false;
             }
             if (isChanchedStorageNote)
             {
-                filter.SetString(filter.FilterWhereId, "storageNote", storageNoteTextBox.Text);
+                myfilterowner.Filter.SetString(myfilterowner.Filter.FilterWhereId, "storageNote", storageNoteTextBox.Text);
                 isChanchedStorageNote = false;
             }
             if (isChanchedManagerNote)
             {
-                filter.SetString(filter.FilterWhereId, "managerNote", managerNoteTextBox.Text);
+                myfilterowner.Filter.SetString(myfilterowner.Filter.FilterWhereId, "managerNote", managerNoteTextBox.Text);
                 isChanchedManagerNote = false;
             }
 
@@ -386,7 +378,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = status.rowId.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "status", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "status", values);
                 isChanchedStatus = false;
             }
             if (isChanchedManagerGroup)
@@ -399,7 +391,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = row.managergroupID.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "managerGroupId", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "managerGroupId", values);
                 isChanchedManagerGroup = false;
             }
             if (true)
@@ -412,7 +404,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = row.customerID.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "customerId", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "customerId", values);
                 isChanchedCustomer = false;
             }
             if (isChanchedLoadDescription)
@@ -424,7 +416,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = rowview.Name;
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "loadDescription", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "loadDescription", values);
                 isChanchedLoadDescription = false;
             }
             if (isChanchedAgent)
@@ -436,7 +428,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = item.Id.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "agentId", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "agentId", values);
                 isChanchedAgent = false;
             }
             if (isChanchedStore)
@@ -448,7 +440,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = item.Id.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "storeid", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "storeid", values);
                 isChanchedStore = false;
             }
             if (isChanchedForwarder)
@@ -461,44 +453,43 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     values[i] = row.itemId.ToString();
                     i++;
                 }
-                filter.SetList(filter.FilterWhereId, "forwarder", values);
+                myfilterowner.Filter.SetList(myfilterowner.Filter.FilterWhereId, "forwarder", values);
                 isChanchedForwarder = false;
             }
             if (isChanchedFreight)
             {
                 string f = this.frieghtComboBox.SelectedIndex > 1 ? "IS NULL" : "NOT NULL";
-                List<SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "freight");
+                List<lib.SQLFilter.SQLFilterCondition> cond = myfilterowner.Filter.ConditionGet(myfilterowner.Filter.FilterWhereId, "freight");
                 if (this.frieghtComboBox.SelectedIndex > 0)
                 {
                     if (cond.Count > 0)
                     {
-                        filter.ConditionUpd(cond[0].propertyid, f);
+                        myfilterowner.Filter.ConditionUpd(cond[0].propertyid, f);
                     }
                     else
                     {
-                        filter.ConditionAdd(filter.FilterWhereId, "freight", f);
+                        myfilterowner.Filter.ConditionAdd(myfilterowner.Filter.FilterWhereId, "freight", f);
                     }
                 }
                 else if (cond.Count > 0)
                 {
-                    filter.ConditionDel(cond[0].propertyid);
+                    myfilterowner.Filter.ConditionDel(cond[0].propertyid);
                 }
                 isChanchedFreight = false;
             }
             if(isChanchedParcelType)
             {
                 if (parceltypeComboBox.SelectedIndex != -1)
-                    filter.SetNumber(filter.FilterWhereId, "parceltype", 0,((parceltypeComboBox.SelectedItem as System.Data.DataRowView).Row as ReferenceDS.tableParcelTypeRow).parceltypeid.ToString());
+                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", 0,parceltypeComboBox.SelectedIndex.ToString());
                 else
-                    filter.SetNumber(filter.FilterWhereId, "parceltype", 0, string.Empty);
+                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", 0, string.Empty);
                 isChanchedParcelType = false;
-
             }
         }
 
         private void RemoveFilterButton_Click(object sender, RoutedEventArgs e)
         {
-            filter.RemoveCurrentWhere();
+            myfilterowner.Filter.RemoveCurrentWhere();
         }
 
         private void SaveFilterButton_Click(object sender, RoutedEventArgs e)
@@ -508,7 +499,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 try
                 {
                     Actualization();
-                    filter.SetDefaultFilter(SQLFilterPart.Where);
+                    myfilterowner.Filter.SetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
                 }
                 catch (Exception ex)
                 {
@@ -705,10 +696,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         private void DefaultFilterButton_Click(object sender, RoutedEventArgs e)
         {
-            filter.RemoveCurrentWhere();
-            filter.GetDefaultFilter(SQLFilterPart.Where);
+            myfilterowner.Filter.RemoveCurrentWhere();
+            myfilterowner.Filter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
             Fill();
         }
-
     }
 }

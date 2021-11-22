@@ -70,6 +70,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             StoreInit();
             CollectionsInit();
             ReferencesInit();
+            PropertiesInit();
             if (CurrentUserRoles.Contains("Accounts"))
             {
                 App.Current.MainWindow = new AccountMainWin();
@@ -81,9 +82,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 App.Current.MainWindow = new MainWindow();
                 Classes.WarningAsyncItemGoods goods = new Classes.WarningAsyncItemGoods();
                 mywarningasync = new Classes.WarningAsync(goods);
-                //mystartAsync = new Classes.StartAsyncProgram();
             }
-            System.Threading.Tasks.Task task = mywarningasync.StartAsync();//mystartAsync
+            System.Threading.Tasks.Task task = mywarningasync.StartAsync();
             App.Current.MainWindow.Show();
         }
 
@@ -219,39 +219,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return myuserroles;
             }
         }
+        static Classes.Domain.Manager mymanager;
+        static internal Classes.Domain.Manager CurrentManager
+        { get { return mymanager; } }
 
-        static private CountryList mycountrylist;
-        static internal CountryList Countries
-        {
-            get
-            {
-                if (mycountrylist == null)
-                {
-                    try
-                    {
-                        mycountrylist = new CountryList();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex is System.Data.SqlClient.SqlException)
-                        {
-                            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-                            System.Text.StringBuilder errs = new System.Text.StringBuilder();
-                            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-                            {
-                                errs.Append(sqlerr.Message + "\n");
-                            }
-                            MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                        else
-                        {
-                            MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                }
-                return mycountrylist;
-            }
-        }
         static private Classes.Domain.References.PriceCategoryCollection mypricecategories;
         static public Classes.Domain.References.PriceCategoryCollection PriceCategories
         {
@@ -278,6 +249,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         static private void ReferencesInit()
         {
             lib.ReferenceCollectionSimpleItem newref;
+            newref = References.DeliveryTypes;
             newref = References.ManagerGroups;
             newref = References.RequestStates;
             newref = References.RowStates;
@@ -290,7 +262,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (myagentnames == null)
                 {
                     myagentnames = new lib.ReferenceCollectionSimpleItem();
-                    myagentnames.CommandText = "SELECT agentID,agentName,[isactual],[isdefault] FROM [CustomBroker].[dbo].[AgentName_vw] ORDER BY [agentName]";
+                    myagentnames.CommandText = "SELECT agentID,agentName,[isactual],[isdefault] FROM [dbo].[AgentName_vw] ORDER BY agentID";
                     myagentnames.TableName = "dbo.AgentName_vw";
                     myagentnames.ConnectionString = CustomBrokerWpf.References.ConnectionString;
                     myagentnames.DataLoad();
@@ -480,12 +452,43 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     mystore = new lib.ReferenceCollectionSimpleItem();
 					mystore.CommandText = "SELECT id,name,isactual,isdefault FROM dbo.Store_tb ORDER BY id";
-					//mystore.CommandText = "SELECT storeId,storeName,CONVERT(bit,1),CONVERT(bit,0) FROM dbo.Store_tb ORDER BY storeId";
 					mystore.TableName = "dbo.Store_tb";
                     mystore.ConnectionString = CustomBrokerWpf.References.ConnectionString;
                     mystore.DataLoad();
                 }
                 return mystore;
+            }
+        }
+        static private lib.ReferenceCollectionSimpleItem mystoreaddresstype;
+        static public lib.ReferenceCollectionSimpleItem StoreAddressTypes
+        {
+            get
+            {
+                if (mystoreaddresstype == null)
+                {
+                    mystoreaddresstype = new lib.ReferenceCollectionSimpleItem();
+                    mystoreaddresstype.CommandText = "SELECT id,name,isactual,isdefault FROM dbo.StoreAddressType_tb ORDER BY id";
+                    mystoreaddresstype.TableName = "dbo.StoreAddressType_tb";
+                    mystoreaddresstype.ConnectionString = CustomBrokerWpf.References.ConnectionString;
+                    mystoreaddresstype.DataLoad();
+                }
+                return mystoreaddresstype;
+            }
+        }
+        static private lib.ReferenceCollectionSimpleItem mystorecontacttypes;
+        static public lib.ReferenceCollectionSimpleItem StoreContactTypes
+        {
+            get
+            {
+                if (mystorecontacttypes == null)
+                {
+                    mystorecontacttypes = new lib.ReferenceCollectionSimpleItem();
+                    mystorecontacttypes.CommandText = "SELECT id,name,isactual,isdefault FROM dbo.StoreContactType_tb ORDER BY id";
+                    mystorecontacttypes.TableName = "dbo.StoreContactType_tb";
+                    mystorecontacttypes.ConnectionString = CustomBrokerWpf.References.ConnectionString;
+                    mystorecontacttypes.DataLoad();
+                }
+                return mystorecontacttypes;
             }
         }
         static private lib.ReferenceCollectionSimpleItem myunits;
@@ -507,18 +510,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         #region Collections
         static private void CollectionsInit()
         {
-            myimporters = new Classes.Domain.ImporterCollection();
-            myimporters.DataLoad();
             mymanagers = new Classes.Domain.ManagerCollection();
             myparcelnumbers = new Classes.Domain.ParcelNumberCollection();
             mygenders = new Classes.Domain.GenderCollection();
             myimporters = new Classes.Domain.ImporterCollection();
             myimporters.DataLoad();
+            mymanagers = new Classes.Domain.ManagerCollection();
             if (References.CurrentUserRoles.Contains("Managers"))
             {
+                mycountrylist = new Classes.Domain.References.CountryList();
                 mygenders.DataLoad();
                 mymaterials = new Classes.Specification.MaterialCollection();
                 mymaterials.DataLoad();
+                mymanager = mymanagers.FindFirstItem("ParticipantName", myuser);
             }
             //mygenderlazy = new Lazy<Classes.Domain.GenderCollection>(() => {
             //    Classes.Domain.GenderCollection genders=null;
@@ -537,6 +541,40 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return mycolors;
             }
         }
+        static private Classes.Domain.References.CountryList mycountrylist;
+        static internal Classes.Domain.References.CountryList Countries
+        {
+            get
+            {
+                if (mycountrylist == null)
+                {
+                    try
+                    {
+                        App.Current.Dispatcher.Invoke(() => {
+                            mycountrylist = new Classes.Domain.References.CountryList();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is System.Data.SqlClient.SqlException)
+                        {
+                            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
+                            System.Text.StringBuilder errs = new System.Text.StringBuilder();
+                            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
+                            {
+                                errs.Append(sqlerr.Message + "\n");
+                            }
+                            MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                return mycountrylist;
+            }
+        }
         static private System.Collections.ObjectModel.ObservableCollection<Classes.Domain.DeliveryCar> mydeliverycars;
         static internal System.Collections.ObjectModel.ObservableCollection<Classes.Domain.DeliveryCar> DeliveryCars
         {
@@ -545,8 +583,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mydeliverycars == null)
                 {
-                    mydeliverycars = new System.Collections.ObjectModel.ObservableCollection<Classes.Domain.DeliveryCar>();
-                    Classes.Domain.DeliveryCarDBM cdbm = new Classes.Domain.DeliveryCarDBM();
+                    Classes.Domain.DeliveryCarDBM cdbm=null;
+                    App.Current.Dispatcher.Invoke(() => {
+                        mydeliverycars = new System.Collections.ObjectModel.ObservableCollection<Classes.Domain.DeliveryCar>();
+                        cdbm = new Classes.Domain.DeliveryCarDBM();
+                    });
                     cdbm.isAll = false;
                     //cdbm.FillAsyncCompleted = () => { if (cdbm.Errors.Count > 0) OpenPopup(mydbm.ErrorMessage, true); };
                     cdbm.Collection = mydeliverycars;
@@ -562,8 +603,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mygenders.Count==0)
 				{
-                            mygenders.DataLoad();
-				}
+                    App.Current.Dispatcher.Invoke(() => {
+                        mygenders.DataLoad();
+                    });
+                }
 				return mygenders;
             }
         }
@@ -574,7 +617,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (myimporters == null)
                 {
-                    myimporters = new Classes.Domain.ImporterCollection();
+                    App.Current.Dispatcher.Invoke(() => {
+                        myimporters = new Classes.Domain.ImporterCollection();
+                    });
                     myimporters.DataLoad();
                 }
                 return myimporters;
@@ -587,7 +632,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (mymanagers == null)
                 {
-                    mymanagers = new Classes.Domain.ManagerCollection();
+                    App.Current.Dispatcher.Invoke(() => {
+                        mymanagers = new Classes.Domain.ManagerCollection();
+                    });
                 }
                 return mymanagers;
             }
@@ -620,6 +667,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return mymaterialsinc.ViewModelCollection;
             }
         }
+        static private System.Collections.ObjectModel.ObservableCollection<Classes.Domain.Parcel> myparcels;
+        static public System.Collections.ObjectModel.ObservableCollection<Classes.Domain.Parcel> Parcels
+        { set { myparcels = value; } get { return myparcels; } }
         static private Classes.Domain.ParcelNumberCollection myparcelnumbers;
         static public Classes.Domain.ParcelNumberCollection ParcelNumbers
         {
@@ -627,7 +677,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (myparcelnumbers == null)
                 {
-                    myparcelnumbers = new Classes.Domain.ParcelNumberCollection();
+                    App.Current.Dispatcher.Invoke(() => {
+                        myparcelnumbers = new Classes.Domain.ParcelNumberCollection();
+                    });
                 }
                 return myparcelnumbers;
             }
@@ -821,7 +873,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return mycustomerviewcollector;
             }
         }
+        static private lib.ViewCollector mycountryviewcollector;
+        static internal lib.ViewCollector CountryViewCollector
+        {
+            get
+            {
+                if (mycountryviewcollector == null)
+                    mycountryviewcollector = new lib.ViewCollector();
+                return mycountryviewcollector;
+            }
+        }
+        static private lib.ViewCollector myparcelviewcollector;
+        static internal lib.ViewCollector ParcelViewCollector
+        {
+            get
+            {
+                if (myparcelviewcollector == null)
+                    myparcelviewcollector = new lib.ViewCollector();
+                return myparcelviewcollector;
+            }
+        }
 
+        static private void PropertiesInit()
+        {
+            myparcellastshipdate = new Classes.Domain.ParcelLastShipdate();
+            myparcellastshipdate.Update();
+        }
         public static double WorkAreaHight
         {
             get { return SystemParameters.WorkArea.Height / 1.3D; }
@@ -857,5 +934,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             return end;
         }
+        private static Classes.Domain.ParcelLastShipdate myparcellastshipdate;
+        internal static Classes.Domain.ParcelLastShipdate ParcelLastShipdate
+        { get { return myparcellastshipdate; } }
     }
 }

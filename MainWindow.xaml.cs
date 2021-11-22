@@ -164,9 +164,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void MenuItemAgent_Click(object sender, RoutedEventArgs e)
         {
-            Window ObjectWin = new AgentWin();
-            mychildwindows.Add(ObjectWin);
-            ObjectWin.Show();
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winAgentList") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new AgentListWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
         }
         private void MenuItemAddressType_Click(object sender, RoutedEventArgs e)
         {
@@ -313,7 +326,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 ObjectWin = new CountriesWin();
                 mychildwindows.Add(ObjectWin);
                 IViewModelWindous win = ObjectWin as IViewModelWindous;
-                Classes.CountriesVM vm = new Classes.CountriesVM();
+                Classes.Domain.References.CountriesVM vm = new Classes.Domain.References.CountriesVM();
                 vm.EndEdit = win.vmEndEdit;
                 vm.CancelEdit = win.vmCancelEdit;
                 ObjectWin.DataContext = vm;
@@ -349,16 +362,59 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winReferenceSympleItem" && item.Title == "Склад") ObjectWin = item;
+                if (item.Name == "winWarehouses") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new WarehousesWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemStoreAddressType_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winReferenceSympleItem" && item.Title == "Склад, тип адреса") ObjectWin = item;
             }
             if (ObjectWin == null)
             {
                 ObjectWin = new ReferenceSympleItemWin();
-                ObjectWin.Title = "Склад";
+                ObjectWin.Title = "Склад, тип адреса";
                 ObjectWin.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/CustomBrokerWpf;component/Images/forklifter.png"));
-                (ObjectWin as ReferenceSympleItemWin).CanAddRows = false;
-                (ObjectWin as ReferenceSympleItemWin).CanDeleteRows = false;
-                (ObjectWin as ReferenceSympleItemWin).SetDataContext(CustomBrokerWpf.References.Stores, false);
+                (ObjectWin as ReferenceSympleItemWin).CanAddRows = true;
+                (ObjectWin as ReferenceSympleItemWin).CanDeleteRows = true;
+                (ObjectWin as ReferenceSympleItemWin).SetDataContext(CustomBrokerWpf.References.StoreAddressTypes, false);
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemStoreContactType_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winReferenceSympleItem" && item.Title == "Склад, тип контакта") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new ReferenceSympleItemWin();
+                ObjectWin.Title = "Склад, тип контакта";
+                ObjectWin.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/CustomBrokerWpf;component/Images/forklifter.png"));
+                (ObjectWin as ReferenceSympleItemWin).CanAddRows = true;
+                (ObjectWin as ReferenceSympleItemWin).CanDeleteRows = true;
+                (ObjectWin as ReferenceSympleItemWin).SetDataContext(CustomBrokerWpf.References.StoreContactTypes, false);
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -378,6 +434,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (ObjectWin == null)
             {
                 ObjectWin = new ForwarderWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuNewClient_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winClientNew") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new ClientNewWin();
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -425,25 +500,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemRequest_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winRequest") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new RequestWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuItemRequest_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winRequest") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new RequestWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuItemAlgorithm_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -540,25 +615,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemLegal_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winLegalEntity") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new LegalEntityWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuItemLegal_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winLegalEntity") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new LegalEntityWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuItemStoreMerge_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -578,25 +653,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemParcel_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winParcel") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new ParcelWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuItemParcel_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winParcel") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new ParcelWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuListParcel_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -641,17 +716,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //    mychildwindows.Add(ObjectWin);
         //    ObjectWin.Show();
         //}
-        private void MenuPPParcel_Click(object sender, RoutedEventArgs e)
-        {
-            PaymentListWin ObjectWin = new PaymentListWin();
-            mychildwindows.Add(ObjectWin);
-            ObjectWin.Show();
-        }
-        private void MenuWayBill_Click(object sender, RoutedEventArgs e)
-        {
-            Classes.WayBill wb = Classes.WayBill.GetWayBill();
-            wb.CreateWayBillFromSpec();
-        }
+        //private void MenuPPParcel_Click(object sender, RoutedEventArgs e)
+        //{
+        //    PaymentListWin ObjectWin = new PaymentListWin();
+        //    mychildwindows.Add(ObjectWin);
+        //    ObjectWin.Show();
+        //}
+        //private void MenuWayBill_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Classes.WayBill wb = Classes.WayBill.GetWayBill();
+        //    wb.CreateWayBillFromSpec();
+        //}
         //private void MenuCostParcel_Click(object sender, RoutedEventArgs e)
         //{
         //    ExpenditureListWin ObjectWin = new ExpenditureListWin();
@@ -664,56 +739,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //    mychildwindows.Add(ObjectWin);
         //    ObjectWin.Show();
         //}
-        private void MenuInvoice_Click(object sender, RoutedEventArgs e)
-        {
-            InvoiceListWin ObjectWin = new InvoiceListWin();
-            mychildwindows.Add(ObjectWin);
-            ObjectWin.Show();
-        }
-        private void MenuPPAccount_Click(object sender, RoutedEventArgs e)
-        {
-            PaymentListWin ObjectWin = new PaymentListWin();
-            mychildwindows.Add(ObjectWin);
-            ObjectWin.Show();
-        }
-        private void MenuItemDebtor_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winCustomerBalance") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new CustomerBalanceWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemLegalBalance_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winLegalBalance") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new LegalBalanceWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuInvoice_Click(object sender, RoutedEventArgs e)
+        //{
+        //    InvoiceListWin ObjectWin = new InvoiceListWin();
+        //    mychildwindows.Add(ObjectWin);
+        //    ObjectWin.Show();
+        //}
+        //private void MenuPPAccount_Click(object sender, RoutedEventArgs e)
+        //{
+        //    PaymentListWin ObjectWin = new PaymentListWin();
+        //    mychildwindows.Add(ObjectWin);
+        //    ObjectWin.Show();
+        //}
+        //private void MenuItemDebtor_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winCustomerBalance") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new CustomerBalanceWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
+        //private void MenuItemLegalBalance_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winLegalBalance") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new LegalBalanceWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuItemParcelReport_Click(object sender, RoutedEventArgs e)
         {
             ParcelReportWin ObjectWin = new ParcelReportWin();
@@ -758,6 +833,65 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
+        private void MenuItemAllPrice_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winAllPrice") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new AllPriceWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemGoods_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winGoods") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new GoodsWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuGoodsEnding_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winGoodsReminder") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                GoodsViewCommand cmd = new GoodsViewCommand(true);
+                ObjectWin = new GoodsEndingWin();
+                ObjectWin.DataContext = cmd;
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -788,7 +922,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             else
             {
-                this.RequestFilter.Dispose();
+                myrequestcmd.Filter.Dispose();
                 myparcelcmd.Filter.Dispose();
                 //this.ParcelPaymentsUC.Filter.Dispose();
                 //this.PaymentlistUC.Filter.Dispose();
@@ -879,44 +1013,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         #endregion
 
-        private void MenuItemAllPrice_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winAllPrice") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new AllPriceWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemGoods_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winGoods") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new GoodsWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
         #endregion
 
         #region Request
@@ -932,9 +1028,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             myrequestcmd = new Classes.Domain.RequestViewCommand();
             myrequestcmd.EndEdit = myrequestdischanger.EndEdit;
             myrequestcmd.CancelEdit = myrequestdischanger.CancelEdit;
-            myrequestfilter = myrequestcmd.Filter;
             this.RequestGrid.DataContext = myrequestcmd;
-            RequestStoragePointFilter = string.Empty;
             RequestTotalDataRefresh();
         }
         //private void RequestDataLoad()
@@ -1249,58 +1343,58 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
-        private void FreightColumn_Click(object sender, RoutedEventArgs e)
-        {
-            RequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-            if (RequestDataGrid.CurrentItem is DataRowView)
-            {
-                RequestDS.tableRequestRow row = (RequestDataGrid.CurrentItem as DataRowView).Row as RequestDS.tableRequestRow;
-                FreightWin winFreight = null;
-                foreach (Window frwin in this.OwnedWindows)
-                {
-                    if (frwin.Name == "winFreight")
-                    {
-                        if ((frwin as FreightWin).RequestRow.requestId == row.requestId) winFreight = frwin as FreightWin;
-                    }
-                }
-                if (winFreight == null)
-                {
-                    foreach (Window item in this.OwnedWindows)
-                    {
-                        if (item.Name == "winRequestItem")
-                        {
-                            if ((item as RequestItemWin).mainGrid.DataContext.Equals(this.RequestDataGrid.CurrentItem))
-                            {
-                                foreach (Window frwin in item.OwnedWindows)
-                                {
-                                    if (frwin.Name == "winFreight")
-                                    {
-                                        if ((frwin as FreightWin).RequestRow.requestId == row.requestId) winFreight = frwin as FreightWin;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (winFreight == null)
-                {
-                    winFreight = new FreightWin();
-                    if (row.isfreight) winFreight.FreightId = row.freight;
-                    else winFreight.FreightId = 0;
-                    RequestDS requestDS = ((KirillPolyanskiy.CustomBrokerWpf.RequestDS)(this.RequestGrid.FindResource("requestDS")));
-                    winFreight.agentComboBox.ItemsSource = new System.Data.DataView(requestDS.tableAgentName, string.Empty, "agentName", System.Data.DataViewRowState.CurrentRows);
-                    if (!row.IsagentIdNull()) winFreight.agentComboBox.SelectedValue = row.agentId;
-                    winFreight.RequestRow = row;
-                    winFreight.Owner = this;
-                    winFreight.Show();
-                }
-                else
-                {
-                    winFreight.Activate();
-                    if (winFreight.WindowState == WindowState.Minimized) winFreight.WindowState = WindowState.Normal;
-                }
-            }
-        }
+        //private void FreightColumn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    RequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        //    if (RequestDataGrid.CurrentItem is DataRowView)
+        //    {
+        //        RequestDS.tableRequestRow row = (RequestDataGrid.CurrentItem as DataRowView).Row as RequestDS.tableRequestRow;
+        //        FreightWin winFreight = null;
+        //        foreach (Window frwin in this.OwnedWindows)
+        //        {
+        //            if (frwin.Name == "winFreight")
+        //            {
+        //                if ((frwin as FreightWin).RequestRow.requestId == row.requestId) winFreight = frwin as FreightWin;
+        //            }
+        //        }
+        //        if (winFreight == null)
+        //        {
+        //            foreach (Window item in this.OwnedWindows)
+        //            {
+        //                if (item.Name == "winRequestItem")
+        //                {
+        //                    if ((item as RequestItemWin).mainGrid.DataContext.Equals(this.RequestDataGrid.CurrentItem))
+        //                    {
+        //                        foreach (Window frwin in item.OwnedWindows)
+        //                        {
+        //                            if (frwin.Name == "winFreight")
+        //                            {
+        //                                if ((frwin as FreightWin).RequestRow.requestId == row.requestId) winFreight = frwin as FreightWin;
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        if (winFreight == null)
+        //        {
+        //            winFreight = new FreightWin();
+        //            if (row.isfreight) winFreight.FreightId = row.freight;
+        //            else winFreight.FreightId = 0;
+        //            RequestDS requestDS = ((KirillPolyanskiy.CustomBrokerWpf.RequestDS)(this.RequestGrid.FindResource("requestDS")));
+        //            winFreight.agentComboBox.ItemsSource = new System.Data.DataView(requestDS.tableAgentName, string.Empty, "agentName", System.Data.DataViewRowState.CurrentRows);
+        //            if (!row.IsagentIdNull()) winFreight.agentComboBox.SelectedValue = row.agentId;
+        //            winFreight.RequestRow = row;
+        //            winFreight.Owner = this;
+        //            winFreight.Show();
+        //        }
+        //        else
+        //        {
+        //            winFreight.Activate();
+        //            if (winFreight.WindowState == WindowState.Minimized) winFreight.WindowState = WindowState.Normal;
+        //        }
+        //    }
+        //}
 
         private void RequestDelete_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -1662,38 +1756,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
-        private CustomBrokerWpf.SQLFilter myrequestfilter;
-        public bool RequestIsShowFilter
-        {
-            set
-            {
-                this.RequestFilterButton.IsChecked = value;
-            }
-            get { return this.RequestFilterButton.IsChecked.Value; }
-        }
-        internal SQLFilter RequestFilter
-        {
-            get { return myrequestfilter; }
-            set
-            {
-                if (!myrequestcmd.SaveDataChanges())
-                    MessageBox.Show("Применение фильтра невозможно. Регистр содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", "Применение фильтра", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                else
-                {
-                    myrequestfilter = value;
-                    myrequestcmd.Refresh.Execute(null);
-                }
-            }
-        }
-        internal void RequestRunFilter()
-        {
-            if (!myrequestcmd.SaveDataChanges())
-                MessageBox.Show("Применение фильтра невозможно. Регистр содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", "Применение фильтра", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            else
-            {
-                myrequestcmd.Refresh.Execute(null);
-            }
-        }
+        //private CustomBrokerWpf.SQLFilter myrequestfilter;
+        //public bool RequestIsShowFilter
+        //{
+        //    set
+        //    {
+        //        this.RequestFilterButton.IsChecked = value;
+        //    }
+        //    get { return this.RequestFilterButton.IsChecked.Value; }
+        //}
+        //internal SQLFilter RequestFilter
+        //{
+        //    get { return myrequestfilter; }
+        //    set
+        //    {
+        //        if (!myrequestcmd.SaveDataChanges())
+        //            MessageBox.Show("Применение фильтра невозможно. Регистр содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", "Применение фильтра", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        //        else
+        //        {
+        //            myrequestfilter = value;
+        //            myrequestcmd.Refresh.Execute(null);
+        //        }
+        //    }
+        //}
+        //internal void RequestRunFilter()
+        //{
+        //    if (!myrequestcmd.SaveDataChanges())
+        //        MessageBox.Show("Применение фильтра невозможно. Регистр содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", "Применение фильтра", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        //    else
+        //    {
+        //        myrequestcmd.Refresh.Execute(null);
+        //    }
+        //}
         private void RequestFilterButton_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -1705,7 +1799,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (ObjectWin == null)
                 {
-                    ObjectWin = new RequestFilterWin();
+                    ObjectWin = new RequestFilterWin() { FilterOwner = myrequestcmd };
                     ObjectWin.Owner = this;
                     ObjectWin.Show();
                 }
@@ -1732,31 +1826,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void RequestFastFilterRun()
         {
-            this.RequestFilter.SetNumber(this.RequestFilter.FilterWhereId, "customerId", 0, (RequestClientFilter?.ToString() ?? string.Empty));
-            //if (string.IsNullOrEmpty(this.RequestStoragePointFilter))
-            this.RequestFilter.SetNumber(this.RequestFilter.FilterWhereId, "storagePoint", 0, this.RequestStoragePointFilter);
-            //this.RequestFilter.ConditionValueAdd(this.RequestFilter.ConditionAdd(this.RequestFilter.FilterWhereId, "storagePoint", "="), this.RequestStoragePointFilter, 0);
-            this.RequestRunFilter();
-        }
-        private int? myrequestclientfilter;
-        public int? RequestClientFilter
-        {
-            set
-            {
-                myrequestclientfilter = value;
-                PropertyChangedNotification("RequestClientFilter");
-            }
-            get { return myrequestclientfilter; }
-        }
-        private string myrequeststoragepointfilter;
-        public string RequestStoragePointFilter
-        {
-            set
-            {
-                myrequeststoragepointfilter = value;
-                PropertyChangedNotification("RequestStoragePointFilter");
-            }
-            get { return myrequeststoragepointfilter; }
+            if(myrequestcmd.RunFastFilter.CanExecute(null))
+                myrequestcmd.RunFastFilter.Execute(null);
         }
         private void RequestFastFilterButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1778,25 +1849,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
-        private void ColmarkComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (RequestDataGrid.SelectedItems.Count > 0 & e.AddedItems.Count > 0)
-            {
-                RequestDS.tableRequestRow row;
-                foreach (DataRowView viewrow in RequestDataGrid.SelectedItems)
-                {
-                    if (viewrow != RequestDataGrid.CurrentItem)
-                    {
-                        row = viewrow.Row as RequestDS.tableRequestRow;
-                        row.colmark = (e.AddedItems[0] as System.Windows.Shapes.Rectangle).Fill.ToString();
-                        row.EndEdit();
-                    }
-                }
-            }
-        }
+        //private void ColmarkComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (RequestDataGrid.SelectedItems.Count > 0 & e.AddedItems.Count > 0)
+        //    {
+        //        RequestDS.tableRequestRow row;
+        //        foreach (DataRowView viewrow in RequestDataGrid.SelectedItems)
+        //        {
+        //            if (viewrow != RequestDataGrid.CurrentItem)
+        //            {
+        //                row = viewrow.Row as RequestDS.tableRequestRow;
+        //                row.colmark = (e.AddedItems[0] as System.Windows.Shapes.Rectangle).Fill.ToString();
+        //                row.EndEdit();
+        //            }
+        //        }
+        //    }
+        //}
         private void RequestDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (RequestDataGrid.CurrentCell.Column?.SortMemberPath == "StorePointDate")
+            if (e.OriginalSource is TextBlock && (RequestDataGrid.CurrentCell.Column?.SortMemberPath == "StorePointDate" || RequestDataGrid.CurrentCell.Column?.SortMemberPath == "Id"))
             {
                 RequestItem_Click(sender, e);
                 e.Handled = true;
@@ -1807,86 +1878,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             myrequestcmd.FoldersMove.Execute(null);
         }
-       #endregion
+        #endregion
 
         #region Машина
-        private ParcelCurItemCommander myparcelcmd;
+        #region Удалить
         private lib.BindingDischarger myparcelbinddisp;
-
-        private void Parcel_Loaded()
-        {
-            myparcelbinddisp = new lib.BindingDischarger(this, new DataGrid[] { ParcelRequestDataGrid, NoParcelRequestDataGrid });
-            myparcelcmd = new ParcelCurItemCommander();
-            myparcelcmd.CancelEdit = myparcelbinddisp.CancelEdit;
-            myparcelcmd.EndEdit = myparcelbinddisp.EndEdit;
-            ParcelGrid.DataContext = myparcelcmd;
-
-            //Синхронизация ширины столбцов
-            for(int i=0;i< this.ParcelRequestDataGrid.Columns.Count;i++)
-                if (this.ParcelRequestDataGrid.Columns[i].ActualWidth > this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
-                    this.NoParcelRequestDataGrid.Columns[i].Width = this.ParcelRequestDataGrid.Columns[i].ActualWidth;
-                else if(this.ParcelRequestDataGrid.Columns[i].ActualWidth < this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
-                    this.ParcelRequestDataGrid.Columns[i].Width = this.NoParcelRequestDataGrid.Columns[i].ActualWidth;
-            DependencyPropertyDescriptor textDescr = DependencyPropertyDescriptor.FromProperty(DataGridColumn.ActualWidthProperty, typeof(DataGridColumn));
-            if (textDescr != null)
-            {
-                foreach (DataGridColumn column in this.ParcelRequestDataGrid.Columns)
-                {
-                    textDescr.AddValueChanged(column, delegate
-                  {
-                      if(column.DisplayIndex>=0) ParcelRequestDataGrid_SizeChanged(column);
-                  });
-                }
-                foreach (DataGridColumn column in this.NoParcelRequestDataGrid.Columns)
-                {
-                    textDescr.AddValueChanged(column, delegate
-                    {
-                        if (column.DisplayIndex >= 0) NoParcelRequestDataGrid_SizeChanged(column);
-                    });
-                }
-            }
-        }
-
-        private bool Parcel_Closing()
-        {
-            bool cancel = false;
-            if (!myparcelbinddisp.EndEdit() || !myparcelcmd.SaveDataChanges())
-            {
-                this.Activate();
-                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                {
-                    cancel = true;
-                }
-            }
-            return cancel;
-        }
-        //private void CheckGroup(DataRow[] rows)
-        //{
-        //    SqlCommand com = new SqlCommand();
-        //    using (SqlConnection con = new SqlConnection(References.ConnectionString))
-        //    {
-        //        com.CommandType = CommandType.StoredProcedure;
-        //        com.CommandText = "ParcelGroupCheck_sp";
-        //        com.Connection = con;
-        //        SqlParameter parId = new SqlParameter();
-        //        parId.ParameterName = "@parcelId";
-        //        parId.SqlDbType = SqlDbType.Int;
-        //        com.Parameters.Add(parId);
-        //        SqlParameter parRez = new SqlParameter();
-        //        parRez.Direction = ParameterDirection.Output;
-        //        parRez.ParameterName = "@equals";
-        //        parRez.SqlDbType = SqlDbType.TinyInt;
-        //        com.Parameters.Add(parRez);
-        //        con.Open();
-        //        foreach (DataRow row in rows)
-        //        {
-        //            parId.Value = (row as ParcelDS.tableParcelRow).parcelId;
-        //            com.ExecuteNonQuery();
-        //            if ((byte)parRez.Value != 0) MessageBox.Show("Не все группы заявок поставлены в загрузку " + (row as ParcelDS.tableParcelRow).fullNumber + " полностью!", "Группы заявок", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        }
-        //        con.Close();
-        //    }
-        //}
+        private ParcelCurItemCommander myparcelcmd;
 
         private void ParceltoExcelButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1896,101 +1893,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             //ExcelReport(1, isNew);
             //ExcelReport(2, isNew);
         }
-        //private void ParceltoDocButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (ParcelNumberList.SelectedItem is DataRowView)
-        //        {
-        //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
-        //            string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath;
-        //            if (!Directory.Exists(path))
-        //            {
-        //                System.IO.Directory.CreateDirectory(path);
-        //            }
-        //            System.Diagnostics.Process.Start(path);
-        //            //else if (Directory.Exists("E:\\Счета\\" + prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5)))
-        //            //{
-        //            //    prow.docdirpath = prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5);
-        //            //    prow.EndEdit();
-        //            //    System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-        //            //}
-        //            //else
-        //            //{
-        //            //    if (MessageBox.Show("Не удалось найти папку отправки: E:\\Счета\\" + prow.docdirpath + "\nСоздать папку?", "Папка документов", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-        //            //    {
-        //            //        System.IO.Directory.CreateDirectory("E:\\Счета\\" + prow.docdirpath);
-        //            //        System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-        //            //    }
-        //            //}
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message, "Папка документов");
-        //    }
-        //}
-        //private void MoveInformStore_Click(object sender, RoutedEventArgs e)
-        //{
-        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-        //    for (int i = 0; i < ParcelRequestDataGrid.Items.Count; i++)
-        //    {
-        //        Classes.Domain.RequestVM row = this.ParcelRequestDataGrid.Items[i] as Classes.Domain.RequestVM;
-        //        if (!row.StoreInform.HasValue)
-        //        {
-        //            row.StoreInform = DateTime.Today;
-        //        }
-        //    }
-        //}
-        //private void MoveSpecification_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (this.ParcelSaveChanges() && this.ParcelNumberList.SelectedIndex > -1 && ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parceltype == 1)
-        //    {
-        //        FileInfo[] files;
-        //        string num = ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parcelnumber;
-        //        DirectoryInfo dirIn = new DirectoryInfo(@"V:\Отправки");
-        //        if (dirIn.Exists)
-        //        {
-        //            if (dirIn.GetDirectories(num + "_*").Length > 0)
-        //            {
-        //                dirIn = dirIn.GetDirectories(num + "_*")[0];
-        //                DirectoryInfo dirOut = new DirectoryInfo(@"V:\Спецификации");
-        //                if (dirOut.Exists)
-        //                {
-        //                    foreach (Classes.Domain.RequestVM row in viewParcelRequest)
-        //                    {
-        //                        if (!row.DomainObject.ParcelId.HasValue) continue;
-        //                        files = dirOut.GetFiles("*" + row.StorePoint + "*");
-        //                        if (files.Length > 0)
-        //                        {
-        //                            try
-        //                            {
-        //                                if (File.Exists(dirIn.FullName + "\\" + files[0].Name))
-        //                                    File.Delete(dirIn.FullName + "\\" + files[0].Name);
-        //                                files[0].MoveTo(dirIn.FullName + "\\" + files[0].Name);
-        //                            }
-        //                            catch (Exception ex)
-        //                            {
-        //                                MessageBox.Show(ex.Message, "Ошибка доступа к файлу", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                            }
-        //                        }
-        //                        if (dirIn.GetFiles("*" + row.StorePoint + "*").Length > 0)
-        //                        {
-        //                            row.IsSpecification = true;
-        //                        }
-        //                    }
-        //                }
-        //                else
-        //                    MessageBox.Show(@"Папка 'V:\Спецификации' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //            else
-        //                MessageBox.Show(@"Папка 'V:\Отправки\" + num + "_...' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //            MessageBox.Show(@"Папка 'V:\Отправки' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //    }
-        //}
         private void RequestExcelButton_Click(object sender, RoutedEventArgs e)
         {
             if (myparcelcmd.CurrentItem == null) return;
@@ -2101,17 +2003,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 MessageBox.Show("Выделите строку в верхнем списке", "Снятие с загрузки", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
-
-        //private void ParcelNumberList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //        cellNumberFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.CellNumber ?? 0M).ToString("N0");
-        //        VolumeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.Volume ?? 0M).ToString("N4");
-        //        OfficialWeightTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.OfficialWeight ?? 0M).ToString("N4");
-        //        actualWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.ActualWeight ?? 0M).ToString("N4");
-        //        offactWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.DifferenceWeight ?? 0M).ToString("N4");
-        //        goodValueFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.InvoiceDiscount ?? 0M).ToString("N2");
-        //}
-
         private void NoParcelRequestDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGridCellInfo cellinf;
@@ -2222,7 +2113,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 }
             }
         }
-        //private bool mygroupselect;
         private void ParcelRequestDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGridCellInfo cellinf;
@@ -2270,19 +2160,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 }
             }
         }
-        //private bool ParcelRequestDataGridRowChanged;
-        //private void ParcelRequestDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        //{
-        //    ParcelRequestDataGridRowChanged = e.EditAction==DataGridEditAction.Commit;
-        //}
-
-        //private void ParcelRequestUpDown_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        //{
-        //    if ((bool)e.NewValue)
-        //        viewRequest.Filter = (object item) => { return !(item as Classes.Domain.RequestVM).DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
-        //    else
-        //        viewRequest.Filter = (object item) => { return false; };
-        //}
 
         private void ParcelRequestDataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
@@ -2340,32 +2217,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
 
         #region Filter
-        //private CustomBrokerWpf.SQLFilter parcelfilter = new SQLFilter("parcel", "AND");
-        public SQLFilter ParcelFilter
-        {
-            get { return myparcelcmd.Filter; }
-            set
-            {
-                    myparcelcmd.Filter = value;
-            }
-        }
-        public bool ParcelIsShowFilter
-        {
-            set
-            {
-                this.ParcelFilterButton.IsChecked = value;
-            }
-            get { return this.ParcelFilterButton.IsChecked.Value; }
-        }
-        public void ParcelRunFilter()
-        {
-            if (!myparcelcmd.SaveDataChanges())
-                MessageBox.Show("Применение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", "Применение фильтра", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            else
-            {
-                myparcelcmd.Refresh.Execute(null);
-            }
-        }
         private void ParcelSetFilterButtonImage()
         {
             string uribitmap;
@@ -2386,7 +2237,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (ObjectWin == null)
                 {
-                    ObjectWin = new ParcelFilterWin();
+                    ObjectWin = new ParcelFilterWin() { FilterOwner = myparcelcmd };
                     ObjectWin.Owner = this;
                     ObjectWin.Show();
                 }
@@ -2560,17 +2411,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             return myparcelcmd.CurrentItem.ParcelRequests.Count.ToString() + " строк обработано";
         }
 
-        private void mainValidation_Error(object sender, ValidationErrorEventArgs e)
-        {
-            if (e.Action != ValidationErrorEventAction.Removed)
-            {
-                if (e.Error.Exception == null)
-                    MessageBox.Show(e.Error.ErrorContent.ToString(), "Некорректное значение");
-                else
-                    MessageBox.Show(e.Error.Exception.Message, "Некорректное значение");
-            }
-        }
-
         private void MailSMS_Click(object sender, RoutedEventArgs e)
         {
             MailSMSWin win = new MailSMSWin();
@@ -2580,12 +2420,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             win.Owner = this;
             win.Show();
         }
-
         private void ParcelDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if ((sender as DataGrid)?.CurrentItem is Classes.Domain.RequestVM)
             {
-                if ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "StorePointDate")
+                if (e.OriginalSource is TextBlock && ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "StorePointDate" || (sender as DataGrid).CurrentCell.Column?.SortMemberPath == "Id"))
                 {
                     RequestNewWin newWin = null;
                     DataGrid dg = sender as DataGrid;
@@ -2628,6 +2467,41 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if ((this.NoParcelRequestDataGrid.IsLoaded && column.ActualWidth != this.ParcelRequestDataGrid.Columns[position].ActualWidth) || column.ActualWidth > this.ParcelRequestDataGrid.Columns[position].ActualWidth)
                 this.ParcelRequestDataGrid.Columns[position].Width = column.ActualWidth;
         }
+        private void SpecificationDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if ((sender as DataGrid)?.CurrentItem is Classes.Specification.SpecificationVM)
+            {
+                if ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "CFPR" || (sender as DataGrid).CurrentCell.Column.SortMemberPath == "Importer.Name")
+                {
+                    SpecificationWin newWin = null;
+                    DataGrid dg = sender as DataGrid;
+                    foreach (Window item in this.OwnedWindows)
+                    {
+                        if (item.Name == "winSpecification")
+                        {
+                            if ((item.DataContext as Classes.Specification.SpecificationVMCommand).VModel.Id == (dg.CurrentItem as Classes.Specification.SpecificationVM).Id)
+                                newWin = item as SpecificationWin;
+                        }
+                    }
+                    if (newWin == null)
+                    {
+                        newWin = new SpecificationWin();
+                        newWin.Owner = this;
+
+                        Classes.Specification.SpecificationVMCommand cmd = new Classes.Specification.SpecificationVMCommand((dg.CurrentItem as Classes.Specification.SpecificationVM), myparcelcmd.CurrentItem.Specifications);
+                        newWin.DataContext = cmd;
+                        newWin.Show();
+                    }
+                    else
+                    {
+                        newWin.Activate();
+                        if (newWin.WindowState == WindowState.Minimized) newWin.WindowState = WindowState.Normal;
+                    }
+                }
+                e.Handled = true;
+            }
+        }
+
         private ListCollectionView mystatuses;
         public ListCollectionView Statuses
         {
@@ -2663,6 +2537,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (myagents == null)
                 {
                     myagents = new ListCollectionView(CustomBrokerWpf.References.AgentNames);
+                    CustomBrokerWpf.References.AgentNames.RefreshViewAdd(myagents);
                     myagents.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 }
                 return myagents;
@@ -2707,40 +2582,216 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
-        private void SpecificationDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void mainValidation_Error(object sender, ValidationErrorEventArgs e)
         {
-            if ((sender as DataGrid)?.CurrentItem is Classes.Specification.SpecificationVM)
+            if (e.Action != ValidationErrorEventAction.Removed)
             {
-                if ((sender as DataGrid).CurrentCell.Column.SortMemberPath == "CFPR" || (sender as DataGrid).CurrentCell.Column.SortMemberPath == "Importer.Name")
-                {
-                    SpecificationWin newWin = null;
-                    DataGrid dg = sender as DataGrid;
-                    foreach (Window item in this.OwnedWindows)
-                    {
-                        if (item.Name == "winSpecification")
-                        {
-                            if ((item.DataContext as Classes.Specification.SpecificationVMCommand).VModel.Id == (dg.CurrentItem as Classes.Specification.SpecificationVM).Id)
-                                newWin = item as SpecificationWin;
-                        }
-                    }
-                    if (newWin == null)
-                    {
-                        newWin = new SpecificationWin();
-                        newWin.Owner = this;
-
-                        Classes.Specification.SpecificationVMCommand cmd = new Classes.Specification.SpecificationVMCommand((dg.CurrentItem as Classes.Specification.SpecificationVM), myparcelcmd.CurrentItem.Specifications);
-                        newWin.DataContext = cmd;
-                        newWin.Show();
-                    }
-                    else
-                    {
-                        newWin.Activate();
-                        if (newWin.WindowState == WindowState.Minimized) newWin.WindowState = WindowState.Normal;
-                    }
-                }
-                e.Handled = true;
+                if (e.Error.Exception == null)
+                    MessageBox.Show(e.Error.ErrorContent.ToString(), "Некорректное значение");
+                else
+                    MessageBox.Show(e.Error.Exception.Message, "Некорректное значение");
             }
         }
+        #endregion
+
+        private void Parcel_Loaded()
+        {
+            myparcelcmd = new ParcelCurItemCommander();
+            this.ParcelNew.DataContext = myparcelcmd;
+
+            //myparcelbinddisp = new lib.BindingDischarger(this, new DataGrid[] { ParcelRequestDataGrid, NoParcelRequestDataGrid });
+            //myparcelcmd.CancelEdit = myparcelbinddisp.CancelEdit;
+            //myparcelcmd.EndEdit = myparcelbinddisp.EndEdit;
+            //ParcelGrid.DataContext = myparcelcmd;
+
+            ////Синхронизация ширины столбцов
+            //for(int i=0;i< this.ParcelRequestDataGrid.Columns.Count;i++)
+            //    if (this.ParcelRequestDataGrid.Columns[i].ActualWidth > this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
+            //        this.NoParcelRequestDataGrid.Columns[i].Width = this.ParcelRequestDataGrid.Columns[i].ActualWidth;
+            //    else if(this.ParcelRequestDataGrid.Columns[i].ActualWidth < this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
+            //        this.ParcelRequestDataGrid.Columns[i].Width = this.NoParcelRequestDataGrid.Columns[i].ActualWidth;
+            //DependencyPropertyDescriptor textDescr = DependencyPropertyDescriptor.FromProperty(DataGridColumn.ActualWidthProperty, typeof(DataGridColumn));
+            //if (textDescr != null)
+            //{
+            //    foreach (DataGridColumn column in this.ParcelRequestDataGrid.Columns)
+            //    {
+            //        textDescr.AddValueChanged(column, delegate
+            //      {
+            //          if(column.DisplayIndex>=0) ParcelRequestDataGrid_SizeChanged(column);
+            //      });
+            //    }
+            //    foreach (DataGridColumn column in this.NoParcelRequestDataGrid.Columns)
+            //    {
+            //        textDescr.AddValueChanged(column, delegate
+            //        {
+            //            if (column.DisplayIndex >= 0) NoParcelRequestDataGrid_SizeChanged(column);
+            //        });
+            //    }
+            //}
+        }
+
+        private bool Parcel_Closing()
+        {
+            bool cancel = false;
+            myparcelcmd.Save.Execute(null);
+            if (!myparcelcmd.LastSaveResult)
+            {
+                this.Activate();
+                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                {
+                    cancel = true;
+                }
+            }
+            return cancel;
+        }
+        //private void CheckGroup(DataRow[] rows)
+        //{
+        //    SqlCommand com = new SqlCommand();
+        //    using (SqlConnection con = new SqlConnection(References.ConnectionString))
+        //    {
+        //        com.CommandType = CommandType.StoredProcedure;
+        //        com.CommandText = "ParcelGroupCheck_sp";
+        //        com.Connection = con;
+        //        SqlParameter parId = new SqlParameter();
+        //        parId.ParameterName = "@parcelId";
+        //        parId.SqlDbType = SqlDbType.Int;
+        //        com.Parameters.Add(parId);
+        //        SqlParameter parRez = new SqlParameter();
+        //        parRez.Direction = ParameterDirection.Output;
+        //        parRez.ParameterName = "@equals";
+        //        parRez.SqlDbType = SqlDbType.TinyInt;
+        //        com.Parameters.Add(parRez);
+        //        con.Open();
+        //        foreach (DataRow row in rows)
+        //        {
+        //            parId.Value = (row as ParcelDS.tableParcelRow).parcelId;
+        //            com.ExecuteNonQuery();
+        //            if ((byte)parRez.Value != 0) MessageBox.Show("Не все группы заявок поставлены в загрузку " + (row as ParcelDS.tableParcelRow).fullNumber + " полностью!", "Группы заявок", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //        }
+        //        con.Close();
+        //    }
+        //}
+
+        //private void ParceltoDocButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (ParcelNumberList.SelectedItem is DataRowView)
+        //        {
+        //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
+        //            string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath;
+        //            if (!Directory.Exists(path))
+        //            {
+        //                System.IO.Directory.CreateDirectory(path);
+        //            }
+        //            System.Diagnostics.Process.Start(path);
+        //            //else if (Directory.Exists("E:\\Счета\\" + prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5)))
+        //            //{
+        //            //    prow.docdirpath = prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5);
+        //            //    prow.EndEdit();
+        //            //    System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
+        //            //}
+        //            //else
+        //            //{
+        //            //    if (MessageBox.Show("Не удалось найти папку отправки: E:\\Счета\\" + prow.docdirpath + "\nСоздать папку?", "Папка документов", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+        //            //    {
+        //            //        System.IO.Directory.CreateDirectory("E:\\Счета\\" + prow.docdirpath);
+        //            //        System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
+        //            //    }
+        //            //}
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message, "Папка документов");
+        //    }
+        //}
+        //private void MoveInformStore_Click(object sender, RoutedEventArgs e)
+        //{
+        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        //    for (int i = 0; i < ParcelRequestDataGrid.Items.Count; i++)
+        //    {
+        //        Classes.Domain.RequestVM row = this.ParcelRequestDataGrid.Items[i] as Classes.Domain.RequestVM;
+        //        if (!row.StoreInform.HasValue)
+        //        {
+        //            row.StoreInform = DateTime.Today;
+        //        }
+        //    }
+        //}
+        //private void MoveSpecification_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (this.ParcelSaveChanges() && this.ParcelNumberList.SelectedIndex > -1 && ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parceltype == 1)
+        //    {
+        //        FileInfo[] files;
+        //        string num = ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parcelnumber;
+        //        DirectoryInfo dirIn = new DirectoryInfo(@"V:\Отправки");
+        //        if (dirIn.Exists)
+        //        {
+        //            if (dirIn.GetDirectories(num + "_*").Length > 0)
+        //            {
+        //                dirIn = dirIn.GetDirectories(num + "_*")[0];
+        //                DirectoryInfo dirOut = new DirectoryInfo(@"V:\Спецификации");
+        //                if (dirOut.Exists)
+        //                {
+        //                    foreach (Classes.Domain.RequestVM row in viewParcelRequest)
+        //                    {
+        //                        if (!row.DomainObject.ParcelId.HasValue) continue;
+        //                        files = dirOut.GetFiles("*" + row.StorePoint + "*");
+        //                        if (files.Length > 0)
+        //                        {
+        //                            try
+        //                            {
+        //                                if (File.Exists(dirIn.FullName + "\\" + files[0].Name))
+        //                                    File.Delete(dirIn.FullName + "\\" + files[0].Name);
+        //                                files[0].MoveTo(dirIn.FullName + "\\" + files[0].Name);
+        //                            }
+        //                            catch (Exception ex)
+        //                            {
+        //                                MessageBox.Show(ex.Message, "Ошибка доступа к файлу", MessageBoxButton.OK, MessageBoxImage.Error);
+        //                            }
+        //                        }
+        //                        if (dirIn.GetFiles("*" + row.StorePoint + "*").Length > 0)
+        //                        {
+        //                            row.IsSpecification = true;
+        //                        }
+        //                    }
+        //                }
+        //                else
+        //                    MessageBox.Show(@"Папка 'V:\Спецификации' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            }
+        //            else
+        //                MessageBox.Show(@"Папка 'V:\Отправки\" + num + "_...' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        }
+        //        else
+        //            MessageBox.Show(@"Папка 'V:\Отправки' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
+        //    }
+        //}
+
+        //private void ParcelNumberList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //        cellNumberFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.CellNumber ?? 0M).ToString("N0");
+        //        VolumeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.Volume ?? 0M).ToString("N4");
+        //        OfficialWeightTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.OfficialWeight ?? 0M).ToString("N4");
+        //        actualWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.ActualWeight ?? 0M).ToString("N4");
+        //        offactWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.DifferenceWeight ?? 0M).ToString("N4");
+        //        goodValueFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.InvoiceDiscount ?? 0M).ToString("N2");
+        //}
+
+        //private bool ParcelRequestDataGridRowChanged;
+        //private void ParcelRequestDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        //{
+        //    ParcelRequestDataGridRowChanged = e.EditAction==DataGridEditAction.Commit;
+        //}
+
+        //private void ParcelRequestUpDown_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        //{
+        //    if ((bool)e.NewValue)
+        //        viewRequest.Filter = (object item) => { return !(item as Classes.Domain.RequestVM).DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
+        //    else
+        //        viewRequest.Filter = (object item) => { return false; };
+        //}
+
         #endregion
 
         #region Account
@@ -2810,6 +2861,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (PropertyChanged != null)
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
-
     }
 }

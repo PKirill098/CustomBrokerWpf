@@ -1,0 +1,48 @@
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.WarehousesWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Склады" Name="winWarehouses" Loaded="Window_Loaded" Closing="Window_Closing" SizeToContent="Width" Height="500" Icon="/CustomBrokerWpf;component/Images/forklifter.png">
+    <Grid >
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+            <RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<ToolBar Height="30">
+            <Button ToolTip="Добавить склад" Click="AddButton_Click">
+                <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+            </Button>
+            <Button Command="Delete" ToolTip="Удалить склад" IsTabStop="False">
+				<Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+			</Button>
+			<Separator/>
+			<Button ToolTip="Сохранить изменения в БД" Command="{Binding Save}">
+				<Image Source="/CustomBrokerWpf;component/Images/save.png" />
+			</Button>
+			<Button ToolTip="Обновить информацию" Command="{Binding SaveRefresh}">
+				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+			</Button>
+			<Separator/>
+			<Button Content="Закрыть" Click="CloseButton_Click"/>
+            <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
+                <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                    <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                </Border>
+            </Popup>
+        </ToolBar>
+		<DataGrid Grid.Row="1" Name="mainDataGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" HeadersVisibility="None" Margin="2" CanUserAddRows="False" CanUserDeleteRows="True"
+                  MouseDoubleClick="MainDataGrid_MouseDoubleClick">
+			<DataGrid.CommandBindings>
+				<CommandBinding Command="Delete" CanExecute="Delete_CanExecute" Executed="Delete_Execute"/>
+			</DataGrid.CommandBindings>
+			<DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Name}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+		<StatusBar Grid.Row="2" Background="#FFF0F0F0">
+			<StatusBarItem HorizontalAlignment="Right">
+				<TextBlock Text="{Binding Path=Items.Count}"/>
+			</StatusBarItem>
+		</StatusBar>
+    </Grid>
+</Window>

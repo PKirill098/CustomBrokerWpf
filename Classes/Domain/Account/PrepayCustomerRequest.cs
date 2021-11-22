@@ -679,10 +679,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
             }
         }
-        internal bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte messageey)
         {
             bool isvalid = true;
             errmsg = null;
+            messageey = 0;
             switch (propertyname)
             {
                 case nameof(this.DTSum):
@@ -1612,7 +1613,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             switch (propertyname)
             {
                 case nameof(this.EuroSum):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, myeurosum, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, myeurosum, out errmsg, out _);
                     break;
                 case nameof(this.Request):
                     isvalid = this.Request.Validate(inform);

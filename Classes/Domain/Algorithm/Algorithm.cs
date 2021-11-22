@@ -92,19 +92,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
         }
 
-        public override int? ItemId
-        {
-            get
-            {
-                return (int?)SelectParams[0].Value;
-            }
-
-            set
-            {
-                SelectParams[0].Value = value;
-            }
-        }
-
         protected override Algorithm CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             return new Algorithm(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.GetString(1), reader.GetByte(2));

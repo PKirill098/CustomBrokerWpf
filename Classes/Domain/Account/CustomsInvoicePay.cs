@@ -61,16 +61,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
         private IValidator myvalidator;
-        internal bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
         {
             myvalidator.ValidateObject = this;
-            return myvalidator.ValidateProperty(propertyname, value, out errmsg);
+            return myvalidator.ValidateProperty(propertyname, value, out errmsg, out errmsgkey);
         }
     }
     public interface IValidator
     {
         object ValidateObject { set; }
-        bool ValidateProperty(string propertyname, object value, out string errmsg);
+        bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey);
     }
     internal class CustomsInvoicePayValidatorRub: IValidator
     {
@@ -78,10 +78,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         public object ValidateObject { set => mypay=value as CustomsInvoicePay; }
 
-        public bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
         {
             bool isvalid = true;
             errmsg = null;
+            errmsgkey = 0;
             switch (propertyname)
             {
                 case nameof(mypay.PayDate):
@@ -113,10 +114,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         public object ValidateObject { set => mypay = value as CustomsInvoicePay; }
 
-        public bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
         {
             bool isvalid = true;
             errmsg = null;
+            errmsgkey = 0;
             switch (propertyname)
             {
                 case nameof(mypay.PayDate):
@@ -148,10 +150,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         public object ValidateObject { set => mypay = value as CustomsInvoicePay; }
 
-        public bool ValidateProperty(string propertyname, object value, out string errmsg)
+        public bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
         {
             bool isvalid = true;
             errmsg = null;
+            errmsgkey = 0;
             switch (propertyname)
             {
                 case nameof(mypay.PayDate):
@@ -347,10 +350,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             switch (propertyname)
             {
                 case nameof(this.PaySum):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaysum, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaysum, out errmsg, out _);
                     break;
                 case nameof(this.PayDate):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaydate, out errmsg);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mypaydate, out errmsg, out _);
                     break;
             }
             if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);

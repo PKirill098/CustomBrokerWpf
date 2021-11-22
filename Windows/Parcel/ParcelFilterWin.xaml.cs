@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
+using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
 {
@@ -13,9 +13,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
     /// </summary>
     public partial class ParcelFilterWin : Window
     {
-        private SQLFilter filter;
-        private ISQLFiltredWindow myfilterowner;
-        internal ISQLFiltredWindow FilterOwner
+        private lib.SQLFilter.SQLFilter filter;
+        private lib.Interfaces.IFilterWindowOwner myfilterowner;
+        internal lib.Interfaces.IFilterWindowOwner FilterOwner
         {
             set { myfilterowner = value; }
             get { return myfilterowner; }
@@ -55,10 +55,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 IInputElement focelm = FocusManager.GetFocusedElement(this);
                 FocusManager.SetFocusedElement(this, RunFilterButton);
                 Actualization();
-                if(this.Owner is MainWindow & myfilterowner==null)
-                    (this.Owner as MainWindow).ParcelRunFilter();
-                else
-                    myfilterowner.RunFilter();
+                if(myfilterowner!=null)
+                    myfilterowner.RunFilter(null);
                 FocusManager.SetFocusedElement(this, focelm);
             }
             catch (Exception ex)
@@ -86,7 +84,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private void DefaultFilterButton_Click(object sender, RoutedEventArgs e)
         {
             filter.RemoveCurrentWhere();
-            filter.GetDefaultFilter(SQLFilterPart.Where);
+            filter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
             Fill();
         }
         private void ClearFilterButton_Click(object sender, RoutedEventArgs e)
@@ -148,7 +146,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 n = stopNumberTextBox.Text.IndexOf('-');
                 if (n > 0) text2 = stopNumberTextBox.Text.Substring(0, n);
                 string oper = text1.Length > 0 & text2.Length > 0 ? "between" : text1.Length > 0 ? ">=" : text2.Length > 0 ? "<=" : "";
-                List<SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "parcelnumber");
+                List<lib.SQLFilter.SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "parcelnumber");
                 if (cond.Count > 0)
                 {
                     if (oper.Length > 0)
@@ -183,7 +181,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                         oper = "is null";
                         break;
                 }
-                List<SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "shipmentnumber");
+                List<lib.SQLFilter.SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "shipmentnumber");
                 if (cond.Count > 0)
                 {
                     if (shipnumberComboBox.SelectedIndex == 0 & shipnumberTextBox.Text.Length == 0)
@@ -193,7 +191,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     else
                     {
                         if (cond[0].propertyOperator != oper) filter.ConditionUpd(cond[0].propertyid, oper);
-                        List<SQLFilterValue> val = filter.ValueGet(cond[0].propertyid);
+                        List<lib.SQLFilter.SQLFilterValue> val = filter.ValueGet(cond[0].propertyid);
                         if (val.Count > 0)
                         {
                             filter.ConditionValueUpd(val[0].valueId, shipnumberTextBox.Text, 0);
@@ -277,12 +275,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (isChanchedLorryVolume)
             {
-                filter.SetNumber(filter.FilterWhereId, "lorryvolume", volumeComboBox.SelectedIndex, volumeTextBox.Text);
+                lib.SQLFilter.Operators oper = lib.SQLFilter.Operators.Equal;
+                switch (volumeComboBox.SelectedIndex)
+                {
+                    case 1:
+                        oper = lib.SQLFilter.Operators.Greater;
+                        break;
+                    case 2:
+                        oper = lib.SQLFilter.Operators.Less;
+                        break;
+                }
+                filter.SetNumber(filter.FilterWhereId, "lorryvolume", oper, volumeTextBox.Text);
                 isChanchedLorryVolume = false;
             }
             if (isChanchedLorryWeight)
             {
-                filter.SetNumber(filter.FilterWhereId, "lorrytonnage", weightComboBox.SelectedIndex, weightTextBox.Text);
+                lib.SQLFilter.Operators oper = lib.SQLFilter.Operators.Equal;
+                switch (weightComboBox.SelectedIndex)
+                {
+                    case 1:
+                        oper = lib.SQLFilter.Operators.Greater;
+                        break;
+                    case 2:
+                        oper = lib.SQLFilter.Operators.Less;
+                        break;
+                }
+                filter.SetNumber(filter.FilterWhereId, "lorrytonnage", oper, weightTextBox.Text);
                 isChanchedLorryWeight = false;
             }
             if (isChanchedLorryVin)
@@ -372,10 +390,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void Fill()
         {
-            List<SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "parcelnumber");
+            List<lib.SQLFilter.SQLFilterCondition> cond = filter.ConditionGet(filter.FilterWhereId, "parcelnumber");
             if (cond.Count > 0)
             {
-                List<SQLFilterValue> values = filter.ValueGet(cond[0].propertyid);
+                List<lib.SQLFilter.SQLFilterValue> values = filter.ValueGet(cond[0].propertyid);
                 switch (cond[0].propertyOperator.ToLower())
                 {
                     case "between":
@@ -405,8 +423,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 startNumberTextBox.Clear();
                 stopNumberTextBox.Clear();
             }
-            List<SQLFilterCondition> listCond;
-            List<SQLFilterValue> listValue;
+            List<lib.SQLFilter.SQLFilterCondition> listCond;
+            List<lib.SQLFilter.SQLFilterValue> listValue;
             listCond = filter.ConditionGet(filter.FilterWhereId, "shipmentnumber");
             if (listCond.Count > 0)
             {
@@ -621,26 +639,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             System.Data.DataView typeview = new System.Data.DataView(refDS.tableParcelType);
             this.parcelTypeListBox.ItemsSource = typeview;
-            //if (refDS.tableGoodsType.Count == 0)
-            //{
-            //    ReferenceDSTableAdapters.GoodsTypeAdapter goodstypeadapter = new ReferenceDSTableAdapters.GoodsTypeAdapter();
-            //    goodstypeadapter.Fill(refDS.tableGoodsType);
-            //}
-            //refDS.tableGoodsType.DefaultView.Sort = "Nameitem";
-            //System.Data.DataView goodsview = new System.Data.DataView(refDS.tableGoodsType, string.Empty, "Nameitem", DataViewRowState.CurrentRows);
             this.goodstypeListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
-            if (this.Owner is MainWindow & myfilterowner == null)
-                filter = (this.Owner as MainWindow).ParcelFilter;
-            else
+            if (myfilterowner != null)
                 filter = myfilterowner.Filter;
             Fill();
         }
         private void winParcelFilter_Closed(object sender, EventArgs e)
         {
-            if (this.Owner is MainWindow & myfilterowner == null)
-                (this.Owner as MainWindow).ParcelIsShowFilter = false;
-            else
-                myfilterowner.IsShowFilter = false;
+            if (myfilterowner != null)
+                myfilterowner.IsShowFilterWindow = false;
         }
     }
 }

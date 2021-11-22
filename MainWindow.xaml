@@ -6,6 +6,7 @@
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         xmlns:account="clr-namespace:KirillPolyanskiy.CustomBrokerWpf.WindowsAccount"
+        xmlns:parcel="clr-namespace:KirillPolyanskiy.CustomBrokerWpf.Windows.Parcel"
         Icon="/CustomBrokerWpf;component/Images/truck_blue.png" Loaded="Window_Loaded" Closing="Window_Closing" Language="ru-RU" Top="5" Left="10" WindowState="Maximized" FontSize="11">
 	<Grid>
 		<Grid.RowDefinitions>
@@ -14,24 +15,14 @@
 		</Grid.RowDefinitions>
 		<Menu x:Name="mainMenu" FontSize="16" Margin="4">
 			<MenuItem Header="Отправка" x:Name="parcelMenu" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
-				<!--<MenuItem Header="Регистр" Click="MenuItemRequest_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
-                    <MenuItem.Icon>
-                        <Image Source="/CustomBrokerWpf;component/Images/index.png" />
-                    </MenuItem.Icon>
-                </MenuItem>-->
 				<MenuItem Header="Склад" Click="MenuItemStoreMerge_Click" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="Images/forklifter.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<!--<MenuItem Header="Карточка" Click="MenuItemParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
+				<MenuItem Header="Список отправок" Click="MenuListParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
-					</MenuItem.Icon>
-				</MenuItem>-->
-				<MenuItem Header="Список" Click="MenuListParcel_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/table_selection_row.png" />
+                        <Image Source="/CustomBrokerWpf;component/Images/truck_blue.png" />
 					</MenuItem.Icon>
 				</MenuItem>
 				<MenuItem Header="Довоз" Click="MenuDelivery_Click" Height="{Binding ElementName=parcelMenu, Path=ActualHeight}">
@@ -55,26 +46,10 @@
 					</MenuItem.Icon>
 				</MenuItem>-->
 			</MenuItem>
-			<!--<MenuItem Header="Затраты" x:Name="expenditureMenu" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
-				<MenuItem Header="Затраты" Click="MenuCostParcel_Click" Height="{Binding ElementName=expenditureMenu, Path=ActualHeight}">
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/money_envelope.png" />
-					</MenuItem.Icon>
-				</MenuItem>
-				<MenuItem Header="Платежи" Click="MenuWithdrawal_Click" Height="{Binding ElementName=expenditureMenu, Path=ActualHeight}">
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
-					</MenuItem.Icon>
-				</MenuItem>
-				<MenuItem Header="Счета" Click="MenuInvoice_Click" Height="{Binding ElementName=expenditureMenu, Path=ActualHeight}">
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/paperclip.png" />
-					</MenuItem.Icon>
-				</MenuItem>
-			</MenuItem>-->
-			<MenuItem Header="Клиенты">
+			<MenuItem Header="Клиенты" Click="MenuNewClient_Click">
+                <!--<MenuItem Header="Клиенты"/>
 				<MenuItem Header="Карточка" Click="MenuItemClient_Click"/>
-				<MenuItem Header="Контакты" Click="MenuItemClientList_Click"/>
+				<MenuItem Header="Контакты" Click="MenuItemClientList_Click"/>-->
 			</MenuItem>
 			<MenuItem Header="Поставщики" Click="MenuItemAgent_Click"/>
 			<MenuItem Header="Справочники" x:Name="referenceMenu">
@@ -138,7 +113,12 @@
 						<Image Source="/CustomBrokerWpf;component/Images/certificate.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="Импортеры" Click="MenuItemImporter_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                <MenuItem Header="Истекающие СРТ" Click="MenuGoodsEnding_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                    <MenuItem.Icon>
+                        <Image Source="/CustomBrokerWpf;component/Images/certificate.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Импортеры" Click="MenuItemImporter_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/businessman.png" />
 					</MenuItem.Icon>
@@ -153,22 +133,34 @@
 						<Image Source="/CustomBrokerWpf;component/Images/users_family.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="Получатели" Click="MenuItemLegal_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+				<!--<MenuItem Header="Получатели" Click="MenuItemLegal_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
 					</MenuItem.Icon>
-				</MenuItem>
+				</MenuItem>-->
 				<MenuItem Header="Разбивки" Click="MenuItemSpecificationDetails_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="Images/document_certificate.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="Склад" Click="MenuItemStore_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+                <Separator/>
+                <MenuItem Header="Склад" Click="MenuItemStore_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/forklifter.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<!--<MenuItem Header="Спецификации" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                <MenuItem Header="Склад, тип адреса" Click="MenuItemStoreAddressType_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+                    <MenuItem.Icon>
+                        <Image Source="/CustomBrokerWpf;component/Images/forklifter.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Склад, тип контакта" Click="MenuItemStoreContactType_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+                    <MenuItem.Icon>
+                        <Image Source="/CustomBrokerWpf;component/Images/forklifter.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <!--<MenuItem Header="Спецификации" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
                     <MenuItem.Icon>
                         <Image Source="/CustomBrokerWpf;component/Images/form_yellow.png" />
                     </MenuItem.Icon>
@@ -210,23 +202,7 @@
 				</MenuItem>
 			</MenuItem>
 			<!--<MenuItem Header="Платежки" Click="MenuPPAccount_Click" x:Name="accountMenu" Visibility="Collapsed"/>-->
-			<MenuItem Header="Отчеты" x:Name="reportMenu">
-				<!--<MenuItem Header="Баланс клиента" Click="MenuItemDebtor_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" >
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/businessman2.png" />
-					</MenuItem.Icon>
-				</MenuItem>
-				<MenuItem Header="Активы" Click="MenuItemLegalBalance_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}" >
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/wallet_open.png" />
-					</MenuItem.Icon>
-				</MenuItem>-->
-				<MenuItem Header="Отправки" Click="MenuItemParcelReport_Click" Height="{Binding ElementName=reportMenu, Path=ActualHeight}" >
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/cashier.png" />
-					</MenuItem.Icon>
-				</MenuItem>
-			</MenuItem>
+            <MenuItem Header="Отчеты" Click="MenuItemParcelReport_Click" />
 			<MenuItem Header="Закрыть все" Click="Button_Click"/>
 		</Menu>
 		<Popup Name="popInf" StaysOpen="False" Placement="Mouse" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" >
@@ -234,33 +210,14 @@
 				<TextBlock Name="PopupText" Margin="2"  FontStyle="Italic" Foreground="Teal" />
 			</Border>
 		</Popup>
-		<TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" x:Name="MainTabControl">
 			<TabControl.Resources>
 				<CollectionViewSource x:Key="keyStatusVS" />
 				<my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
 				<my:IsEnabledConverter x:Key="keyIsEnabledConverter"/>
-				<my:RequestDS x:Key="requestDS" />
-				<CollectionViewSource x:Key="keyCustomerName" Source="{Binding Source={StaticResource requestDS}, Path=tableCustomerName}">
-					<CollectionViewSource.SortDescriptions>
-						<cm:SortDescription PropertyName="customerName"/>
-					</CollectionViewSource.SortDescriptions>
-				</CollectionViewSource>
-				<CollectionViewSource x:Key="keyAgentName" Source="{Binding Source={StaticResource requestDS}, Path=tableAgentName}">
-					<CollectionViewSource.SortDescriptions>
-						<cm:SortDescription PropertyName="agentName"/>
-					</CollectionViewSource.SortDescriptions>
-				</CollectionViewSource>
+                <my:NoNullValueBackConverter x:Key="keyNotNullConverter"/>
 				<CollectionViewSource x:Key="keyGoodsTypeVS" />
 				<CollectionViewSource x:Key="keyParcelTypeVS" />
-				<Style TargetType="{x:Type DataGridColumnHeader}">
-					<Setter Property="ContentTemplate">
-						<Setter.Value>
-							<DataTemplate>
-								<TextBlock Text="{Binding}" FontWeight="Bold" Padding="4,0" />
-							</DataTemplate>
-						</Setter.Value>
-					</Setter>
-				</Style>
 				<Style x:Key="ComboBoxButtonLess" TargetType="{x:Type ComboBox}"
                                 xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 					<Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
@@ -372,14 +329,14 @@
 						<Button ToolTip="Отменить несохраненные изменения" Click="RequestRejectButton_Click">
 							<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
 						</Button>
-						<ToggleButton ToolTip="Изменить фильтр" x:Name="RequestFilterButton" Click="RequestFilterButton_Click">
+                        <ToggleButton ToolTip="Изменить фильтр" x:Name="RequestFilterButton" IsChecked="{Binding Path=IsShowFilterWindow}" Click="RequestFilterButton_Click">
 							<Image Source="/CustomBrokerWpf;component/Images/rshester.png" />
 						</ToggleButton>
 						<Separator/>
 						<TextBlock Text="Клиент" VerticalAlignment="Center" Margin="5,0"/>
-						<ComboBox  SelectedValue="{Binding Path=RequestClientFilter, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, TargetNullValue=0}" ItemsSource="{Binding Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="False" MinWidth="100" KeyDown="RequestFilter_KeyDown"/>
+                        <ComboBox  SelectedValue="{Binding Path=Data.RequestClientFilter, Source={StaticResource MainDataContext}, TargetNullValue=0}" ItemsSource="{Binding Customers}" SelectedValuePath="Id" DisplayMemberPath="Name" IsEditable="True" IsReadOnly="False" IsSynchronizedWithCurrentItem="False" MinWidth="100" KeyDown="RequestFilter_KeyDown"/>
 						<TextBlock Text="№" VerticalAlignment="Center" Margin="5,0"/>
-						<TextBox Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=RequestStoragePointFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="60" KeyDown="RequestFilter_KeyDown"/>
+						<TextBox Text="{Binding Source={StaticResource MainDataContext}, Path=Data.RequestStoragePointFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="60" KeyDown="RequestFilter_KeyDown"/>
 						<Button ToolTip="Применить фильтр" Click="RequestFastFilterButton_Click" Margin="5,0">
 							<Image Source="/CustomBrokerWpf;component/Images/rpoisk2.png" />
 						</Button>
@@ -416,8 +373,6 @@
 					</ToolBar>
 					<DataGrid Name="RequestDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" EnableRowVirtualization="True" HorizontalAlignment="Left" RowDetailsVisibilityMode="Collapsed" VerticalAlignment="Top" SelectionUnit="FullRow" Validation.Error="RequestDataGrid_Error" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" AlternationCount="2"
                       CellEditEnding="RequestDataGrid_CellEditEnding" RowEditEnding="RequestDataGrid_RowEditEnding" UnloadingRow="RequestDataGrid_UnloadingRow" LoadingRow="RequestDataGrid_LoadingRow" BeginningEdit="RequestDataGrid_BeginningEdit" RowHeaderWidth="15" CanUserResizeRows="False" FrozenColumnCount="1" SelectionChanged="RequestDataGrid_SelectionChanged" 
-                      my:DataGridColumnsJoiner.FirstDisplayIndex="{Binding ElementName=specificationColumn, Path=DisplayIndex, Mode=TwoWay}"
-                      my:DataGridColumnsJoiner.SecondDisplayIndex="{Binding ElementName=isSpecColumn, Path=DisplayIndex, Mode=TwoWay}"
                       Grid.ColumnSpan="2" MouseDoubleClick="RequestDataGrid_MouseDoubleClick">
 						<DataGrid.CommandBindings>
 							<CommandBinding Command="ApplicationCommands.Delete" Executed="RequestDataGridDelete_Executed" CanExecute="RequestDelete_CanExecute"/>
@@ -481,7 +436,6 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="№" x:Name="requestIdColumn" Binding="{Binding Path=requestId}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
                             <DataGridTextColumn Header="Позиция" x:Name="storagePointColumn" ElementStyle="{StaticResource NumberCenterStyleView}">
                                 <DataGridTextColumn.Binding>
                                     <Binding Path="storagePoint" NotifyOnValidationError="True" >
@@ -583,7 +537,34 @@
                                 </DataGridTextColumn.EditingElementStyle>
                             </DataGridTextColumn>
                             -->
-							<DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}" />
+                            <DataGridTextColumn Header="№" Binding="{Binding Path=Id, Converter={StaticResource keyNoDisplayNewId}}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                            <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                        <Setter Property="ToolTip" Value="Складской № (При отсутствии складского номера номер и дата заявки)"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False"/>
+                                                    <Condition Binding="{Binding ShipmentDelay}" Value="1"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="#f7ede0"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False"/>
+                                                    <Condition Binding="{Binding ShipmentDelay}" Value="2"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="#f7e0e0"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
 							<DataGridTemplateColumn Header="Статус" CanUserSort="True" SortMemberPath="StatusParcel" ClipboardContentBinding="{Binding Path=StatusParcel}" Width="64">
 								<DataGridTemplateColumn.CellTemplate>
 									<DataTemplate>
@@ -663,7 +644,84 @@
 									</DataTemplate>
 								</DataGridTemplateColumn.CellTemplate>
 							</DataGridTemplateColumn>
-							<DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=AgentId, TargetNullValue=0,UpdateSourceTrigger=PropertyChanged}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
+                            <DataGridTemplateColumn Header="Менеджер" CanUserSort="True" SortMemberPath="Manager.NameComb" ClipboardContentBinding="{Binding Path=Manager.NameComb}"  Width="SizeToHeader">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+										<TextBlock Text="{Binding Manager.NameComb}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Managers}"  SelectedValue="{Binding Path=Manager,UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="NameComb" IsSynchronizedWithCurrentItem="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Поставщик" CanUserSort="True" SortMemberPath="Agent.Name" ClipboardContentBinding="{Binding Path=Agent.Name}" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Agent.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Path=AgentId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Agent.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Торговые марки" Width="150" CanUserSort="True" SortMemberPath="BrandNames" ClipboardContentBinding="{Binding Path=BrandNames}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=BrandNames}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=BrandNames}"
+                                                  ItemsSource="{Binding Path=Brands}" DisplayMemberPath="Brand.Name">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Path=Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center" Style="{StaticResource ErrorStyle}">
+                                                        <TextBlock Text="{Binding Brand.Name}" VerticalAlignment="Center"/>
+                                                    </CheckBox>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Клиент" CanUserSort="True" SortMemberPath="Customer.Name" ClipboardContentBinding="{Binding Path=Customer.Name}" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Customer.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Path=CustomerId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Customer.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Customers}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                        <Setter Property="FontWeight" Value="{Binding Customer.NameFontWeight}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <!--<DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=AgentId, TargetNullValue=0,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
                                     ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" SortMemberPath="AgentName"  Width="150">
 								<DataGridComboBoxColumn.CellStyle>
 									<Style TargetType="DataGridCell">
@@ -676,9 +734,10 @@
 								<DataGridComboBoxColumn.CellStyle>
 									<Style TargetType="DataGridCell">
 										<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-									</Style>
+                                        <Setter Property="FontWeight" Value="{Binding Customer.NameFontWeight}"/>
+                                    </Style>
 								</DataGridComboBoxColumn.CellStyle>
-							</DataGridComboBoxColumn>
+							</DataGridComboBoxColumn>-->
 							<DataGridTemplateColumn Header="Юр. лица" Width="150" CanUserSort="True" SortMemberPath="CustomerLegalsNames" ClipboardContentBinding="{Binding Path=CustomerLegalsNames}">
 								<DataGridTemplateColumn.CellTemplate>
 									<DataTemplate>
@@ -688,6 +747,7 @@
 								<DataGridTemplateColumn.CellStyle>
 									<Style TargetType="DataGridCell">
 										<Setter Property="ToolTip" Value="{Binding Path=CustomerLegalsNames}"/>
+                                        <Setter Property="FontWeight" Value="{Binding CustomerLegalsNamesFontWeight}"/>
 									</Style>
 								</DataGridTemplateColumn.CellStyle>
 								<DataGridTemplateColumn.CellEditingTemplate>
@@ -857,7 +917,7 @@
 									</Style>
 								</DataGridTextColumn.CellStyle>
 							</DataGridTextColumn>
-							<DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
 								<DataGridTemplateColumn.CellTemplate>
 									<DataTemplate>
 										<Button Click="HistoryOpen_Click" Tag="{Binding}" Height="14" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}" >
@@ -884,7 +944,28 @@
 					</StackPanel>
 				</Grid>
 			</TabItem>
-			<TabItem Header="КАРТОЧКА" >
+            <TabItem Header="ОТПРАВКИ" x:Name="ParcelNew">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                <parcel:ParcelUC ParentDataContext="{Binding RelativeSource={RelativeSource AncestorType=TabItem,AncestorLevel=1,Mode=FindAncestor}, Path=DataContext, Mode=OneWay}" DataContext="{Binding Path=CurrentItem}"/>
+                <StatusBar Grid.Row="9" Background="Transparent" Grid.ColumnSpan="2" HorizontalContentAlignment="Right">
+                    <StatusBarItem HorizontalAlignment="Right">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Path=IsFiltered}" />
+                        <TextBlock Text="{Binding Path=Items.Count}" Grid.Column="1" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StatusBarItem>
+                </StatusBar>
+                </Grid>
+            </TabItem>
+			<TabItem Header="ОТПРАВКИ" Visibility="Collapsed">
 				<Grid x:Name="ParcelGrid" Validation.Error="mainValidation_Error" IsSharedSizeScope="True">
 					<Grid.Resources>
 						<lib:BindingProxy x:Key="ParcelDataContext" Data="{Binding}"/>
@@ -920,6 +1001,7 @@
 						<RowDefinition Height="32"/>
 						<RowDefinition MinHeight="20"/>
 						<RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
 					</Grid.RowDefinitions>
 					<ToolBar Grid.ColumnSpan="2" IsTabStop="False" Margin="0,1">
 						<TextBlock Text="Выбор:" Padding="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -1499,37 +1581,6 @@
 							</Border>
 						</Grid>
 					</ScrollViewer>
-					<!--<Grid x:Name="Grid1" Grid.Row="4" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="номер" Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Center" />
-                                <TextBox Text="{Binding Path=lorry}" MaxLength="5" Grid.Column="2"/>
-                        <TextBlock Text="знак" Grid.Column="7" Margin="5,0,0,0" VerticalAlignment="Center" ToolTip="Регистрационный знак(номер)"/>
-                        <TextBlock Text="VIN" Grid.Column="9" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                        <TextBlock Text="VIN" Grid.Column="13" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Заявки:" Margin="5,0,0,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" />
-                    </Grid>-->
 					<Grid Grid.Row="5" Grid.ColumnSpan="2">
 						<Grid.RowDefinitions>
 							<RowDefinition />
@@ -1549,7 +1600,8 @@
 								</Style>
 							</DataGrid.RowStyle>
 							<DataGrid.Columns>
-								<DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
+                                <DataGridTextColumn Header="№" Binding="{Binding Path=Id, Converter={StaticResource keyNoDisplayNewId}}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                                <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
 								<DataGridTextColumn Header="Статус" Binding="{Binding Path=Status.Name}" IsReadOnly="True" SortMemberPath="Status.Id" Width="64"/>
 								<DataGridTextColumn Header="Группа" Binding="{Binding Path=ParcelGroup, UpdateSourceTrigger=LostFocus, TargetNullValue='',NotifyOnValidationError=True}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}">
 									<DataGridTextColumn.HeaderStyle>
@@ -1611,26 +1663,88 @@
 										</DataTemplate>
 									</DataGridTemplateColumn.CellTemplate>
 								</DataGridTemplateColumn>
-								<DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=AgentId, TargetNullValue=0}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
-                                     ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" SortMemberPath="AgentName"  Width="150">
-									<DataGridComboBoxColumn.CellStyle>
-										<Style TargetType="DataGridCell">
-											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-										</Style>
-									</DataGridComboBoxColumn.CellStyle>
-								</DataGridComboBoxColumn>
-								<DataGridComboBoxColumn Header="Клиент" SelectedValueBinding="{Binding Path=CustomerId, TargetNullValue=0}" Width="150"
-                                    ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="CustomerName">
-									<DataGridComboBoxColumn.CellStyle>
-										<Style TargetType="DataGridCell">
-											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-										</Style>
-									</DataGridComboBoxColumn.CellStyle>
-								</DataGridComboBoxColumn>
-								<DataGridTemplateColumn Header="Юр. лица" Width="150" SortMemberPath="CustomerLegalsNames">
+                                <DataGridTemplateColumn Header="Менеджер" CanUserSort="True" SortMemberPath="Manager.NameComb" ClipboardContentBinding="{Binding Path=Manager.NameComb}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Manager.NameComb}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Managers}"  SelectedValue="{Binding Path=Manager,UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="NameComb" IsSynchronizedWithCurrentItem="False"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Поставщик" CanUserSort="True" SortMemberPath="Agent.Name" ClipboardContentBinding="{Binding Path=Agent.Name}" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=Agent.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.CellStyle>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox SelectedValue="{Binding Path=AgentId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Agent.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                            </ComboBox>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Торговые марки" Width="150" CanUserSort="True" SortMemberPath="BrandNames" ClipboardContentBinding="{Binding Path=BrandNames}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="ToolTip" Value="{Binding Path=BrandNames}"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.CellStyle>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=BrandNames}"
+                                                  ItemsSource="{Binding Path=Brands}" DisplayMemberPath="Brand.Name">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox IsChecked="{Binding Path=Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center" Style="{StaticResource ErrorStyle}">
+                                                            <TextBlock Text="{Binding Brand.Name}" VerticalAlignment="Center"/>
+                                                        </CheckBox>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Клиент" CanUserSort="True" SortMemberPath="Customer.Name" ClipboardContentBinding="{Binding Path=Customer.Name}" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=Customer.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox SelectedValue="{Binding Path=CustomerId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Customer.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Customers}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                            </ComboBox>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataGridTemplateColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                            <Setter Property="FontWeight" Value="{Binding Customer.NameFontWeight}"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.CellStyle>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Юр. лица" Width="150" SortMemberPath="CustomerLegalsNames">
 									<DataGridTemplateColumn.CellStyle>
 										<Style TargetType="DataGridCell">
 											<Setter Property="ToolTip" Value="{Binding Path=CustomerLegalsNames}"/>
+                                            <Setter Property="FontWeight" Value="{Binding CustomerLegalsNamesFontWeight}"/>
 											<Style.Triggers>
 												<MultiDataTrigger >
 													<MultiDataTrigger.Conditions>
@@ -1783,7 +1897,8 @@
 										</Style>
 									</DataGridTextColumn.HeaderStyle>
 								</DataGridTextColumn>
-								<DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
+                                <DataGridTextColumn Header="Доставка" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.DeliveryType_.Name, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Selector.IsSelected="True" Width="80" />
+                                <DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
 								<DataGridTemplateColumn>
 									<DataGridTemplateColumn.CellTemplate>
 										<DataTemplate>
@@ -1832,9 +1947,7 @@
                         </Button>
                     </StackPanel>
 					<DataGrid x:Name="NoParcelRequestDataGrid" ItemsSource="{Binding Path=CurrentItem.Requests}" Grid.Row="7" Grid.ColumnSpan="2" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionChanged="NoParcelRequestDataGrid_SelectionChanged" IsTabStop="False" FrozenColumnCount="1" RowHeaderWidth="15" CanUserResizeRows="False" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke"
-                  my:DataGridColumnsJoiner.FirstDisplayIndex="{Binding ElementName=specificationColumn2, Path=DisplayIndex, Mode=TwoWay}"
-                  my:DataGridColumnsJoiner.SecondDisplayIndex="{Binding ElementName=isSpecColumn2, Path=DisplayIndex, Mode=TwoWay}"
-                  Visibility="{Binding Path=CurrentItem.RequestAreaVisibility,Mode=OneWay}" IsEnabled="{Binding IsEnabled}"
+						Visibility="{Binding Path=CurrentItem.RequestAreaVisibility,Mode=OneWay}" IsEnabled="{Binding IsEnabled}"
                               HorizontalAlignment="Left"  ColumnDisplayIndexChanged="NoParcelRequestDataGrid_ColumnDisplayIndexChanged"
                               Background="#e0f7e3" MouseDoubleClick="ParcelDataGrid_MouseDoubleClick"
                               BeginningEdit="NoParcelRequestDataGrid_BeginningEdit" RowEditEnding="NoParcelRequestDataGrid_RowEditEnding" 
@@ -1849,7 +1962,29 @@
 							</Style>
 						</DataGrid.RowStyle>
 						<DataGrid.Columns>
-							<DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
+                            <DataGridTextColumn Header="№" Binding="{Binding Path=Id, Converter={StaticResource keyNoDisplayNewId}}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
+                            <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False"/>
+                                                    <Condition Binding="{Binding ShipmentDelay}" Value="1"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="#f7ede0"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False"/>
+                                                    <Condition Binding="{Binding ShipmentDelay}" Value="2"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="#f7e0e0"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
 							<DataGridComboBoxColumn Header="Статус" SelectedItemBinding="{Binding Path=Status}" ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.RequestStates}" DisplayMemberPath="Name" SortMemberPath="Status.Id" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="64"/>
 							<DataGridTextColumn Header="Группа" Binding="{Binding Path=ParcelGroup, UpdateSourceTrigger=LostFocus, TargetNullValue='',NotifyOnValidationError=True}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}">
 								<DataGridTextColumn.HeaderStyle>
@@ -1907,26 +2042,88 @@
 									</DataTemplate>
 								</DataGridTemplateColumn.CellTemplate>
 							</DataGridTemplateColumn>
-							<DataGridComboBoxColumn Header="Поставщик" SelectedValueBinding="{Binding Path=AgentId, TargetNullValue=0}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
-                                      ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name" SortMemberPath="AgentName"  Width="150">
-								<DataGridComboBoxColumn.CellStyle>
-									<Style TargetType="DataGridCell">
-										<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-									</Style>
-								</DataGridComboBoxColumn.CellStyle>
-							</DataGridComboBoxColumn>
-							<DataGridComboBoxColumn Header="Клиент" SelectedValueBinding="{Binding Path=CustomerId, TargetNullValue=0}" Width="150"
-                                    ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Customers}" SelectedValuePath="customerID" DisplayMemberPath="customerName" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="CustomerName">
-								<DataGridComboBoxColumn.CellStyle>
-									<Style TargetType="DataGridCell">
-										<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
-									</Style>
-								</DataGridComboBoxColumn.CellStyle>
-							</DataGridComboBoxColumn>
-							<DataGridTemplateColumn Header="Юр. лица" Width="150" SortMemberPath="CustomerLegalsNames">
+                            <DataGridTemplateColumn Header="Менеджер" CanUserSort="True" SortMemberPath="Manager.NameComb" ClipboardContentBinding="{Binding Path=Manager.NameComb}" Width="SizeToHeader">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Manager.NameComb}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Managers}"  SelectedValue="{Binding Path=Manager,UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="NameComb" IsSynchronizedWithCurrentItem="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Поставщик" CanUserSort="True" SortMemberPath="Agent.Name" ClipboardContentBinding="{Binding Path=Agent.Name}" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Agent.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Path=AgentId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Agent.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Agents}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Торговые марки" Width="150" CanUserSort="True" SortMemberPath="BrandNames" ClipboardContentBinding="{Binding Path=BrandNames}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=BrandNames}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox Text="{Binding Path=BrandNames, Mode=OneWay, TargetNullValue=''}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=BrandNames}"
+                                                  ItemsSource="{Binding Path=Brands}" DisplayMemberPath="Brand.Name">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Path=Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center" Style="{StaticResource ErrorStyle}">
+                                                        <TextBlock Text="{Binding Brand.Name}" VerticalAlignment="Center"/>
+                                                    </CheckBox>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Клиент" CanUserSort="True" SortMemberPath="Customer.Name" ClipboardContentBinding="{Binding Path=Customer.Name}" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Customer.Name, Mode=OneWay, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Path=CustomerId, TargetNullValue=0, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource keyNotNullConverter}}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" StaysOpenOnEdit="True" IsDropDownOpen="True" ToolTip="{Binding Path=Customer.Name}"
+                                                  ItemsSource="{Binding Source={StaticResource ParcelDataContext}, Path=Data.Customers}" SelectedValuePath="Id" DisplayMemberPath="Name">
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=Agent.Name}"/>
+                                        <Setter Property="FontWeight" Value="{Binding Customer.NameFontWeight}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Юр. лица" Width="150" SortMemberPath="CustomerLegalsNames">
 								<DataGridTemplateColumn.CellStyle>
 									<Style TargetType="DataGridCell">
 										<Setter Property="ToolTip" Value="{Binding Path=CustomerLegalsNames}"/>
+                                        <Setter Property="FontWeight" Value="{Binding CustomerLegalsNamesFontWeight}"/>
 										<Style.Triggers>
 											<MultiDataTrigger >
 												<MultiDataTrigger.Conditions>
@@ -2079,7 +2276,8 @@
 									</Style>
 								</DataGridTextColumn.HeaderStyle>
 							</DataGridTextColumn>
-							<DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Доставка" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.DeliveryType_.Name, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Selector.IsSelected="True" Width="80" />
+                            <DataGridTextColumn Header="Примечания" Binding="{Binding Path=Notes,Mode=OneWay}" IsReadOnly="True" Width="SizeToHeader"/>
 							<DataGridTemplateColumn>
 								<DataGridTemplateColumn.CellTemplate>
 									<DataTemplate>
@@ -2271,9 +2469,7 @@
 						<TextBlock Text="стоимость" Grid.Row="3" Grid.Column="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 						<TextBox Text="{Binding Path=InvoiceDiscountFree, StringFormat=\{0:N2\},Mode=OneWay}" Grid.Row="3" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 					</StackPanel>
-					<StackPanel DataContext="{Binding Path=CurrentItem}" Orientation="Horizontal" Grid.Row="8" Margin="4" Visibility="{Binding Path=SpecificationAreaVisibility,Mode=OneWay}" Grid.ColumnSpan="2">
-					</StackPanel>
-				</Grid>
+                </Grid>
 			</TabItem>
             <TabItem Header="Реестр заявок на оплату Арт Деливери" GotFocus="TabItem1_GotFocus" Background="#f7e0e0">
                 <account:PaymentRegisterUC x:Name="PaymentDeliveryGrid"/>
@@ -2293,12 +2489,6 @@
             <TabItem Header="Реестр ТЭО ГТД Арт Трейд" GotFocus="TabItem6_GotFocus" Background="#f7e0e0">
                 <account:GTDRegisterUC x:Name="TEOTradeGrid"/>
             </TabItem>
-            <!--<TabItem Header="ПЛАТЕЖИ" Visibility="Collapsed">
-				<my:ParcelPaymentsUC x:Name="ParcelPaymentsUC"/>
-			</TabItem>
-			<TabItem Header="ОПЛАТЫ" Visibility="Collapsed">
-				<my:PaymentlistUC x:Name="PaymentlistUC"/>
-			</TabItem>-->
             <TabItem Header="События" x:Name="EventLogTab" Visibility="{Binding Source={StaticResource keyVisibilityTopManagers}, Path=Visibility, Mode=OneTime}">
 				<Grid x:Name="EventLogGrid">
 					<Grid.ColumnDefinitions>

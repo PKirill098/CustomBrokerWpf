@@ -72,7 +72,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             DeleteParams = new SqlParameter[] { parid };
         }
 
-        public override int? ItemId { get { return (int?)this.SelectParams[0].Value;} set { this.SelectParams[0].Value = value; } }
         private DeliveryCarry mycarry;
         internal DeliveryCarry Carry { get { return mycarry; } set { mycarry = value; } }
 

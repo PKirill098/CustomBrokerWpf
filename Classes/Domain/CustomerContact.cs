@@ -126,17 +126,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mypdbm = new ContactPointDBM(); mypdbm.Command = new SqlCommand();
         }
 
-        public override int? ItemId
-        {
-            set
-            {
-                SelectParams[0].Value = value;
-            }
-            get
-            {
-                return (int?)SelectParams[0].Value;
-            }
-        }
         private ContactPointDBM mypdbm;
 
         protected override CustomerContact CreateItem(SqlDataReader reader,SqlConnection addcon)

@@ -60,22 +60,52 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         }
         private void CustomerButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = (string)(sender as Button).Tag;
-            if (!string.IsNullOrEmpty(name))
+            Customer costomer = (Customer)(sender as Button).Tag;
+            if (costomer!=null)
             {
-                ClientWin win = new ClientWin();
-                win.Show();
-                win.CustomerNameList.Text = name;
+                Window ObjectWin = null;
+                foreach (Window item in this.OwnedWindows)
+                {
+                    if (item.Name == "winClientItem" && (item.DataContext as Classes.Domain.CustomerCommand).VModel.DomainObject == costomer) ObjectWin = item;
+                }
+                if (ObjectWin == null)
+                {
+                    Classes.Domain.CustomerCommand cmd = new Classes.Domain.CustomerCommand(new CustomerVM(costomer), null);
+                    ObjectWin = new ClientItemWin();
+                    ObjectWin.Owner = this;
+                    ObjectWin.DataContext = cmd;
+                    ObjectWin.Show();
+                }
+                else
+                {
+                    ObjectWin.Activate();
+                    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                }
             }
         }
         private void AgentButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = (string)(sender as Button).Tag;
-            if (!string.IsNullOrEmpty(name))
+            Agent agent = (Agent)(sender as Button).Tag;
+            if (agent!=null)
             {
-                AgentWin agentWin = new AgentWin();
-                agentWin.Show();
-                agentWin.AgentNameList.Text = name;
+                Window ObjectWin = null;
+                foreach (Window item in this.OwnedWindows)
+                {
+                    if (item.Name == "winAgentItem" && (item.DataContext as Classes.Domain.AgentCommand).VModel.DomainObject == agent) ObjectWin = item;
+                }
+                if (ObjectWin == null)
+                {
+                    Classes.Domain.AgentCommand cmd = new Classes.Domain.AgentCommand(new AgentVM(agent));
+                    ObjectWin = new AgentItemWin();
+                    ObjectWin.Owner = this;
+                    ObjectWin.DataContext = cmd;
+                    ObjectWin.Show();
+                }
+                else
+                {
+                    ObjectWin.Activate();
+                    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+                }
             }
         }
         private void LegalHyperlink_Click(object sender, RoutedEventArgs e)
@@ -263,6 +293,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-
+        private void HelpButton_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in this.OwnedWindows)
+            {
+                if (item.Name == "winRichText") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new RichTextWin();
+                ObjectWin.Owner = this;
+                //ObjectWin.DataContext = new Classes.Domain.Account.PrepayCustomerRequestCustomerCommander(((sender as Button).Tag as RequestCustomerLegalVM).DomainObject);
+                ObjectWin.WindowState = WindowState.Normal;
+                ObjectWin.Owner = this;
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
     }
 }

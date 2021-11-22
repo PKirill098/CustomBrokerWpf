@@ -8870,7 +8870,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -9194,7 +9194,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -9517,7 +9517,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -9706,7 +9706,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -10002,7 +10002,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -10309,7 +10309,7 @@ SELECT addresstypeID, addresstypeName FROM AddressType_tb WHERE (addresstypeID =
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -10626,7 +10626,7 @@ SELECT addresstypeID, addresstypeName FROM AddressType_tb WHERE (addresstypeID =
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -10935,7 +10935,7 @@ SELECT deliverytypeID, deliverytypeName FROM DeliveryType_tb WHERE (deliverytype
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -11254,7 +11254,7 @@ SELECT managergroupID, managergroupName FROM ManagerGroup_tb WHERE (managergroup
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -11575,7 +11575,7 @@ SELECT managergroupID, managergroupName FROM ManagerGroup_tb WHERE (managergroup
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -11889,7 +11889,7 @@ SELECT managergroupID, managergroupName FROM ManagerGroup_tb WHERE (managergroup
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -12205,7 +12205,7 @@ SELECT managergroupID, managergroupName FROM ManagerGroup_tb WHERE (managergroup
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -12493,7 +12493,7 @@ SELECT managergroupID, managergroupName FROM ManagerGroup_tb WHERE (managergroup
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -12689,7 +12689,7 @@ SELECT currency, currdescription, ncode, alias FROM AccountCurrency_tb WHERE (cu
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -13072,7 +13072,7 @@ SELECT currency, currdescription, ncode, alias FROM AccountCurrency_tb WHERE (cu
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -13268,7 +13268,7 @@ SELECT currency, currdescription, ncode, alias FROM AccountCurrency_tb WHERE (cu
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -13467,7 +13467,7 @@ SELECT currency, currdescription, ncode, alias FROM AccountCurrency_tb WHERE (cu
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -13828,7 +13828,7 @@ SELECT currency, currdescription, ncode, alias FROM AccountCurrency_tb WHERE (cu
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -14048,7 +14048,7 @@ SELECT NameEDNL, ExpenditureTypeID FROM account.ExpenditureDetailNameList_tb WHE
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "16.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
+            this._connection.ConnectionString = global::KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public string Name
         { set { SetProperty<string>(ref myname, value); } get { return myname; } }
         public string NameComb
-        { get { return myname ?? myparticipant.Name; } }
+        { get { return myname ?? myparticipant?.Name; } }
         private lib.ReferenceSimpleItem myparticipant;
         public lib.ReferenceSimpleItem Participant
         { get { return myparticipant; } }
@@ -136,6 +136,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 case "Id":
                     isfirst = item.Id == (int)value;
+                    break;
+                case "Name":
+                    isfirst = item.Name == (string)value;
+                    break;
+                case "ParticipantName":
+                    isfirst = item.Participant.Name == (string)value;
                     break;
             }
             return isfirst;
