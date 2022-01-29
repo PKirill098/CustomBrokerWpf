@@ -101,7 +101,7 @@
                 <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
             <Button ToolTip="Сохранить изменения в БД" Command="{Binding Save}">
-                <Image Source="Images/Save.png" />
+                <Image Source="/CustomBrokerWpf;component/Images/Save.png" />
             </Button>
             <Button ToolTip="Отменить несохраненные изменения" Command="{Binding Reject}" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
@@ -133,6 +133,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition SharedSizeGroup="r0"/>
                     <RowDefinition SharedSizeGroup="r0"/>
                     <RowDefinition SharedSizeGroup="r0"/>
                     <RowDefinition SharedSizeGroup="r0"/>
@@ -182,6 +183,16 @@
                 </Border>
                 <Border Grid.Row="5" Grid.Column="1" BorderThickness="1,1,1,1">
                     <ComboBox Grid.Row="5" Grid.Column="1" SelectedValue="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Path=DataContext.ManagerGroups}" SelectedValuePath="managergroupID" DisplayMemberPath="managergroupName" Margin="2" />
+                </Border>
+                <Border Grid.Row="6" Grid.Column="0" BorderThickness="1,1,0,1">
+                    <TextBlock Text="ЭДО Деливери" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                </Border>
+                <Border Grid.Row="6" Grid.Column="1" BorderThickness="1,1,1,1">
+                    <StackPanel Orientation="Horizontal" >
+                        <CheckBox IsChecked="{Binding Path=EDOD}" IsThreeState="False" VerticalAlignment="Center" Margin="2" />
+                        <TextBlock Text="Трэйд" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" />
+                        <CheckBox IsChecked="{Binding Path=EDOT}" IsThreeState="False" VerticalAlignment="Center" Margin="2" />
+                    </StackPanel>
                 </Border>
             </Grid>
             <Grid Grid.Column="2">

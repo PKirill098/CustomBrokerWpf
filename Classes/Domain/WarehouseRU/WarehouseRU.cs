@@ -1,0 +1,1047 @@
+﻿using KirillPolyanskiy.DataModelClassLibrary;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
+using lib = KirillPolyanskiy.DataModelClassLibrary;
+using libui = KirillPolyanskiy.WpfControlLibrary;
+
+namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
+{
+    public class WarehouseRU : lib.DomainBaseStamp
+    {
+        public WarehouseRU(int id, long stamp, DateTime? updatewhen, string updatewho, lib.DomainObjectState state
+            , CustomerLegal legal, string note, DateTime? receipted, DateTime? shipped, lib.ReferenceSimpleItem status
+            ) : base(id, stamp, updatewhen, updatewho, state, true)
+        {
+            mylegal = legal;
+            mynote = note;
+            myreceipted = receipted;
+            myshipped = shipped;
+            mystatus = status;
+
+            mylegals = App.Current.Dispatcher.Invoke<ObservableCollection<RequestCustomerLegal>>(() =>
+            { return new ObservableCollection<RequestCustomerLegal>(); });
+        }
+
+        private CustomerLegal mylegal;
+        public CustomerLegal Legal
+        { set { SetProperty(ref mylegal, value); } get { return mylegal; } }
+        private string mynote;
+        public string Note
+        { set { SetProperty(ref mynote, value); } get { return mynote; } }
+        private DateTime? myreceipted;
+        public DateTime? Receipted
+        { set { SetProperty(ref myreceipted, value); } get { return myreceipted; } }
+        private DateTime? myshipped;
+        public DateTime? Shipped
+        {
+            set
+            {
+                SetProperty(ref myshipped, value, () =>
+        {
+            if (value == null && mystatus.Id == 60)
+                this.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104);
+            else if (value != null && mystatus.Id == 104)
+                this.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 60);
+        });
+            }
+            get { return myshipped; }
+        }
+        private lib.ReferenceSimpleItem mystatus;
+        public lib.ReferenceSimpleItem Status
+        {
+            set { this.SetProperty(ref mystatus, value, () => { StatusUpdated(); }); }
+            get { return mystatus; }
+        }
+
+        private decimal? myactualweight;
+        public decimal? ActualWeight
+        { get { return myactualweight; } }
+        private Agent myagent;
+        public Agent Agent
+        { get { return myagent; } }
+        private string mybrandnames;
+        public string BrandNames
+        { get { return mybrandnames; } }
+        private string mycargo;
+        public string Cargo
+        { get { return mycargo; } }
+        private int? mycellnumber;
+        public int? CellNumber
+        { get { return mycellnumber; } }
+        private string mydeliveryaddress;
+        public string DeliveryAddress
+        { get { return mydeliveryaddress; } }
+        private Importer myimporter;
+        public Importer Importer
+        { get { return myimporter; } }
+        private decimal? myofficialweight;
+        public decimal? OfficialWeight
+        { get { return myofficialweight; } }
+        private Parcel myparcel;
+        public Parcel Parcel
+        { get { return myparcel; } }
+        private string myrequestsid;
+        public string RequestsId
+        { get { return myrequestsid; } }
+        private string myservicetype;
+        public string ServiceType
+        { get { return myservicetype; } }
+        private string mystorageid;
+        public string StorageId
+        { get { return mystorageid; } }
+        private decimal? myvolume;
+        public decimal? Volume
+        { get { return myvolume; } }
+
+        private ObservableCollection<RequestCustomerLegal> mylegals;
+        internal ObservableCollection<RequestCustomerLegal> CustomerLegals
+        {
+            get
+            {
+                return mylegals;
+            }
+        }
+        internal bool CustomerLegalsIsNull
+        { get { return mylegals == null; } }
+
+        internal void CustomerLegalsPropertyUpdate()
+        {
+            myactualweight = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.ActualWeight; });
+            myagent = mylegals?.FirstOrDefault()?.Request.Agent;
+            StringBuilder rids = new StringBuilder();
+            foreach (RequestCustomerLegal item in mylegals)
+            {
+                if (item.Request.BrandsIsNull && string.IsNullOrEmpty(item.Request.BrandNames)) // запрос загрузки брендов
+                    item.Request.PropertyChanged += Request_PropertyChanged;
+                else
+                {
+                    rids.Append(item.Request.BrandNames);
+                    rids.Append(", ");
+                }
+            }
+            mybrandnames = rids.ToString().TrimEnd(new char[] { ',', ' ' });
+            rids.Clear();
+            foreach (RequestCustomerLegal item in mylegals?.OrderBy((RequestCustomerLegal item) => { return item.Request.Cargo; }))
+            { rids.Append(item.Request.Cargo); rids.Append(", "); }
+            mycargo = rids.ToString().TrimEnd(new char[] { ',', ' ' });
+            mycellnumber = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.CellNumber; });
+            mydeliveryaddress = mylegal.Addresses.FirstOrDefault((Address adr) => { return adr.AddressTypeID == 4; })?.FullAddress;
+            myimporter = mylegals?.FirstOrDefault()?.Request.Importer;
+            myofficialweight = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.OfficialWeight; });
+            myparcel = mylegals?.FirstOrDefault()?.Request.Parcel;
+            rids.Clear();
+            foreach (RequestCustomerLegal item in mylegals?.OrderBy((RequestCustomerLegal item) => { return item.Request.Id; }))
+            { rids.Append(item.Request.Id); rids.Append(", "); }
+            myrequestsid = rids.ToString().TrimEnd(new char[] { ',', ' ' });
+            myservicetype = mylegals?.FirstOrDefault()?.Request.ServiceType;
+            mystorageid = (mylegals?.FirstOrDefault()?.Request.ParcelGroup == null ? mylegals?.FirstOrDefault()?.Request.StorePoint : mylegals?.FirstOrDefault()?.Request.ParcelGroup?.ToString());
+            myvolume = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.Volume; });
+
+            this.PropertyChangedNotification(nameof(this.ActualWeight));
+            this.PropertyChangedNotification(nameof(this.Agent));
+            this.PropertyChangedNotification(nameof(this.BrandNames));
+            this.PropertyChangedNotification(nameof(this.Cargo));
+            this.PropertyChangedNotification(nameof(this.CellNumber));
+            this.PropertyChangedNotification(nameof(this.DeliveryAddress));
+            this.PropertyChangedNotification(nameof(this.Importer));
+            this.PropertyChangedNotification(nameof(this.OfficialWeight));
+            this.PropertyChangedNotification(nameof(this.RequestsId));
+            this.PropertyChangedNotification(nameof(this.ServiceType));
+            this.PropertyChangedNotification(nameof(this.StorageId));
+            this.PropertyChangedNotification(nameof(this.Volume));
+        }
+        private void Request_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Request.BrandNames))
+            {
+                StringBuilder rids = new StringBuilder();
+                foreach (RequestCustomerLegal item in mylegals)
+                {
+                    if (!item.Request.BrandsIsNull)
+                    {
+                        item.Request.PropertyChanged -= Request_PropertyChanged;
+                        rids.Append(item.Request.BrandNames);
+                        rids.Append(", ");
+                    }
+                }
+                mybrandnames = rids.ToString().TrimEnd(new char[] { ',', ' ' });
+                this.PropertyChangedNotification(nameof(this.BrandNames));
+            }
+        }
+
+        protected override void PropertiesUpdate(DomainBaseReject sample)
+        {
+            WarehouseRU temp = sample as WarehouseRU;
+            this.Legal = temp.Legal;
+            this.Note = temp.Note;
+            this.Receipted = temp.Receipted;
+            this.Shipped = temp.Shipped;
+            this.Status = temp.Status;
+        }
+        protected override void RejectProperty(string property, object value)
+        {
+            switch (property)
+            {
+                case nameof(this.Legal):
+                    mylegal = (CustomerLegal)value;
+                    break;
+                case nameof(this.Note):
+                    mynote = (string)value;
+                    break;
+                case nameof(this.Receipted):
+                    myreceipted = (DateTime?)value;
+                    break;
+                case nameof(this.Shipped):
+                    myshipped = (DateTime?)value;
+                    break;
+                case nameof(this.Status):
+                    mystatus = (lib.ReferenceSimpleItem)value;
+                    break;
+            }
+        }
+
+        private void StatusUpdated()
+        {
+            if (mystatus.Id == 60 && myshipped == null)
+                this.Shipped = DateTime.Now;
+            else if (mystatus.Id == 104 && myshipped != null)
+                this.Shipped = null;
+            //foreach (RequestCustomerLegal legal in this.CustomerLegals)  -- если не сохранять Request блокируется
+            //    legal.Request.Status = mystatus;
+        }
+    }
+
+    public class WarehouseRUDBM : lib.DBManagerStamp<WarehouseRU>
+    {
+        public WarehouseRUDBM()
+        {
+            this.ConnectionString = CustomBrokerWpf.References.ConnectionString;
+            base.NeedAddConnection = true;
+
+            SelectCommandText = "dbo.WarehouseRu_sp";
+            InsertCommandText = "dbo.WarehouseRuAdd_sp";
+            UpdateCommandText = "dbo.WarehouseRuUpd_sp";
+            DeleteCommandText = "dbo.WarehouseRuDel_sp";
+
+            SelectParams = new SqlParameter[]
+            {
+                new SqlParameter("@id", System.Data.SqlDbType.Int),
+                new SqlParameter("@filter", System.Data.SqlDbType.Int){ Value = 0},
+            };
+            myinsertparams = new SqlParameter[]
+            {
+                myinsertparams[0]
+                ,new SqlParameter("@costomer", System.Data.SqlDbType.Int)
+            };
+            myupdateparams = new SqlParameter[]
+            {
+                myupdateparams[0]
+                ,new SqlParameter("@noteupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@receiptedupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@shippedupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@statusupd", System.Data.SqlDbType.Bit)
+            };
+            myinsertupdateparams = new SqlParameter[]
+            {
+                myinsertupdateparams[0]
+                ,new SqlParameter("@note", System.Data.SqlDbType.NVarChar,300)
+                ,new SqlParameter("@receipted", System.Data.SqlDbType.DateTime2)
+                ,new SqlParameter("@shipped", System.Data.SqlDbType.DateTime2)
+                ,new SqlParameter("@status", System.Data.SqlDbType.Int)
+            };
+
+            myrdbm = new RequestCustomerLegalDBM();
+        }
+
+        private RequestCustomerLegalDBM myrdbm;
+        private lib.SQLFilter.SQLFilter myfilter;
+        public lib.SQLFilter.SQLFilter Filter
+        { set { myfilter = value; } get { return myfilter; } }
+
+        protected override void CancelLoad()
+        {
+            myrdbm.CancelingLoad = this.CancelingLoad;
+        }
+        protected override WarehouseRU CreateItem(SqlDataReader reader, SqlConnection addcon)
+        {
+            List<lib.DBMError> errors = new List<DBMError>();
+            CustomerLegal legal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["costomer"]), addcon, out errors);
+            this.Errors.AddRange(errors);
+            WarehouseRU sku = new WarehouseRU(reader.GetInt32(this.Fields["id"]), reader.GetInt64(this.Fields["stamp"])
+                , reader.GetDateTime(this.Fields["updated"]), reader.GetString(this.Fields["updater"]), lib.DomainObjectState.Unchanged
+                , legal
+                , reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
+                , reader.IsDBNull(this.Fields["receipted"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["receipted"])
+                , reader.IsDBNull(this.Fields["shipped"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipped"])
+                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(this.Fields["status"]))
+                );
+
+            myrdbm.Errors.Clear();
+            myrdbm.SKU = sku; // коллекцию передаем в свойстве
+            myrdbm.Connection = addcon;
+            myrdbm.Fill();
+            this.Errors.AddRange(myrdbm.Errors);
+            sku.CustomerLegalsPropertyUpdate();
+            return sku;
+        }
+
+        protected override void GetOutputSpecificParametersValue(WarehouseRU item)
+        {
+        }
+        protected override void SetSelectParametersValue(SqlConnection addcon)
+        {
+            foreach (SqlParameter par in this.SelectParams)
+                switch (par.ParameterName)
+                {
+                    case "@filter":
+                        par.Value = myfilter.FilterWhereId;
+                        break;
+                }
+        }
+        protected override bool SetSpecificParametersValue(WarehouseRU item)
+        {
+            foreach (SqlParameter par in this.InsertParams)
+                switch (par.ParameterName)
+                {
+                    case "@costomer":
+                        par.Value = item.Legal.Id;
+                        break;
+                }
+            foreach (SqlParameter par in this.UpdateParams)
+                switch (par.ParameterName)
+                {
+                    case "@noteupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(WarehouseRU.Note));
+                        break;
+                    case "@receiptedupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(WarehouseRU.Receipted));
+                        break;
+                    case "@shippedupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(WarehouseRU.Shipped));
+                        break;
+                    case "@statusupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(WarehouseRU.Status));
+                        break;
+                }
+            foreach (SqlParameter par in this.InsertUpdateParams)
+                switch (par.ParameterName)
+                {
+                    case "@note":
+                        par.Value = item.Note;
+                        break;
+                    case "@receipted":
+                        par.Value = item.Receipted;
+                        break;
+                    case "@shipped":
+                        par.Value = item.Shipped;
+                        break;
+                    case "@status":
+                        par.Value = item.Status.Id;
+                        break;
+                }
+
+            return true;
+        }
+    }
+
+    public class WarehouseRUVM : lib.ViewModelErrorNotifyItem<WarehouseRU>
+    {
+        public WarehouseRUVM(WarehouseRU model) : base(model)
+        {
+            InitProperties();
+        }
+
+        public CustomerLegal Legal
+        {
+            set { SetProperty(this.DomainObject.Legal, (CustomerLegal legal) => { this.DomainObject.Legal = legal; }, value); }
+            get { return GetProperty(this.DomainObject.Legal, null); }
+        }
+        public string Note
+        {
+            set { SetProperty(this.DomainObject.Note, (string note) => { this.DomainObject.Note = note; }, value); }
+            get { return GetProperty(this.DomainObject.Note, null); }
+        }
+        public DateTime? Receipted
+        {
+            set { SetProperty(this.DomainObject.Receipted, (DateTime? date) => { this.DomainObject.Receipted = date; }, value); }
+            get { return GetProperty(this.DomainObject.Receipted, null); }
+        }
+        public DateTime? Shipped
+        {
+            set { SetProperty(this.DomainObject.Shipped, (DateTime? date) => { this.DomainObject.Shipped = date; }, value); }
+            get { return GetProperty(this.DomainObject.Shipped, null); }
+        }
+        public lib.ReferenceSimpleItem Status
+        {
+            set { this.SetProperty(this.DomainObject.Status, (lib.ReferenceSimpleItem newval) => { this.DomainObject.Status = newval; }, value); }
+            get { return GetProperty(this.DomainObject.Status, null); }
+        }
+
+        public decimal? ActualWeight
+        { get { return GetProperty(this.DomainObject.ActualWeight, null); } }
+        public Agent Agent
+        { get { return GetProperty(this.DomainObject.Agent, null); } }
+        public string BrandNames
+        { get { return GetProperty(this.DomainObject.BrandNames, null); } }
+        public string Cargo
+        { get { return GetProperty(this.DomainObject.Cargo, null); } }
+        public int? CellNumber
+        { get { return GetProperty(this.DomainObject.CellNumber, null); } }
+        public string DeliveryAddress
+        { get { return GetProperty(this.DomainObject.DeliveryAddress, null); } }
+        public Importer Importer
+        { get { return GetProperty(this.DomainObject.Importer, null); } }
+        public decimal? OfficialWeight
+        { get { return GetProperty(this.DomainObject.OfficialWeight, null); } }
+        public Parcel Parcel
+        { get { return GetProperty(this.DomainObject.Parcel, null); } }
+        public string RequestsId
+        { get { return GetProperty(this.DomainObject.RequestsId, null); } }
+        public string ServiceType
+        { get { return GetProperty(this.DomainObject.ServiceType, null); } }
+        public string StorageId
+        { get { return GetProperty(this.DomainObject.StorageId, null); } }
+        public decimal? Volume
+        { get { return GetProperty(this.DomainObject.Volume, null); } }
+
+        private ListCollectionView mylegals;
+        internal ListCollectionView CustomerLegals
+        {
+            get
+            {
+                return mylegals;
+            }
+        }
+
+
+        protected override bool DirtyCheckProperty()
+        {
+            return false;
+        }
+        protected override void DomainObjectPropertyChanged(string property)
+        {
+        }
+        protected override void InitProperties()
+        {
+            //if (this.DomainObject.CustomerLegalsIsNull)
+            //{
+            //    mylegals = new ListCollectionView(this.DomainObject.CustomerLegals);
+            //    mylegals.Filter = ViewModelViewCommand.ViewFilterDefault;
+            //}
+        }
+        protected override void RejectProperty(string property, object value)
+        {
+            switch (property)
+            {
+                case nameof(this.Legal):
+                    this.DomainObject.Legal = (CustomerLegal)value;
+                    break;
+                case nameof(this.Note):
+                    this.DomainObject.Note = (string)value;
+                    break;
+                case nameof(this.Receipted):
+                    this.DomainObject.Receipted = (DateTime?)value;
+                    break;
+                case nameof(this.Shipped):
+                    this.DomainObject.Shipped = (DateTime?)value;
+                    break;
+                case nameof(this.Status):
+                    this.DomainObject.Status = (lib.ReferenceSimpleItem)value;
+                    break;
+            }
+        }
+        protected override bool ValidateProperty(string propertyname, bool inform = true)
+        {
+            return true;
+        }
+    }
+
+    public class WarehouseRUSynchronizer : lib.ModelViewCollectionsSynchronizer<WarehouseRU, WarehouseRUVM>
+    {
+        protected override WarehouseRU UnWrap(WarehouseRUVM wrap)
+        {
+            return wrap.DomainObject as WarehouseRU;
+        }
+        protected override WarehouseRUVM Wrap(WarehouseRU fill)
+        {
+            return new WarehouseRUVM(fill);
+        }
+    }
+
+    public class WarehouseRUViewCommader : lib.ViewModelViewCommand,IDisposable
+    {
+        internal WarehouseRUViewCommader()
+        {
+            myfilter = new lib.SQLFilter.SQLFilter("sku", "AND", CustomBrokerWpf.References.ConnectionString);
+            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+            mywdbm = new WarehouseRUDBM();
+            mydbm = mywdbm;
+            mywdbm.Collection = new ObservableCollection<WarehouseRU>();
+            mywdbm.Filter = myfilter;
+            mywdbm.FillAsyncCompleted = () =>
+            {
+                if (mywdbm.Errors.Count > 0)
+                    OpenPopup(mywdbm.ErrorMessage, true);
+            };
+            mywdbm.FillAsync();
+            mysync = new WarehouseRUSynchronizer();
+            mysync.DomainCollection = mywdbm.Collection;
+            base.Collection = mysync.ViewModelCollection;
+
+            mystatuses = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            mystatuses.Filter = (object item) => { lib.ReferenceSimpleItem status = item as lib.ReferenceSimpleItem; return status.Id == 60 || status.Id == 104; };
+            mystatuses.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Descending));
+
+            base.DeleteQuestionHeader = "Удалить позицию со склада?";
+            #region Filter
+            myfilterrun = new RelayCommand(FilterRunExec, FilterRunCanExec);
+            myfilterclear = new RelayCommand(FilterClearExec, FilterClearCanExec);
+
+            myactualweightfilter = new libui.NumberFilterVM();
+            myactualweightfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myactualweightfilter.ExecCommand2 = () => { myactualweightfilter.Clear(); };
+            myagentfilter = new WarehouseRUAgentCheckListBoxVMFillDefault();
+            myagentfilter.DeferredFill = true;
+            myagentfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            myagentfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myagentfilter.ExecCommand2 = () => { myagentfilter.Clear(); };
+            myagentfilter.FillDefault = () =>
+            {
+                bool empty = this.Items.Count==0 && this.FilterEmpty;
+                if (empty)
+                    foreach (lib.ReferenceSimpleItem item in CustomBrokerWpf.References.AgentNames)
+                        myagentfilter.Items.Add(item);
+                return empty;
+            };
+            myagentfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            mybrandfilter = new WarehouseRUBrandCheckListBoxVMFillDefault();
+            mybrandfilter.DeferredFill = true;
+            mybrandfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mybrandfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mybrandfilter.ExecCommand2 = () => { mybrandfilter.Clear(); };
+            mybrandfilter.FillDefault = () =>
+            {
+                bool empty = this.Items.Count == 0 && this.FilterEmpty;
+                if (empty)
+                    foreach (Brand item in mybrandfilter.DefaultList)
+                        mybrandfilter.Items.Add(item);
+                return empty;
+            };
+            mybrandfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            mycargofilter = new libui.CheckListBoxVM();
+            mycargofilter.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            mycargofilter.Items = CustomBrokerWpf.References.GoodsTypesParcel;
+            mycargofilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mycargofilter.ExecCommand2 = () => { mycargofilter.Clear(); };
+            mycellnumberfilter = new libui.NumberFilterVM();
+            mycellnumberfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mycellnumberfilter.ExecCommand2 = () => { mycellnumberfilter.Clear(); };
+            mycustomerfilter = new WarehouseRUCustomerCheckListBoxVMFillDefault();
+            mycustomerfilter.DeferredFill = true;
+            mycustomerfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mycustomerfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mycustomerfilter.ExecCommand2 = () => { mycustomerfilter.Clear(); };
+            mycustomerfilter.FillDefault = () =>
+            {
+                bool empty = this.Items.Count == 0 && this.FilterEmpty;
+                if (empty)
+                    foreach (CustomerLegal item in mycustomerfilter.DefaultList)
+                        mycustomerfilter.Items.Add(item);
+                return empty;
+            };
+            mycustomerfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            mydeliveryaddressfilter = new WarehouseRUDeliveryAddressCheckListBoxVMFill();
+            mydeliveryaddressfilter.DeferredFill = true;
+            mydeliveryaddressfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mydeliveryaddressfilter.ExecCommand2 = () => { mydeliveryaddressfilter.Clear(); };
+            mydeliveryaddressfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            mydeliverytypefilter = new libui.CheckListBoxVM();
+            mydeliverytypefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mydeliverytypefilter.ExecCommand2 = () => { mydeliverytypefilter.Clear(); };
+            mydeliverytypefilter.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            mydeliverytypefilter.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+            mydeliverytypefilter.Items = CustomBrokerWpf.References.DeliveryTypes;
+            myimporterfilter = new libui.CheckListBoxVM();
+            myimporterfilter.SearchPath="Name";
+            myimporterfilter.Items = CustomBrokerWpf.References.Importers;
+            myimporterfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myimporterfilter.ExecCommand2 = () => { myimporterfilter.Clear(); };
+            mynotefilter = new WarehouseRUNoteCheckListBoxVMFill();
+            mynotefilter.DeferredFill = true;
+            mynotefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mynotefilter.ExecCommand2 = () => { mynotefilter.Clear(); };
+            mynotefilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            myofficialweightfilter = new libui.NumberFilterVM();
+            myofficialweightfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myofficialweightfilter.ExecCommand2 = () => { myofficialweightfilter.Clear(); };
+            myparcelfilter = new WarehouseRUParcelCheckListBoxVMFillDefault();
+            myparcelfilter.DeferredFill = true;
+            myparcelfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myparcelfilter.ExecCommand2 = () => { myparcelfilter.Clear(); };
+            myparcelfilter.FillDefault = () =>
+            {
+                bool fempty = this.Items.Count == 0 && this.FilterEmpty;
+                if (fempty)
+                {
+                    ParcelNumber empty = new ParcelNumber() { Sort = "999999" };
+                    myparcelfilter.Items.Add(empty);
+                    foreach (ParcelNumber item in CustomBrokerWpf.References.ParcelNumbers)
+                        myparcelfilter.Items.Add(item);
+                }
+                return fempty;
+            };
+            myparcelfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            myreceiptedfilter = new libui.DateFilterVM();
+            myreceiptedfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myreceiptedfilter.ExecCommand2 = () => { myreceiptedfilter.Clear(); };
+            myrequestidfilter = new WarehouseRURequestCheckListBoxVMFill();
+            myrequestidfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myrequestidfilter.ExecCommand2 = () => { myrequestidfilter.Clear(); };
+            myrequestidfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            myservicetypefilter = new libui.CheckListBoxVM();
+            myservicetypefilter.SearchPath = "Name";
+            myservicetypefilter.Items = CustomBrokerWpf.References.ServiceTypes;
+            myservicetypefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myservicetypefilter.ExecCommand2 = () => { myservicetypefilter.Clear(); };
+            myshippedfilter = new libui.DateFilterVM();
+            myshippedfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myshippedfilter.ExecCommand2 = () => { myshippedfilter.Clear(); };
+            mystatusfilter = new libui.CheckListBoxVM();
+            mystatusfilter.ItemsView = this.Statuses;
+            mystatusfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mystatusfilter.ExecCommand2 = () => { mystatusfilter.Clear(); };
+            mystorenumfilter = new WarehouseRUStoreNumCheckListBoxVMFill();
+            mystorenumfilter.DeferredFill = true;
+            mystorenumfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mystorenumfilter.ExecCommand2 = () => { mystorenumfilter.Clear(); };
+            mystorenumfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
+            myvolumefilter = new libui.NumberFilterVM();
+            myvolumefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myvolumefilter.ExecCommand2 = () => { myvolumefilter.Clear(); };
+
+            if (myfilter.isEmpty)
+                this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+            #endregion
+        }
+        ~WarehouseRUViewCommader()
+        { Dispose(); }
+
+        private WarehouseRUDBM mywdbm;
+        private WarehouseRUSynchronizer mysync;
+        private bool myisreadonly;
+        public bool IsReadOnly
+        {
+            set { myisreadonly = value; }
+            get { return myisreadonly; }
+        }
+        public System.Windows.Visibility VisibilityEdit
+        { get { return myisreadonly ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible; } }
+        private ListCollectionView mystatuses;
+        public ListCollectionView Statuses
+        {
+            get { return mystatuses; }
+        }
+
+        #region Filter
+        private lib.SQLFilter.SQLFilter myfilter;
+        public lib.SQLFilter.SQLFilter Filter
+        {
+            get { return myfilter; }
+        }
+
+        private WarehouseRUAgentCheckListBoxVMFillDefault myagentfilter;
+        public WarehouseRUAgentCheckListBoxVMFillDefault AgentFilter
+        {
+            get { return myagentfilter; }
+        }
+        private WarehouseRUBrandCheckListBoxVMFillDefault mybrandfilter;
+        public WarehouseRUBrandCheckListBoxVMFillDefault BrandFilter
+        { get { return mybrandfilter; } }
+        private WarehouseRUCustomerCheckListBoxVMFillDefault mycustomerfilter;
+        public WarehouseRUCustomerCheckListBoxVMFillDefault CustomerFilter
+        {
+            get { return mycustomerfilter; }
+        }
+        private WarehouseRUNoteCheckListBoxVMFill mynotefilter;
+        public WarehouseRUNoteCheckListBoxVMFill NoteFilter
+        { get { return mynotefilter; } }
+        private WarehouseRUParcelCheckListBoxVMFillDefault myparcelfilter;
+        public WarehouseRUParcelCheckListBoxVMFillDefault ParcelFilter
+        {
+            get { return myparcelfilter; }
+        }
+        private libui.CheckListBoxVM mystatusfilter;
+        public libui.CheckListBoxVM StatusFilter
+        {
+            get { return mystatusfilter; }
+        }
+        private libui.DateFilterVM myreceiptedfilter;
+        public libui.DateFilterVM ReceiptedFilter
+        { get { return myreceiptedfilter; } }
+        private libui.DateFilterVM myshippedfilter;
+        public libui.DateFilterVM ShippedFilter
+        { get { return myshippedfilter; } }
+        private WarehouseRURequestCheckListBoxVMFill myrequestidfilter;
+        public WarehouseRURequestCheckListBoxVMFill RequestIdFilter
+        { get { return myrequestidfilter; } }
+        private WarehouseRUStoreNumCheckListBoxVMFill mystorenumfilter;
+        public WarehouseRUStoreNumCheckListBoxVMFill StoreNumFilter
+        { get { return mystorenumfilter; } }
+        private libui.CheckListBoxVM myimporterfilter;
+        public libui.CheckListBoxVM ImporterFilter
+        { get { return myimporterfilter; } }
+        private libui.NumberFilterVM myofficialweightfilter;
+        private libui.NumberFilterVM OfficialWeightFilter
+        { get { return myofficialweightfilter; } }
+        private libui.NumberFilterVM myactualweightfilter;
+        private libui.NumberFilterVM ActualWeightFilter
+        { get { return myactualweightfilter; } }
+        private libui.NumberFilterVM myvolumefilter;
+        private libui.NumberFilterVM VolumeFilter
+        { get { return myvolumefilter; } }
+        private libui.NumberFilterVM mycellnumberfilter;
+        private libui.NumberFilterVM CellNumberFilter
+        { get { return mycellnumberfilter; } }
+        private libui.CheckListBoxVM myservicetypefilter;
+        public libui.CheckListBoxVM ServiceTypeFilter
+        { get { return myservicetypefilter; } }
+        private libui.CheckListBoxVM mycargofilter;
+        public libui.CheckListBoxVM CargoFilter
+        { get { return mycargofilter; } }
+        private libui.CheckListBoxVM mydeliverytypefilter;
+        public libui.CheckListBoxVM DeliveryTypeFilter
+        { get { return mydeliverytypefilter; } }
+        private WarehouseRUDeliveryAddressCheckListBoxVMFill mydeliveryaddressfilter;
+        public WarehouseRUDeliveryAddressCheckListBoxVMFill DeliveryAddressFilter
+        { get { return mydeliveryaddressfilter; } }
+
+        private RelayCommand myfilterrun;
+        public ICommand FilterRun
+        {
+            get { return myfilterrun; }
+        }
+        private void FilterRunExec(object parametr)
+        {
+            RunFilter(null);
+        }
+        private bool FilterRunCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand myfilterclear;
+        public ICommand FilterClear
+        {
+            get { return myfilterclear; }
+        }
+        private void FilterClearExec(object parametr)
+        {
+            myagentfilter.Clear();
+            myagentfilter.IconVisibileChangedNotification();
+            mycustomerfilter.Clear();
+            mycustomerfilter.IconVisibileChangedNotification();
+            mynotefilter.Clear();
+            mynotefilter.IconVisibileChangedNotification();
+            myparcelfilter.Clear();
+            myparcelfilter.IconVisibileChangedNotification();
+            this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+        }
+        private bool FilterClearCanExec(object parametr)
+        { return true; }
+
+        private bool FilterEmpty
+        {
+            get
+            {
+                return !(
+                    myagentfilter.FilterOn
+                    || mybrandfilter.FilterOn
+                    || mycustomerfilter.FilterOn
+                    || mynotefilter.FilterOn
+                    || myparcelfilter.FilterOn
+                    || mystatusfilter.FilterOn
+                    || myreceiptedfilter.FilterOn
+                    || myshippedfilter.FilterOn
+                    || myrequestidfilter.FilterOn
+                    || mystorenumfilter.FilterOn
+                    || myimporterfilter.FilterOn
+                    || myofficialweightfilter.FilterOn
+                    || myactualweightfilter.FilterOn
+                    || myvolumefilter.FilterOn
+                    || mycellnumberfilter.FilterOn
+                    || myservicetypefilter.FilterOn
+                    || mycargofilter.FilterOn
+                    || mydeliverytypefilter.FilterOn
+                    || mydeliveryaddressfilter.FilterOn
+                );
+            }
+        }
+
+        private void UpdateFilter()
+        {
+            if (myagentfilter.FilterOn)
+            {
+                string[] items = new string[myagentfilter.SelectedItems.Count];
+                for (int i = 0; i < myagentfilter.SelectedItems.Count; i++)
+                    items[i] = (myagentfilter.SelectedItems[i] as lib.ReferenceSimpleItem).Id.ToString();
+                myfilter.SetList(myfilter.FilterWhereId, "agent", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "agent", new string[0]);
+            if (mybrandfilter.FilterOn)
+            {
+                string[] items = new string[mybrandfilter.SelectedItems.Count];
+                for (int i = 0; i < mybrandfilter.SelectedItems.Count; i++)
+                    items[i] = (string)mybrandfilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "brand", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "brand", new string[0]);
+            if (mycustomerfilter.FilterOn)
+            {
+                string[] items = new string[mycustomerfilter.SelectedItems.Count];
+                for (int i = 0; i < mycustomerfilter.SelectedItems.Count; i++)
+                    items[i] = (mycustomerfilter.SelectedItems[i] as CustomerLegal).Id.ToString();
+                myfilter.SetList(myfilter.FilterWhereId, "customer", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "customer", new string[0]);
+            if (mynotefilter.FilterOn)
+            {
+                if (mynotefilter.SelectedItems.Count > 0)
+                {
+                    string[] items = new string[mynotefilter.SelectedItems.Count];
+                    for (int i = 0; i < mynotefilter.SelectedItems.Count; i++)
+                        items[i] = (string)mynotefilter.SelectedItems[i];
+                    myfilter.SetList(myfilter.FilterWhereId, "note", items);
+                }
+                else
+                    myfilter.SetString(myfilter.FilterWhereId, "note", mynotefilter.ItemsViewFilter);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "note", new string[0]);
+            if (myparcelfilter.FilterOn)
+            {
+                string[] items = new string[myparcelfilter.SelectedItems.Count];
+                for (int i = 0; i < myparcelfilter.SelectedItems.Count; i++)
+                    items[i] = (string)myparcelfilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "parcel", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "parcel", new string[0]);
+            if (myrequestidfilter.FilterOn)
+            {
+                string[] items = new string[myrequestidfilter.SelectedItems.Count];
+                for (int i = 0; i < myrequestidfilter.SelectedItems.Count; i++)
+                    items[i] = (string)myrequestidfilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "request", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "request", new string[0]);
+            if (mystatusfilter.FilterOn)
+            {
+                string[] items = new string[mystatusfilter.SelectedItems.Count];
+                for (int i = 0; i < mystatusfilter.SelectedItems.Count; i++)
+                    items[i] = (string)mystatusfilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "status", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "status", new string[0]);
+            myfilter.SetDate(myfilter.FilterWhereId, "receipted", "receipted", myreceiptedfilter.DateStart, myreceiptedfilter.DateStop, myreceiptedfilter.IsNull);
+            myfilter.SetDate(myfilter.FilterWhereId, "shipped", "shipped", myshippedfilter.DateStart, myshippedfilter.DateStop, myshippedfilter.IsNull);
+
+        }
+        public void RunFilter(lib.Filter.FilterItem[] filters)
+        {
+            this.Save.Execute(null);
+            if (!LastSaveResult)
+                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
+            else
+            {
+                this.Refresh.Execute(null);
+            }
+        }
+        private string myfilterbuttonimagepath;
+        public string FilterButtonImagePath
+        { get { return myfilterbuttonimagepath; } }
+        public string IsFiltered
+        { get { return myfilter.isEmpty ? string.Empty : "Фильтр!"; } }
+        #endregion
+
+        protected override void OtherViewRefresh()
+        {
+        }
+        protected override void RefreshData(object parametr)
+        {
+            UpdateFilter();
+            mywdbm.FillAsync();
+        }
+        protected override void SettingView()
+        {
+        }
+        protected override bool CanAddData(object parametr)
+        {
+            return false;
+        }
+        protected override bool CanDeleteData(object parametr)
+        {
+            return myview.CurrentItem is WarehouseRUVM && (myview.CurrentItem as WarehouseRUVM).DomainObject.CustomerLegals?.Count == 0;
+        }
+
+        public void Dispose()
+        {
+            myfilter.RemoveFilter();
+        }
+    }
+
+    public class WarehouseRUAgentCheckListBoxVMFillDefault : libui.CheckListBoxVMFillDefault<WarehouseRUVM, lib.ReferenceSimpleItem>
+    {
+        internal WarehouseRUAgentCheckListBoxVMFillDefault() : base()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.GetDisplayPropertyValueFunc = (item) => { return ((lib.ReferenceSimpleItem)item).Name; };
+        }
+
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            lib.ReferenceSimpleItem name = CustomBrokerWpf.References.AgentNames.FindFirstItem("Id", item.Agent?.Id??0);
+            if (!Items.Contains(name)) Items.Add(name);
+        }
+    }
+    public class WarehouseRUBrandCheckListBoxVMFillDefault : libui.CheckListBoxVMFillDefault<WarehouseRUVM, Brand>
+    {
+        internal WarehouseRUBrandCheckListBoxVMFillDefault() : base()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.GetDisplayPropertyValueFunc = (item) => { return ((Brand)item).Name; };
+            // запустим загрузку списка по умолчанию
+            mydefaultlist = new List<Brand>(); // из за долгой загрузки
+            BrandDBM bdbm;
+            bdbm = App.Current.Dispatcher.Invoke<BrandDBM>(() => { return new BrandDBM(); });
+            bdbm.Collection = mydefaultlist;
+            bdbm.LoadAsync();
+
+        }
+
+        private List<Brand> mydefaultlist;
+        internal List<Brand> DefaultList
+        {
+            get
+            {
+                return mydefaultlist;
+            }
+        }
+
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            if(item.CustomerLegals!=null)
+                foreach (RequestCustomerLegal legal in item.CustomerLegals)
+                    if(legal.Request?.Brands!=null)
+                        foreach (RequestBrand brand in legal.Request?.Brands)
+                            if (!Items.Contains(brand.Brand?.Brand)) Items.Add(brand.Brand?.Brand);
+        }
+    }
+    public class WarehouseRUCustomerCheckListBoxVMFillDefault : libui.CheckListBoxVMFillDefault<WarehouseRUVM, CustomerLegal>
+    {
+        internal WarehouseRUCustomerCheckListBoxVMFillDefault() : base()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.GetDisplayPropertyValueFunc = (item) => { return ((CustomerLegal)item).Name; };
+        }
+
+        private List<CustomerLegal> mydefaultlist;
+        internal List<CustomerLegal> DefaultList
+        {
+            get
+            {
+                if (mydefaultlist == null)
+                {
+                    mydefaultlist = new List<CustomerLegal>(); // из за долгой загрузки
+                    CustomerLegalDBM dbm = new CustomerLegalDBM();
+                    dbm.Fill();
+                    mydefaultlist = dbm.Collection.ToList<CustomerLegal>();
+                }
+                return mydefaultlist;
+            }
+        }
+
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            if (!Items.Contains(item.Legal)) Items.Add(item.Legal);
+        }
+    }
+    public class WarehouseRUDeliveryAddressCheckListBoxVMFill : libui.CheckListBoxVMFill<WarehouseRUVM, string>
+    {
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            if (Items.Count == 0)
+                Items.Add(string.Empty);
+            if (!(string.IsNullOrEmpty(item.DeliveryAddress) || Items.Contains(item.DeliveryAddress))) Items.Add(item.DeliveryAddress);
+        }
+    }
+    public class WarehouseRUNoteCheckListBoxVMFill : libui.CheckListBoxVMFill<WarehouseRUVM, string>
+    {
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            if (Items.Count == 0)
+                Items.Add(string.Empty);
+            if (!(string.IsNullOrEmpty(item.Note) || Items.Contains(item.Note))) Items.Add(item.Note);
+        }
+    }
+    public class WarehouseRUParcelCheckListBoxVMFillDefault : libui.CheckListBoxVMFillDefault<WarehouseRUVM, ParcelNumber>
+    {
+        internal WarehouseRUParcelCheckListBoxVMFillDefault() : base()
+        {
+            this.DisplayPath = "FullNumber";
+            this.SearchPath = "Sort";
+            this.SortDescriptions.Add(new System.ComponentModel.SortDescription("Sort", System.ComponentModel.ListSortDirection.Descending));
+            this.GetDisplayPropertyValueFunc = (item) => { return ((ParcelNumber)item).FullNumber; };
+        }
+
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            ParcelNumber name;
+            if (Items.Count == 0)
+            { name = new ParcelNumber() { Sort = "999999" }; Items.Add(name); }
+            if (item.Parcel?.Id > 0)
+            {
+                name = CustomBrokerWpf.References.ParcelNumbers.FindFirstItem("Id", item.Parcel.Id);
+                if (!Items.Contains(name)) Items.Add(name);
+            }
+        }
+    }
+    public class WarehouseRURequestCheckListBoxVMFill : libui.CheckListBoxVMFill<WarehouseRUVM, Request>
+    {
+        public WarehouseRURequestCheckListBoxVMFill() : base()
+        {
+            this.DeferredFill = true;
+            this.DisplayPath = "Id";
+            this.SearchPath = "Id";
+            this.SortDescriptions.Add(new System.ComponentModel.SortDescription("Id", System.ComponentModel.ListSortDirection.Descending));
+            this.GetDisplayPropertyValueFunc = (item) => { return ((Request)item).Id.ToString(); };
+        }
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            foreach (RequestCustomerLegal legal in item.CustomerLegals)
+            {
+                if (!Items.Contains(legal.Request)) Items.Add(legal.Request);
+            }
+        }
+    }
+    public class WarehouseRUStoreNumCheckListBoxVMFill : libui.CheckListBoxVMFill<WarehouseRUVM, string>
+    {
+        protected override void AddItem(WarehouseRUVM item)
+        {
+            if (!Items.Contains(item.StorageId)) Items.Add(item.StorageId);
+        }
+    }
+}

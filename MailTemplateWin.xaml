@@ -91,6 +91,14 @@
             <Button Style="{StaticResource ButtonStyle}" Command="EditingCommands.DecreaseIndentation" ToolTip="Decrease Indent">
                 <Image Source="Images\ParagraphDecreaseIndentation.png"></Image>
             </Button>-->
+            <Separator Margin="5,0,5,0"/>
+            <TextBlock Text="Заявка №" VerticalAlignment="Center" Margin="5,0,5,0"/>
+            <TextBox Text="{Binding RequestId, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Заявка для тестовой отправки" Width="50"/>
+            <TextBlock Text="e-mail" VerticalAlignment="Center" Margin="5,0,5,0"/>
+            <TextBox Text="{Binding Address, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="Адрес для тестовой отправки" Width="100"/>
+            <Button Command="{Binding SendMail}" ToolTip="Отправить письмо на указанный адрес">
+                <Image Source="/CustomBrokerWpf;component/Images/mail_out.png" />
+            </Button>
             <Separator/>
             <Button Content="Закрыть" Click="CloseButton_Click"/>
             <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Bottom" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" >
@@ -108,11 +116,11 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Тема" Margin="4,0" VerticalAlignment="Center"/>
             <TextBox Grid.Column="1" Text="{Binding Path=CurrentItem.Subject}" MaxLength="100" TextWrapping="WrapWithOverflow" IsEnabled="{Binding Path=IsEnabled}" Margin="0,0,4,0"/>
-            <TextBlock Grid.Column="2" Text="Количество дней между уведомлением и датой выдачи {Дата+}" Margin="4,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="Количество дней между уведомлением и датой {Дата+}" Margin="4,0" VerticalAlignment="Center"/>
             <TextBox Grid.Column="3" Text="{Binding Path=CurrentItem.Delay}" IsEnabled="{Binding Path=IsEnabled}" Margin="0,0,4,0"/>
         </Grid>
-        <TextBox Grid.Row="2" Text="Шаблоны подстановки: {Поставщик(Вес, Д) кг.} {Поставщик(Вес, Д) кг., Объем м3.} {Поставщик} {Вес,Д} {Объем} {Кол-во мест} {Дата+}" IsReadOnly="True" Margin="4,0" VerticalAlignment="Center"/>
+        <TextBox Grid.Row="2" Text="Шаблоны подстановки: {Вес,Д} {Дата+} {Дата статуса} {Импортер} {Кол-во мест} {Марка} {Номер заявки} {Объем} {Поставщик} {Поставщик(Вес, Д) кг.} {Поставщик(Вес, Д) кг., Объем м3.} {Производитель} {Страна} {Сумма} {Характеристика товара} {Юр лицо}" IsReadOnly="True" Margin="4,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" />
         <!--<RichTextBox x:Name="mainRTB" Grid.Row="2" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>-->
-        <TextBox Grid.Row="3" Text="{Binding CurrentItem.Body}" MaxLength="1000" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>
+        <TextBox Grid.Row="3" Text="{Binding CurrentItem.Body}" ToolTip="Текст письма в формате HTML" MaxLength="1000" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>
     </Grid>
 </Window>

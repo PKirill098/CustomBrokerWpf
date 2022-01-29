@@ -141,7 +141,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 if (ObjectWin == null)
                 {
-                    ObjectWin = new ParcelFilterWin();
+                    ObjectWin = new ParcelFilterWin() { FilterOwner = myparcelcmd };
                     ObjectWin.Owner = this;
                     ObjectWin.Show();
                 }

@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
-
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
     public class ContactPoint : lib.DomainBaseReject
@@ -171,7 +170,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override ContactPoint CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-            return new ContactPoint(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.IsDBNull(1) ? null : reader.GetString(1), reader.GetString(2));
+            return new ContactPoint(reader.GetInt32(0), lib.DomainObjectState.Unchanged,
+                reader.IsDBNull(1) ? null : reader.GetString(1),
+                reader.GetString(2));
         }
         protected override void GetOutputParametersValue(ContactPoint item)
         {

@@ -10,9 +10,10 @@ using MailKit;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 {
+    internal enum BodySubtype { html, plain};
     internal class Mail
     {
-        internal void Send(string to, string tomail, string subject, string body)
+        internal void Send(string to, string tomail, string subject, string body, BodySubtype bodytype)
         {
             string mailbox, smtphost, imaphost, user,password;
 #if DEBUG
@@ -20,20 +21,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             smtphost = "smtp.mail.ru";
             imaphost = "imap.mail.ru";
             user = "pk73@mail.ru";
-            password = "dC0A3178-cAC";
+            password = "g9EajKwHQvQDh4vmeK9A";
 #else
             mailbox = "order@art-delivery.ru";
             smtphost = "mail.nic.ru";
             imaphost = "mail.nic.ru";
             user="order@art-delivery.ru";
-            password = "RHB#Paml*37w!1";
+            password = "HJKvbnXdR54*!";
 #endif
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("АРТ ДЕЛИВЕРИ", mailbox));
             message.To.Add(new MailboxAddress(to, tomail));
             message.Subject = subject;
 
-            message.Body = new TextPart("plain")
+            message.Body = new TextPart(bodytype.ToString())
             {
                 Text = body
             };
@@ -104,7 +105,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
     }
 
     internal class MailStateCustomerDBM : lib.DBManagerStamp<MailStateCustomer>
-    {
+    { // сохранение факта отправки
         internal MailStateCustomerDBM()
         {
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
@@ -238,8 +239,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         private List<KeyValuePair<int, string>> mymails;
         internal List<KeyValuePair<int, string>> Mails
         { set { mymails = value; } }
-        protected MailStateCustomerDBM mydbm;
-        private MailCustomerDBM mymdbm;
+        protected MailStateCustomerDBM mydbm;  // сохранение факта отправки
+        private MailCustomerDBM mymdbm; //Список email юр лиц
         internal int MailStateId
         { set { mydbm.StateType = value; } get { return mydbm.StateType; } }
 
@@ -309,7 +310,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 {
                     Domain.MailTemplateDBM tdbm = new Domain.MailTemplateDBM();
                     tdbm.State = mydbm.StateType;
-                    tdbm.Fill();
+                    tdbm.Fill(); // загружаем шаблон
                     if (tdbm.Errors.Count == 0)
                     {
                         if (this.State == 2)
@@ -334,7 +335,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                                     string body = CreateBody(temp, item);
                                                     try
                                                     {
-                                                        mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                        mailer.Send(string.Empty, mail.Value, temp.Subject, body,BodySubtype.plain);
                                                         sent = 2;
                                                     }
                                                     catch (Exception ex)

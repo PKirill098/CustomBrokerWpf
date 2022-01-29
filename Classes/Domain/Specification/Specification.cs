@@ -702,7 +702,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal void Selling1C()
         {
             Mouse.OverrideCursor = Cursors.Wait;
-            bool iserr, skip = false;
+            bool iserr, skip = false, merge =false;
             int client = -1, request = 0, r = 2;
             string str,rootpath,filename=string.Empty;
             decimal eurosum=0M;
@@ -875,32 +875,58 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         if (variation == null)
                             vdbm.SaveItemChanches(new Variation() { Plural = vdbm.Plural.ToLower() });
                     }
-                    exWh.Cells[r, 1] = r - 1;
-                    exWh.Cells[r, 2] = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                    string goodstype = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
                         detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
                             detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
-                    exWh.Cells[r, 3] = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
-                    if (iserr)
-                        exWh.Cells[r, 3].Interior.Color = 255;
-                    else
-                        exWh.Cells[r, 3].Interior.Color = 16777215;
-                    exWh.Cells[r, 4] = exWh.Cells[r, 3];
-                    exWh.Cells[r, 5] = detail.VendorCode;
-                    exWh.Cells[r, 6] = this.Agent.Name;
-                    exWh.Cells[r, 7] = "шт";
-                    exWh.Cells[r, 8] = this.Declaration?.Number;
-                    exWh.Cells[r, 9] = detail.CountryRU;
-                    exWh.Cells[r, 10] = detail.Amount;
-                    //exWh.Cells[r, 12] = detail.Cost;
-                    exWh.Cells[r, 13] = detail.TNVED;
-                    exWh.Cells[r, 14].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
-                    exWh.Cells[r, 15].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]*R2C[4]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
-                    exWh.Cells[r, 16].FormulaR1C1 = "=RC[-2]+RC[-1]";
-                    exWh.Cells[r, 11].FormulaR1C1 = "=RC[5]/RC[-1]";
-                    exWh.Cells[r, 12].FormulaR1C1 = "=RC[4]";
+                    string descr = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
+                    // объединение
+                    if(goodstype == "Обувная продукция" || goodstype == "Товары легкой промышленности")
+                    {
+                        for (int i=2; i<r; i++)
+                            if(!iserr
+                                && exWh.Cells[i, 2].Text == goodstype
+                                && exWh.Cells[i, 4].Text == descr
+                                && exWh.Cells[i, 6].Text == this.Agent.Name
+                                && exWh.Cells[i, 9].Text == detail.CountryRU
+                                && exWh.Cells[i, 13].Text == detail.TNVED
+                                )
+                            {
+                                r--;
+                                merge = true;
+                                if(detail.Amount.HasValue) exWh.Cells[i, 10] = ((int?)exWh.Cells[i, 10].Value??0) + detail.Amount.Value;
+                                exWh.Cells[i, 14].FormulaR1C1 = exWh.Cells[i, 14].FormulaR1C1 + "+Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                                exWh.Cells[i, 15].FormulaR1C1 = exWh.Cells[i, 15].FormulaR1C1 + "+Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]*R2C[4]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                                break;
+                            }
+                    }
+                    if (!merge)
+                    {
+                        exWh.Cells[r, 1] = r - 1;
+                        exWh.Cells[r, 2] = goodstype;
+                        exWh.Cells[r, 3] = descr;
+                        if (iserr)
+                            exWh.Cells[r, 3].Interior.Color = 255;
+                        else
+                            exWh.Cells[r, 3].Interior.Color = 16777215;
+                        exWh.Cells[r, 4] = exWh.Cells[r, 3];
+                        exWh.Cells[r, 5] = detail.VendorCode;
+                        exWh.Cells[r, 6] = this.Agent.Name;
+                        exWh.Cells[r, 7] = "шт";
+                        exWh.Cells[r, 8] = this.Declaration?.Number;
+                        exWh.Cells[r, 9] = detail.CountryRU;
+                        exWh.Cells[r, 10] = detail.Amount;
+                        //exWh.Cells[r, 12] = detail.Cost;
+                        exWh.Cells[r, 13] = detail.TNVED;
+                        exWh.Cells[r, 14].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                        exWh.Cells[r, 15].FormulaR1C1 = "=Round(" + (detail.Price ?? 0M).ToString(culture) + "*R2C[3]*R2C[4]" + ", 2)" + "*" + (detail.Amount ?? 0M).ToString(culture);
+                        exWh.Cells[r, 16].FormulaR1C1 = "=RC[-2]+RC[-1]";
+                        exWh.Cells[r, 11].FormulaR1C1 = "=RC[5]/RC[-1]";
+                        exWh.Cells[r, 12].FormulaR1C1 = "=RC[4]";
+                    }
                     eurosum += detail.Cost ?? 0M;
 
                     r++;
+                    merge = false;
                 }
 
                 if (!skip & exWh != null)

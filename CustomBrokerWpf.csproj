@@ -175,6 +175,7 @@
     <Compile Include="Classes\Domain\Storage\Warehouse.cs" />
     <Compile Include="Classes\Domain\Storage\WarehouseAddress.cs" />
     <Compile Include="Classes\Domain\Storage\WarehouseContact.cs" />
+    <Compile Include="Classes\Domain\WarehouseRU\WarehouseRU.cs" />
     <Compile Include="Classes\EventLoger.cs" />
     <Compile Include="Classes\Domain\Specification\SellingFactors.cs" />
     <Compile Include="Classes\Domain\Specification\SpecificationCustomerInvoiceRate.cs" />
@@ -208,6 +209,12 @@
     </Compile>
     <Compile Include="Windows\RichTextWin.xaml.cs">
       <DependentUpon>RichTextWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SKU\SKUUI.xaml.cs">
+      <DependentUpon>SKUUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SKU\SKUWin.xaml.cs">
+      <DependentUpon>SKUWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Storage\WarehouseItemWin.xaml.cs">
       <DependentUpon>WarehouseItemWin.xaml</DependentUpon>
@@ -297,7 +304,7 @@
     <Compile Include="Classes\Domain\Specification\TNVEDGroup.cs" />
     <Compile Include="Classes\Domain\Specification\VendorCode.cs" />
     <Compile Include="Classes\StartAsyncProgram.cs" />
-    <Compile Include="ClientLegalWin.xaml.cs">
+    <Compile Include="Windows\Client\ClientLegalWin.xaml.cs">
       <DependentUpon>ClientLegalWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="ClientListWin.xaml.cs">
@@ -552,6 +559,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\SKU\SKUUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SKU\SKUWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\Storage\WarehouseItemWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -608,7 +623,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ClientLegalWin.xaml">
+    <Page Include="Windows\Client\ClientLegalWin.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1373,7 +1388,7 @@
     <Resource Include="Images\help2.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Windows\NewFolder1\" />
+    <Resource Include="Images\mail_out.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

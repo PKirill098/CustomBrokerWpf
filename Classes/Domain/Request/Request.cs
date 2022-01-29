@@ -34,7 +34,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private Importer myimporter;
 
         public Request() : this(id: lib.NewObjectId.NewId, stamp: 0, updated: null, updater: null, domainstate: lib.DomainObjectState.Added
-            , agent: null, agentid: null,country: null, currency: 0, customer: null, customerid: null, customerlegal: null, freightid: null
+            , agent: null, agentid: null
+            ,country: CustomBrokerWpf.References.Countries.First((References.Country item)=> { return item.RequestList && item.Code == 276; })
+            , currency: 0, customer: null, customerid: null, customerlegal: null, freightid: null
             , parcelgroup: null, parcelid: null, parceltype: CustomBrokerWpf.References.ParcelTypes.GetDefault()
             , status: CustomBrokerWpf.References.RequestStates.GetDefault(), storeid: null
             , cellnumber: null, statedoc: null, stateexc: null, stateinv: null
@@ -626,7 +628,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value);
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => { if (mystatus.Id == 104) UpdateGroupStatus(); });
             }
             get { return mystatus; }
         }
@@ -1453,6 +1455,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return mybalancefinal; }
         }
 
+        private ObservableCollection<RequestBrand> mybrands;
+        internal ObservableCollection<RequestBrand> Brands
+        {
+            get
+            {
+                if (mybrands == null)
+                {
+                    mybrands = App.Current.Dispatcher.Invoke<ObservableCollection<RequestBrand>>(() => { return new ObservableCollection<RequestBrand>(); });
+                    BrandRefresh();
+                }
+                return mybrands;
+            }
+        }
+        internal bool BrandsIsNull
+        { get { return mybrands == null; } }
         private object mylegalslock;
         private ObservableCollection<RequestCustomerLegal> mylegals;
         internal ObservableCollection<RequestCustomerLegal> CustomerLegals
@@ -1604,21 +1621,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //            break;
         //    }
         //}
-        private ObservableCollection<RequestBrand> mybrands;
-        internal ObservableCollection<RequestBrand> Brands
-        {
-            get
-            {
-                if (mybrands == null)
-                {
-                    mybrands = App.Current.Dispatcher.Invoke<ObservableCollection<RequestBrand>>(() => { return new ObservableCollection<RequestBrand>(); });
-                    BrandRefresh();
-                }
-                return mybrands;
-            }
-        }
-        internal bool BrandsIsNull
-        { get { return mybrands == null; } }
 
         public override bool IsDirty
         {
@@ -1960,16 +1962,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             switch (propertyname)
             {
                 case nameof(this.AgentId):
-                    if (!this.CustomerLegalsIsNull && this.CustomerLegals.Count > 0 && value == null)
+                    if (value == null) //!this.CustomerLegalsIsNull && this.CustomerLegals.Count > 0 && 
                     {
-                        errmsg = "В заявке  " + this.StorePointDate + " необходимо указать поставщика!";
+                        errmsg = "В заявке  " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать поставщика!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Customer):
+                    if (value == null)
+                    {
+                        errmsg = "В заявке  " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать клиента!";
                         isvalid = false;
                     }
                     break;
                 case nameof(this.Importer):
-                    if (!this.CustomerLegalsIsNull && this.CustomerLegals.Count>0 && value == null)
+                    if (value == null) //!this.CustomerLegalsIsNull && this.CustomerLegals.Count>0 && 
                     {
-                        errmsg = "В заявке  " + this.StorePointDate + " необходимо указать импортера!";
+                        errmsg = "В заявке  " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать импортера!";
                         isvalid = false;
                     }
                     break;
@@ -1977,27 +1986,48 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     int legals = this.CustomerLegals?.Where((RequestCustomerLegal item) => { return item.Selected; }).Count() ?? 0;
                     if (((decimal?)value??0M)>0M && legals == 0)
                     {
-                        errmsg = "У заявки  " + this.StorePointDate + " нет юр. лиц!";
+                        errmsg = "У заявки  " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " нет юр. лиц!";
                         messageKey = 1;
                         isvalid = false;
                     }
                     if (((decimal?)value ?? 0M) > 0M && this.InvoiceDiscount!=(decimal?)value && legals>1) //( || (this.CustomerLegals?.Where((RequestCustomerLegal item) => { return item.Selected; }).Sum((RequestCustomerLegal item) => { return item.Prepays.Count; })??0) > 1)
                     {
-                        errmsg = "У заявки  "+ this.StorePointDate + " несколько юр. лиц! Для изменения суммы воспользуйтесь разделом оплат в карточке заявки.";
+                        errmsg = "У заявки  "+ (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " несколько юр. лиц! Для изменения суммы воспользуйтесь разделом оплат в карточке заявки.";
                         isvalid = false;
                     }
                     break;
                 case nameof(this.ShipPlanDate):
                     if(!(this.CustomerLegalsIsNull || this.CustomerLegals.Count == 0 || ((DateTime?)value).HasValue))
                     {
-                        errmsg = "В заявке  " + this.StorePointDate + " необходимо указать предполагаемую дату отгрузки!";
+                        errmsg = "В заявке  " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать предполагаемую дату отгрузки!";
                         isvalid = false;
                     }
                     break;
                 case nameof(this.ServiceType):
                     if(string.IsNullOrEmpty((string)value) && !this.CustomerLegalsIsNull && this.CustomerLegals.Count > 0 && (this.CustomerLegals?.Where((RequestCustomerLegal item) => { return item.Selected; }).Sum((RequestCustomerLegal item) => { return item.Prepays.Sum((PrepayCustomerRequest prepay) => { return prepay.EuroSum; }); }) ?? 0M) > 0M)
                     {
-                        errmsg = "В заявке  " + this.StorePointDate + " необходимо указать услугу!";
+                        errmsg = "В заявке " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать услугу!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Brands):
+                    if(!(this.BrandsIsNull || this.Brands.Count==0 || this.Brands.Any((RequestBrand item)=> { return item.Selected; })))
+                    {
+                        errmsg = "В заявке " + (this.StorePointDate??(this.Id>0 ? this.Id.ToString() : string.Empty)) + " необходимо указать торговые марки!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Country):
+                    if(value==null)
+                    {
+                        errmsg = "В заявке " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать страну!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Cargo):
+                    if (string.IsNullOrEmpty((string)value))
+                    {
+                        errmsg = "В заявке " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать описание груза!";
                         isvalid = false;
                     }
                     break;
@@ -2227,6 +2257,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 MessageBox.Show(ex.Message, "Папка документов");
             }
         }
+        private bool UpdateGroupStatus()
+        {
+            bool success = true;
+            try
+            {
+                // новый WarehouseRu создается при сохранении
+                if (this.ParcelGroup != null)
+                {
+                    foreach (Request req in this.Parcel.Requests)
+                    {
+                        if (req.ParcelGroup == this.ParcelGroup & req.Status != this.Status)
+                        {
+                            req.Status = this.Status;
+                            break; // req обновит следующего
+                        }
+                    }
+                }
+            }
+            catch
+            { success = false; }
+            return success;
+        }
         #region Blocking
         private RequestDBM mydbm;
         private lib.Common.BlockingDBM myblockingdbm;
@@ -2265,20 +2317,43 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             else
             {
                 this.RejectChanges();
-                Window active = null;
-                foreach (Window win in Application.Current.Windows)
-                    if (win.IsActive) { active = win; break; }
-                active.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                if (Application.Current.Dispatcher.Thread.ManagedThreadId == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
                 {
-                    if (mypopupblock == null || !mypopupblock.IsOpen)
-                    { mypopupblock = Common.PopupCreator.GetPopup(text: msg.Replace("Объект", "Заявка " + this.StorePointDate)
-                     , background: System.Windows.Media.Brushes.LightPink
-                     , foreground: System.Windows.Media.Brushes.Red
-                     , staysopen: true
-                     );
-                        mypopupblock.IsOpen = true;
-                    }
-                }));
+                    Window active = null;
+                    foreach (Window win in Application.Current.Windows)
+                        if (win.IsActive) { active = win; break; }
+                    active.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                    {
+                        if (mypopupblock == null || !mypopupblock.IsOpen)
+                        {
+                            mypopupblock = Common.PopupCreator.GetPopup(text: msg.Replace("Объект", "Заявка " + this.StorePointDate)
+                       , background: System.Windows.Media.Brushes.LightPink
+                       , foreground: System.Windows.Media.Brushes.Red
+                       , staysopen: true
+                       );
+                            mypopupblock.IsOpen = true;
+                        }
+                    }));
+                }
+                else
+                    Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                    {
+                        Window active = null;
+                        foreach (Window win in Application.Current.Windows)
+                            if (win.IsActive) { active = win; break; }
+                        active.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                        {
+                            if (mypopupblock == null || !mypopupblock.IsOpen)
+                            {
+                                mypopupblock = Common.PopupCreator.GetPopup(text: msg.Replace("Объект", "Заявка " + this.StorePointDate)
+                           , background: System.Windows.Media.Brushes.LightPink
+                           , foreground: System.Windows.Media.Brushes.Red
+                           , staysopen: true
+                           );
+                                mypopupblock.IsOpen = true;
+                            }
+                        }));
+                    }));
             }
             return string.IsNullOrEmpty(msg);
         }
@@ -3042,7 +3117,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public RequestVM(Request item) : base(item)
         {
-            ValidetingProperties.AddRange(new string[] { nameof(this.AgentId), nameof(this.CustomerLegals), nameof(this.Importer), nameof(this.InvoiceDiscount),nameof(this.ShipPlanDate), nameof(this.ServiceType) });
+            ValidetingProperties.AddRange(new string[] { nameof(this.AgentId), nameof(this.Brands), nameof(this.Cargo), nameof(this.Customer), nameof(this.Country), nameof(this.CustomerLegals), nameof(this.Importer), nameof(this.InvoiceDiscount),nameof(this.ShipPlanDate), nameof(this.ServiceType) });
             DeleteRefreshProperties.AddRange(new string[] { "AdditionalPay", "BringPay", "BrokerPay", "TotalCost", "CustomsPay", "DeliveryPay", "FreightPay", "InsurancePay", "Invoice", "InvoiceDiscount", "PreparatnPay", "SertificatPay", "ServiceType", "TDPay" });
             RejectPropertiesOrder.AddRange(new string[] { "CustomerId", "CustomerLegal" });
             InitProperties();
@@ -5205,6 +5280,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case nameof(this.AgentId):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.AgentId, out errmsg, out errcode);
                     break;
+                case nameof(this.Brands):
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, null, out errmsg, out errcode);
+                    break;
+                case nameof(this.Cargo):
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Cargo, out errmsg, out errcode);
+                    break;
+                case nameof(this.Country):
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Country, out errmsg, out errcode);
+                    break;
+                case nameof(this.Customer):
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Customer, out errmsg, out errcode);
+                    break;
                 case nameof(this.CustomerLegals):
                     StringBuilder err = new StringBuilder();
                     foreach (RequestCustomerLegalVM legal in this.CustomerLegals)
@@ -5621,7 +5708,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 + "\nПоставщик - " + ((this.VModel.Agent?.FullName ?? this.VModel.Agent?.Name) ?? string.Empty)
                 + "\nКлиент - " + ((this.VModel.CustomerLegalsNames) ?? string.Empty)
                 + "\nСумма - " + (this.VModel.InvoiceDiscount.HasValue ? this.VModel.InvoiceDiscount.Value.ToString("N2") : string.Empty));
-            mail.Send("Гузель Закирова", "zakirova.guzal@art-delivery.ru", CustomBrokerWpf.References.CurrentUser + ". " + ((this.VModel.CustomerLegalsNames) ?? string.Empty), body.ToString());
+            mail.Send("Гузель Закирова", "zakirova.guzal@art-delivery.ru", CustomBrokerWpf.References.CurrentUser + ". " + ((this.VModel.CustomerLegalsNames) ?? string.Empty), body.ToString(), BodySubtype.plain);
             this.OpenPopup("Письмо отправлено",false);
         }
         internal bool SendEmailCanExec(object parametr)
@@ -5814,7 +5901,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myfilter = new lib.SQLFilter.SQLFilter("Request", "AND", CustomBrokerWpf.References.ConnectionString);
             myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
             mydbm = new RequestDBM();
-            mydbm.LegalDBM = new RequestCustomerLegalDBM();
+            mydbm.LegalDBM = new RequestCustomerLegalDBM() { LegalDBM = new CustomerLegalDBM() };
             mydbm.Collection = new ObservableCollection<Request>();
             mydbm.Filter = myfilter.FilterWhereId;
             mydbm.FillAsyncCompleted = () => { 
@@ -5843,7 +5930,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             else
             {
                 mymanagers = new ListCollectionView(new List<Manager>() { new Manager(), CustomBrokerWpf.References.CurrentManager });
-                mymanagers.Filter = (object item) => { return (item as Manager).Unfile == 0; };
+                mymanagers.Filter = (object item) => { return (item as Manager)?.Unfile == 0; };
             }
 
             myfastfilter = new lib.SQLFilter.SQLFilter("Request", "AND",CustomBrokerWpf.References.ConnectionString);

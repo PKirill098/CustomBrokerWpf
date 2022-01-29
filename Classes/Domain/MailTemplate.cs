@@ -371,6 +371,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 base.Collection = (mydbm as MailTemplateDBM).Collection;
             }
             base.DeleteQuestionHeader = "Удалить шаблон?";
+            
+            mymail = new Mail();
+            mysendmail = new lib.RelayCommand(SendMailExecute, SendMailCanExecute);
+        }
+
+        private Mail mymail;
+        private string myaddress;
+        public string Address
+        { set { myaddress = value; } get { return myaddress; } }
+        private Request myrequest;
+        private string myrequestid;
+        public string RequestId
+        { set { myrequestid = value; } get { return myrequestid; } }
+
+        private lib.RelayCommand mysendmail;
+        public lib.RelayCommand SendMail
+        { set { mysendmail = value; } get { return mysendmail; } }
+        private void SendMailExecute(object parametr)
+        {
+            try {
+                string body=null;
+                if(string.IsNullOrEmpty(myrequestid))
+                    body = this.CurrentItem.Body;
+                else 
+                {
+                    int requestid;
+                    List<lib.DBMError> err = new List<lib.DBMError>();
+                    int.TryParse(myrequestid, out requestid);
+                    if (myrequest?.Id != requestid)
+                        myrequest = CustomBrokerWpf.References.RequestStore.GetItemLoad(requestid, out err);
+                    if(myrequest != null)
+                    {
+                        RequestMailState bodycreator = new RequestMailState(myrequest, this.CurrentItem.State.Value);
+                        body = bodycreator.CreateBody(this.CurrentItem.DomainObject, new MailStateCustomer(0,0,lib.DomainObjectState.Sealed,0, myrequest.CustomerLegals.FirstOrDefault((RequestCustomerLegal legal)=> { return legal.Selected; })?.CustomerLegal.Id??0,0,null));
+                    }
+                    else
+                        this.OpenPopup(err.Count>0 ? err[0].Message : "Не найдена заявка № " + myrequestid??string.Empty, true);
+                }
+                if(body!=null) mymail.Send(string.Empty, myaddress, this.CurrentItem.Subject, body, BodySubtype.html);
+            }
+            catch(Exception ex) { this.OpenPopup(ex.Message, true); }
+        }
+        private bool SendMailCanExecute(object parametr)
+        {
+            return !(string.IsNullOrEmpty(myaddress) || myaddress.IndexOf('@') < 1);
         }
 
         protected override bool CanDeleteData(object parametr)
@@ -418,6 +463,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             //this.CurrentItem.DocumentUpdateModel();
             return base.SaveDataChanges();
+        }
+        protected override void SettingView()
+        {
+            base.SettingView();
+            myview.SortDescriptions.Add(new SortDescription("State", ListSortDirection.Ascending));
         }
     }
 }

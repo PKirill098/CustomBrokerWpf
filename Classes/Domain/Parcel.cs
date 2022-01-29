@@ -288,7 +288,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => { if (!this.RequestsIsNull) foreach (Request item in this.Requests.Where((Request rq) => { return rq.Parcel == this; })) item.Status = this.Status; }); //Count(); PropertiesChangedNotifycation();
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => {
+                    if (!this.RequestsIsNull)
+                    {
+                        lib.ReferenceSimpleItem storemoscow = null;
+                        if (this.Status.Id == 110)
+                            storemoscow = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104);
+                        foreach (Request item in this.Requests.Where((Request rq) => { return rq.Parcel == this; }))
+                            item.Status = this.Status.Id == 110 ? storemoscow : this.Status;
+                    }
+                }); //Count(); PropertiesChangedNotifycation();
             }
             get { return mystatus; }
         }
@@ -933,7 +942,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@tinsuranceprice", System.Data.SqlDbType.Money)
             };
 
-            myrdbm = new RequestDBM(); myrdbm.Command = new SqlCommand(); myrdbm.LegalDBM = new RequestCustomerLegalDBM();
+            myrdbm = new RequestDBM() { Command = new SqlCommand(),LegalDBM = new RequestCustomerLegalDBM() { LegalDBM=new CustomerLegalDBM() } };
             mysdbm = new Specification.SpecificationDBM(); mysdbm.Command = new SqlCommand();
         }
 
@@ -3141,11 +3150,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal bool MoveSpecificationCanExec(ParcelVM parcel)
         { return parcel?.ParcelType?.Id == 1; }
 
-        internal ListCollectionView InitStats()
+        internal ListCollectionView InitStates()
         {
             ListCollectionView states = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
             states.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-            states.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
+            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49 && state.Id != 104; };
+            return states;
+        }
+        internal ListCollectionView InitRequestStates()
+        {
+            ListCollectionView requeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            requeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+            requeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
+            return requeststates;
+        }
+        internal ListCollectionView InitParcelRequestStates()
+        {
+            ListCollectionView states = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            states.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49; };
             return states;
         }
         internal ListCollectionView InitGoods()
@@ -3192,7 +3215,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
 
             mymanagers = mycommands.InitManagers();
-            mystates = mycommands.InitStats();
+            mystates = mycommands.InitStates();
+            myrequeststates = mycommands.InitRequestStates();
+            myparcelrequeststates = mycommands.InitParcelRequestStates();
             mygoodstypes = mycommands.InitGoods();
         }
 
@@ -3277,17 +3302,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private ListCollectionView mymanagers;
         public ListCollectionView Managers
         { get { return mymanagers; } }
+        private ListCollectionView myparcelrequeststates;
+        public ListCollectionView ParcelRequestStates
+        { get { return myparcelrequeststates; } }
         private ListCollectionView myrequeststates;
         public ListCollectionView RequestStates
         {
             get
             {
-                if (myrequeststates == null)
-                {
-                    myrequeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    myrequeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    myrequeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
-                }
                 return myrequeststates;
             }
         }
@@ -3308,12 +3330,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             get
             {
-                if (mystates == null)
-                {
-                    mystates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    mystates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    mystates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
-                }
                 return mystates;
             }
         }
@@ -3639,7 +3655,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
 
             base.DeleteQuestionHeader = "Удалить перевозку?";
-            mystates = mycommands.InitStats();
+            mystates = mycommands.InitStates();
             mygoodstypes = mycommands.InitGoods();
             myfilterbuttonimagepath = @"/CustomBrokerWpf;component/Images/funnel.png";
         }
@@ -3650,7 +3666,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get
             {
                 if (mystates == null)
-                    mystates = mycommands.InitStats();
+                    mystates = mycommands.InitStates();
                 return mystates;
             }
         }
@@ -3768,7 +3784,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
             
             mymanagers = mycommands.InitManagers();
-            mystates = mycommands.InitStats();
+            mystates = mycommands.InitStates();
+            myrequeststates = mycommands.InitRequestStates();
+            myparcelrequeststates = mycommands.InitParcelRequestStates();
             mygoodstypes = mycommands.InitGoods();
         }
 
@@ -4020,16 +4038,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public ListCollectionView Managers
         { get { return mymanagers; } }
         private ListCollectionView myrequeststates;
+        private ListCollectionView myparcelrequeststates;
+        public ListCollectionView ParcelRequestStates
+        { get { return myparcelrequeststates; } }
         public ListCollectionView RequestStates
         {
             get
             {
-                if (myrequeststates == null)
-                {
-                    myrequeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    myrequeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    myrequeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
-                }
                 return myrequeststates;
             }
         }
@@ -4050,12 +4065,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             get
             {
-                if (mystates == null)
-                {
-                    mystates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-                    mystates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                    mystates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id > 49; };
-                }
                 return mystates;
             }
         }

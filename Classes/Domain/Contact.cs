@@ -2,7 +2,7 @@
 using System;
 using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
-
+using System.Linq;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -84,7 +84,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public ContactVM(Contact item) : base(item)
         {
-            ValidetingProperties.AddRange(new string[] { });
+            ValidetingProperties.AddRange(new string[] { "DependancyObject"});
             DeleteRefreshProperties.AddRange(new string[] { "ContactType", "Name", "SurName", "ThirdName" });
             InitProperties();
         }
@@ -216,7 +216,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool ValidateProperty(string propertyname, bool inform = true)
         {
-            return true;
+            bool isvalid = true;
+            string errmsg = null;
+            switch (propertyname)
+            {
+                case "DependancyObject":
+                    System.Text.StringBuilder err = new System.Text.StringBuilder();
+                    if (mypoints != null)
+                        foreach (ContactPointVM item in mypoints.OfType<ContactPointVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (err.Length > 0)
+                    {
+                        errmsg = err.ToString();
+                        isvalid = false;
+                    }
+                    break;
+            }
+            if (isvalid) ClearErrorMessageForProperty(propertyname);
+            else if (inform) AddErrorMessageForProperty(propertyname, errmsg);
+            return isvalid;
         }
         protected override bool DirtyCheckProperty()
         {

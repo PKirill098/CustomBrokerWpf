@@ -115,24 +115,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SetParametersValue(AgentAddress item)
         {
             bool success = true;
-            if (item.AddressTypeID == 0)
-            {
-                this.Errors.Add(new lib.DBMError(item, "Не указан вид адреса!", ""));
-                success = false;
-            }
-            else
-            {
+            //if (item.AddressTypeID == 0)
+            //{
+            //    this.Errors.Add(new lib.DBMError(item, "Не указан вид адреса!", ""));
+            //    success = false;
+            //}
+            //else
+            //{
                 myupdateparams[0].Value = item.Id;
                 myupdateparams[1].Value = item.HasPropertyOutdatedValue("AddressDescription");
                 myupdateparams[2].Value = item.HasPropertyOutdatedValue("Locality");
                 myupdateparams[3].Value = item.HasPropertyOutdatedValue("Town");
                 myupdateparams[4].Value = item.HasPropertyOutdatedValue("AddressTypeID");
                 myinsertupdateparams[0].Value = item.Agent.Id;
-                myinsertupdateparams[1].Value = item.AddressTypeID;
+                myinsertupdateparams[1].Value = item.AddressTypeID==0?(byte?)null:item.AddressTypeID;
                 myinsertupdateparams[2].Value = item.AddressDescription;
                 myinsertupdateparams[3].Value = item.Locality;
                 myinsertupdateparams[4].Value = item.Town;
-            }
+            //}
             return success;
         }
         protected override void GetOutputParametersValue(AgentAddress item)
@@ -258,18 +258,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool ValidateProperty(string propertyname, bool inform = true)
         {
             bool isvalid = true;
-            string errmsg = null;
-            switch (propertyname)
-            {
-                case "AddressTypeID":
-                    if (!this.AddressTypeID.HasValue || this.AddressTypeID == 0)
-                    {
-                        errmsg = "Необходимо указать вид адреса!";
-                        isvalid = false;
-                    }
-                    break;
-            }
-            if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
+            //string errmsg = null;
+            //switch (propertyname)
+            //{
+            //    case "AddressTypeID":
+            //        if (!this.AddressTypeID.HasValue || this.AddressTypeID == 0)
+            //        {
+            //            errmsg = "Необходимо указать вид адреса!";
+            //            isvalid = false;
+            //        }
+            //        break;
+            //}
+            //if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
             return isvalid;
         }
         protected override bool DirtyCheckProperty()

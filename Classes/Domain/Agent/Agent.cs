@@ -504,7 +504,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public AgentVM(Agent model):base(model)
         {
             DeleteRefreshProperties.AddRange(new string[] { nameof(AgentVM.DayEntry), nameof(AgentVM.FullName), nameof(AgentVM.Name), nameof(AgentVM.Recommend),nameof(AgentVM.State) });
-            ValidetingProperties.AddRange(new string[] { nameof(this.Name)});
+            ValidetingProperties.AddRange(new string[] { nameof(this.Name), "DependancyObject"});
             InitProperties();
         }
         public AgentVM():this(new Agent()) { }
@@ -817,6 +817,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     if (string.IsNullOrEmpty(this.DomainObject.Name))
                     {
                         errmsg = "Имя агента не может быть пустым!";
+                        isvalid = false;
+                    }
+                    break;
+                case "DependancyObject":
+                    System.Text.StringBuilder err = new System.Text.StringBuilder();
+                    if (myaliases != null)
+                        foreach (AgentAliasVM item in myaliases.OfType<AgentAliasVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (myaddresses != null)
+                        foreach (AgentAddressVM item in myaddresses.OfType<AgentAddressVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (mybrands != null)
+                        foreach (AgentBrandVM item in mybrands.OfType<AgentBrandVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (mycontacts != null)
+                        foreach (AgentContactVM item in mycontacts.OfType<AgentContactVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (mycontracts != null)
+                        foreach (ContractVM item in mycontracts.OfType<ContractVM>())
+                            if (!item.Validate(true))
+                                err.AppendLine(item.Errors);
+                    if (err.Length > 0)
+                    {
+                        errmsg = err.ToString();
                         isvalid = false;
                     }
                     break;
@@ -1380,7 +1408,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.DisplayPath = "Name";
             this.SearchPath = "Name";
-            this.GetDisplayPropertyValueFunc = (item) => { return ((Customer)item).Name; };
+            this.GetDisplayPropertyValueFunc = (item) => { return ((Agent)item).Name; };
             this.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
         }
 

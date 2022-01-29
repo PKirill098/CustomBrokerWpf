@@ -606,7 +606,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="№" Binding="{Binding Path=Id, Converter={StaticResource keyNoDisplayNewId}}" IsReadOnly="True" ElementStyle="{StaticResource NumberCenterStyleView}" />
                     <DataGridTextColumn Header="Складской №" Binding="{Binding Path=StorePointDate, ValidatesOnExceptions=true, NotifyOnValidationError=true, TargetNullValue='', Mode=OneWay}"/>
-                    <DataGridTextColumn Header="Статус" Binding="{Binding Path=Status.Name}" IsReadOnly="True" SortMemberPath="Status.Id" Width="64"/>
+                    <DataGridComboBoxColumn Header="Статус" SelectedItemBinding="{Binding Path=Status}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ParcelRequestStates}" DisplayMemberPath="Name" SortMemberPath="Status.Id" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="64"/>
                     <DataGridTextColumn Header="Группа" Binding="{Binding Path=ParcelGroup, UpdateSourceTrigger=LostFocus, TargetNullValue='',NotifyOnValidationError=True}" ElementStyle="{StaticResource NumberCenterStyleView}" EditingElementStyle="{StaticResource NumberCenterStyleViewEdit}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
@@ -779,6 +779,20 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridCheckBoxColumn Header="ЭДО Деливери" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOD, Mode=TwoWay}" IsThreeState="False" Width="50">
+                        <DataGridCheckBoxColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                <Setter Property="ToolTip" Value="ЭДО Деливери"/>
+                            </Style>
+                        </DataGridCheckBoxColumn.HeaderStyle>
+                    </DataGridCheckBoxColumn>
+                    <DataGridCheckBoxColumn Header="ЭДО Tрэйд" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOT, Mode=TwoWay}" IsThreeState="False" Width="50">
+                        <DataGridCheckBoxColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                <Setter Property="ToolTip" Value="ЭДО Tрэйд"/>
+                            </Style>
+                        </DataGridCheckBoxColumn.HeaderStyle>
+                    </DataGridCheckBoxColumn>
                     <DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
                                     ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" SortMemberPath="Importer.Name"  Width="100">
                         <DataGridComboBoxColumn.CellStyle>
@@ -1158,6 +1172,20 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="ЭДО Деливери" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOD, Mode=TwoWay}" IsThreeState="False" Width="50">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="ЭДО Деливери"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Header="ЭДО Tрэйд" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOT, Mode=TwoWay}" IsThreeState="False" Width="50">
+                    <DataGridCheckBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="ЭДО Tрэйд"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.HeaderStyle>
+                </DataGridCheckBoxColumn>
                 <DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"
                                     ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name" SortMemberPath="Importer.Name"  Width="100">
                     <DataGridComboBoxColumn.CellStyle>

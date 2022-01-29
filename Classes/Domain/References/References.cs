@@ -77,13 +77,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 Classes.WarningAsyncItemPrepay prepay = new Classes.WarningAsyncItemPrepay();
                 mywarningasync = new Classes.WarningAsync(prepay);
             }
+            else if (CurrentUserRoles.Contains("Warehouse"))
+            {
+                App.Current.MainWindow = new Windows.SKU.SKUWin();
+                //Classes.WarningAsyncItemPrepay prepay = new Classes.WarningAsyncItemPrepay();
+                //mywarningasync = new Classes.WarningAsync(prepay);
+            }
             else
             {
                 App.Current.MainWindow = new MainWindow();
                 Classes.WarningAsyncItemGoods goods = new Classes.WarningAsyncItemGoods();
                 mywarningasync = new Classes.WarningAsync(goods);
             }
-            System.Threading.Tasks.Task task = mywarningasync.StartAsync();
+            System.Threading.Tasks.Task task = mywarningasync?.StartAsync();
             App.Current.MainWindow.Show();
         }
 

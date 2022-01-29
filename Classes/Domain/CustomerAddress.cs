@@ -62,7 +62,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override CustomerAddress CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
-           return new CustomerAddress(reader.GetInt32(2), lib.DomainObjectState.Unchanged, reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(1) ? (byte)0 : reader.GetByte(1), reader.GetInt32(0), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
+           return new CustomerAddress(reader.GetInt32(2), lib.DomainObjectState.Unchanged
+               , reader.IsDBNull(3) ? null : reader.GetString(3)
+               , reader.IsDBNull(1) ? (byte)0 : reader.GetByte(1)
+               , reader.GetInt32(0)
+               , reader.IsDBNull(4) ? null : reader.GetString(4)
+               , reader.IsDBNull(5) ? null : reader.GetString(5));
         }
         protected override void GetOutputParametersValue(CustomerAddress item)
         {

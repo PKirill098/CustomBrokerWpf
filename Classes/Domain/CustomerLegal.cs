@@ -9,7 +9,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     public class CustomerLegal : lib.DomainBaseStamp
     {
         public CustomerLegal(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
-            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, Customer customer, DateTime dayentry, int? deliverytype, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, Customer customer, DateTime dayentry, int? deliverytype, byte edod, byte edot, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
             ) : base(id, stamp, updated, updater, dstate)
         {
             myaccount = account;
@@ -23,6 +23,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydayentry = dayentry;
             mydeliverytype = deliverytype;
             mydeliverytype_ = deliverytype.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", deliverytype.Value) : null;
+            myedod = edod;
+            myedot = edot;
             myfullname = fullname;
             myinn = inn;
             mymanagergroup = managergroup;
@@ -35,7 +37,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mystatus = status;
         }
         public CustomerLegal() : this(id: lib.NewObjectId.NewId, stamp: 0, updater: null, updated: null, dstate: lib.DomainObjectState.Added
-            , account: null, bankaccount: null, bankbic: null, bankname: null, contractdate: null, contractnum: null, corraccount: null, customer: null, dayentry: DateTime.Now, deliverytype: null, fullname: null, inn: null, managergroup: null, name: null, notespecial: null, payaccount: null, paytypeid: null, recommend: null, state: 0, status: "Заявка"
+            , account: null, bankaccount: null, bankbic: null, bankname: null, contractdate: null, contractnum: null, corraccount: null, customer: null, dayentry: DateTime.Now, deliverytype: null, edod: 0, edot: 0, fullname: null, inn: null, managergroup: null, name: null, notespecial: null, payaccount: null, paytypeid: null, recommend: null, state: 0, status: "Заявка"
             ) { }
 
         private int? myaccount;
@@ -129,6 +131,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private lib.ReferenceSimpleItem mydeliverytype_;
         public lib.ReferenceSimpleItem DeliveryType_
         { get { return mydeliverytype_; } }
+        private byte myedod;
+        public byte EDOD
+        { set { SetProperty(ref myedod, value); } get { return myedod; } }
+        private byte myedot;
+        public byte EDOT
+        { set { SetProperty(ref myedot, value); } get { return myedot; } }
         private string myfullname;
         public string FullName
         {
@@ -332,6 +340,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (!this.HasPropertyOutdatedValue("CorrAccount")) this.CorrAccount = newitem.CorrAccount;
             if (!this.HasPropertyOutdatedValue("DayEntry")) this.DayEntry = newitem.DayEntry;
             if (!this.HasPropertyOutdatedValue("DeliveryType")) this.DeliveryType = newitem.DeliveryType;
+            this.EDOD = newitem.EDOD;
+            this.EDOT = newitem.EDOT;
             this.FullName = newitem.FullName;
             if (!this.HasPropertyOutdatedValue("INN")) this.INN = newitem.INN;
             if (!this.HasPropertyOutdatedValue("ManagerGroup")) this.ManagerGroup = newitem.ManagerGroup;
@@ -393,6 +403,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@contractnumtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@contractdatetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@statetrue", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@edodtrue", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@edottrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@old", 0)
             };
             myupdateparams[0].ParameterName = "@customerID";
@@ -417,6 +429,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@contractnum", System.Data.SqlDbType.NVarChar,20)
                 ,new SqlParameter("@contractdate", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@customerState", System.Data.SqlDbType.TinyInt)
+                ,new SqlParameter("@edod", System.Data.SqlDbType.TinyInt)
+                ,new SqlParameter("@edot", System.Data.SqlDbType.TinyInt)
            };
             myinsertupdateparams[1].ParameterName = "@updtDate";
             myinsertupdateparams[2].ParameterName = "@updtWho";
@@ -442,29 +456,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override CustomerLegal CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
 			System.Collections.Generic.List<lib.DBMError> errors;
-            Customer customer = CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("parentid")), addcon, out errors);
+            Customer customer = CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(this.Fields["parentid"]), addcon, out errors);
             this.Errors.AddRange(errors);
             CustomerLegal newitem = new CustomerLegal(id: reader.GetInt32(0), stamp: reader.GetInt32(1), updater: reader.IsDBNull(3) ? null : reader.GetString(3), updated: reader.IsDBNull(2) ? (DateTime?)null : reader.GetDateTime(2), dstate: lib.DomainObjectState.Unchanged
                 , account: null
-                , bankaccount: reader.IsDBNull(reader.GetOrdinal("raccount")) ? null : reader.GetString(reader.GetOrdinal("raccount"))
-                , bankbic: reader.IsDBNull(reader.GetOrdinal("bankbic")) ? null : reader.GetString(reader.GetOrdinal("bankbic"))
-                , bankname: reader.IsDBNull(reader.GetOrdinal("bankname")) ? null : reader.GetString(reader.GetOrdinal("bankname"))
-                , contractdate: reader.IsDBNull(reader.GetOrdinal("contractdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("contractdate"))
-                , contractnum: reader.IsDBNull(reader.GetOrdinal("contractnum")) ? null : reader.GetString(reader.GetOrdinal("contractnum"))
-                , corraccount: reader.IsDBNull(reader.GetOrdinal("coraccount")) ? null : reader.GetString(reader.GetOrdinal("coraccount"))
+                , bankaccount: reader.IsDBNull(this.Fields["raccount"]) ? null : reader.GetString(this.Fields["raccount"])
+                , bankbic: reader.IsDBNull(this.Fields["bankbic"]) ? null : reader.GetString(this.Fields["bankbic"])
+                , bankname: reader.IsDBNull(this.Fields["bankname"]) ? null : reader.GetString(this.Fields["bankname"])
+                , contractdate: reader.IsDBNull(this.Fields["contractdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["contractdate"])
+                , contractnum: reader.IsDBNull(this.Fields["contractnum"]) ? null : reader.GetString(this.Fields["contractnum"])
+                , corraccount: reader.IsDBNull(this.Fields["coraccount"]) ? null : reader.GetString(this.Fields["coraccount"])
                 , customer: customer
-                , dayentry: reader.GetDateTime(reader.GetOrdinal("customerDayEntry"))
-                , deliverytype: reader.IsDBNull(reader.GetOrdinal("deliverytypeID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("deliverytypeID"))
-                , fullname: reader.IsDBNull(reader.GetOrdinal("customerFullName")) ? null : reader.GetString(reader.GetOrdinal("customerFullName"))
-                , inn: reader.IsDBNull(reader.GetOrdinal("inn")) ? null : reader.GetString(reader.GetOrdinal("inn"))
-                , managergroup: reader.IsDBNull(reader.GetOrdinal("managerGroupID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("managerGroupID"))
-                , name: reader.IsDBNull(reader.GetOrdinal("customerName")) ? null : reader.GetString(reader.GetOrdinal("customerName"))
-                , notespecial: reader.IsDBNull(reader.GetOrdinal("customerNoteSpecial")) ? null : reader.GetString(reader.GetOrdinal("customerNoteSpecial"))
-                , payaccount: reader.IsDBNull(reader.GetOrdinal("payaccount")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("payaccount"))
-                , paytypeid: reader.IsDBNull(reader.GetOrdinal("paytypeID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("paytypeID"))
-                , recommend: reader.IsDBNull(reader.GetOrdinal("customerRecommend")) ? null : reader.GetString(reader.GetOrdinal("customerRecommend"))
-                , state: reader.GetByte(reader.GetOrdinal("customerState"))
-                , status: reader.IsDBNull(reader.GetOrdinal("customerStatus")) ? null : reader.GetString(reader.GetOrdinal("customerStatus"))
+                , dayentry: reader.GetDateTime(this.Fields["customerDayEntry"])
+                , deliverytype: reader.IsDBNull(this.Fields["deliverytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["deliverytypeID"])
+                , edod: reader.GetByte(this.Fields["edod"])
+                , edot: reader.GetByte(this.Fields["edot"])
+                , fullname: reader.IsDBNull(this.Fields["customerFullName"]) ? null : reader.GetString(this.Fields["customerFullName"])
+                , inn: reader.IsDBNull(this.Fields["inn"]) ? null : reader.GetString(this.Fields["inn"])
+                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? (int?)null : reader.GetInt32(this.Fields["managerGroupID"])
+                , name: reader.IsDBNull(this.Fields["customerName"]) ? null : reader.GetString(this.Fields["customerName"])
+                , notespecial: reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null : reader.GetString(this.Fields["customerNoteSpecial"])
+                , payaccount: reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null : reader.GetInt32(this.Fields["payaccount"])
+                , paytypeid: reader.IsDBNull(this.Fields["paytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["paytypeID"])
+                , recommend: reader.IsDBNull(this.Fields["customerRecommend"]) ? null : reader.GetString(this.Fields["customerRecommend"])
+                , state: reader.GetByte(this.Fields["customerState"])
+                , status: reader.IsDBNull(this.Fields["customerStatus"]) ? null : reader.GetString(this.Fields["customerStatus"])
                 );
             return CustomBrokerWpf.References.CustomerLegalStore.UpdateItem(newitem);
         }
@@ -549,44 +565,134 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (item.Customer.DomainState == lib.DomainObjectState.Added)
                 return false;
             myinsertparams[1].Value = item.Customer.Id;
-            int i = 1;
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Name");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("FullName");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("DayEntry");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Recommend");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("NoteSpecial");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Status");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("PayType");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("PayAccount");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("DeliveryType");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("ManagerGroup");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("INN");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("BankAccount");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("CorrAccount");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("BankBIC");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("BankName");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("ContractNumber");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("ContractDate");
-            myupdateparams[i++].Value = item.HasPropertyOutdatedValue("State");
-            i = 3;
-            myinsertupdateparams[i++].Value = item.Name;
-            myinsertupdateparams[i++].Value = item.FullName;
-            myinsertupdateparams[i++].Value = item.DayEntry;
-            myinsertupdateparams[i++].Value = item.Recommend;
-            myinsertupdateparams[i++].Value = item.NoteSpecial;
-            myinsertupdateparams[i++].Value = item.Status;
-            myinsertupdateparams[i++].Value = item.PayType;
-            myinsertupdateparams[i++].Value = item.PayAccount;
-            myinsertupdateparams[i++].Value = item.DeliveryType;
-            myinsertupdateparams[i++].Value = item.ManagerGroup;
-            myinsertupdateparams[i++].Value = item.INN;
-            myinsertupdateparams[i++].Value = item.BankAccount;
-            myinsertupdateparams[i++].Value = item.CorrAccount;
-            myinsertupdateparams[i++].Value = item.BankBIC;
-            myinsertupdateparams[i++].Value = item.BankName;
-            myinsertupdateparams[i++].Value = item.ContractNumber;
-            myinsertupdateparams[i++].Value = item.ContractDate;
-            myinsertupdateparams[i++].Value = item.State;
+            foreach(SqlParameter par in this.UpdateParams)
+                switch(par.ParameterName)
+                {
+                    case "@raccounttrue":
+                        par.Value = item.HasPropertyOutdatedValue("BankAccount");
+                        break;
+                    case "@bankbictrue":
+                        par.Value = item.HasPropertyOutdatedValue("BankBIC");
+                        break;
+                    case "@banknametrue":
+                        par.Value = item.HasPropertyOutdatedValue("BankName");
+                        break;
+                    case "@contractdatetrue":
+                        par.Value = item.HasPropertyOutdatedValue("ContractDate");
+                        break;
+                    case "@contractnumtrue":
+                        par.Value = item.HasPropertyOutdatedValue("ContractNumber");
+                        break;
+                    case "@coraccounttrue":
+                        par.Value = item.HasPropertyOutdatedValue("CorrAccount");
+                        break;
+                    case "@dayentrytrue":
+                        par.Value = item.HasPropertyOutdatedValue("DayEntry");
+                        break;
+                    case "@deliverytypeidtrue":
+                        par.Value = item.HasPropertyOutdatedValue("DeliveryType");
+                        break;
+                    case "@edodtrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomerLegal.EDOD));
+                        break;
+                    case "@edottrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(CustomerLegal.EDOT));
+                        break;
+                    case "@fullnametrue":
+                        par.Value = item.HasPropertyOutdatedValue("FullName");
+                        break;
+                    case "@inntrue":
+                        par.Value = item.HasPropertyOutdatedValue("INN");
+                        break;
+                    case "@managergroupidtrue":
+                        par.Value = item.HasPropertyOutdatedValue("ManagerGroup");
+                        break;
+                    case "@nametrue":
+                        par.Value= item.HasPropertyOutdatedValue("Name");
+                        break;
+                    case "@notespecialtrue":
+                        par.Value = item.HasPropertyOutdatedValue("NoteSpecial");
+                        break;
+                    case "@payaccountidtrue":
+                        par.Value = item.HasPropertyOutdatedValue("PayAccount");
+                        break;
+                    case "@paytypeidtrue":
+                        par.Value = item.HasPropertyOutdatedValue("PayType");
+                        break;
+                    case "@recommendtrue":
+                        par.Value = item.HasPropertyOutdatedValue("Recommend");
+                        break;
+                    case "@statetrue":
+                        par.Value = item.HasPropertyOutdatedValue("State");
+                        break;
+                    case "@statustrue":
+                        par.Value = item.HasPropertyOutdatedValue("Status");
+                        break;
+                }
+            foreach(SqlParameter par in this.InsertUpdateParams)
+                switch(par.ParameterName)
+                {
+                    case "@raccount":
+                        par.Value = item.BankAccount;
+                        break;
+                    case "@bankbic":
+                        par.Value = item.BankBIC;
+                        break;
+                    case "@bankname":
+                        par.Value = item.BankName;
+                        break;
+                    case "@contractdate":
+                        par.Value = item.ContractDate;
+                        break;
+                    case "@contractnum":
+                        par.Value = item.ContractNumber;
+                        break;
+                    case "@coraccount":
+                        par.Value = item.CorrAccount;
+                        break;
+                    case "@customerDayEntry":
+                        par.Value = item.DayEntry;
+                        break;
+                    case "@deliverytypeID":
+                        par.Value = item.DeliveryType;
+                        break;
+                    case "@edod":
+                        par.Value = item.EDOD;
+                        break;
+                    case "@edot":
+                        par.Value = item.EDOT;
+                        break;
+                    case "@customerFullName":
+                        par.Value = item.FullName;
+                        break;
+                    case "@inn":
+                        par.Value = item.INN;
+                        break;
+                    case "@managerGroupID":
+                        par.Value = item.ManagerGroup;
+                        break;
+                    case "@customerName":
+                        par.Value = item.Name;
+                        break;
+                    case "@customerNoteSpecial":
+                        par.Value = item.NoteSpecial;
+                        break;
+                    case "@payaccountid":
+                        par.Value = item.PayAccount;
+                        break;
+                    case "@paytypeID":
+                        par.Value = item.PayType;
+                        break;
+                    case "@customerRecommend":
+                        par.Value = item.Recommend;
+                        break;
+                    case "@customerState":
+                        par.Value = item.State;
+                        break;
+                    case "@customerStatus":
+                        par.Value = item.Status;
+                        break;
+                }
             return true;
         }
 
@@ -804,6 +910,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public lib.ReferenceSimpleItem DeliveryType_
         {
             get { return this.IsEnabled ? this.DomainObject.DeliveryType_ : null; }
+        }
+        public bool? EDOD
+        { 
+            set { SetProperty<bool?>(this.DomainObject.EDOD == 1, (bool? isedo) => { if(isedo.HasValue) this.DomainObject.EDOD = (isedo.Value ? (byte)1 : (byte)0); }, value); }
+            get { return GetProperty<bool?>(this.DomainObject.EDOD == 1, (bool?)null); }
+        }
+        public bool? EDOT
+        {
+            set { SetProperty<bool?>(this.DomainObject.EDOT == 1, (bool? isedo) => { if (isedo.HasValue) this.DomainObject.EDOT = (isedo.Value ? (byte)1 : (byte)0); }, value); }
+            get { return GetProperty<bool?>(this.DomainObject.EDOT == 1, (bool?)null); }
         }
         public string FullName
         {
@@ -1093,6 +1209,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "DeliveryType":
                     this.DomainObject.DeliveryType = (int?)value;
+                    break;
+                case nameof(EDOD):
+                    this.DomainObject.EDOD = (bool)value?(byte)1:(byte)0;
+                    break;
+                case nameof(EDOT):
+                    this.DomainObject.EDOT = (bool)value ? (byte)1 : (byte)0;
                     break;
                 case "FullName":
                     this.DomainObject.FullName = (string)value;

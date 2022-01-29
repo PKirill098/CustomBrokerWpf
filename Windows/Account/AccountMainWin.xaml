@@ -47,7 +47,7 @@
 			<TabItem Header="Реестр ТЭО ГТД Арт Трейд" GotFocus="TabItem6_GotFocus">
 				<account:GTDRegisterUC x:Name="TEOTradeGrid"/>
 			</TabItem>
-			<TabItem Header="Перевозки" GotFocus="TabItemParcel_GotFocus">
+            <TabItem Header="Отправки" GotFocus="TabItemParcel_GotFocus">
 				<Grid x:Name="ParcelGrid" IsSharedSizeScope="True">
 					<Grid.Resources>
 						<lib:BindingProxy x:Key="ParcelDataContext" Data="{Binding}"/>
@@ -786,7 +786,8 @@
 										</DataTemplate>
 									</DataGridTemplateColumn.CellTemplate>
 								</DataGridTemplateColumn>
-								<DataGridTextColumn Header="Импортер" Binding="{Binding Path=Importer.Name, Mode=OneWay}"  Width="100">
+                                <DataGridCheckBoxColumn Header="ЭДО" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDO, Mode=OneWay}" IsThreeState="False" />
+                                <DataGridTextColumn Header="Импортер" Binding="{Binding Path=Importer.Name, Mode=OneWay}"  Width="100">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="DataGridCell">
 											<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}"/>
@@ -921,17 +922,17 @@
 						</DataGrid>
 						<StackPanel Orientation="Horizontal" Grid.Row="1" Margin="4">
 							<TextBlock Text="Кол-во мест" Grid.Row="1" Grid.Column="7" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-							<TextBox x:Name="cellNumberFreeTextBox" Text="{Binding CurrentItem.ParcelRequestsTotal.CellNumber, Mode=OneWay, StringFormat=\{0:N0\}}" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="cellNumberFreeTextBox" Text="{Binding CurrentItem.ParcelRequestsTotalSelected.CellNumber, Mode=OneWay, StringFormat=\{0:N0\}}" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 							<TextBlock Text="Вес по док, кг" Grid.Row="2" Grid.Column="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-							<TextBox x:Name="OfficialWeightTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotal.OfficialWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="OfficialWeightTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotalSelected.OfficialWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 							<TextBlock Text="Объем, м3" Grid.Row="1" Grid.Column="3" Margin="5,0,0,0" VerticalAlignment="Center"/>
-							<TextBox x:Name="VolumeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotal.Volume,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="1" Grid.Column="4" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="VolumeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotalSelected.Volume,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="1" Grid.Column="4" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 							<TextBlock Text="Вес факт, кг" Grid.Row="1" Grid.Column="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-							<TextBox x:Name="actualWeightFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotal.ActualWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="1" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="actualWeightFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotalSelected.ActualWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="1" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 							<TextBlock Text="факт-док" Grid.Row="3" Grid.Column="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-							<TextBox x:Name="offactWeightFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotal.DifferenceWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="3" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="offactWeightFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotalSelected.DifferenceWeight,Mode=OneWay, StringFormat=\{0:N4\}}" Grid.Row="3" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 							<TextBlock Text="стоимость" Grid.Row="3" Grid.Column="5" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-							<TextBox x:Name="goodValueFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotal.InvoiceDiscount,Mode=OneWay, StringFormat=\{0:N2\}}" Grid.Row="3" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
+                            <TextBox x:Name="goodValueFreeTextBox" Text="{Binding Path=CurrentItem.ParcelRequestsTotalSelected.InvoiceDiscount,Mode=OneWay, StringFormat=\{0:N2\}}" Grid.Row="3" Grid.Column="6" Margin="3,2,3,0" TextAlignment="Right" IsReadOnly="True" IsTabStop="False" />
 						</StackPanel>
 					</Grid>
 					<GridSplitter Grid.Row="6" Grid.ColumnSpan="2" Height="5" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="3,0" IsTabStop="False" />

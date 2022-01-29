@@ -765,6 +765,20 @@
 									</DataTemplate>
 								</DataGridTemplateColumn.CellEditingTemplate>
 							</DataGridTemplateColumn>
+                            <DataGridCheckBoxColumn Header="ЭДО Деливери" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOD, Mode=TwoWay}" IsThreeState="False" Width="50">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                        <Setter Property="ToolTip" Value="ЭДО Деливери"/>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="ЭДО Tрэйд" Binding="{Binding Path=CustomerLegalsSelected/CustomerLegal.EDOT, Mode=TwoWay}" IsThreeState="False" Width="50">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                        <Setter Property="ToolTip" Value="ЭДО Tрэйд"/>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
                             <DataGridComboBoxColumn Header="Импортер" SelectedItemBinding="{Binding Path=Importer,UpdateSourceTrigger=PropertyChanged}" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" SortMemberPath="Importer.Name"
                                     ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Importers}" DisplayMemberPath="Name"  Width="100">
 								<DataGridComboBoxColumn.CellStyle>
@@ -2471,6 +2485,59 @@
 					</StackPanel>
                 </Grid>
 			</TabItem>
+            <TabItem Header="Склад Москва" x:Name="WarehouseRUTabItem">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <ToolBar Grid.ColumnSpan="2" Height="32">
+                        <!--<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
+								<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+							</Button>-->
+                        <Button ToolTip="Копировать" Command="Copy" IsTabStop="False">
+                            <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
+                        </Button>
+                        <Separator Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}"/>
+                        <Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=SKU, Path=SelectedItems}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
+                            <Image Source="/CustomBrokerWpf;component/Images/remove.png" />
+                        </Button>
+                        <Separator/>
+                        <Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
+                            <Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
+                        </Button>
+                        <Separator/>
+                        <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" IsTabStop="False">
+                            <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
+                        </Button>
+                        <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
+                            <Image Source="/CustomBrokerWpf;component/Images/save.png" />
+                        </Button>
+                        <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
+                            <Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
+                        </Button>
+                        <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
+                            <Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
+                                <TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
+                            </Border>
+                        </Popup>
+                    </ToolBar>
+                    <my:SKUUI x:Name="SKU" DataContext="{Binding}" Grid.Row="1"/>
+                    <StatusBar Grid.Row="9" Background="Transparent" Grid.ColumnSpan="2" HorizontalContentAlignment="Right">
+                        <StatusBarItem HorizontalAlignment="Right">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Path=IsFiltered}" />
+                                <TextBlock Text="{Binding Path=Items.Count}" Grid.Column="1" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StatusBarItem>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
             <TabItem Header="Реестр заявок на оплату Арт Деливери" GotFocus="TabItem1_GotFocus" Background="#f7e0e0">
                 <account:PaymentRegisterUC x:Name="PaymentDeliveryGrid"/>
             </TabItem>

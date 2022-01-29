@@ -360,7 +360,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)
@@ -398,7 +398,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)
@@ -435,7 +435,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)
@@ -472,7 +472,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)
@@ -509,7 +509,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)
@@ -546,7 +546,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                                             string body = CreateBody(temp, item);
                                                             try
                                                             {
-                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body);
+                                                                mailer.Send(string.Empty, mail.Value, temp.Subject, body, BodySubtype.plain);
                                                                 sent = 2;
                                                             }
                                                             catch (Exception ex)

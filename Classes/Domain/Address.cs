@@ -57,7 +57,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-
         protected override void PropertiesUpdate(DomainBaseReject sample)
         {
             Address newitem = (Address)sample;
@@ -66,6 +65,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.Locality = newitem.Locality;
             this.Town = newitem.Town;
         }
+
     }
 
     public class AddressVM : lib.ViewModelErrorNotifyItem<Address>
@@ -183,18 +183,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool ValidateProperty(string propertyname, bool inform = true)
         {
             bool isvalid = true;
-            string errmsg = null;
-            switch (propertyname)
-            {
-                case nameof(this.AddressTypeID):
-                    if (!this.AddressTypeID.HasValue || this.AddressTypeID == 0)
-                    {
-                        errmsg = "Необходимо указать вид адреса!";
-                        isvalid = false;
-                    }
-                    break;
-            }
-            if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
+            //string errmsg = null;
+            //switch (propertyname)
+            //{
+            //    case nameof(this.AddressTypeID):
+            //        if (!this.AddressTypeID.HasValue || this.AddressTypeID == 0)
+            //        {
+            //            errmsg = "Необходимо указать вид адреса!";
+            //            isvalid = false;
+            //        }
+            //        break;
+            //}
+            //if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
             return isvalid;
         }
         protected override bool DirtyCheckProperty()

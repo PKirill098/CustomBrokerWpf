@@ -44,6 +44,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             Request_Loaded();
             Parcel_Loaded();
+            WarehouseRU_Loaded();
         }
 
         private void OpenSingleWindow(Type winClass, string winName)
@@ -903,6 +904,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             e.Cancel = Request_Closing();
             e.Cancel |= Parcel_Closing();
+            e.Cancel |= WarehouseRU_Closing();
             int i = 0, c1;
             while (i < mychildwindows.Count)
             {
@@ -924,7 +926,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 myrequestcmd.Filter.Dispose();
                 myparcelcmd.Filter.Dispose();
-                //this.ParcelPaymentsUC.Filter.Dispose();
+                myskucmd.Filter.Dispose();
                 //this.PaymentlistUC.Filter.Dispose();
             }
         }
@@ -2851,6 +2853,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 myteotcmd = new GTDRegisterViewCommander(CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1), "ТЭО");
                 this.TEOTradeGrid.DataContext = myteotcmd;
             }
+        }
+        #endregion
+
+        #region Склад Москва
+        private WarehouseRUViewCommader myskucmd;
+        private void WarehouseRU_Loaded()
+        {
+            myskucmd = new Classes.Domain.WarehouseRUViewCommader();
+            myskucmd.IsReadOnly = true;
+            this.WarehouseRUTabItem.DataContext = myskucmd;
+        }
+        private bool WarehouseRU_Closing()
+        {
+            bool cancel = false;
+            myskucmd.Save.Execute(null);
+            if (!myskucmd.LastSaveResult)
+            {
+                this.Activate();
+                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                {
+                    cancel = true;
+                    this.WarehouseRUTabItem.IsSelected = true;
+                }
+            }
+            return cancel;
         }
         #endregion
 

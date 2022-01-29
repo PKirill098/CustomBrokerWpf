@@ -482,7 +482,7 @@
                             </Grid>
                         </Border>
                         <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <ComboBox SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2" ToolTip="Описание груза"/>
+                            <ComboBox ToolTip="Описание груза" SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
                         </Border>
                         <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>

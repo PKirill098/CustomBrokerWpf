@@ -765,7 +765,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 new SqlParameter("@param3", System.Data.SqlDbType.Int),
                 new SqlParameter("@param1", System.Data.SqlDbType.Int),
                 new SqlParameter("@param2", System.Data.SqlDbType.Int),
-                new SqlParameter("@param4", System.Data.SqlDbType.Int)
+                new SqlParameter("@param4", System.Data.SqlDbType.Int),
+                new SqlParameter("@param5", System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
             {
@@ -804,12 +805,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { set { mycustomer = value; } get { return mycustomer; } }
         private PrepayCustomerRequestDBM mypdbm;
         private CustomsInvoiceDBM mycidbm;
+        private CustomerLegalDBM myldbm;
+        internal CustomerLegalDBM LegalDBM { set { myldbm = value; } get { return myldbm; } }
+        private WarehouseRU mysku;
+        internal WarehouseRU SKU
+        { set { mysku = value; this.Collection = mysku.CustomerLegals; } get { return mysku; } }
 
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             SelectParams[1].Value = myrequest?.Id;
             SelectParams[2].Value = myrequest?.CustomerId;
             SelectParams[3].Value = mycustomer?.Id;
+            SelectParams[4].Value = mysku?.Id;
             mypdbm.FillType = this.FillType;
         }
         protected override RequestCustomerLegal CreateItem(SqlDataReader reader, SqlConnection addcon)
@@ -934,6 +941,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 {
                     Success = false;
                     foreach (lib.DBMError err in mycidbm.Errors) this.Errors.Add(err);
+                }
+            }
+            if(myldbm!=null)
+            {
+                myldbm.Errors.Clear();
+                if (!myldbm.SaveItemChanches(item.CustomerLegal))
+                {
+                    Success = false;
+                    foreach (lib.DBMError err in myldbm.Errors) this.Errors.Add(err);
                 }
             }
             return Success;
