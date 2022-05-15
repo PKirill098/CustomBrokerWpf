@@ -14,17 +14,75 @@
             <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" IsReadOnly="{Binding IsReadOnly,Mode=OneTime}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader">
+        <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" IsReadOnly="{Binding IsReadOnly,Mode=OneTime}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" VerticalScrollBarVisibility="Visible"
+                  SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Resources>
                 <libui:CheckListBoxPopup x:Key="AgentFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.AgentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="CustomerFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.CustomerFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:NumberFilterPopup x:Key="FilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ReceiptedFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="ImporterFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ImporterFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="ParcelFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ParcelFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:DateFilterPopup x:Key="ReceiptedFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ReceiptedFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:DateFilterPopup x:Key="ShippedFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ShippedFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="StatusFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.StatusFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridComboBoxColumn Header="Статус" SelectedItemBinding="{Binding Path=Status, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" SortMemberPath="Status.Id" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="80"/>
+                <DataGridTemplateColumn Header="Статус" SortMemberPath="Status.Id" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="80" IsReadOnly="{Binding IsReadOnly, Mode=OneWay}">
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.StatusFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="StatusFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Status.Name, Mode=OneWay}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Path=Status, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsReadOnly, Mode=OneWay}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                </DataGridTemplateColumn>
+                <!--<DataGridComboBoxColumn Header="Статус" SelectedItemBinding="{Binding Path=Status, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" SortMemberPath="Status.Id" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" Width="80">
+                    <DataGridComboBoxColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.StatusFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="StatusFilterPopup_Open"/>
+                        </Style>
+                    </DataGridComboBoxColumn.HeaderStyle>
+                </DataGridComboBoxColumn>-->
                 <DataGridTextColumn Header="Дата поступления" Binding="{Binding Path=Receipted, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="70">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
@@ -42,8 +100,17 @@
                             <EventSetter Event="MouseRightButtonUp" Handler="ReceiptedFilterPopup_Open"/>
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsReadOnly, Mode=OneWay}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Дата отгрузки" Binding="{Binding Path=Shipped, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="70">
+                <DataGridTextColumn Header="Дата отгрузки" Binding="{Binding Path=Shipped, StringFormat=\{0:d\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="70" IsReadOnly="{Binding IsReadOnly, Mode=OneWay}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                             <Setter Property="ToolTip" Value="Дата отгрузки клиенту"/>
@@ -60,6 +127,15 @@
                             <EventSetter Event="MouseRightButtonUp" Handler="ShippedFilterPopup_Open"/>
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsReadOnly, Mode=OneWay}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="№ АМ" Binding="{Binding Path=Parcel.ParcelNumber, TargetNullValue='', Mode=OneWay}" SortMemberPath="Parcel.ParcelNumberOrder" Width="60" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
                     <DataGridTextColumn.HeaderStyle>
@@ -187,11 +263,126 @@
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Импортер" Binding="{Binding Path=Importer.Name,Mode=OneWay}" Width="100">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.ImporterFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="ImporterFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Вес Д" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="50" />
-                <DataGridTextColumn Header="Вес Ф" Binding="{Binding Path=ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="50" />
-                <DataGridTextColumn Header="Объем" Binding="{Binding Path=Volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" />
-                <DataGridTextColumn Header="Мест" Binding="{Binding Path=CellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" />
+                <DataGridTextColumn Header="Вес Д" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="SizeToHeader">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Вес по документам"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.OfficialWeightFilter.IconVisibile, Mode=OneWay}"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Source={StaticResource MainDataContext},Path=Data.Total.OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="OfficialWeightFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Вес Ф" Binding="{Binding Path=ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"  Width="SizeToHeader">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Вес фактический"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.ActualWeightFilter.IconVisibile, Mode=OneWay}"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Source={StaticResource MainDataContext},Path=Data.Total.ActualWeight, StringFormat=\{0:N\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="ActualWeightFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Объем" Binding="{Binding Path=Volume, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="SizeToHeader">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Объем"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.VolumeFilter.IconVisibile, Mode=OneWay}"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Source={StaticResource MainDataContext},Path=Data.Total.Volume, StringFormat=\{0:N\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="VolumeFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Мест" Binding="{Binding Path=CellNumber, TargetNullValue='', NotifyOnValidationError=True, ValidatesOnExceptions=true,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" Width="SizeToHeader">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Количество мест"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.CellNumberFilter.IconVisibile, Mode=OneWay}"/>
+                                                <TextBlock Text="{Binding}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Text="{Binding Source={StaticResource MainDataContext},Path=Data.Total.CellNumber, StringFormat=\{0:N\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="CellNumberFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Услуга" Binding="{Binding Path=ServiceType,Mode=OneWay}" Width="60">
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Тип груза" Binding="{Binding Path=Cargo,Mode=OneWay}" Width="100">

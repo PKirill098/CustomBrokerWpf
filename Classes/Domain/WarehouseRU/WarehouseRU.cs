@@ -46,10 +46,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 SetProperty(ref myshipped, value, () =>
         {
-            if (value == null && mystatus.Id == 60)
+            if (value == null && mystatus.Id == 120)
                 this.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104);
             else if (value != null && mystatus.Id == 104)
-                this.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 60);
+                this.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 120);
         });
             }
             get { return myshipped; }
@@ -210,7 +210,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private void StatusUpdated()
         {
-            if (mystatus.Id == 60 && myshipped == null)
+            if (mystatus.Id == 120 && myshipped == null)
                 this.Shipped = DateTime.Now;
             else if (mystatus.Id == 104 && myshipped != null)
                 this.Shipped = null;
@@ -234,6 +234,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[]
             {
                 new SqlParameter("@id", System.Data.SqlDbType.Int),
+                new SqlParameter("@rlegal", System.Data.SqlDbType.Int),
                 new SqlParameter("@filter", System.Data.SqlDbType.Int){ Value = 0},
             };
             myinsertparams = new SqlParameter[]
@@ -262,6 +263,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
 
         private RequestCustomerLegalDBM myrdbm;
+        private RequestCustomerLegal mylegal;
+        internal RequestCustomerLegal Legal
+        { set { mylegal = value; } get { return mylegal; } }
         private lib.SQLFilter.SQLFilter myfilter;
         public lib.SQLFilter.SQLFilter Filter
         { set { myfilter = value; } get { return myfilter; } }
@@ -302,7 +306,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 switch (par.ParameterName)
                 {
                     case "@filter":
-                        par.Value = myfilter.FilterWhereId;
+                        par.Value = myfilter?.FilterWhereId;
+                        break;
+                    case "@rlegal":
+                        par.Value = mylegal?.Id;
                         break;
                 }
         }
@@ -352,7 +359,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class WarehouseRUVM : lib.ViewModelErrorNotifyItem<WarehouseRU>
+    public class WarehouseRUVM : lib.ViewModelErrorNotifyItem<WarehouseRU>, lib.Interfaces.ITotalValuesItem
     {
         public WarehouseRUVM(WarehouseRU model) : base(model)
         {
@@ -421,6 +428,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
+        public bool ProcessedIn { get; set; }
+        public bool ProcessedOut { get; set; }
+        private bool myselected;
+        public bool Selected
+        {
+            set
+            {
+                bool oldvalue = myselected; myselected = value; this.OnValueChanged("Selected", oldvalue, value);
+                this.PropertyChangedNotification(nameof(this.Selected));
+            }
+            get { return myselected; }
+        }
+
+        public override bool IsReadOnly
+        { get { return base.IsReadOnly || !(this.Status.Id == 104 || this.Status.Id == 107 || this.Status.Id == 120); } }
 
         protected override bool DirtyCheckProperty()
         {
@@ -428,6 +450,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void DomainObjectPropertyChanged(string property)
         {
+            switch(property)
+            {
+                case nameof(WarehouseRUVM.Status):
+                    this.PropertyChangedNotification(nameof(WarehouseRUVM.IsReadOnly));
+                    break;
+            }
         }
         protected override void InitProperties()
         {
@@ -490,6 +518,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (mywdbm.Errors.Count > 0)
                     OpenPopup(mywdbm.ErrorMessage, true);
+                mytotal.StartCount();
             };
             mywdbm.FillAsync();
             mysync = new WarehouseRUSynchronizer();
@@ -497,8 +526,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.Collection = mysync.ViewModelCollection;
 
             mystatuses = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-            mystatuses.Filter = (object item) => { lib.ReferenceSimpleItem status = item as lib.ReferenceSimpleItem; return status.Id == 60 || status.Id == 104; };
+            mystatuses.Filter = (object item) => { lib.ReferenceSimpleItem status = item as lib.ReferenceSimpleItem; return status.Id == 104 || status.Id == 120; };
             mystatuses.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Descending));
+            myfilterstatuses = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            myfilterstatuses.Filter = (object item) => { lib.ReferenceSimpleItem status = item as lib.ReferenceSimpleItem; return status.Id >= 60 && status.Id != 110; };
+            myfilterstatuses.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
 
             base.DeleteQuestionHeader = "Удалить позицию со склада?";
             #region Filter
@@ -515,7 +547,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myagentfilter.ExecCommand2 = () => { myagentfilter.Clear(); };
             myagentfilter.FillDefault = () =>
             {
-                bool empty = this.Items.Count==0 && this.FilterEmpty;
+                bool empty = this.Items.Count == 0 && this.FilterEmpty;
                 if (empty)
                     foreach (lib.ReferenceSimpleItem item in CustomBrokerWpf.References.AgentNames)
                         myagentfilter.Items.Add(item);
@@ -570,7 +602,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeliverytypefilter.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
             mydeliverytypefilter.Items = CustomBrokerWpf.References.DeliveryTypes;
             myimporterfilter = new libui.CheckListBoxVM();
-            myimporterfilter.SearchPath="Name";
+            myimporterfilter.SearchPath = "Name";
+            myimporterfilter.DisplayPath = "Name";
+            myimporterfilter.GetDisplayPropertyValueFunc = (item) => { return ((Importer)item).Name; };
             myimporterfilter.Items = CustomBrokerWpf.References.Importers;
             myimporterfilter.ExecCommand1 = () => { FilterRunExec(null); };
             myimporterfilter.ExecCommand2 = () => { myimporterfilter.Clear(); };
@@ -600,6 +634,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myparcelfilter.ItemsSource = myview.OfType<WarehouseRUVM>();
             myreceiptedfilter = new libui.DateFilterVM();
+            //myreceiptedfilter.IsNull = false;
             myreceiptedfilter.ExecCommand1 = () => { FilterRunExec(null); };
             myreceiptedfilter.ExecCommand2 = () => { myreceiptedfilter.Clear(); };
             myrequestidfilter = new WarehouseRURequestCheckListBoxVMFill();
@@ -615,7 +650,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myshippedfilter.ExecCommand1 = () => { FilterRunExec(null); };
             myshippedfilter.ExecCommand2 = () => { myshippedfilter.Clear(); };
             mystatusfilter = new libui.CheckListBoxVM();
-            mystatusfilter.ItemsView = this.Statuses;
+            mystatusfilter.DisplayPath = "Name";
+            mystatusfilter.SearchPath = "Name";
+            mystatusfilter.GetDisplayPropertyValueFunc = (item) => { return ((lib.ReferenceSimpleItem)item).Name; };
+            mystatusfilter.ItemsView = this.FilterStatuses;
+            mystatusfilter.SelectedItems = new List<object>();
+            mystatusfilter.SelectedItems.Add(CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104));
             mystatusfilter.ExecCommand1 = () => { FilterRunExec(null); };
             mystatusfilter.ExecCommand2 = () => { mystatusfilter.Clear(); };
             mystorenumfilter = new WarehouseRUStoreNumCheckListBoxVMFill();
@@ -649,6 +689,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             get { return mystatuses; }
         }
+        private ListCollectionView myfilterstatuses;
+        public ListCollectionView FilterStatuses
+        {
+            get { return myfilterstatuses; }
+        }
+
+        private WarehouseRUTotal mytotal;
+        public WarehouseRUTotal Total { get { return mytotal; } }
 
         #region Filter
         private lib.SQLFilter.SQLFilter myfilter;
@@ -699,16 +747,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public libui.CheckListBoxVM ImporterFilter
         { get { return myimporterfilter; } }
         private libui.NumberFilterVM myofficialweightfilter;
-        private libui.NumberFilterVM OfficialWeightFilter
+        public libui.NumberFilterVM OfficialWeightFilter
         { get { return myofficialweightfilter; } }
         private libui.NumberFilterVM myactualweightfilter;
-        private libui.NumberFilterVM ActualWeightFilter
+        public libui.NumberFilterVM ActualWeightFilter
         { get { return myactualweightfilter; } }
         private libui.NumberFilterVM myvolumefilter;
-        private libui.NumberFilterVM VolumeFilter
+        public libui.NumberFilterVM VolumeFilter
         { get { return myvolumefilter; } }
         private libui.NumberFilterVM mycellnumberfilter;
-        private libui.NumberFilterVM CellNumberFilter
+        public libui.NumberFilterVM CellNumberFilter
         { get { return mycellnumberfilter; } }
         private libui.CheckListBoxVM myservicetypefilter;
         public libui.CheckListBoxVM ServiceTypeFilter
@@ -744,12 +792,42 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             myagentfilter.Clear();
             myagentfilter.IconVisibileChangedNotification();
+            mybrandfilter.Clear();
+            mybrandfilter.IconVisibileChangedNotification();
             mycustomerfilter.Clear();
             mycustomerfilter.IconVisibileChangedNotification();
             mynotefilter.Clear();
             mynotefilter.IconVisibileChangedNotification();
             myparcelfilter.Clear();
             myparcelfilter.IconVisibileChangedNotification();
+            mystatusfilter.Clear();
+            mystatusfilter.IconVisibileChangedNotification();
+            myreceiptedfilter.Clear();
+            myreceiptedfilter.IconVisibileChangedNotification();
+            myshippedfilter.Clear();
+            myshippedfilter.IconVisibileChangedNotification();
+            myrequestidfilter.Clear();
+            myrequestidfilter.IconVisibileChangedNotification();
+            mystorenumfilter.Clear();
+            mystorenumfilter.IconVisibileChangedNotification();
+            myimporterfilter.Clear();
+            myimporterfilter.IconVisibileChangedNotification();
+            myofficialweightfilter.Clear();
+            myofficialweightfilter.IconVisibileChangedNotification();
+            myactualweightfilter.Clear();
+            myactualweightfilter.IconVisibileChangedNotification();
+            myvolumefilter.Clear();
+            myvolumefilter.IconVisibileChangedNotification();
+            mycellnumberfilter.Clear();
+            mycellnumberfilter.IconVisibileChangedNotification();
+            myservicetypefilter.Clear();
+            myservicetypefilter.IconVisibileChangedNotification();
+            mycargofilter.Clear();
+            mycargofilter.IconVisibileChangedNotification();
+            mydeliverytypefilter.Clear();
+            mydeliverytypefilter.IconVisibileChangedNotification();
+            mydeliveryaddressfilter.Clear();
+            mydeliveryaddressfilter.IconVisibileChangedNotification();
             this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
         }
         private bool FilterClearCanExec(object parametr)
@@ -798,7 +876,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 string[] items = new string[mybrandfilter.SelectedItems.Count];
                 for (int i = 0; i < mybrandfilter.SelectedItems.Count; i++)
-                    items[i] = (string)mybrandfilter.SelectedItems[i];
+                    items[i] = (mybrandfilter.SelectedItems[i] as Brand).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "brand", items);
             }
             else
@@ -812,6 +890,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "customer", new string[0]);
+            if (myimporterfilter.FilterOn)
+            {
+                string[] items = new string[myimporterfilter.SelectedItems.Count];
+                for (int i = 0; i < myimporterfilter.SelectedItems.Count; i++)
+                    items[i] = (myimporterfilter.SelectedItems[i] as Importer).Id.ToString();
+                myfilter.SetList(myfilter.FilterWhereId, "importer", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "importer", new string[0]);
             if (mynotefilter.FilterOn)
             {
                 if (mynotefilter.SelectedItems.Count > 0)
@@ -830,7 +917,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 string[] items = new string[myparcelfilter.SelectedItems.Count];
                 for (int i = 0; i < myparcelfilter.SelectedItems.Count; i++)
-                    items[i] = (string)myparcelfilter.SelectedItems[i];
+                    items[i] = (myparcelfilter.SelectedItems[i] as ParcelNumber).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "parcel", items);
             }
             else
@@ -839,7 +926,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 string[] items = new string[myrequestidfilter.SelectedItems.Count];
                 for (int i = 0; i < myrequestidfilter.SelectedItems.Count; i++)
-                    items[i] = (string)myrequestidfilter.SelectedItems[i];
+                    items[i] = (myrequestidfilter.SelectedItems[i] as Request).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "request", items);
             }
             else
@@ -848,11 +935,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 string[] items = new string[mystatusfilter.SelectedItems.Count];
                 for (int i = 0; i < mystatusfilter.SelectedItems.Count; i++)
-                    items[i] = (string)mystatusfilter.SelectedItems[i];
+                    items[i] = (mystatusfilter.SelectedItems[i] as lib.ReferenceSimpleItem).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "status", items);
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "status", new string[0]);
+            if (mystorenumfilter.FilterOn)
+            {
+                string[] items = new string[mystorenumfilter.SelectedItems.Count];
+                for (int i = 0; i < mystorenumfilter.SelectedItems.Count; i++)
+                    items[i] = (string)mystorenumfilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "storenum", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "storenum", new string[0]);
             myfilter.SetDate(myfilter.FilterWhereId, "receipted", "receipted", myreceiptedfilter.DateStart, myreceiptedfilter.DateStop, myreceiptedfilter.IsNull);
             myfilter.SetDate(myfilter.FilterWhereId, "shipped", "shipped", myshippedfilter.DateStart, myshippedfilter.DateStop, myshippedfilter.IsNull);
 
@@ -879,11 +975,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void RefreshData(object parametr)
         {
+            mytotal.StopCount();
             UpdateFilter();
             mywdbm.FillAsync();
         }
         protected override void SettingView()
         {
+            mytotal = new WarehouseRUTotal(myview);
+            this.PropertyChangedNotification(nameof(Total));
         }
         protected override bool CanAddData(object parametr)
         {
@@ -1042,6 +1141,80 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void AddItem(WarehouseRUVM item)
         {
             if (!Items.Contains(item.StorageId)) Items.Add(item.StorageId);
+        }
+    }
+
+    public class WarehouseRUTotal : lib.TotalValues.TotalViewValues<WarehouseRUVM>
+    {
+        internal WarehouseRUTotal(ListCollectionView view) : base(view)
+        {
+            //myinitselected = 2; // if not selected - sum=0
+        }
+        private int myitemcount;
+        public int ItemCount { set { myitemcount = value; } get { return myitemcount; } }
+        
+        private decimal myactualweight;
+        public decimal ActualWeight { set { myactualweight = value; } get { return myactualweight; } }
+        private decimal mycellnumber;
+        public decimal CellNumber { set { mycellnumber = value; } get { return mycellnumber; } }
+        private decimal myofficialweight;
+        public decimal OfficialWeight { set { myofficialweight = value; } get { return myofficialweight; } }
+        private decimal myvolume;
+        public decimal Volume { set { myvolume = value; } get { return myvolume; } }
+
+        protected override void Item_ValueChangedHandler(WarehouseRUVM sender, lib.Interfaces.ValueChangedEventArgs<object> e)
+        {
+            decimal oldvalue = (decimal)(e.OldValue ?? 0M), newvalue = (decimal)(e.NewValue ?? 0M);
+            switch (e.PropertyName)
+            {
+                case "Total" + nameof(WarehouseRUTotal.ActualWeight):
+                    myactualweight += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.ActualWeight));
+                    break;
+                case "Total" + nameof(WarehouseRUTotal.CellNumber):
+                    mycellnumber += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.CellNumber));
+                    break;
+                case "Total" + nameof(WarehouseRUTotal.OfficialWeight):
+                    myofficialweight += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.OfficialWeight));
+                    break;
+                case "Total" + nameof(WarehouseRUTotal.Volume):
+                    myvolume += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.Volume));
+                    break;
+            }
+        }
+        protected override void ValuesReset()
+        {
+            myactualweight = 0;
+            mycellnumber = 0M;
+            myofficialweight = 0M;
+            myvolume = 0M;
+        }
+        protected override void ValuesPlus(WarehouseRUVM item)
+        {
+            myitemcount++;
+            myactualweight += item.ActualWeight??0;
+            mycellnumber += item.CellNumber??0;
+            myofficialweight += item.OfficialWeight ?? 0;
+            myvolume += item.Volume??0;
+        }
+        protected override void ValuesMinus(WarehouseRUVM item)
+        {
+            myitemcount--;
+            myactualweight -= item.ActualWeight ?? 0;
+            mycellnumber -= item.CellNumber ?? 0;
+            myofficialweight -= item.OfficialWeight??0;
+            myvolume -= item.Volume??0;
+        }
+        protected override void PropertiesChangedNotifycation()
+        {
+            this.PropertyChangedNotification("ItemCount");
+            this.PropertyChangedNotification(nameof(this.ActualWeight));
+            this.PropertyChangedNotification(nameof(this.CellNumber));
+            this.PropertyChangedNotification(nameof(this.OfficialWeight));
+            this.PropertyChangedNotification(nameof(this.Volume));
         }
     }
 }

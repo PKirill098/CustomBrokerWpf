@@ -92,6 +92,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             System.Threading.Tasks.Task task = mywarningasync?.StartAsync();
             App.Current.MainWindow.Show();
         }
+        internal static void PopupMessage(string message,bool iserr)
+        {
+            if (Application.Current.Dispatcher.Thread.ManagedThreadId == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
+            {
+                PopupCreate(message,iserr);
+            }
+            else
+                Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                {
+                    PopupCreate(message, iserr);
+                }));
+        }
+        private static void PopupCreate(string message, bool iserr)
+        {
+            Window active = null;
+            foreach (Window win in Application.Current.Windows)
+                if (win.IsActive) { active = win; break; }
+            active.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+            {
+                if (mypopupblock == null || !mypopupblock.IsOpen)
+                {
+                    mypopupblock = Common.PopupCreator.GetPopup(text: message, iserror: iserr
+                       , staysopen: false
+                       , placement: System.Windows.Controls.Primitives.PlacementMode.Top
+                       , placementtarget: active
+                        );
+                    mypopupblock.IsOpen = true;
+                }
+            }));
+        }
+
+        private static System.Windows.Controls.Primitives.Popup mypopupblock;
 
         private static String myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2;
         internal static string ConnectionString { get { return myconnectionstring; } }

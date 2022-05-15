@@ -44,6 +44,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 mycmd = null;
         }
 
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.RemovedItems != null)
+                foreach (lib.Interfaces.ISelectable item in e.RemovedItems.OfType<lib.Interfaces.ISelectable>())
+                    item.Selected = false;
+            if (e.AddedItems != null)
+                foreach (lib.Interfaces.ISelectable item in e.AddedItems.OfType<lib.Interfaces.ISelectable>())
+                    item.Selected = true;
+        }
+
+        private void ImporterFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            Popup ppp = this.MainDataGrid.FindResource("ImporterFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
         private void LegalFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
             if (mycmd.CustomerFilter != null && !mycmd.CustomerFilter.FilterOn) mycmd.CustomerFilter?.FillAsync();
@@ -52,18 +69,39 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             ppp.IsOpen = true;
             e.Handled = true;
         }
-        
-        
-        
-        private void ReceiptedFilterPopup_Open(object sender, MouseButtonEventArgs e)
-        {
-
-        }
-
         private void ParcelFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
-
+            if (mycmd.ParcelFilter != null && !mycmd.ParcelFilter.FilterOn) mycmd.ParcelFilter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("ParcelFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
         }
+        private void ReceiptedFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            Popup ppp = this.MainDataGrid.FindResource("ReceiptedFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+        private void ShippedFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            Popup ppp = this.MainDataGrid.FindResource("ShippedFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+        private void StatusFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            Popup ppp = this.MainDataGrid.FindResource("StatusFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+
+
+
+
 
         private void RequestsIdNumberFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
@@ -92,7 +130,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             //e.Handled = true;
         }
 
-        private void ShippedFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        private void OfficialWeightFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void ActualWeightFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void VolumeFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void CellNumberFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
 
         }

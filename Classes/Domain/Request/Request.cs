@@ -1437,6 +1437,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.PropertyChangedNotification("MailStateTakeGoods9" + e.PropertyName);
         }
+        System.Windows.Controls.Primitives.Popup mymailstatepopup;
+        private RequestMailState mymailstatestatus;
+        internal RequestMailState MailStateStatus
+        {
+            get
+            {
+                if (mymailstatestatus == null || mymailstatestatus.MailStateId != this.Status.Id)
+                {
+                    mymailstatestatus = new RequestMailState(this, this.Status.Id);
+                    mymailstatestatus.PropertyChanged += MailStateStatus_PropertyChanged;
+                }
+                return mymailstatestatus;
+            }
+        }
+        private void MailStateStatus_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.PropertyChangedNotification("MailStateStatus" + e.PropertyName);
+        }
+        internal void SendMailStatus()
+        {
+            bool iserr = false, isshow = true;
+            this.MailStateStatus.Send(); // инициализация
+            if (mymailstatestatus.SendErrors.Count > 0)
+            {
+                System.Text.StringBuilder text = new System.Text.StringBuilder();
+                foreach (lib.DBMError err in mymailstatestatus.SendErrors)
+                {
+                    text.AppendLine(err.Message);
+                    iserr |= !(string.Equals(err.Code, "0") || string.Equals(err.Code, "1"));
+                    isshow &= !string.Equals(err.Code, "1"); // нет шаблона
+                }
+                if (isshow)
+                {
+                    if (iserr) { text.Insert(0, "Отправка выполнена с ошибкой!\n"); }
+                    mymailstatepopup = KirillPolyanskiy.Common.PopupCreator.GetPopup(text.ToString()
+                        , iserr ? new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFDDBE0")) : System.Windows.Media.Brushes.WhiteSmoke
+                        , (iserr ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.Black)
+                        , System.Windows.Media.Brushes.Beige
+                        , false
+                        , System.Windows.Controls.Primitives.PlacementMode.Mouse
+                        );
+                    mymailstatepopup.IsOpen = true;
+                }
+            }
+        }
         #endregion
 
         private decimal myinvoiceinvoice;
@@ -1968,6 +2013,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         isvalid = false;
                     }
                     break;
+                case nameof(this.Brands):
+                    if(!(this.BrandsIsNull || this.Brands.Count==0 || this.Brands.Any((RequestBrand item)=> { return item.Selected; })))
+                    {
+                        errmsg = "В заявке " + (this.StorePointDate??(this.Id>0 ? this.Id.ToString() : string.Empty)) + " необходимо указать торговые марки!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Cargo):
+                    if (string.IsNullOrEmpty((string)value))
+                    {
+                        errmsg = "В заявке " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать описание груза!";
+                        isvalid = false;
+                    }
+                    break;
+                case nameof(this.Country):
+                    if(value==null)
+                    {
+                        errmsg = "В заявке " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать страну!";
+                        isvalid = false;
+                    }
+                    break;
                 case nameof(this.Customer):
                     if (value == null)
                     {
@@ -2010,29 +2076,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         isvalid = false;
                     }
                     break;
-                case nameof(this.Brands):
-                    if(!(this.BrandsIsNull || this.Brands.Count==0 || this.Brands.Any((RequestBrand item)=> { return item.Selected; })))
-                    {
-                        errmsg = "В заявке " + (this.StorePointDate??(this.Id>0 ? this.Id.ToString() : string.Empty)) + " необходимо указать торговые марки!";
-                        isvalid = false;
-                    }
-                    break;
-                case nameof(this.Country):
-                    if(value==null)
-                    {
-                        errmsg = "В заявке " + (this.StorePointDate ?? (this.Id > 0 ? this.Id.ToString() : string.Empty)) + " необходимо указать страну!";
-                        isvalid = false;
-                    }
-                    break;
-                case nameof(this.Cargo):
-                    if (string.IsNullOrEmpty((string)value))
-                    {
-                        errmsg = "В заявке " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать описание груза!";
-                        isvalid = false;
-                    }
-                    break;
+                //case nameof(Request.Status):
+                //    int id = ((lib.ReferenceSimpleItem)value).Id;
+                //    if(id>99) есть товары которые не растаможиваются
+                //    {
+                //        if (this.SpecificationIsNull)
+                //            try { this.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(this, out _); } catch{ }
+                //        if (!this.SpecificationIsNull && this.Specification.Declaration == null)
+                //        {
+                //            errmsg = "Статус заявки " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " не может быть повышен до " + ((lib.ReferenceSimpleItem)value).Name + " нет таможенной декларации!";
+                //            isvalid = false;
+                //        }
+                //    }
+                //    break;
             }
             return isvalid;
+        }
+        public override void AcceptChanches()
+        {
+            bool sendmail = this.HasPropertyOutdatedValue(nameof(Request.Status)) && this.Status != this.GetPropertyOutdatedValue(nameof(Request.Status))
+                           & ( this.Status.Id == 1
+                               || this.Status.Id == 30
+                               || this.Status.Id == 70
+                               || this.Status.Id == 90
+                               || this.Status.Id == 100
+                               || this.Status.Id == 104
+                               || this.Status.Id == 107);
+            base.AcceptChanches();
+            if(sendmail)
+                SendMailStatus();
         }
 
         private bool myupdate;
@@ -4169,16 +4241,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.StateInv : null; }
         }
+        //private lib.ReferenceSimpleItem mystatus;
         public lib.ReferenceSimpleItem Status
         {
             set
             {
                 if (!(this.IsReadOnly || object.Equals(this.DomainObject.Status, value)))
                 {
-                    string name = "Status";
+                    string name = nameof(this.Status);
                     if (!myUnchangedPropertyCollection.ContainsKey(name))
                         this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Status);
-                    ChangingDomainProperty = name; this.DomainObject.Status = value;
+                    //mystatus = value;
+                    //if (this.ValidateProperty(name))
+                    { ChangingDomainProperty = name; this.DomainObject.Status = value; }
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.Status : null; }
@@ -4982,9 +5057,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     this.PropertyChangedNotification("StatusVisible");
                     this.PropertyChangedNotification("StatusEditable");
                     break;
-                case nameof(Request.Status):
-                    this.PropertyChangedNotification("StatusParcel");
-                    break;
                 case "SellingMarkupRate":
                     this.PropertyChangedNotification("Selling");
                     this.PropertyChangedNotification("SellingMarkup");
@@ -4998,6 +5070,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case nameof(Request.ShipPlanDate):
                     myshipplandate = this.DomainObject.ShipPlanDate;
+                    break;
+                case nameof(Request.Status):
+                    //mystatus = this.DomainObject.Status;
+                    this.PropertyChangedNotification("StatusParcel");
                     break;
                 case "StorePoint":
                 case "StoreDate":
@@ -5022,6 +5098,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mybringpay = this.DomainObject.BringPay;
             myinvoicediscount = this.DomainObject.InvoiceDiscount;
             myshipplandate = this.DomainObject.ShipPlanDate;
+            //mystatus = this.DomainObject.Status;
         }
         protected override void RejectProperty(string property, object value)
         {
@@ -5205,7 +5282,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         this.DomainObject.ShipPlanDate = (DateTime?)value;
                     break;
                 case "Status":
-                    this.DomainObject.Status = (lib.ReferenceSimpleItem)value;
+                    //if (mystatus != this.DomainObject.Status)
+                    //    mystatus = this.DomainObject.Status;
+                    //else
+                        this.DomainObject.Status = (lib.ReferenceSimpleItem)value;
                     break;
                 case "StoreDate":
                     this.DomainObject.StoreDate = (DateTime?)value;
@@ -5323,6 +5403,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case nameof(this.ServiceType):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.ServiceType, out errmsg, out errcode);
                     break;
+                //case nameof(this.Status):
+                //    isvalid = this.DomainObject.ValidateProperty(propertyname, mystatus, out errmsg, out errcode);
+                //    break;
             }
             if (isvalid)
                 ClearErrorMessageForProperty(propertyname);

@@ -288,14 +288,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => {
-                    if (!this.RequestsIsNull)
+                lib.ReferenceSimpleItem oldstatus = mystatus;
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () =>
+                {
+                    if (!this.RequestsIsNull && mystatus.Id < 100 && oldstatus.Id < 100)
                     {
-                        lib.ReferenceSimpleItem storemoscow = null;
-                        if (this.Status.Id == 110)
-                            storemoscow = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104);
                         foreach (Request item in this.Requests.Where((Request rq) => { return rq.Parcel == this; }))
-                            item.Status = this.Status.Id == 110 ? storemoscow : this.Status;
+                            if (item.Status == oldstatus)
+                                item.Status = this.Status;
+                    }
+                    else if (mystatus.Id == 110)
+                    {
+                        lib.ReferenceSimpleItem storemoscow = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 104);
+                        lib.ReferenceSimpleItem issued = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 120);
+                        try
+                        { // есть ли склад москва
+                            using (SqlConnection connection = new SqlConnection(CustomBrokerWpf.References.ConnectionString))
+                            {
+                                connection.Open();
+                                WarehouseRUDBM wdbm = new WarehouseRUDBM();
+                                wdbm.Connection = connection;
+                                foreach (Request item in this.Requests.Where((Request rq) => { return rq.Parcel == this; }))
+                                    if (item.Status.Id == 100) // растаможен
+                                    {
+                                        wdbm.Legal = item.CustomerLegals.FirstOrDefault((RequestCustomerLegal legal) => { return legal.Selected; });
+                                        wdbm.Fill();
+
+                                        if (wdbm.Collection.Count > 0)
+                                            item.Status = storemoscow;
+                                        else
+                                            item.Status = issued;
+                                    }
+                                connection.Close();
+                                if (wdbm.Errors.Count > 0)
+                                    CustomBrokerWpf.References.PopupMessage(wdbm.ErrorMessage, true);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomBrokerWpf.References.PopupMessage(ex.Message, true);
+                        }
                     }
                 }); //Count(); PropertiesChangedNotifycation();
             }
@@ -942,7 +974,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@tinsuranceprice", System.Data.SqlDbType.Money)
             };
 
-            myrdbm = new RequestDBM() { Command = new SqlCommand(),LegalDBM = new RequestCustomerLegalDBM() { LegalDBM=new CustomerLegalDBM() } };
+            myrdbm = new RequestDBM() { Command = new SqlCommand(), LegalDBM = new RequestCustomerLegalDBM() { LegalDBM = new CustomerLegalDBM() } };
             mysdbm = new Specification.SpecificationDBM(); mysdbm.Command = new SqlCommand();
         }
 
@@ -1024,6 +1056,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SaveChildObjects(Parcel item)
         {
             bool isSuccess = true;
+            if (!item.SpecificationsIsNull) // меняем статус заявок
+            {
+                mysdbm.Errors.Clear();
+                mysdbm.Parcel = item;
+                mysdbm.Collection = item.Specifications;
+                mysdbm.Command.Connection = this.Command.Connection;
+                if (!mysdbm.SaveCollectionChanches())
+                {
+                    isSuccess = false;
+                    foreach (lib.DBMError err in mysdbm.Errors) this.Errors.Add(err);
+                }
+            }
             if (myrdbm != null && !item.RequestsIsNull)
             {
                 myrdbm.Errors.Clear();
@@ -1036,18 +1080,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
                 }
                 myrdbm.Collection = null;
-            }
-            if (!item.SpecificationsIsNull)
-            {
-                mysdbm.Errors.Clear();
-                mysdbm.Parcel = item;
-                mysdbm.Collection = item.Specifications;
-                mysdbm.Command.Connection = this.Command.Connection;
-                if (!mysdbm.SaveCollectionChanches())
-                {
-                    isSuccess = false;
-                    foreach (lib.DBMError err in mysdbm.Errors) this.Errors.Add(err);
-                }
             }
             return isSuccess;
         }
@@ -1311,7 +1343,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        internal bool CheckGroup(Parcel parcel=null)
+        internal bool CheckGroup(Parcel parcel = null)
         {
             bool isSuccess = true;
             SqlCommand com = new SqlCommand();
@@ -1332,7 +1364,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 try
                 {
                     con.Open();
-                    if(parcel == null)
+                    if (parcel == null)
                         foreach (Parcel item in this.Collection)
                         {
                             if (this.SaveFilter(item))
@@ -1378,7 +1410,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             DeleteRefreshProperties.AddRange(new string[] { "Carrier", "CarrierPerson", "CarrierTel", "CrossedBorder", "Declaration", "DocDirPath", "GoodsType", "Lorry", "LorryRegNum", "LorryTonnage", "LorryVIN", "LorryVolume", "ParcelNumber", "ParcelNumberEntire", "ParcelType", "Prepared", "RateDate", "ShipDate", "ShipPlanDate", "ShipmentNumber", "Status", "TerminalIn", "TerminalOut", "TrailerRegNum", "TrailerVIN", "Trucker", "TruckerTel", "Unloaded", "UsdRate" });
             InitProperties();
         }
-        public ParcelVM():this(new Parcel()) { }
+        public ParcelVM() : this(new Parcel()) { }
 
         public string Carrier
         {
@@ -2607,7 +2639,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
     internal class ParcelCommands
     {
-        internal Action<string,bool> OpenPopup { set; get; }
+        internal Action<string, bool> OpenPopup { set; get; }
         internal Func<bool> EndEdit { set; get; }
         internal Func<bool> SaveDataChanges { set; get; }
 
@@ -2615,7 +2647,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             if (parcel != null)
             {
-                string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + parcel.ParcelNumber ?? string.Empty;
+                string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + parcel.ParcelNumber ?? string.Empty; // chahge ParcelNumber to DocDirPath
                 if (!Directory.Exists(path))
                 {
                     System.IO.Directory.CreateDirectory(path);
@@ -2693,7 +2725,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ExcelReport(parcel, 2, isNew);
             }
         }
-        private void ExcelReport(ParcelVM parcel,int? importerid, bool isNew)
+        private void ExcelReport(ParcelVM parcel, int? importerid, bool isNew)
         {
             excel.Application exApp = new excel.Application();
             excel.Application exAppProt = new excel.Application();
@@ -2738,7 +2770,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 if (i > 2)
                 {
-                    string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, "Отправки", parcel.DocDirPath, parcel.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
+                    string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, parcel.DocDirPath, parcel.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
                     if (File.Exists(filename))
                         File.Delete(filename);
                     exWb.SaveAs(Filename: filename);
@@ -3153,22 +3185,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal ListCollectionView InitStates()
         {
             ListCollectionView states = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49 && state.Id != 104 && state.Id != 107 && state.Id != 120; };
             states.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49 && state.Id != 104; };
             return states;
         }
         internal ListCollectionView InitRequestStates()
         {
             ListCollectionView requeststates = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
-            requeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
             requeststates.Filter = (object item) => { return (item as lib.ReferenceSimpleItem).Id < 50; };
+            requeststates.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
             return requeststates;
         }
         internal ListCollectionView InitParcelRequestStates()
         {
             ListCollectionView states = new ListCollectionView(CustomBrokerWpf.References.RequestStates);
+            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49 && state.Id != 110; };
             states.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-            states.Filter = (object item) => { lib.ReferenceSimpleItem state = item as lib.ReferenceSimpleItem; return state.Id > 49; };
             return states;
         }
         internal ListCollectionView InitGoods()
@@ -3193,15 +3225,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
     public class ParcelCommander : lib.ViewModelCommand<Parcel, ParcelVM, ParcelDBM>
     {
-        public ParcelCommander(ParcelVM parcel, ListCollectionView view) : base(parcel, view) 
+        public ParcelCommander(ParcelVM parcel, ListCollectionView view) : base(parcel, view)
         {
             base.PropertyChanged += ParcelCommander_PropertyChanged;
-            mycommands = new ParcelCommands() { 
+            mycommands = new ParcelCommands()
+            {
                 OpenPopup = this.OpenPopup,
                 EndEdit = this.EndEdit,
-                SaveDataChanges=this.SaveDataChanges
+                SaveDataChanges = this.SaveDataChanges
             };
-            
+
             mycreateexcelreport = new RelayCommand(CreateExcelReportExec, CreateExcelReportCanExec);
             myfolderopen = new RelayCommand(FolderOpenExec, FolderOpenCanExec);
             mymovespecification = new RelayCommand(MoveSpecificationExec, MoveSpecificationCanExec);
@@ -3223,7 +3256,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private void ParcelCommander_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if(e.PropertyName==nameof(base.VModel))
+            if (e.PropertyName == nameof(base.VModel))
                 this.PropertyChangedNotification(nameof(this.Title));
         }
 
@@ -3573,17 +3606,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
             }
             else if (parcel.DomainState == lib.DomainObjectState.Modified)
-            { 
-                if (parcel.DocDirPath != parcel.ParcelNumberEntire)
+            {
+                if (parcel.DocDirPath != parcel.ParcelNumber)
                 {
                     try
                     {
                         DirectoryInfo parceldir = new DirectoryInfo(dir.FullName + "\\" + parcel.DocDirPath);
                         if (parceldir.Exists)
-                            parceldir.MoveTo(dir.FullName + "\\" + parcel.ParcelNumberEntire);
+                            parceldir.MoveTo(dir.FullName + "\\" + parcel.ParcelNumber);
                         else
                             if (!Directory.Exists(dir.FullName + "\\" + parcel.ParcelNumber)) dir.CreateSubdirectory(parcel.ParcelNumber);
-                        parcel.DocDirPath = parcel.ParcelNumberEntire;
+                        parcel.DocDirPath = parcel.ParcelNumber;
                     }
                     catch (Exception ex)
                     {
@@ -3607,10 +3640,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             else
                 if (!mydbm.SaveItemChanches(parcel))
-                {
-                    isSuccess = false;
-                    err.AppendLine(mydbm.ErrorMessage);
-                }
+            {
+                isSuccess = false;
+                err.AppendLine(mydbm.ErrorMessage);
+            }
 
             if (!isSuccess) this.PopupText = err.ToString();
             return isSuccess;
@@ -3690,7 +3723,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myfilter; }
         }
         private bool myisshowfilterwindow;
-        public bool IsShowFilterWindow {
+        public bool IsShowFilterWindow
+        {
             set
             {
                 myisshowfilterwindow = value;
@@ -3747,7 +3781,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         internal ParcelCurItemCommander() : base()
         {
-            mycommands = new ParcelCommands() {
+            mycommands = new ParcelCommands()
+            {
                 OpenPopup = this.OpenPopup,
                 EndEdit = this.EndEdit,
                 SaveDataChanges = this.SaveDataChanges
@@ -3782,7 +3817,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myspecdel = new RelayCommand(SpecDelExec, SpecDelCanExec);
             myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
             mytdload = new RelayCommand(TDLoadExec, TDLoadCanExec);
-            
+
             mymanagers = mycommands.InitManagers();
             mystates = mycommands.InitStates();
             myrequeststates = mycommands.InitRequestStates();
@@ -3809,12 +3844,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public void RunFilter(lib.Filter.FilterItem[] filters)
         {
-                if (!SaveDataChanges())
-                    this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
-                else
-                {
-                    this.Refresh.Execute(null);
-                }
+            if (!SaveDataChanges())
+                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
+            else
+            {
+                this.Refresh.Execute(null);
+            }
         }
         private string myfilterbuttonimagepath;
         public string FilterButtonImagePath
@@ -3871,7 +3906,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void MoveSpecificationExec(object parametr)
         {
-                mycommands.MoveSpecificationExec(this.CurrentItem);
+            mycommands.MoveSpecificationExec(this.CurrentItem);
         }
         private bool MoveSpecificationCanExec(object parametr)
         { return mycommands.MoveSpecificationCanExec(this.CurrentItem); }
@@ -4071,7 +4106,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         public override bool SaveDataChanges()
         {
-            DirectoryInfo dir = new DirectoryInfo(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\");
+            DirectoryInfo dir = new DirectoryInfo(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot);
             if (!dir.Exists) dir.Create();
             bool isSuccess = true;
             if (myview != null)
@@ -4143,22 +4178,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 foreach (Parcel item in mypdbm.Collection)
                     if (item.DomainState == lib.DomainObjectState.Modified) parcels.Add(item);
                 foreach (Parcel parcel in parcels)
-                    if (parcel.DocDirPath != parcel.ParcelNumberEntire)
+                    if (parcel.DocDirPath != parcel.ParcelNumber)
                     {
                         try
                         {
                             DirectoryInfo parceldir = new DirectoryInfo(dir.FullName + "\\" + parcel.DocDirPath);
                             if (parceldir.Exists)
-                                parceldir.MoveTo(dir.FullName + "\\" + parcel.ParcelNumberEntire);
+                                parceldir.MoveTo(dir.FullName + "\\" + parcel.ParcelNumber);
                             else
                                 if (!Directory.Exists(dir.FullName + "\\" + parcel.ParcelNumber)) dir.CreateSubdirectory(parcel.ParcelNumber);
-                            parcel.DocDirPath = parcel.ParcelNumberEntire;
+                            parcel.DocDirPath = parcel.ParcelNumber;
                         }
                         catch (Exception ex)
                         {
                             err.AppendLine("Сохранение изменений\nНе удалось переименовать папку для документов Доставки!\n\n" + ex.Message);
                         }
-
                     }
                 mypdbm.Errors.Clear();
                 mypdbm.SaveFilter = (Parcel item) => { return item.DomainState == lib.DomainObjectState.Modified; };

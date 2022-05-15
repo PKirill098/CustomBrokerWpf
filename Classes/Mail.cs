@@ -27,7 +27,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             smtphost = "mail.nic.ru";
             imaphost = "mail.nic.ru";
             user="order@art-delivery.ru";
-            password = "HJKvbnXdR54*!";
+            password = "TYHdkhzm691#*Wp!";
 #endif
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("АРТ ДЕЛИВЕРИ", mailbox));
@@ -333,14 +333,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                                 foreach (Domain.MailTemplate temp in tdbm.Collection)
                                                 {
                                                     string body = CreateBody(temp, item);
+                                                    string subject = CreateSubject(temp, item);
+                                                    if (string.IsNullOrWhiteSpace(subject))
+                                                        continue;
                                                     try
                                                     {
-                                                        mailer.Send(string.Empty, mail.Value, temp.Subject, body,BodySubtype.plain);
+                                                        mailer.Send(string.Empty, mail.Value, subject, body, BodySubtype.html);
                                                         sent = 2;
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        mysenderrors.Add(new lib.DBMError(this, "Ошибка от почтового сервера: " + ex.Message, "1"));
+                                                        mysenderrors.Add(new lib.DBMError(this, "Ошибка от почтового сервера: " + ex.Message, "3"));
                                                     }
                                                 }
                                             }
@@ -350,7 +353,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                             {
                                                 //ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
                                                 //if (refds.tableCustomerName.Count == 0) refds.CustomerNameRefresh();
-                                                mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "1"));
+                                                mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "2"));
                                             }
                                         }
                                     }
@@ -384,6 +387,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         internal virtual string CreateBody(Domain.MailTemplate temp, MailStateCustomer item)
         {
             return temp.Body;
+        }
+        internal virtual string CreateSubject(Domain.MailTemplate temp, MailStateCustomer item)
+        {
+            return temp.Subject;
         }
     }
 

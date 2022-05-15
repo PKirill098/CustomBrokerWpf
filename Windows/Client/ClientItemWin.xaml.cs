@@ -97,9 +97,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             CustomerLegalVM item = this.CustomerLegalDataGrid.SelectedItem as CustomerLegalVM;
-            mycmd.VModel.Legals.EditItem(item);
-            item.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
-            mycmd.VModel.Legals.CommitEdit();
+            if (mycmd.VModel.Legals.IsAddingNew)
+                mycmd.VModel.Legals.CancelNew();
+            else
+            {
+                mycmd.VModel.Legals.EditItem(item);
+                item.DomainState = DataModelClassLibrary.DomainObjectState.Deleted;
+                mycmd.VModel.Legals.CommitEdit();
+            }
         }
         private void Aliases_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {

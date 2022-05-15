@@ -368,6 +368,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
             }
         }
+
+        //public bool WarehouseIsNull // чтобы не создавать объект
+        //{ get { return mywarehouseid == 0; } }
+        //private int mywarehouseid;
+        //internal int WarehouseId
+        //{ set { mywarehouseid = value; } }
+        //private WarehouseRU mywarehouse;
+        //public WarehouseRU Warehouse
+        //{
+        //    get
+        //    {
+        //        if(mywarehouse==null & mywarehouseid != 0)
+        //        {
+
+        //        }
+        //        return mywarehouse;
+        //    }
+        //}
+
         internal void UnSubscribe()
         {
             if (myrequest != null) myrequest.PropertyChanged -= Request_PropertyChanged;
@@ -406,6 +425,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
             }
             return isvalid;
+        }
+        public override void AcceptChanches()
+        {
+            bool sendmail = false;
+            if (this.Id < 0)
+                sendmail = true;
+            base.AcceptChanches();
+            if (sendmail)
+                this.Request.SendMailStatus();
         }
 
         private void SingleSelected()

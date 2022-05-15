@@ -31,7 +31,7 @@
             <Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию">
                 <Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
             </Button>
-            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneWay}">
+            <Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/save.png" />
             </Button>
             <Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneWay}" >
@@ -53,7 +53,7 @@
                     </Style.Triggers>
                 </Style>
             </ScrollViewer.Style>
-            <DataGrid x:Name="MainDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}" ColumnWidth="90" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="{x:Null}" AlternationCount="0" RowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" AreRowDetailsFrozen="False"
+            <DataGrid x:Name="MainDataGrid" Grid.Row="1" ItemsSource="{Binding Items}" ColumnWidth="90" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="{x:Null}" AlternationCount="0" RowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" AreRowDetailsFrozen="False"
 							  ColumnDisplayIndexChanged="DataGrid_ColumnDisplayIndexChanged" ScrollViewer.ScrollChanged="Scrol_ScrollChanged" LoadingRowDetails="DataGrid_LoadingRowDetails">
                 <DataGrid.Resources>
                     <libui:CheckListBoxPopup x:Key="AgentFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.AgentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
@@ -185,7 +185,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTemplateColumn Header="№ ГТД" SortMemberPath="Specification.Declaration.Number" ClipboardContentBinding="{Binding Path=Specification.Declaration.Number}" Width="150">
+                    <DataGridTemplateColumn Header="№ ГТД" SortMemberPath="Specification.Declaration.Number" ClipboardContentBinding="{Binding Path=Specification.Declaration.Number}" Width="150"
+                                            IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTemplateColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Номер таможенной декларации"/>
@@ -244,7 +245,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Дата реализации" Binding="{Binding SellingDate, Mode=TwoWay,TargetNullValue='', StringFormat=\{0:d\},UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}">
+                    <DataGridTextColumn Header="Дата реализации" Binding="{Binding SellingDate, Mode=TwoWay,TargetNullValue='', StringFormat=\{0:d\},UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenterErr}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Дата реализации"/>
@@ -397,7 +399,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Сбор" Binding="{Binding Specification.Declaration.Fee, Mode=TwoWay, StringFormat=\{0:N2\},TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="Сбор" Binding="{Binding Specification.Declaration.Fee, Mode=TwoWay, StringFormat=\{0:N2\},TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Сбор"/>
@@ -428,7 +431,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Пошлина" Binding="{Binding Path=Specification.Declaration.Tax, TargetNullValue='', Mode=TwoWay, StringFormat=\{0:N2\},UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="Пошлина" Binding="{Binding Path=Specification.Declaration.Tax, TargetNullValue='', Mode=TwoWay, StringFormat=\{0:N2\},UpdateSourceTrigger=PropertyChanged}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Пошлина"/>
@@ -459,7 +463,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="НДС" Binding="{Binding Path=Specification.Declaration.VAT, TargetNullValue='', Mode=TwoWay, StringFormat=\{0:N2\}}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="НДС" Binding="{Binding Path=Specification.Declaration.VAT, TargetNullValue='', Mode=TwoWay, StringFormat=\{0:N2\}}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="НДС"/>
@@ -490,7 +495,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Стоимость в валюте" Binding="{Binding Path=Specification.Declaration.TotalSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="Стоимость в валюте" Binding="{Binding Path=Specification.Declaration.TotalSum, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Стоимость в валюте"/>
@@ -521,7 +527,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Курс ДТ/Курс покупки валюты" Binding="{Binding Path=Specification.Declaration.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90">
+                    <DataGridTextColumn Header="Курс ДТ/Курс покупки валюты" Binding="{Binding Path=Specification.Declaration.CBRate, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="90"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Курс ДТ/Курс покупки валюты"/>
@@ -589,7 +596,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="СК ПАРИ" Binding="{Binding Path=Specification.Pari, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="СК ПАРИ" Binding="{Binding Path=Specification.Pari, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="СК ПАРИ"/>
@@ -615,7 +623,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="СЛ" Binding="{Binding Path=SL, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="СЛ" Binding="{Binding Path=SL, StringFormat=\{0:N2\}, TargetNullValue='', Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="СЛ"/>
@@ -807,7 +816,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Западные ворота" Binding="{Binding Path=Specification.WestGate, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="Западные ворота" Binding="{Binding Path=Specification.WestGate, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Западные ворота"/>
@@ -885,7 +895,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="МФК" Binding="{Binding Path=Specification.MFK, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="МФК" Binding="{Binding Path=Specification.MFK, StringFormat=\{0:N2\}, Mode=TwoWay, TargetNullValue='',UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="МФК"/>
@@ -1235,7 +1246,8 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Кубы" Binding="{Binding Path=Volume, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}">
+                    <DataGridTextColumn Header="Кубы" Binding="{Binding Path=Volume, StringFormat=\{0:N4\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"
+                                        IsReadOnly="{Binding Source={StaticResource keyVisibilityAccounts}, Path=IsOutsider,Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Кубы"/>

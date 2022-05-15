@@ -280,7 +280,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 name.Append("_").Append(this.Consolidate);
-            name.Append('_').Append(this.Agent.Name);
+            StringBuilder agentname=new StringBuilder(this.Agent.Name);
+            foreach (char c in Path.InvalidPathChars)
+                agentname.Replace(c.ToString(), string.Empty);
+            name.Append('_').Append(agentname);
+            
             name.Append(System.IO.Path.GetExtension(sourcepath));
             this.FilePath = name.ToString();
             return this.FilePath;
@@ -304,6 +308,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 string err = this.Declaration.LoadDeclaration(fd.FileName);
                 if (!string.IsNullOrEmpty(err))
                     err = "НЕ удалось разобрать структуру файла ТД!\n" + err;
+                else
+                {
+                    lib.ReferenceSimpleItem status= CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 100);
+                    foreach (Request request in this.Requests)
+                        if(request.Status.Id<100) request.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", 100);
+                }
                 return err;
             }
             else
@@ -1242,8 +1252,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 mytddbm.Errors.Clear();
                 if (!mytddbm.SaveItemChanches(item.Declaration))
                 {
-                    foreach (lib.DBMError err in mytddbm.Errors) this.Errors.Add(err);
                     success = false;
+                    foreach (lib.DBMError err in mytddbm.Errors) this.Errors.Add(err);
                 }
             }
             if (item.HasPropertyOutdatedValue(nameof(Specification.Declaration)) && item.GetPropertyOutdatedValue(nameof(Specification.Declaration)) != null)
