@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ToolBar Height="32">
             <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
@@ -260,5 +261,17 @@
                 <DataGridTextColumn Header="Изменил" Binding="{Binding Path=Updater,Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenterErr}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
+        <StatusBar Grid.Row="2" Background="Transparent" HorizontalContentAlignment="Right">
+            <StatusBarItem HorizontalAlignment="Right">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="30"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="" />
+                    <TextBlock Text="{Binding Path=Items.Count}" Grid.Column="1" HorizontalAlignment="Right"/>
+                </Grid>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

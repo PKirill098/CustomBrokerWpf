@@ -1134,6 +1134,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private Parcel myparcel;
         internal Parcel Parcel
         { set { myparcel = value; } }
+        private string mycons;
+        internal string Consolidate
+        { set { mycons = value; } get { return mycons; } }
         private Request myrequest;
         internal Request Request
         { set { myrequest = value; } get { return myrequest; } }
@@ -1282,7 +1285,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         par.Value = myparcel?.Id ?? myrequest?.Parcel?.Id;
                         break;
                     case "@consolidate":
-                        par.Value = myrequest?.Consolidate;
+                        par.Value = myrequest?.Consolidate ?? mycons;
                         break;
                     case "@parcelgroup":
                         par.Value = string.IsNullOrEmpty(myrequest?.Consolidate) ? myrequest?.ParcelGroup : null;

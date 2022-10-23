@@ -80,7 +80,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , decimal? tdcost, decimal? tdpay, decimal? volume
             , DateTime? currencydate, DateTime? currencypaiddate, DateTime? gtddate, DateTime requestdate, DateTime? shipplandate, DateTime? specification, DateTime? storedate, DateTime? storeinform
             , string algorithmnote1, string algorithmnote2, string cargo, string colormark, string consolidate, string currencynote, string customernote, string docdirpath, string gtd, string fullnumber, string managergroup, string managernote, string servicetype, string storenote, string storepoint
-            , Importer importer, Manager manager
+            , Importer importer, Manager manager, Parcel parcel=null
            ) : base(id, stamp, updated, updater, domainstate)
         {
             myactualweight = actualweight;
@@ -132,6 +132,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mymanagernote = managernote;
             myofficialweight = officialweight;
             myparcelgroup = parcelgroup;
+            myparcel = parcel;
             myparcelid = parcelid;
             myparceltype = parceltype;
             mypreparatncost = preparatncost;
@@ -483,13 +484,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<Parcel>(ref myparcel, value, () => { this.SetPropertyOnValueChanged<int?>(ref myparcelid, value?.Id, nameof(this.ParcelId)); });
+                base.SetProperty<Parcel>(ref myparcel, value, () => { 
+                    this.SetPropertyOnValueChanged<int?>(ref myparcelid, value?.Id, nameof(this.ParcelId));
+                    this.DeliveryCost = null;
+                     });
             }
             get
             {
                 if (myparcel == null & myparcelid != null)
                 {
                     myparcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(myparcelid.Value, out _);
+                    myparcel.PropertyChanged += Parcel_PropertyChanged;
                 }
                 return myparcel;
             }
@@ -498,7 +503,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<int?>(ref myparcelgroup, value);
+                int? oldvalue = myparcelgroup;
+                base.SetProperty<int?>(ref myparcelgroup, value,()=> { this.OnValueChanged("ParcelGroup", oldvalue, myparcelgroup); });
             }
             get { return myparcelgroup; }
         }
@@ -628,7 +634,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => { if (mystatus.Id == 104) UpdateGroupStatus(); });
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mystatus, value, () => {
+                    this.PropertyChangedNotification(nameof(Request.MailStateStatus));
+                    if (mystatus.Id == 104) UpdateGroupStatus();
+                });
             }
             get { return mystatus; }
         }
@@ -713,9 +722,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myalgloaded = true;
                     myalgorithmcmd = new Algorithm.AlgorithmFormulaRequestCommand(this);
                     myalgloaded = false;
+                    myalgorithmcmd.RequestProperties.ValueChanged += RequestProperties_ValueChanged;
                 }
                 return myalgorithmcmd;
             }
+        }
+        private void RequestProperties_ValueChanged(object sender, ValueChangedEventArgs<object> e)
+        {
+            this.OnValueChanged(e.PropertyName,e.OldValue,e.NewValue);
         }
         bool myalgconloaded;
         private Algorithm.AlgorithmConsolidateCommand myalgorithmconcmd;
@@ -1017,8 +1031,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (this.DomainState < lib.DomainObjectState.Deleted && (myadditionalcost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(myadditionalcost.Value, value.Value))))
                 {
                     myadditionalcost = value;
-                    //AdditionalPay = myadditionalcost * 1.05M;
                     this.PropertyChangedNotification("AdditionalCost");
+                    this.AlgorithmCMD?.RequestProperties.SetDeliveryTotal();
                 }
             }
             get { return myadditionalcost; }
@@ -1063,11 +1077,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                if (this.DomainState < lib.DomainObjectState.Deleted && (mybrokercost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mybrokercost.Value, value.Value))))
-                {
-                    mybrokercost = value;
-                    this.PropertyChangedNotification("BrokerCost");
-                }
+                //if (this.DomainState < lib.DomainObjectState.Deleted && (mybrokercost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mybrokercost.Value, value.Value))))
+                //{
+                //    mybrokercost = value;
+                //    this.PropertyChangedNotification("BrokerCost");
+                //}
+                this.SetProperty<decimal?>(ref mybrokercost, value);
             }
             get { return mybrokercost; }
         }
@@ -1136,11 +1151,30 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (this.DomainState < lib.DomainObjectState.Deleted && (mydeliverycost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mydeliverycost.Value, value.Value))))
                 {
+                    if (!myUnchangedPropertyCollection.ContainsKey(nameof(this.DeliveryCost)))
+                        this.myUnchangedPropertyCollection.Add(nameof(this.DeliveryCost),mydeliverycost);
                     mydeliverycost = value;
-                    this.PropertyChangedNotification("DeliveryCost");
+                    this.PropertyChangedNotification(nameof(this.DeliveryCost));
+                    this.AlgorithmCMD?.RequestProperties.SetDeliveryTotal();
                 }
             }
-            get { return mydeliverycost; }
+            get
+            {
+                //if (this.Parcel != null && myimporter != null) // update properties depend on Parcel
+                //{
+                //    if (myimporter.Id == 1)
+                //    {
+                //        if (this.Parcel.TransportTUn.HasValue) // old algoritm if in Parcel missing Transport
+                //            mydeliverycost = this.Parcel.TransportTUn.Value * myvolume;
+                //    }
+                //    else
+                //    {
+                //        if (this.Parcel.TransportDUn.HasValue)
+                //            mydeliverycost = this.Parcel.TransportDUn.Value * myvolume;
+                //    }
+                //}
+                return mydeliverycost; 
+            }
         }
         public decimal? DeliveryPay
         {
@@ -1148,8 +1182,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 if (this.DomainState < lib.DomainObjectState.Deleted && (mydeliverypay.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mydeliverypay.Value, value.Value))))
                 {
+                    decimal? old = mydeliverypay;
                     mydeliverypay = value;
-                    this.PropertyChangedNotification("DeliveryPay");
+                    this.PropertyChangedNotification(nameof(Request.DeliveryPay));
+                    this.OnValueChanged(nameof(Request.DeliveryPay), old, mydeliverypay);
                 }
             }
             get { return mydeliverypay; }
@@ -1162,6 +1198,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 {
                     myfreightcost = value;
                     this.PropertyChangedNotification("FreightCost");
+                    this.AlgorithmCMD?.RequestProperties.SetDeliveryTotal();
                 }
             }
             get { return myfreightcost; }
@@ -1277,7 +1314,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get
             {
-
                 return mylogisticscost;
             }
         }
@@ -1301,8 +1337,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (this.DomainState < lib.DomainObjectState.Deleted && (mypreparatncost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mypreparatncost.Value, value.Value))))
                 {
                     mypreparatncost = value;
-                    //PreparatnPay = mypreparatncost * 1.05M;
                     this.PropertyChangedNotification("PreparatnCost");
+                    this.AlgorithmCMD?.RequestProperties.SetDeliveryTotal();
                 }
             }
             get { return mypreparatncost; }
@@ -1437,6 +1473,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.PropertyChangedNotification("MailStateTakeGoods9" + e.PropertyName);
         }
+        
         System.Windows.Controls.Primitives.Popup mymailstatepopup;
         private RequestMailState mymailstatestatus;
         internal RequestMailState MailStateStatus
@@ -1455,31 +1492,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.PropertyChangedNotification("MailStateStatus" + e.PropertyName);
         }
-        internal void SendMailStatus()
+        internal void SendMailStatus() // вынести вывод сообщения в более интерфейсный объект  
         {
+            string message;
             bool iserr = false, isshow = true;
             this.MailStateStatus.Send(); // инициализация
-            if (mymailstatestatus.SendErrors.Count > 0)
+            this.MailStateStatus.HandleSendErrors(out isshow, out message, out iserr);
+            if (isshow)
             {
-                System.Text.StringBuilder text = new System.Text.StringBuilder();
-                foreach (lib.DBMError err in mymailstatestatus.SendErrors)
-                {
-                    text.AppendLine(err.Message);
-                    iserr |= !(string.Equals(err.Code, "0") || string.Equals(err.Code, "1"));
-                    isshow &= !string.Equals(err.Code, "1"); // нет шаблона
-                }
-                if (isshow)
-                {
-                    if (iserr) { text.Insert(0, "Отправка выполнена с ошибкой!\n"); }
-                    mymailstatepopup = KirillPolyanskiy.Common.PopupCreator.GetPopup(text.ToString()
-                        , iserr ? new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFDDBE0")) : System.Windows.Media.Brushes.WhiteSmoke
-                        , (iserr ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.Black)
-                        , System.Windows.Media.Brushes.Beige
-                        , false
-                        , System.Windows.Controls.Primitives.PlacementMode.Mouse
-                        );
-                    mymailstatepopup.IsOpen = true;
-                }
+                mymailstatepopup = KirillPolyanskiy.Common.PopupCreator.GetPopup(message
+                    , iserr ? new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFDDBE0")) : System.Windows.Media.Brushes.WhiteSmoke
+                    , (iserr ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.Black)
+                    , System.Windows.Media.Brushes.Beige
+                    , iserr
+                    , System.Windows.Controls.Primitives.PlacementMode.Mouse
+                    );
+                mymailstatepopup.IsOpen = true;
+                this.Messages.Add(new ModelMessage(this, "Request.SendMailStatus.MailStateStatus.HandleSendErrors", message, iserr ? "sendmail" : string.Empty, isshow));
             }
         }
         #endregion
@@ -1997,6 +2026,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.UpdatingSample = false;
             if (mymailstatestock != null) mymailstatestock.Update();
             if (mymailstatetakegoods9 != null) mymailstatetakegoods9.Update();
+            if(mybrands!=null) BrandRefresh();
         }
         public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte messageKey)
         {
@@ -2076,19 +2106,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         isvalid = false;
                     }
                     break;
-                //case nameof(Request.Status):
-                //    int id = ((lib.ReferenceSimpleItem)value).Id;
-                //    if(id>99) есть товары которые не растаможиваются
-                //    {
-                //        if (this.SpecificationIsNull)
-                //            try { this.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(this, out _); } catch{ }
-                //        if (!this.SpecificationIsNull && this.Specification.Declaration == null)
-                //        {
-                //            errmsg = "Статус заявки " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " не может быть повышен до " + ((lib.ReferenceSimpleItem)value).Name + " нет таможенной декларации!";
-                //            isvalid = false;
-                //        }
-                //    }
-                //    break;
+                case nameof(Request.Status):
+                    int id = ((lib.ReferenceSimpleItem)value).Id;
+                    if (id > 99) //есть товары которые не растаможиваются
+                    {
+                        if (this.SpecificationIsNull)
+                            try { this.SpecificationInit = CustomBrokerWpf.References.SpecificationStore.GetItemLoad(this, out _); } catch { }
+                        if (!this.SpecificationIsNull && this.Specification.Declaration?.Number == null)
+                        {
+                            errmsg = "Статус заявки " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " не может быть повышен до " + ((lib.ReferenceSimpleItem)value).Name + " нет таможенной декларации!";
+                            isvalid = false;
+                        }
+                    }
+                    break;
             }
             return isvalid;
         }
@@ -2170,7 +2200,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private void RequestCustomerLegal_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Selected")
-            { CustomerLegalsNamesFill(); this.PropertyChangedNotification("CustomerLegalsSelected");  }
+            { 
+                CustomerLegalsNamesFill();
+                this.PropertyChangedNotification("CustomerLegalsSelected");
+            }
         }
         private void UpdateSingleLegal(string PropertyName)
         {
@@ -2351,6 +2384,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             { success = false; }
             return success;
         }
+        private void Parcel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(Parcel.TransportDUn) when myimporter?.Id==2: // old algoritm if in Parcel missing Transport
+                    if(this.Parcel.TransportDUn.HasValue)
+                        this.DeliveryCost = this.Parcel.TransportDUn.Value * myvolume;
+                    else if(this.AlgorithmCMD?.Algorithm?.Formulas!=null) // если алгоритм уже был расчитан возмем из алгоритма
+                        foreach (Algorithm.AlgorithmValuesRequest values in this.AlgorithmCMD.Algorithm.Formulas)
+                            if (values.Formula.Code == "П14")
+                            {
+                                this.DeliveryCost = values.Value1;
+                                break;
+                            }
+                    break;
+                case nameof(Parcel.TransportTUn) when myimporter?.Id == 1:
+                    if(Parcel.TransportTUn.HasValue)
+                        this.DeliveryCost = this.Parcel.TransportTUn.Value * myvolume;
+                    else if (this.AlgorithmCMD?.Algorithm?.Formulas != null) // если алгоритм уже был расчитан возмем из алгоритма
+                        foreach (Algorithm.AlgorithmValuesRequest values in this.AlgorithmCMD.Algorithm.Formulas)
+                            if (values.Formula.Code == "П14")
+                            {
+                                this.DeliveryCost = values.Value1;
+                                break;
+                            }
+                    break;
+            }
+        }
         #region Blocking
         private RequestDBM mydbm;
         private lib.Common.BlockingDBM myblockingdbm;
@@ -2449,6 +2510,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydbm.GetFirst();
         }
         #endregion
+        //#region ITotalValuesItem
+        //public bool ProcessedIn { get; set; }
+        //public bool ProcessedOut { get; set; }
+        //public bool Selected { get; set; }
+        //#endregion
     }
 
     public class RequestDBM : lib.DBManagerWhoWhen<Request>
@@ -2469,7 +2535,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 new SqlParameter("@storagepoint", System.Data.SqlDbType.NChar,6),
                 new SqlParameter("@filterId", System.Data.SqlDbType.Int){ Value = 0},
                 new SqlParameter("@parcel", System.Data.SqlDbType.Int),
-                new SqlParameter("@datechanged", System.Data.SqlDbType.DateTime)
+                new SqlParameter("@datechanged", System.Data.SqlDbType.DateTime),
+                new SqlParameter("@consolidate", System.Data.SqlDbType.NVarChar,5)
             };
             myinsertparams[0].ParameterName = "@requestId";
             myupdateparams[0].ParameterName = "@requestId";
@@ -2669,8 +2736,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal SpecificationDBM SpecificationDBM
         { set { myspdbm = value; } get { return myspdbm; } }
 
+        internal string Consolidate { set; get; }
         internal int Filter { set; get; }
-        internal int Parcel { set; get; }
+        internal Parcel Parcel { set; get; }
         internal string StorePoint { set; get; }
         internal DateTime? UpdateWhen { set; get; }
         internal bool SpecificationLoad { set; get; }
@@ -3126,13 +3194,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         par.Value = this.Filter;
                         break;
                     case "@parcel":
-                        par.Value = this.Parcel;
+                        par.Value = this.Parcel?.Id;
                         break;
                     case "@datechanged":
                         par.Value = this.UpdateWhen;
                         break;
                     case "@storagepoint":
                         par.Value = this.StorePoint;
+                        break;
+                    case "@consolidate":
+                        par.Value = this.Consolidate;
                         break;
                 }
         }
@@ -4435,6 +4506,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
 
         #region Algorithm
+        public Algorithm.AlgorithmFormulaRequestCommand AlgorithmCMD
+        { get { return this.IsEnabled ? this.DomainObject.AlgorithmCMD : null; } }
         public Algorithm.AlgorithmConsolidateCommand AlgorithmConCMD
         { get { return this.IsEnabled ? this.DomainObject.AlgorithmConCMD : null; } }
         public Visibility ConVisibility
@@ -4618,6 +4691,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     default:
                         path = "/CustomBrokerWpf;component/Images/mail_2.png";
+                        break;
+                }
+                return path;
+            }
+        }
+        public string MailStateImage
+        {
+            get
+            {
+                string path;
+                switch (this.DomainObject.MailStateStatus.State)
+                {
+                    case 1:
+                        path = "/CustomBrokerWpf;component/Images/mail_1.png";
+                        break;
+                    case 2:
+                        path = "/CustomBrokerWpf;component/Images/mail_3.png";
+                        break;
+                    default:
+                        path = "/CustomBrokerWpf;component/Images/mail_2.png";
+                        break;
+                }
+                return path;
+            }
+        }
+        public string MailStateToolTip
+        {
+            get
+            {
+                string path;
+                switch (this.DomainObject.MailStateStatus.State)
+                {
+                    case 1:
+                        path = "Не удалось отправить сообщение";
+                        break;
+                    case 2:
+                        path = "Сообщение отправлено";
+                        break;
+                    default:
+                        path = "Сообщение не отправляется";
                         break;
                 }
                 return path;
@@ -4993,7 +5106,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     {
                         if (mycustomerlegalsselected.IsAddingNew) mycustomerlegalsselected.CommitNew();
                         if (mycustomerlegalsselected.IsEditingItem) mycustomerlegalsselected.CommitEdit();
-                        mycustomerlegalsselected.Refresh(); }
+                        mycustomerlegalsselected.Refresh();
+                        mycustomerlegalsselected.MoveCurrentToFirst();
+                    }
                     break;
                 case "CustomerId":
                     mycustomername = null;
@@ -5041,11 +5156,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case "ManagerGroupName":
                     this.PropertyChangedNotification("ManagerGroupImage");
                     break;
-                case "MailStateStockState":
+                case "MailStateStockState": // такого свойства у Request нет
                     PropertyChangedNotification("MailStateStockImage");
                     break;
-                case "MailStateTakeGoods9State":
+                case "MailStateTakeGoods9State": // такого свойства у Request нет
                     PropertyChangedNotification("MailStateTakeGoods9Image");
+                    break;
+                case nameof(Request.MailStateStatus):
+                case "MailStateStatusState": // такого свойства у Request нет
+                    PropertyChangedNotification(nameof(RequestVM.MailStateImage));
+                    PropertyChangedNotification(nameof(RequestVM.MailStateToolTip));
                     break;
                 case nameof(Request.Parcel):
                 case nameof(Request.ParcelId):

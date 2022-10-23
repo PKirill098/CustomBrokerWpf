@@ -497,7 +497,7 @@
                         <TextBlock Text="Получатели" VerticalAlignment="Center" HorizontalAlignment="Right" />
                     </Border>
                     <DataGrid x:Name="RecipientDataGrid" Grid.Row="0" Grid.Column="1" Margin="0" HorizontalAlignment="Left" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                      ItemsSource="{Binding Binding Recipients}" MouseDoubleClick="RecipientDataGrid_MouseDoubleClick" >
+                      ItemsSource="{Binding Path=Recipients}" MouseDoubleClick="RecipientDataGrid_MouseDoubleClick" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Название" Binding="{Binding Path= Name}"/>
                             <DataGridTextColumn Header="Вид" Binding="{Binding Path=Type}"/>

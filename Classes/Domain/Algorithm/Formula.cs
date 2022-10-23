@@ -9,16 +9,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
     public class Formula : lib.DomainBaseStamp
     {
         public Formula(int id, long stamp, lib.DomainObjectState state
-            , string code, string name, byte type, string formula1, string formula2
+            , string code, string name, byte type, string formula1, string formula2, int order
             ) : base(id, stamp, null, null, state)
         {
             mycode = code;
             myformula1 = formula1;
             myformula2 = formula2;
             myname = name;
+            myorder = order;
             mytype = type;
         }
-        public Formula() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null, 0, null, null) { }
+        public Formula() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null, 0, null, null,0) { }
 
         private string mycode;
         public string Code
@@ -35,6 +36,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         private byte mytype;
         public byte FormulaType
         { set { SetProperty<byte>(ref mytype, value); } get { return mytype; } }
+        private static System.Globalization.CultureInfo myformulaculture;
+        public static System.Globalization.CultureInfo FormulaCulture
+        { get { if (myformulaculture == null) myformulaculture = new System.Globalization.CultureInfo("ru-RU", false); return myformulaculture; } }
+        private int myorder;
+        public int Order
+        { set { SetProperty<int>(ref myorder, value); } get { return myorder; } }
 
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
@@ -48,10 +55,225 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             throw new NotImplementedException();
         }
-
-        private static System.Globalization.CultureInfo myformulaculture;
-        public static System.Globalization.CultureInfo FormulaCulture
-        { get { if (myformulaculture == null) myformulaculture = new System.Globalization.CultureInfo("ru-RU", false); return myformulaculture; } }
+        #region Validate
+        public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
+        {
+            bool isvalid = true;
+            errmsg = null;
+            errmsgkey = 0;
+            switch(propertyname)
+            {
+                case "Code":
+                    if (string.IsNullOrEmpty(this.Code))
+                    {
+                        errmsg = "Необходимо указать № !";
+                        isvalid = false;
+                    }
+                    else if (this.Formula1 != null && this.Formula1.IndexOf(this.Code) > -1)
+                    {
+                        errmsg = "Формула 1 ссылается сама на себя !";
+                        isvalid = false;
+                    }
+                    //else if (this.Formula2.IndexOf(this.Code) > -1)
+                    //{
+                    //    errmsg = "Формула 2 ссылается сама на себя !";
+                    //    isvalid = false;
+                    //}
+                    break;
+                case "Formula1":
+                    string formula1 = (string)value;
+                    if (!(string.IsNullOrEmpty(formula1) || CalculateCheck(formula1, 1, out errmsg)))
+                    {
+                        isvalid = false;
+                    }
+                    break;
+                case "Formula2":
+                    string formula2 = (string)value;
+                    if (!(string.IsNullOrEmpty(formula2) || CalculateCheck(formula2, 2, out errmsg)))
+                    {
+                        isvalid = false;
+                    }
+                    break;
+            }
+            return isvalid;
+        }
+        private bool CalculateCheck(string formula, int n, out string err)
+        {
+            err = string.Empty;
+            int operposition1, operposition2, operposition3 = 0;
+            if (CalculateOperandCheck(formula, n, out operposition1, out err) && operposition1 < formula.Length)
+            {
+                CalculateOperandCheck(formula.Substring(operposition1 + 1), n, out operposition2, out err);
+                operposition2 += operposition1 + 1;
+            }
+            else
+                operposition2 = operposition1;
+            do
+            {
+                if (err == string.Empty && operposition2 < formula.Length)
+                {
+                    CalculateOperandCheck(formula.Substring(operposition2 + 1), n, out operposition3, out err);
+                    operposition3 += operposition2 + 1;
+                }
+                if (err == string.Empty)
+                {
+                    if (operposition2 < formula.Length)
+                    {
+                        char oper1 = formula[operposition1], oper2 = formula[operposition2];
+                        if ((oper1 == '+' | oper1 == '-') & (oper2 == '*' | oper1 == '/'))
+                        {
+                            PerformOperationCheck(formula[operposition2], out err);
+                            operposition2 = operposition3;
+                        }
+                        else
+                        {
+                            PerformOperationCheck(formula[operposition1], out err);
+                            operposition1 = operposition2;
+                            operposition2 = operposition3;
+                        }
+                    }
+                    else if (operposition1 < formula.Length)
+                    {
+                        PerformOperationCheck(formula[operposition1], out err);
+                        operposition1 = operposition2;
+                    }
+                }
+            } while (string.IsNullOrEmpty(err) && operposition2 < formula.Length);
+            if (string.IsNullOrEmpty(err) && operposition1 < formula.Length)
+            {
+                PerformOperationCheck(formula[operposition1], out err);
+            }
+            return string.IsNullOrEmpty(err);
+        }
+        private bool CalculateOperandCheck(string formula, int n, out int operposition, out string err)
+        {
+            decimal value1 = 0M;
+            err = string.Empty;
+            operposition = 0;
+            if (formula[0] == '(')
+            {
+                int o = formula.IndexOf('(', 1), c = formula.IndexOf(')');
+                while (c > 0 && o > 0 && o < c)
+                {
+                    o = formula.IndexOf('(', o + 1);
+                    c = formula.IndexOf(')', c + 1);
+                }
+                operposition = c + 1;
+                if (operposition < 2)
+                {
+                    err = @"Ошибка в формуле отсутствует "")""!";
+                    return false;
+                }
+                else
+                    CalculateCheck(formula.Substring(1, c - 1), n, out err);
+            }
+            if (formula[0] == '{')
+            {
+                int o = formula.IndexOf('{', 1), c = formula.IndexOf('}');
+                while (c > 0 && o > 0 && o < c)
+                {
+                    o = formula.IndexOf('{', o + 1);
+                    c = formula.IndexOf('{', c + 1);
+                }
+                operposition = c + 1;
+                if (operposition < 2)
+                {
+                    err = @"Ошибка в формуле отсутствует ""}""!";
+                    return false;
+                }
+            }
+            else if (char.IsDigit(formula[0]))
+            {
+                int i = 1;
+                while (i < formula.Length && (char.IsDigit(formula[i]) || formula[i] == '.' || formula[i] == ','))
+                    i++;
+                if (!decimal.TryParse(formula.Substring(0, i), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.CreateSpecificCulture("ru-RU"), out value1))
+                {
+                    err = @"Ошибка в формуле, некорректный формат числа " + formula.Substring(0, i) + "!";
+                    return false;
+                }
+                operposition = i;
+            }
+            else if (formula.Length > 5 && formula.Substring(0, 5) == "СУММ(")
+            {
+                operposition = formula.IndexOf(')') + 1;
+                if (operposition == 0)
+                {
+                    err = @"Ошибка в формуле, отсутствует СУММ( "")""!";
+                    return false;
+                }
+                else
+                {
+                    string sum = formula.Substring(5, operposition - 6);
+                    while (sum.IndexOf(';') > 0)
+                    {
+                        if (!SumCheck(sum.Substring(0, sum.IndexOf(';')), n, out err)) return false;
+                        sum = sum.Substring(sum.IndexOf(';') + 1);
+                    }
+                    if (!SumCheck(sum, n, out err)) return false;
+                }
+            }
+            else if (char.IsLetter(formula[0]))
+            {
+                int i = 1;
+                while (i < formula.Length && char.IsDigit(formula[i]))
+                    i++;
+                if (i == 1)
+                {
+                    err = @"Ошибка в формуле, некорректная ссылка на № !";
+                    return false;
+                }
+                else
+                {
+                    operposition = i;
+                    string pname = formula.Substring(0, i);
+                    if (pname == this?.Code & n == 1)
+                    {
+                        err = "Формула 1 ссылается сама на себя !";
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        private bool PerformOperationCheck(char operation, out string err)
+        {
+            err = string.Empty;
+            bool success = true;
+            switch (operation)
+            {
+                case '*':
+                case '/':
+                case '+':
+                case '-':
+                    break;
+                default:
+                    success = false;
+                    err = "Не обрабатываемая  или пропущенная операция - " + operation;
+                    break;
+            }
+            return success;
+        }
+        private bool SumCheck(string arg, int n, out string err)
+        {
+            err = string.Empty;
+            int pos = arg.IndexOf(':'), start, stop;
+            if (pos > 0)
+            {
+                if (arg[0] == arg[pos + 1] & int.TryParse(arg.Substring(1, pos - 1), out start) & int.TryParse(arg.Substring(pos + 2), out stop))
+                    for (int i = start; i <= stop; i++)
+                        CalculateCheck(arg[0] + i.ToString(), n, out err);
+                else
+                {
+                    err = @"Ошибка в формуле, некорректный аргумент функции СУММ !";
+                    return false;
+                }
+            }
+            else
+                CalculateCheck(arg, n, out err);
+            return true;
+        }
+        #endregion
     }
 
     internal class FormulaStorage : lib.DomainStorage<Formula>
@@ -101,7 +323,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override Formula CreateItem(SqlDataReader reader,SqlConnection addcon)
         {
             Formula item = new Formula(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
-                , reader.GetString(2), reader.GetString(3), reader.GetByte(4), reader.IsDBNull(5) ? null : reader.GetString(5), reader.IsDBNull(6) ? null : reader.GetString(6));
+                , reader.GetString(this.Fields["code"])
+                , reader.GetString(this.Fields["name"])
+                , reader.GetByte(this.Fields["type"])
+                , reader.IsDBNull(this.Fields["formula1"]) ? null : reader.GetString(this.Fields["formula1"])
+                , reader.IsDBNull(this.Fields["formula2"]) ? null : reader.GetString(this.Fields["formula2"])
+                , reader.IsDBNull(this.Fields["ordinal"]) ? 0 : reader.GetInt32(this.Fields["ordinal"]));
             return CustomBrokerWpf.References.FormulaStorage.UpdateItem(item);
         }
         protected override void GetOutputSpecificParametersValue(Formula item)
@@ -395,7 +622,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             get { return this.IsEnabled ? this.DomainObject.FormulaType : (byte?)null; }
         }
         public int Order
-        { get { return string.IsNullOrWhiteSpace(mycode) ? int.MaxValue : int.Parse(mycode.Substring(1)); } }
+        { get { return this.DomainObject.Order; } }//string.IsNullOrWhiteSpace(mycode) ? int.MaxValue : int.Parse(mycode.Substring(1))
 
         protected override void DomainObjectPropertyChanged(string property)
         {
@@ -461,203 +688,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             bool isvalid = true;
             string errmsg = null;
+            byte errcode = 0;
             switch (propertyname)
             {
                 case "Code":
-                    if (string.IsNullOrEmpty(this.Code))
-                    {
-                        errmsg = "Необходимо указать № !";
-                        isvalid = false;
-                    }
-                    else if (this.Formula1 != null && this.Formula1.IndexOf(this.Code) > -1)
-                    {
-                        errmsg = "Формула 1 ссылается сама на себя !";
-                        isvalid = false;
-                    }
-                    //else if (this.Formula2.IndexOf(this.Code) > -1)
-                    //{
-                    //    errmsg = "Формула 2 ссылается сама на себя !";
-                    //    isvalid = false;
-                    //}
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Code, out errmsg, out errcode);
                     break;
                 case "Formula1":
-                    if (!(string.IsNullOrEmpty(this.Formula1) || CalculateCheck(this.Formula1, 1, out errmsg)))
-                    {
-                        isvalid = false;
-                    }
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Formula1, out errmsg, out errcode);
                     break;
                 case "Formula2":
-                    if (!(string.IsNullOrEmpty(this.Formula2) || CalculateCheck(this.Formula2, 2, out errmsg)))
-                    {
-                        isvalid = false;
-                    }
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Formula2, out errmsg, out errcode);
                     break;
             }
             if (inform & !isvalid) AddErrorMessageForProperty(propertyname, errmsg);
             else if (isvalid) ClearErrorMessageForProperty(propertyname);
             return isvalid;
-        }
-
-        private bool CalculateCheck(string formula, int n, out string err)
-        {
-            err = string.Empty;
-            int operposition1, operposition2, operposition3 = 0;
-            if (CalculateOperandCheck(formula, n, out operposition1, out err) && operposition1 < formula.Length)
-            {
-                CalculateOperandCheck(formula.Substring(operposition1 + 1), n, out operposition2, out err);
-                operposition2 += operposition1 + 1;
-            }
-            else
-                operposition2 = operposition1;
-            do
-            {
-                if (err == string.Empty && operposition2 < formula.Length)
-                {
-                    CalculateOperandCheck(formula.Substring(operposition2 + 1), n, out operposition3, out err);
-                    operposition3 += operposition2 + 1;
-                }
-                if (err == string.Empty)
-                {
-                    if (operposition2 < formula.Length)
-                    {
-                        char oper1 = formula[operposition1], oper2 = formula[operposition2];
-                        if ((oper1 == '+' | oper1 == '-') & (oper2 == '*' | oper1 == '/'))
-                        {
-                            PerformOperationCheck(formula[operposition2], out err);
-                            operposition2 = operposition3;
-                        }
-                        else
-                        {
-                            PerformOperationCheck(formula[operposition1], out err);
-                            operposition1 = operposition2;
-                            operposition2 = operposition3;
-                        }
-                    }
-                    else if (operposition1 < formula.Length)
-                    {
-                        PerformOperationCheck(formula[operposition1], out err);
-                        operposition1 = operposition2;
-                    }
-                }
-            } while (string.IsNullOrEmpty(err) && operposition2 < formula.Length);
-            if (string.IsNullOrEmpty(err) && operposition1 < formula.Length)
-            {
-                PerformOperationCheck(formula[operposition1], out err);
-            }
-            return string.IsNullOrEmpty(err);
-        }
-        private bool CalculateOperandCheck(string formula, int n, out int operposition, out string err)
-        {
-            decimal value1 = 0M;
-            err = string.Empty;
-            operposition = 0;
-            if (formula[0] == '(')
-            {
-                int o = formula.IndexOf('(', 1), c = formula.IndexOf(')');
-                while (c > 0 && o > 0 && o < c)
-                {
-                    o = formula.IndexOf('(', o + 1);
-                    c = formula.IndexOf(')', c + 1);
-                }
-                operposition = c + 1;
-                if (operposition < 2)
-                {
-                    err = @"Ошибка в формуле отсутствует "")""!";
-                    return false;
-                }
-                else
-                    CalculateCheck(formula.Substring(1, c - 1), n, out err);
-            }
-            else if (char.IsDigit(formula[0]))
-            {
-                int i = 1;
-                while (i < formula.Length && (char.IsDigit(formula[i]) || formula[i] == '.' || formula[i] == ','))
-                    i++;
-                if (!decimal.TryParse(formula.Substring(0, i), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.CreateSpecificCulture("ru-RU"), out value1))
-                {
-                    err = @"Ошибка в формуле, некорректный формат числа " + formula.Substring(0, i) + "!";
-                    return false;
-                }
-                operposition = i;
-            }
-            else if (formula.Length > 5 && formula.Substring(0, 5) == "СУММ(")
-            {
-                operposition = formula.IndexOf(')') + 1;
-                if (operposition == 0)
-                {
-                    err = @"Ошибка в формуле, отсутствует СУММ( "")""!";
-                    return false;
-                }
-                else
-                {
-                    string sum = formula.Substring(5, operposition - 6);
-                    while (sum.IndexOf(';') > 0)
-                    {
-                        if (!SumCheck(sum.Substring(0, sum.IndexOf(';')), n, out err)) return false;
-                        sum = sum.Substring(sum.IndexOf(';') + 1);
-                    }
-                    if (!SumCheck(sum, n, out err)) return false;
-                }
-            }
-            else if (char.IsLetter(formula[0]))
-            {
-                int i = 1;
-                while (i < formula.Length && char.IsDigit(formula[i]))
-                    i++;
-                if (i == 1)
-                {
-                    err = @"Ошибка в формуле, некорректная ссылка на № !";
-                    return false;
-                }
-                else
-                {
-                    operposition = i;
-                    string pname = formula.Substring(0, i);
-                    if (pname == this?.Code & n == 1)
-                    {
-                        err = "Формула 1 ссылается сама на себя !";
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        private bool PerformOperationCheck(char operation, out string err)
-        {
-            err = string.Empty;
-            bool success = true;
-            switch (operation)
-            {
-                case '*':
-                case '/':
-                case '+':
-                case '-':
-                    break;
-                default:
-                    success = false;
-                    err = "Не обрабатываемая  или пропущенная операция - " + operation;
-                    break;
-            }
-            return success;
-        }
-        private bool SumCheck(string arg, int n, out string err)
-        {
-            err = string.Empty;
-            int pos = arg.IndexOf(':'), start, stop;
-            if (pos > 0)
-            {
-                if (arg[0] == arg[pos + 1] & int.TryParse(arg.Substring(1, pos - 1), out start) & int.TryParse(arg.Substring(pos + 2), out stop))
-                    for (int i = start; i <= stop; i++)
-                        CalculateCheck(arg[0] + i.ToString(), n, out err);
-                else
-                {
-                    err = @"Ошибка в формуле, некорректный аргумент функции СУММ !";
-                    return false;
-                }
-            }
-            else
-                CalculateCheck(arg, n, out err);
-            return true;
         }
     }
 

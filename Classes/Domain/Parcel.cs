@@ -32,7 +32,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , string carrier, string carrierperson, string carriertel, string declaration, string docdirpath, lib.ReferenceSimpleItem goodstype
             , string lorry, string lorryregnum, decimal? lorrytonnage, decimal? lorryvolume, string lorryvin
             , string shipmentnumber, string trailerregnum, string trailervin, string trucker, string truckertel
-            , decimal? deliveryprice, decimal? insuranceprice, decimal? tdeliveryprice, decimal? tinsuranceprice
+            , decimal? deliveryprice, decimal? insuranceprice, decimal? tdeliveryprice, decimal? tinsuranceprice,decimal? transportd,decimal? transportt
             , decimal? usdrate, DateTime? ratedate
             ) : base(id, stamp, updated, updater, domainstate)
         {
@@ -68,6 +68,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mytinsuranceprice = tinsuranceprice;
             myusdrate = usdrate;
             myratedate = ratedate;
+            mytransportd = transportd;
+            mytransportt = transportt;
 
             myrater = new CurrencyRateProxy(CustomBrokerWpf.References.CurrencyRate);
             myrater.PropertyChanged += Rater_PropertyChanged;
@@ -78,7 +80,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , carrier: null, carrierperson: null, carriertel: null, declaration: null, docdirpath: null, goodstype: null
             , lorry: null, lorryregnum: null, lorrytonnage: null, lorryvolume: null, lorryvin: null
             , shipmentnumber: null, trailerregnum: null, trailervin: null, trucker: null, truckertel: null
-            , deliveryprice: null, insuranceprice: null, tdeliveryprice: null, tinsuranceprice: null
+            , deliveryprice: null, insuranceprice: null, tdeliveryprice: null, tinsuranceprice: null,transportd: null,transportt: null
             , usdrate: null, ratedate: null
             )
         { }
@@ -443,7 +445,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myusdrate; }
         }
 
-        private decimal? mydeliveryprice, myinsuranceprice, mytdeliveryprice, mytinsuranceprice;
+        private decimal? mydeliveryprice, myinsuranceprice, mytdeliveryprice, mytinsuranceprice,mytransportd, mytransportt;
         public decimal? DeliveryPrice
         {
             set
@@ -475,6 +477,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 SetProperty<decimal?>(ref mytinsuranceprice, value);
             }
             get { return mytinsuranceprice; }
+        }
+        public decimal? TransportD
+        {
+            set { SetProperty<decimal?>(ref mytransportd, value, ()=> { this.PropertyChangedNotification(nameof(this.TransportDUn)); }); }
+            get { return mytransportd; }
+        }
+        public decimal? TransportT
+        {
+            set { SetProperty<decimal?>(ref mytransportt, value, () => { this.PropertyChangedNotification(nameof(this.TransportTUn)); }); }
+            get { return mytransportt; }
+        }
+        internal decimal? TransportDUn
+        {
+            get {
+                return RequestsTotalDelivery.Volume == 0M ? null : mytransportd / RequestsTotalDelivery.Volume;
+            }
+        }
+        internal decimal? TransportTUn
+        {
+            get {
+                return RequestsTotalTrade.Volume == 0M ? null : mytransportt / RequestsTotalTrade.Volume;
+            }
         }
 
         //private ImporterParcelRequestTotal mytotal;
@@ -623,7 +647,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 {
                     myrequests = new ObservableCollection<Request>();
                     myrdbm = new RequestDBM();
-                    myrdbm.Parcel = this.Id;
+                    myrdbm.Parcel = this;
                     myrdbm.FillType = lib.FillType.PrefExist;
                     myrequestsloaded = false;
                     myrdbm.FillAsyncCompleted = () =>
@@ -668,8 +692,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //                {
         //                    item.PropertyChanged -= Request_PropertyChanged;
         //                    item.PropertyChanged += Request_PropertyChanged;
-        //                    if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
-        //                    { ValuesPlus(item); PropertiesChangedNotifycation(); }
+        //                    //if (item.DomainState < DataModelClassLibrary.DomainObjectState.Deleted)
+        //                    //{ ValuesPlus(item); PropertiesChangedNotifycation(); }
         //                }
         //            }
         //        if (e.OldItems != null)
@@ -766,6 +790,54 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //            break;
         //    }
         //}
+        private ParcelRequestsTotal myrequeststotald;
+        public ParcelRequestsTotal RequestsTotalDelivery
+        {
+            get 
+            {
+                if(myrequeststotald==null)
+                {
+                    myrequeststotald = new ParcelRequestsTotal(this.Requests, this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                    myrequeststotald.PropertyChanged += RequestsTotalDelivery_PropertyChanged;
+                    myrequeststotald.StartCount();
+                    this.PropertyChangedNotification(nameof(this.RequestsTotalDelivery));
+                }
+                return myrequeststotald; 
+            } 
+        }
+        private void RequestsTotalDelivery_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(ParcelRequestsTotal.Volume):
+                    this.PropertyChangedNotification(nameof(this.TransportDUn));
+                    break;
+            }
+        }
+        private ParcelRequestsTotal myrequeststotalt;
+        public ParcelRequestsTotal RequestsTotalTrade
+        {
+            get
+            {
+                if (myrequeststotalt == null)
+                {
+                    myrequeststotalt = new ParcelRequestsTotal(this.Requests, this, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                    myrequeststotalt.PropertyChanged += RequestsTotalTrade_PropertyChanged;
+                    myrequeststotalt.StartCount();
+                    this.PropertyChangedNotification(nameof(this.RequestsTotalTrade));
+                }
+                return myrequeststotalt;
+            }
+        }
+        private void RequestsTotalTrade_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(ParcelRequestsTotal.Volume):
+                    this.PropertyChangedNotification(nameof(this.TransportTUn));
+                    break;
+            }
+        }
 
         private ObservableCollection<Specification.Specification> myspecifications;
         public ObservableCollection<Specification.Specification> Specifications
@@ -818,6 +890,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
+
         protected override void RejectProperty(string property, object value)
         {
             throw new NotImplementedException();
@@ -859,6 +932,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.InsurancePrice = newitem.InsurancePrice;
             this.TDeliveryPrice = newitem.TDeliveryPrice;
             this.TInsurancePrice = newitem.TInsurancePrice;
+            this.TransportD = newitem.TransportD;
+            this.TransportT = newitem.TransportT;
         }
     }
 
@@ -938,6 +1013,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@unloadedtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@gtlsrate", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@gtlsrateupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@transportdupd", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@transporttupd", System.Data.SqlDbType.Bit)
 
                 ,new SqlParameter("@old",false)
             };
@@ -972,6 +1049,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@insuranceprice", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@tdeliveryprice", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@tinsuranceprice", System.Data.SqlDbType.Money)
+                ,new SqlParameter("@transportd", System.Data.SqlDbType.Money)
+                ,new SqlParameter("@transportt", System.Data.SqlDbType.Money)
             };
 
             myrdbm = new RequestDBM() { Command = new SqlCommand(), LegalDBM = new RequestCustomerLegalDBM() { LegalDBM = new CustomerLegalDBM() } };
@@ -1024,6 +1103,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(this.Fields["insuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insuranceprice"])
                 , reader.IsDBNull(this.Fields["tdeliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdeliveryprice"])
                 , reader.IsDBNull(this.Fields["tinsuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tinsuranceprice"])
+                , reader.IsDBNull(this.Fields["transportd"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportd"])
+                , reader.IsDBNull(this.Fields["transportt"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportt"])
                 , reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
                 , reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
                 );
@@ -1071,7 +1152,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (myrdbm != null && !item.RequestsIsNull)
             {
                 myrdbm.Errors.Clear();
-                myrdbm.Parcel = item.Id;
+                myrdbm.Parcel = item;
                 myrdbm.Collection = item.Requests;
                 myrdbm.Command.Connection = this.Command.Connection;
                 if (!myrdbm.SaveCollectionChanches())
@@ -1219,6 +1300,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@gtlsrateupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(item.UsdRate));
                         break;
+                    case "@transportdupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(item.TransportD));
+                        break;
+                    case "@transporttupd":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(item.TransportT));
+                        break;
                 }
             }
             foreach (SqlParameter par in myinsertupdateparams)
@@ -1312,6 +1399,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@tinsuranceprice":
                         par.Value = item.TInsurancePrice;
                         break;
+                    case "@transportd":
+                        par.Value = item.TransportD;
+                        break;
+                    case "@transportt":
+                        par.Value = item.TransportT;
+                        break;
                 }
             }
             return true;
@@ -1325,7 +1418,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private void RequestsRefresh(Parcel parcel)
         {
             myrdbm.Errors.Clear();
-            myrdbm.Parcel = parcel.Id;
+            myrdbm.Parcel = parcel;
             myrdbm.FillType = this.FillType;
             //myrdbm.FillAsyncCompleted = () => { if (myrdbm.Errors.Count > 0) foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err); else foreach (Request ritem in myrdbm.Collection) if (!parcel.Requests.Contains(ritem)) parcel.Requests.Add(ritem); };
             myrdbm.Fill();
@@ -1899,6 +1992,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.TInsurancePrice : null; }
         }
+        public decimal? Transport
+        {
+            get { return this.IsEnabled ? (this.DomainObject.TransportD ?? 0M) + (this.DomainObject.TransportT ?? 0M) : (decimal?)null; }
+        }
+        public decimal? TransportD
+        {
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.TransportD.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.TransportD.Value, value.Value))))
+                {
+                    string name = nameof(ParcelVM.TransportD);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.TransportD);
+                    ChangingDomainProperty = name; this.DomainObject.TransportD = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.TransportD : null; }
+        }
+        public decimal? TransportT
+        {
+            set
+            {
+                if (!this.IsReadOnly && (this.DomainObject.TransportT.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(this.DomainObject.TransportT.Value, value.Value))))
+                {
+                    string name = nameof(Parcel.TransportT);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.TransportT);
+                    ChangingDomainProperty = name; this.DomainObject.TransportT = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.TransportT : null; }
+        }
 
         public string ShipPlanDateMailImage
         {
@@ -2109,31 +2234,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         #endregion
 
-        private ParcelRequestsTotal myparcelrequeststotal;
-        public ParcelRequestsTotal ParcelRequestsTotal
+        private ParcelRequestsVMTotal myparcelrequeststotal;
+        public ParcelRequestsVMTotal ParcelRequestsTotal
         { get { return myparcelrequeststotal; } }
-        private ParcelRequestsTotal myparcelrequeststotald;
-        public ParcelRequestsTotal ParcelRequestsTotalDelivery
+        private ParcelRequestsVMTotal myparcelrequeststotald;
+        public ParcelRequestsVMTotal ParcelRequestsTotalDelivery
         { get { return myparcelrequeststotald; } }
-        private ParcelRequestsTotal myparcelrequeststotalt;
-        public ParcelRequestsTotal ParcelRequestsTotalTrade
+        private ParcelRequestsVMTotal myparcelrequeststotalt;
+        public ParcelRequestsVMTotal ParcelRequestsTotalTrade
         { get { return myparcelrequeststotalt; } }
 
-        private ParcelRequestsTotal myparcelrequeststotalselected;
-        public ParcelRequestsTotal ParcelRequestsTotalSelected
+        private ParcelRequestsVMTotal myparcelrequeststotalselected;
+        public ParcelRequestsVMTotal ParcelRequestsTotalSelected
         { get { return myparcelrequeststotalselected; } }
 
-        private ParcelRequestsTotal myrequeststotal;
-        public ParcelRequestsTotal RequestsTotal
+        private ParcelRequestsVMTotal myrequeststotal;
+        public ParcelRequestsVMTotal RequestsTotal
         { get { return myrequeststotal; } }
-        private ParcelRequestsTotal myrequeststotalselected;
-        public ParcelRequestsTotal RequestsTotalSelected
+        private ParcelRequestsVMTotal myrequeststotalselected;
+        public ParcelRequestsVMTotal RequestsTotalSelected
         { get { return myrequeststotalselected; } }
-        private ParcelRequestsTotal myrequeststotalselectedd;
-        public ParcelRequestsTotal RequestsTotalSelectedDelivery
+        private ParcelRequestsVMTotal myrequeststotalselectedd;
+        public ParcelRequestsVMTotal RequestsTotalSelectedDelivery
         { get { return myrequeststotalselectedd; } }
-        private ParcelRequestsTotal myrequeststotalselectedt;
-        public ParcelRequestsTotal RequestsTotalSelectedTrade
+        private ParcelRequestsVMTotal myrequeststotalselectedt;
+        public ParcelRequestsVMTotal RequestsTotalSelectedTrade
         { get { return myrequeststotalselectedt; } }
 
         private ParcelTotal mytotal;
@@ -2308,17 +2433,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     //myrequeststotal.StartCount();
                     //this.PropertyChangedNotification(nameof(this.RequestsTotal));
 
-                    myrequeststotalselected = new ParcelRequestsTotal(myrequests, 2);
+                    myrequeststotalselected = new ParcelRequestsVMTotal(myrequests, 2);
                     myrequeststotalselected.FilteringProperties.Add("Parcel");
                     myrequeststotalselected.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalSelected));
 
-                    myrequeststotalselectedd = new ParcelRequestsTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                    myrequeststotalselectedd = new ParcelRequestsVMTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
                     myrequeststotalselectedd.FilteringProperties.Add("Parcel");
                     myrequeststotalselectedd.StartCount();
                     this.PropertyChangedNotification(nameof(this.RequestsTotalSelectedDelivery));
 
-                    myrequeststotalselectedt = new ParcelRequestsTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                    myrequeststotalselectedt = new ParcelRequestsVMTotal(myrequests, 2, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
                     myrequeststotalselectedt.FilteringProperties.Add("Parcel");
                     myrequeststotalselectedt.StartCount();
                     this.PropertyChangedNotification(nameof(this.RequestsTotalSelectedTrade));
@@ -2349,22 +2474,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myparcelrequests.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
                     myparcelrequests.MoveCurrentToPosition(-1);
 
-                    myparcelrequeststotal = new ParcelRequestsTotal(myparcelrequests, -10000);
+                    myparcelrequeststotal = new ParcelRequestsVMTotal(myparcelrequests, -10000);
                     myparcelrequeststotal.FilteringProperties.Add("Parcel");
                     myparcelrequeststotal.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotal));
 
-                    myparcelrequeststotald = new ParcelRequestsTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
+                    myparcelrequeststotald = new ParcelRequestsVMTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 2));
                     myparcelrequeststotald.FilteringProperties.Add("Parcel");
                     myparcelrequeststotald.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalDelivery));
 
-                    myparcelrequeststotalt = new ParcelRequestsTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
+                    myparcelrequeststotalt = new ParcelRequestsVMTotal(myparcelrequests, -10000, CustomBrokerWpf.References.Importers.FindFirstItem("Id", 1));
                     myparcelrequeststotalt.FilteringProperties.Add("Parcel");
                     myparcelrequeststotalt.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalTrade));
 
-                    myparcelrequeststotalselected = new ParcelRequestsTotal(myparcelrequests);
+                    myparcelrequeststotalselected = new ParcelRequestsVMTotal(myparcelrequests);
                     myparcelrequeststotalselected.FilteringProperties.Add("Parcel");
                     myparcelrequeststotalselected.StartCount();
                     this.PropertyChangedNotification(nameof(this.ParcelRequestsTotalSelected));
@@ -2460,6 +2585,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case nameof(Parcel.Requests):
                     PropertyChangedNotification(nameof(this.ParcelRequests));
+                    break;
+                case nameof(Parcel.TransportD):
+                case nameof(Parcel.TransportT):
+                    PropertyChangedNotification(nameof(this.Transport));
                     break;
             }
         }
@@ -2773,6 +2902,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     string filename = Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, parcel.DocDirPath, parcel.Lorry + " - " + (importerid == 1 ? "Трейд" : (importerid == 2 ? "Деливери" : string.Empty)) + ".xlsx");
                     if (File.Exists(filename))
                         File.Delete(filename);
+                    else if (!Directory.Exists(Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, parcel.DocDirPath)))
+                        Directory.CreateDirectory(Path.Combine(CustomBrokerWpf.Properties.Settings.Default.DocFileRoot, parcel.DocDirPath));
                     exWb.SaveAs(Filename: filename);
                     exApp.Visible = true;
                 }
@@ -4258,13 +4389,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             //        this.CurrentItem.ParcelRequests.Refresh();
             //    }
             //};
-            this.CurrentItem.ParcelRequestsTotal.StopCount();
-            this.CurrentItem.ParcelRequestsTotalDelivery.StopCount();
-            this.CurrentItem.ParcelRequestsTotalTrade.StopCount();
-            this.CurrentItem.ParcelRequestsTotalSelected.StopCount();
-            this.CurrentItem.RequestsTotalSelected?.StopCount();
-            this.CurrentItem.RequestsTotalSelectedDelivery?.StopCount();
-            this.CurrentItem.RequestsTotalSelectedTrade?.StopCount();
+            if (this.CurrentItem != null)
+            {
+                this.CurrentItem.ParcelRequestsTotal.StopCount();
+                this.CurrentItem.ParcelRequestsTotalDelivery.StopCount();
+                this.CurrentItem.ParcelRequestsTotalTrade.StopCount();
+                this.CurrentItem.ParcelRequestsTotalSelected.StopCount();
+                this.CurrentItem.RequestsTotalSelected?.StopCount();
+                this.CurrentItem.RequestsTotalSelectedDelivery?.StopCount();
+                this.CurrentItem.RequestsTotalSelectedTrade?.StopCount();
+            }
             CustomBrokerWpf.References.ParcelLastShipdate.Update();
             mypdbm.Filter = myfilter.FilterWhereId;
             mypdbm.Fill();
@@ -4329,19 +4463,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ParcelRequestsTotal : lib.TotalValues.TotalViewValues<RequestVM>
+    public class ParcelRequestsTotal : lib.TotalValues.TotalCollectionValues<Request>
     {
-        public ParcelRequestsTotal(ListCollectionView view, int initselected = 0, Importer importer = null) : base(view)
+        public ParcelRequestsTotal(ObservableCollection<Request> requests, Parcel parcel, Importer importer = null) : base(requests)
         {
-            myinitselected = initselected;
             myimporter = importer;
-            myview = view;
+            myparel = parcel;
+            this.Filter = (Request item) => { return item.Importer == myimporter && item.Parcel != null && !(item.DomainState == lib.DomainObjectState.Deleted || item.DomainState == lib.DomainObjectState.Destroyed); };
+            this.CheckProcessing= (Request item, string property, object oldvalue) => {
+                
+                return
+                    property == nameof(Request.Importer) || property == nameof(Request.Parcel) || property == nameof(Request.DomainState) ?
+                    (
+                            (property == nameof(Request.Importer)    ?  (Importer)oldvalue == myimporter : item.Importer == myimporter)
+                        &&  (property == nameof(Request.Parcel)      ?  (Parcel)oldvalue == myparel      : item.Parcel == myparel)
+                        &&  (property == nameof(Request.DomainState) ? !(
+                                                                            (lib.DomainObjectState)oldvalue == lib.DomainObjectState.Deleted
+                                                                         || (lib.DomainObjectState)oldvalue == lib.DomainObjectState.Destroyed)
+                                                                    : !(
+                                                                            item.DomainState == lib.DomainObjectState.Deleted
+                                                                         || item.DomainState == lib.DomainObjectState.Destroyed)
+                            )
+                    ) != this.Filter(item)
+                    : false;
+            };
         }
 
-        private ListCollectionView myview;
         private Importer myimporter;
         public Importer Importer
         { get { return myimporter; } }
+        private Parcel myparel;
+        public Parcel Parcel
+        { get { return myparel; } }
 
         private decimal myactualweight;
         public decimal ActualWeight
@@ -4370,6 +4523,149 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private decimal myofficialweight;
         public decimal OfficialWeight
         { get { return myofficialweight; } }
+        private decimal mytransport;
+        public decimal Transport
+        { get { return mytransport; } }
+        private decimal myvolume;
+        public decimal Volume
+        { get { return myvolume; } }
+
+        protected override void Item_ValueChangedHandler(Request sender, ValueChangedEventArgs<object> e)
+        {
+            //decimal newvalue, oldvalue;
+            switch (e.PropertyName)
+            {
+                //case "ActualWeight":
+                //    myactualweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                //    PropertyChangedNotification("DifferenceWeight");
+                //    break;
+                //case "CellNumber":
+                //    mycellnumber += (Int16)(e.NewValue ?? (Int16)0) - (Int16)(e.OldValue ?? (Int16)0);
+                //    break;
+                //case nameof(RequestVM.Invoice):
+                //    myinvoice += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                //    break;
+                //case nameof(RequestVM.InvoiceDiscount):
+                //    newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
+                //    myinvoicediscount += newvalue - oldvalue;
+                //    if (sender.ServiceType == "ТД") myinvoicediscounttd += newvalue - oldvalue;
+                //    if (sender.ServiceType == "ТЭО") myinvoicediscountteo += newvalue - oldvalue;
+                //    PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+                //    PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+                //    break;
+                //case "OfficialWeight":
+                //    myofficialweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                //    PropertyChangedNotification("DifferenceWeight");
+                //    break;
+                //case nameof(RequestVM.DeliveryPay):
+                //    mytransport += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                //    PropertyChangedNotification("Transport");
+                //    break;
+                case "Volume":
+                    myvolume += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                    break;
+            }
+            PropertyChangedNotification(e.PropertyName);
+        }
+
+        protected override void PropertiesChangedNotifycation()
+        {
+            //this.PropertyChangedNotification("ActualWeight");
+            //this.PropertyChangedNotification("CellNumber");
+            //this.PropertyChangedNotification("DifferenceWeight");
+            //this.PropertyChangedNotification(nameof(this.Invoice));
+            //this.PropertyChangedNotification(nameof(this.InvoiceDiscount));
+            //this.PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
+            //this.PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
+            //this.PropertyChangedNotification("OfficialWeight");
+            //this.PropertyChangedNotification(nameof(this.Transport));
+            this.PropertyChangedNotification("Volume");
+        }
+
+        protected override void ValuesReset()
+        {
+            myactualweight = 0M;
+            mycellnumber = 0M;
+            myinvoice = 0M;
+            myinvoicediscount = 0M;
+            myinvoicediscounttd = 0M;
+            myinvoicediscountteo = 0M;
+            myofficialweight = 0M;
+            mytransport = 0M;
+            myvolume = 0M;
+        }
+        protected override void ValuesMinus(Request item)
+        {
+            //myactualweight = myactualweight - (item.ActualWeight ?? 0M);
+            //mycellnumber = mycellnumber - (item.CellNumber ?? 0M);
+            //myinvoice = myinvoice - (item.Invoice ?? 0M);
+            //myinvoicediscount = myinvoicediscount - (item.InvoiceDiscount ?? 0M);
+            //if (item.ServiceType == "ТД") myinvoicediscounttd -= item.InvoiceDiscount ?? 0M;
+            //if (item.ServiceType == "ТЭО") myinvoicediscountteo -= item.InvoiceDiscount ?? 0M;
+            //myofficialweight = myofficialweight - (item.OfficialWeight ?? 0M);
+            //mytransport = mytransport - (item.DeliveryPay ?? 0M);
+            myvolume = myvolume - (item.Volume ?? 0M);
+        }
+        protected override void ValuesPlus(Request item)
+        {
+            //myactualweight = myactualweight + (item.ActualWeight ?? 0M);
+            //mycellnumber = mycellnumber + (item.CellNumber ?? 0M);
+            //myinvoice = myinvoice + (item.Invoice ?? 0M);
+            //myinvoicediscount = myinvoicediscount + (item.InvoiceDiscount ?? 0M);
+            //if (item.ServiceType == "ТД") myinvoicediscounttd += item.InvoiceDiscount ?? 0M;
+            //if (item.ServiceType == "ТЭО") myinvoicediscountteo += item.InvoiceDiscount ?? 0M;
+            //myofficialweight = myofficialweight + (item.OfficialWeight ?? 0M);
+            //mytransport = mytransport + (item.DeliveryPay ?? 0M);
+            myvolume = myvolume + (item.Volume ?? 0M);
+        }
+    }
+
+    public class ParcelRequestsVMTotal : lib.TotalValues.TotalViewValues<RequestVM>
+    {
+        public ParcelRequestsVMTotal(ListCollectionView view, int initselected = 0, Importer importer = null) : base(view)
+        {
+            myinitselected = initselected;
+            myimporter = importer;
+            myview = view;
+            myparcelgroups = new List<int>();
+        }
+
+        private ListCollectionView myview;
+        private Importer myimporter;
+        public Importer Importer
+        { get { return myimporter; } }
+        private List<int> myparcelgroups;
+
+        private decimal myactualweight;
+        public decimal ActualWeight
+        { get { return myactualweight; } }
+        private decimal mycellnumber;
+        public decimal CellNumber
+        { get { return mycellnumber; } }
+        public decimal DifferenceWeight
+        { get { return myactualweight - myofficialweight; } }
+        private decimal myinvoice;
+        public decimal Invoice
+        { get { return myinvoice; } }
+        private decimal myinvoicediscount;
+        public decimal InvoiceDiscount
+        { get { return myinvoicediscount; } }
+        private decimal myinvoicediscounttd;
+        public decimal InvoiceDiscountTD
+        {
+            get { return myinvoicediscounttd; }
+        }
+        private decimal myinvoicediscountteo;
+        public decimal InvoiceDiscountTEO
+        {
+            get { return myinvoicediscountteo; }
+        }
+        private decimal myofficialweight;
+        public decimal OfficialWeight
+        { get { return myofficialweight; } }
+        private decimal mytransport;
+        public decimal Transport
+        { get { return mytransport; } }
         private decimal myvolume;
         public decimal Volume
         { get { return myvolume; } }
@@ -4389,43 +4685,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                     break;
                 default:
-                    if ((myimporter == null || sender.Importer == myimporter))
+                    if (myimporter == null || sender.Importer == myimporter)
                     {
                         decimal newvalue, oldvalue;
                         switch (e.PropertyName)
                         {
                             case "ActualWeight":
                                 myactualweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                                PropertyChangedNotification("ActualWeight");
                                 PropertyChangedNotification("DifferenceWeight");
                                 break;
                             case "CellNumber":
                                 mycellnumber += (Int16)(e.NewValue ?? (Int16)0) - (Int16)(e.OldValue ?? (Int16)0);
-                                PropertyChangedNotification("CellNumber");
                                 break;
                             case nameof(RequestVM.Invoice):
                                 myinvoice += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                                PropertyChangedNotification(nameof(this.Invoice));
                                 break;
                             case nameof(RequestVM.InvoiceDiscount):
                                 newvalue = (decimal)(e.NewValue ?? 0M); oldvalue = (decimal)(e.OldValue ?? 0M);
                                 myinvoicediscount += newvalue - oldvalue;
                                 if (sender.ServiceType == "ТД") myinvoicediscounttd += newvalue - oldvalue;
                                 if (sender.ServiceType == "ТЭО") myinvoicediscountteo += newvalue - oldvalue;
-                                PropertyChangedNotification(nameof(this.InvoiceDiscount));
                                 PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
                                 PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
                                 break;
                             case "OfficialWeight":
                                 myofficialweight += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                                PropertyChangedNotification("OfficialWeight");
                                 PropertyChangedNotification("DifferenceWeight");
+                                break;
+                            case nameof(Request.AlgorithmCMD.RequestProperties.DeliveryTotal):
+                                mytransport += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
+                                PropertyChangedNotification("Transport");
+                                break;
+                            case "ParcelGroup":
+                                if (((int?)e.NewValue).HasValue & !((int?)e.OldValue).HasValue & myparcelgroups.Contains(((int?)e.NewValue).Value))
+                                    mytransport -= (decimal)(sender.DomainObject.AlgorithmCMD?.RequestProperties.DeliveryTotal??0M);
                                 break;
                             case "Volume":
                                 myvolume += (decimal)(e.NewValue ?? 0M) - (decimal)(e.OldValue ?? 0M);
-                                PropertyChangedNotification("Volume");
                                 break;
                         }
+                        PropertyChangedNotification(e.PropertyName);
                     }
                     break;
             }
@@ -4441,6 +4740,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
             this.PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
             this.PropertyChangedNotification("OfficialWeight");
+            this.PropertyChangedNotification(nameof(this.Transport));
             this.PropertyChangedNotification("Volume");
         }
 
@@ -4453,7 +4753,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinvoicediscounttd = 0M;
             myinvoicediscountteo = 0M;
             myofficialweight = 0M;
+            mytransport = 0M;
             myvolume = 0M;
+            myparcelgroups.Clear();
         }
         protected override void ValuesMinus(RequestVM item)
         {
@@ -4471,6 +4773,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 if (item.ServiceType == "ТД") myinvoicediscounttd += item.DomainObject.InvoiceDiscount ?? 0M;
                 if (item.ServiceType == "ТЭО") myinvoicediscountteo += item.DomainObject.InvoiceDiscount ?? 0M;
                 myofficialweight = myofficialweight + (item.DomainObject.OfficialWeight ?? 0M);
+                if (!(item.ParcelGroup.HasValue && myparcelgroups.Contains(item.ParcelGroup.Value)))
+                { 
+                    mytransport = mytransport + (item.DomainObject.AlgorithmCMD?.RequestProperties.DeliveryTotal??0M);
+                    if (item.ParcelGroup.HasValue) myparcelgroups.Add(item.ParcelGroup.Value);
+                }
                 myvolume = myvolume + (item.DomainObject.Volume ?? 0M);
             }
         }
@@ -4483,23 +4790,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (item.ServiceType == "ТД") myinvoicediscounttd -= item.DomainObject.InvoiceDiscount ?? 0M;
             if (item.ServiceType == "ТЭО") myinvoicediscountteo -= item.DomainObject.InvoiceDiscount ?? 0M;
             myofficialweight = myofficialweight - (item.DomainObject.OfficialWeight ?? 0M);
+            if (!(item.ParcelGroup.HasValue && myparcelgroups.Contains(item.ParcelGroup.Value)))
+            {
+                mytransport = mytransport - (item.DomainObject.AlgorithmCMD.RequestProperties.DeliveryTotal);
+                if (item.ParcelGroup.HasValue) myparcelgroups.Add(item.ParcelGroup.Value);
+            }
             myvolume = myvolume - (item.DomainObject.Volume ?? 0M);
         }
     }
     public class ParcelTotal : INotifyPropertyChanged
     {
-        internal ParcelTotal(ParcelRequestsTotal total, ParcelRequestsTotal selected)
+        internal ParcelTotal(ParcelRequestsVMTotal total, ParcelRequestsVMTotal selected)
         {
             myselected = selected;
             mytotal = total;
             this.Init();
         }
 
-        private ParcelRequestsTotal myselected;
-        internal ParcelRequestsTotal Selected
+        private ParcelRequestsVMTotal myselected;
+        internal ParcelRequestsVMTotal Selected
         { set { myselected = value; this.Init(); } }
-        private ParcelRequestsTotal mytotal;
-        internal ParcelRequestsTotal Total
+        private ParcelRequestsVMTotal mytotal;
+        internal ParcelRequestsVMTotal Total
         { set { mytotal = value; this.Init(); } }
 
         private decimal myactualweight;
@@ -4529,6 +4841,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private decimal myofficialweight;
         public decimal OfficialWeight
         { get { return myofficialweight; } }
+        private decimal mytransport;
+        public decimal Transport
+        { get { return mytransport; } }
         private decimal myvolume;
         public decimal Volume
         { get { return myvolume; } }
@@ -4542,6 +4857,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinvoicediscounttd = (myselected?.InvoiceDiscountTD ?? 0M) + mytotal.InvoiceDiscountTD;
             myinvoicediscountteo = (myselected?.InvoiceDiscountTEO ?? 0M) + mytotal.InvoiceDiscountTEO;
             myofficialweight = (myselected?.OfficialWeight ?? 0M) + mytotal.OfficialWeight;
+            mytransport = (myselected?.Transport ?? 0M) + mytotal.Transport;
             myvolume = (myselected?.Volume ?? 0M) + mytotal.Volume;
         }
         private void Init()
@@ -4564,6 +4880,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
             PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
             PropertyChangedNotification("OfficialWeight");
+            PropertyChangedNotification(nameof(this.Transport));
             PropertyChangedNotification("Volume");
         }
         private void Total_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -4579,19 +4896,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mycellnumber = (myselected?.CellNumber ?? 0M) + mytotal.CellNumber;
                     PropertyChangedNotification("CellNumber");
                     break;
-                case nameof(ParcelRequestsTotal.Invoice):
+                case nameof(ParcelRequestsVMTotal.Invoice):
                     myinvoice = (myselected?.Invoice ?? 0M) + mytotal.Invoice;
                     PropertyChangedNotification(nameof(this.Invoice));
                     break;
-                case nameof(ParcelRequestsTotal.InvoiceDiscount):
+                case nameof(ParcelRequestsVMTotal.InvoiceDiscount):
                     myinvoicediscount = (myselected?.InvoiceDiscount ?? 0M) + mytotal.InvoiceDiscount;
                     PropertyChangedNotification(nameof(this.InvoiceDiscount));
                     break;
-                case nameof(ParcelRequestsTotal.InvoiceDiscountTD):
+                case nameof(ParcelRequestsVMTotal.InvoiceDiscountTD):
                     myinvoicediscounttd = (myselected?.InvoiceDiscountTD ?? 0M) + mytotal.InvoiceDiscountTD;
                     PropertyChangedNotification(nameof(this.InvoiceDiscountTD));
                     break;
-                case nameof(ParcelRequestsTotal.InvoiceDiscountTEO):
+                case nameof(ParcelRequestsVMTotal.InvoiceDiscountTEO):
                     myinvoicediscountteo = (myselected?.InvoiceDiscountTEO ?? 0M) + mytotal.InvoiceDiscountTEO;
                     PropertyChangedNotification(nameof(this.InvoiceDiscountTEO));
                     break;
@@ -4599,6 +4916,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myofficialweight = (myselected?.OfficialWeight ?? 0M) + mytotal.OfficialWeight;
                     PropertyChangedNotification("OfficialWeight");
                     PropertyChangedNotification("DifferenceWeight");
+                    break;
+                case nameof(ParcelRequestsVMTotal.Transport):
+                    mytransport = (myselected?.Transport ?? 0M) + mytotal.Transport;
+                    PropertyChangedNotification(nameof(this.Transport));
                     break;
                 case "Volume":
                     myvolume = (myselected?.Volume ?? 0M) + mytotal.Volume;
@@ -4612,7 +4933,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected void PropertyChangedNotification(string propertyName)
         {
             if (PropertyChanged != null)
-                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

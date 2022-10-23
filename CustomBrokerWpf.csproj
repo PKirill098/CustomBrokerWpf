@@ -164,6 +164,7 @@
     <Compile Include="Classes\Domain\Agent\AgentContact.cs" />
     <Compile Include="Classes\Domain\Agent\Brand.cs" />
     <Compile Include="Classes\Domain\Agent\Contract.cs" />
+    <Compile Include="Classes\Domain\Algorithm\AlgorithmValues.cs" />
     <Compile Include="Classes\Domain\Contact.cs" />
     <Compile Include="Classes\Domain\DomainBaseClass.cs" />
     <Compile Include="Classes\Domain\Manager.cs" />
@@ -237,7 +238,7 @@
     <Compile Include="Windows\Agent\AgentFilterWin.xaml.cs">
       <DependentUpon>AgentFilterWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AlgorithmWin.xaml.cs">
+    <Compile Include="Windows\Algorithm\AlgorithmWin.xaml.cs">
       <DependentUpon>AlgorithmWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="AllPriceItemWin.xaml.cs">
@@ -603,7 +604,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AlgorithmWin.xaml">
+    <Page Include="Windows\Algorithm\AlgorithmWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1390,6 +1391,7 @@
   <ItemGroup>
     <Resource Include="Images\mail_out.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -218,6 +218,13 @@
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=Legal.Customer.Name, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="200">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text,Mode=OneWay}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Поставщик" Binding="{Binding Path=Agent.Name, TargetNullValue='', Mode=OneWay}" Width="200">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
@@ -276,6 +283,13 @@
                                 </Setter.Value>
                             </Setter>
                             <EventSetter Event="MouseRightButtonUp" Handler="ImporterFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Менеджер" Binding="{Binding Path=Managers,Mode=OneWay}" Width="30" ToolTipService.ToolTip="Менеджер">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Менеджер"/>
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>

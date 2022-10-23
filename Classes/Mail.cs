@@ -349,13 +349,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                             }
                                             if (sent == 2)
                                                 item.Updated = DateTime.Now;
-                                            else if (sent == 0)
-                                            {
-                                                //ReferenceDS refds = App.Current.FindResource("keyReferenceDS") as ReferenceDS;
-                                                //if (refds.tableCustomerName.Count == 0) refds.CustomerNameRefresh();
-                                                mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "2"));
-                                            }
                                         }
+                                        if (sent == 0)
+                                            mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "2"));
                                     }
                                 }
                             }
@@ -391,6 +387,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         internal virtual string CreateSubject(Domain.MailTemplate temp, MailStateCustomer item)
         {
             return temp.Subject;
+        }
+        internal void HandleSendErrors(out bool isshow, out string message, out bool iserr)
+        {
+            isshow = true;
+            iserr = false;
+            message = null;
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            if (mysenderrors.Count > 0)
+            {
+                foreach (lib.DBMError err in mysenderrors)
+                {
+                    text.AppendLine(err.Message);
+                    iserr |= !(string.Equals(err.Code, "0") || string.Equals(err.Code, "1"));
+                    isshow &= !string.Equals(err.Code, "1"); // нет шаблона
+                }
+                if (isshow)
+                {
+                    if (iserr) { text.Insert(0, "Отправка выполнена с ошибкой!\n"); }
+                    message=text.ToString();
+                }
+            }
         }
     }
 

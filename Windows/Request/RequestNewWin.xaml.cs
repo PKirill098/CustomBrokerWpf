@@ -209,12 +209,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 {
                     foreach (Classes.Domain.Algorithm.AlgorithmFormula item in cmd.AlgorithmCommand.AlgorithmFormulas)
                         if (!isdirty)
-                            foreach (Classes.Domain.Algorithm.AlgorithmValuesVM value in item.Algorithms)
+                            foreach (Classes.Domain.Algorithm.AlgorithmValuesVM value in item.AlgorithmValues)
                                 isdirty = isdirty | value.DomainObject.IsDirty;
                         else break;
                     foreach (Classes.Domain.Algorithm.AlgorithmFormula item in cmd.AlgorithmConCommand.AlgorithmFormulas)
                         if (!isdirty)
-                            foreach (Classes.Domain.Algorithm.AlgorithmValuesVM value in item.Algorithms)
+                            foreach (Classes.Domain.Algorithm.AlgorithmValuesVM value in item.AlgorithmValues)
                                 isdirty = isdirty | value.DomainObject.IsDirty;
                         else break;
                 }
@@ -313,6 +313,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 ObjectWin.Activate();
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+
+        private void MainScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if(e.HeightChanged && e.NewSize.Height - 19 > CargoBorder.ActualHeight)
+            {
+                AlgorithmScrollViewer.Height = e.NewSize.Height - 20;
             }
         }
     }

@@ -27,7 +27,13 @@
 			<Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
 			</Button>
-			<Separator/>
+            <Button Command="{Binding Path=FilterDefault}" ToolTip="Фильтр по умолчанию" Visibility="Collapsed">
+                <Image Source="/CustomBrokerWpf;component/Images/funnel_preferences.png" />
+            </Button>
+            <Button Command="{Binding Path=FilterSave}" ToolTip="Сохранить фильтр как фильтр по умолчанию" Visibility="Collapsed">
+                <Image Source="/CustomBrokerWpf;component/Images/disk_green.png" />
+            </Button>
+            <Separator/>
 			<Button Command="{Binding Path=SaveRefresh}" ToolTip="Обновить информацию" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/r2Refresh-512.png" />
 			</Button>

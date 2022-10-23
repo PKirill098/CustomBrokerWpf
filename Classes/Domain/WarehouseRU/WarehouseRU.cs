@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
@@ -82,6 +83,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private Importer myimporter;
         public Importer Importer
         { get { return myimporter; } }
+        private string mymanagers;
+        public string Managers
+        { get { return mymanagers; } }
         private decimal? myofficialweight;
         public decimal? OfficialWeight
         { get { return myofficialweight; } }
@@ -135,6 +139,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycellnumber = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.CellNumber; });
             mydeliveryaddress = mylegal.Addresses.FirstOrDefault((Address adr) => { return adr.AddressTypeID == 4; })?.FullAddress;
             myimporter = mylegals?.FirstOrDefault()?.Request.Importer;
+            mymanagers = mylegals?.Select(l=>l.Request.Manager?.Name).Where(n=>!string.IsNullOrEmpty(n)).Distinct().Aggregate(string.Empty,(ms, m) => string.IsNullOrEmpty(ms) ? m : ms + ", " + m);
             myofficialweight = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.OfficialWeight; });
             myparcel = mylegals?.FirstOrDefault()?.Request.Parcel;
             rids.Clear();
@@ -406,6 +411,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { get { return GetProperty(this.DomainObject.DeliveryAddress, null); } }
         public Importer Importer
         { get { return GetProperty(this.DomainObject.Importer, null); } }
+        public string Managers
+        { get { return GetProperty(this.DomainObject.Managers, null); } }
         public decimal? OfficialWeight
         { get { return GetProperty(this.DomainObject.OfficialWeight, null); } }
         public Parcel Parcel
@@ -534,8 +541,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             base.DeleteQuestionHeader = "Удалить позицию со склада?";
             #region Filter
-            myfilterrun = new RelayCommand(FilterRunExec, FilterRunCanExec);
             myfilterclear = new RelayCommand(FilterClearExec, FilterClearCanExec);
+            myfilterdefault = new RelayCommand(FilterDefaultExec, FilterDefaultCanExec);
+            myfilterrun = new RelayCommand(FilterRunExec, FilterRunCanExec);
+            myfiltersave = new RelayCommand(FilterSaveExec, FilterSaveCanExec);
 
             myactualweightfilter = new libui.NumberFilterVM();
             myactualweightfilter.ExecCommand1 = () => { FilterRunExec(null); };
@@ -832,6 +841,60 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private bool FilterClearCanExec(object parametr)
         { return true; }
+        
+        private RelayCommand myfilterdefault;
+        public ICommand FilterDefault
+        {
+            get { return myfilterdefault; }
+        }
+        private void FilterDefaultExec(object parametr)
+        {
+            myfilter.RemoveCurrentWhere();
+            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+            FilterFill();
+        }
+        private bool FilterDefaultCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand myfiltersave;
+        public ICommand FilterSave
+        {
+            get { return myfiltersave; }
+        }
+        private void FilterSaveExec(object parametr)
+        {
+            if (System.Windows.MessageBox.Show("Фильтр по умолчанию будет заменён текущим фильтром.\nПродолжить?", "Сохранение фильтра", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) != System.Windows.MessageBoxResult.No)
+            {
+                try
+                {
+                    this.UpdateFilter();
+                    myfilter.SetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is System.Data.SqlClient.SqlException)
+                    {
+                        System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
+                        if (err.Number > 49999) MessageBox.Show(err.Message, "Сохранение фильтра", MessageBoxButton.OK, MessageBoxImage.Error);
+                        else
+                        {
+                            System.Text.StringBuilder errs = new System.Text.StringBuilder();
+                            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
+                            {
+                                errs.Append(sqlerr.Message + "\n");
+                            }
+                            MessageBox.Show(errs.ToString(), "Сохранение фильтра", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(ex.Message + "\n" + ex.Source, "Сохранение фильтра", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+        private bool FilterSaveCanExec(object parametr)
+        { return !this.FilterEmpty; }
 
         private bool FilterEmpty
         {
@@ -962,6 +1025,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 this.Refresh.Execute(null);
             }
+        }
+        private void FilterFill()
+        {
+            //myfilter.PullListBox(myfilter.FilterWhereId, "agent", "Id", myagentfilter., true);
+
+            DateTime? date1, date2;
+            myfilter.PullDate(myfilter.FilterWhereId, "receipted", "receipted", out date1, out date2);
+            myreceiptedfilter.DateStart = date1;
+            myreceiptedfilter.DateStop = date2;
+            myreceiptedfilter.IconVisibileChangedNotification();
+            myfilter.PullDate(myfilter.FilterWhereId, "shipped", "shipped", out date1, out date2);
+            myshippedfilter.DateStart = date1;
+            myshippedfilter.DateStop = date2;
+            myshippedfilter.IconVisibileChangedNotification();
         }
         private string myfilterbuttonimagepath;
         public string FilterButtonImagePath

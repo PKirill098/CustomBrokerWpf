@@ -115,12 +115,12 @@
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Тема" Margin="4,0" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="1" Text="{Binding Path=CurrentItem.Subject}" MaxLength="100" TextWrapping="WrapWithOverflow" IsEnabled="{Binding Path=IsEnabled}" Margin="0,0,4,0" ToolTip="Письма по шаблонам с не заполненной темой не отправляются!"/>
+            <TextBox Grid.Column="1" Text="{Binding Path=CurrentItem.Subject}" MaxLength="200" TextWrapping="WrapWithOverflow" IsEnabled="{Binding Path=IsEnabled}" Margin="0,0,4,0" ToolTip="Письма по шаблонам с не заполненной темой не отправляются!"/>
             <TextBlock Grid.Column="2" Text="Количество дней между уведомлением и датой {Дата+}" Margin="4,0" VerticalAlignment="Center"/>
             <TextBox Grid.Column="3" Text="{Binding Path=CurrentItem.Delay}" IsEnabled="{Binding Path=IsEnabled}" Margin="0,0,4,0"/>
         </Grid>
         <TextBox Grid.Row="2" Text="Шаблоны подстановки: {Вес,Д} {Дата+} {Дата статуса} {Импортер} {Кол-во мест} {Марка} {Номер заявки} {Объем} {Поставщик} {Поставщик(Вес, Д) кг.} {Поставщик(Вес, Д) кг., Объем м3.} {Производитель} {Страна} {Сумма} {Характеристика товара} {Юр лицо}" IsReadOnly="True" Margin="4,0" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" />
         <!--<RichTextBox x:Name="mainRTB" Grid.Row="2" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>-->
-        <TextBox Grid.Row="3" Text="{Binding CurrentItem.Body}" ToolTip="Текст письма в формате HTML" MaxLength="1000" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>
+        <TextBox Grid.Row="3" Text="{Binding CurrentItem.Body}" ToolTip="Текст письма в формате HTML" TextWrapping="Wrap" AcceptsReturn="True" IsEnabled="{Binding Path=IsEnabled}" Margin="4"/>
     </Grid>
 </Window>

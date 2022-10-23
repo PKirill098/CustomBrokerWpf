@@ -19,7 +19,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public FormulaVM Formula
         { set { myformula = value; } get { return myformula; } }
         private ObservableCollection<AlgorithmValuesVM> myalgorithms;
-        public ObservableCollection<AlgorithmValuesVM> Algorithms
+        public ObservableCollection<AlgorithmValuesVM> AlgorithmValues
         {
             set { myalgorithms = value; }
             get { return myalgorithms; }
@@ -30,7 +30,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             get
             {
                 bool isdirty = myformula.DomainObject.IsDirty;
-                foreach (AlgorithmValuesVM value in Algorithms)
+                foreach (AlgorithmValuesVM value in AlgorithmValues)
                     isdirty |= value.DomainObject.IsDirty;
                 return isdirty;
             }
@@ -74,7 +74,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         }
                     }
                     if (values == null) values = AlgorithmValuesCreate(alg, frm.DomainObject);
-                    algfrm.Algorithms.Add(new AlgorithmValuesVM(values));
+                    algfrm.AlgorithmValues.Add(new AlgorithmValuesVM(values));
                 }
             }
             foreach (Algorithm alg in myalgorithms)
@@ -158,7 +158,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             this.PropertyChangedNotification("Algorithm" + this.Algorithms.Count.ToString() + "ColumnVisibility");
             foreach (AlgorithmFormula algfrm in myalgorithmformulas)
             {
-                algfrm.Algorithms.Add(new AlgorithmValuesVM(AlgorithmValuesCreate(alg, algfrm.Formula.DomainObject)));
+                algfrm.AlgorithmValues.Add(new AlgorithmValuesVM(AlgorithmValuesCreate(alg, algfrm.Formula.DomainObject)));
             }
         }
         private bool AddAlgorithmCanExec(object parametr)
@@ -303,7 +303,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         }
                     }
                     if (values == null) values = AlgorithmValuesCreate(alg, frm.DomainObject);
-                    algfrm.Algorithms.Add(new AlgorithmValuesVM(values));
+                    algfrm.AlgorithmValues.Add(new AlgorithmValuesVM(values));
                 }
             }
             foreach (Algorithm alg in myalgorithms)
@@ -327,7 +327,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 else 
                 {
                     algfrm.Formula.Reject.Execute(null);
-                    foreach (AlgorithmValuesVM val in algfrm.Algorithms)
+                    foreach (AlgorithmValuesVM val in algfrm.AlgorithmValues)
                         val.RejectChanges();
                     if (algfrm.DomainState == lib.DomainObjectState.Deleted)
                     {
@@ -344,7 +344,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 myalgorithmformulas.Remove(delitem);
                 delitem.DomainState = lib.DomainObjectState.Destroyed;
                 myformulasynchronizer.ViewModelCollection.Remove(delitem.Formula);
-                foreach (AlgorithmValuesVM val in delitem.Algorithms)
+                foreach (AlgorithmValuesVM val in delitem.AlgorithmValues)
                 {
                     val.DomainObject.Algorithm.Formulas.Remove(val.DomainObject);
                     myvdbm.Collection.Remove(val.DomainObject);
@@ -382,7 +382,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 }
                 foreach (Algorithm alg in myalgorithms)
                 {
-                    newitem.Algorithms.Add(new AlgorithmValuesVM(AlgorithmValuesCreate(alg, newformula.DomainObject)));
+                    newitem.AlgorithmValues.Add(new AlgorithmValuesVM(AlgorithmValuesCreate(alg, newformula.DomainObject)));
                 }
             }
         }
@@ -402,7 +402,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         myalgorithmformulas.Remove(item);
                         item.DomainState = lib.DomainObjectState.Destroyed;
                         myformulasynchronizer.ViewModelCollection.Remove(item.Formula);
-                        foreach (AlgorithmValuesVM val in item.Algorithms)
+                        foreach (AlgorithmValuesVM val in item.AlgorithmValues)
                         {
                             myvdbm.Collection.Remove(val.DomainObject);
                             val.DomainObject.Algorithm.Formulas.Remove(val.DomainObject);
@@ -416,7 +416,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         myview1.CommitEdit();
                         myview2.CommitEdit();
                         item.Formula.DomainState = lib.DomainObjectState.Deleted;
-                        foreach (AlgorithmValuesVM val in item.Algorithms)
+                        foreach (AlgorithmValuesVM val in item.AlgorithmValues)
                             val.DomainState = lib.DomainObjectState.Deleted;
                     }
                 }

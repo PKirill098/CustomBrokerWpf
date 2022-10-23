@@ -554,9 +554,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             myimporters = new Classes.Domain.ImporterCollection();
             myimporters.DataLoad();
             mymanagers = new Classes.Domain.ManagerCollection();
+            mycountrylist = new Classes.Domain.References.CountryList();
             if (References.CurrentUserRoles.Contains("Managers"))
             {
-                mycountrylist = new Classes.Domain.References.CountryList();
                 mygenders.DataLoad();
                 mymaterials = new Classes.Specification.MaterialCollection();
                 mymaterials.DataLoad();

@@ -109,8 +109,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 myinsertupdateparams[0]
                 ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@state", System.Data.SqlDbType.Int)
-                ,new SqlParameter("@subject", System.Data.SqlDbType.NVarChar,100)
-                ,new SqlParameter("@body", System.Data.SqlDbType.NVarChar,1000)
+                ,new SqlParameter("@subject", System.Data.SqlDbType.NVarChar,200)
+                ,new SqlParameter("@body", System.Data.SqlDbType.NVarChar,-1)
                 ,new SqlParameter("@parameter1", System.Data.SqlDbType.Int)
             };
         }

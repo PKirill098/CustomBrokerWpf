@@ -69,7 +69,8 @@
                 </Popup>
             </ToolBar>
         </DockPanel>
-        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="MainScrollViewer" Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SizeChanged="MainScrollViewer_SizeChanged"
+                      >
             <Grid>
                 <Grid.Resources>
                     <Style TargetType="ComboBox">
@@ -84,7 +85,10 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Grid.Row="0" Background="#e0f7e3" VerticalAlignment="Top" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="CargoBorder" Grid.Row="0" Background="#e0f7e3" VerticalAlignment="Top" BorderBrush="#FFCCCCCC" BorderThickness="1" Margin="10">
                     <Grid DataContext="{Binding Path=VM}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -512,7 +516,8 @@
                         </DataGrid>-->
                     </Grid>
                 </Border>
-                <Grid Grid.Row="0" Grid.Column="1" Margin="0,10" DataContext="{Binding Path=VM}">
+                <ScrollViewer x:Name="AlgorithmScrollViewer" Margin="0,10" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" VerticalAlignment="Top">
+                <Grid Grid.Row="0" DataContext="{Binding Path=VM}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -576,6 +581,9 @@
                                 <RowDefinition SharedSizeGroup="r1" />
                                 <RowDefinition SharedSizeGroup="r1" />
                                 <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBlock Text="Инвойс" HorizontalAlignment="Left"/>
@@ -593,30 +601,39 @@
                                 <TextBlock Text="Общий таможенный платеж" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="5" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Фрахт" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Pick-up" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                                <TextBlock Text="CMR" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
+                                <TextBlock Text="СВХ" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="8" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
+                                <TextBlock Text="EX1/T1" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="9" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Корректировка" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Маркировка" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="10" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Итого расход" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Итого счет" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Корректировка" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="13" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="14" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Итого расход" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="15" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Итого счет" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="16" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBlock Text="Итого доход" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
@@ -698,7 +715,7 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="6" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=AlgorithmConCMD.PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox Text="{Binding Path=AlgorithmConCMD.RequestProperties.CMR, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -711,7 +728,7 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=AlgorithmConCMD.AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox Text="{Binding Path=AlgorithmConCMD.RequestProperties.CBX, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -723,8 +740,8 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="8" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=AlgorithmConCMD.SertificatCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                            <Border Grid.Row="8" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmConCMD.RequestProperties.EX1T1, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -737,7 +754,7 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=AlgorithmConCMD.Corr, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" KeyDown="BindingUpdate" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -750,6 +767,45 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.SertificatCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AlgorithmConCMD.Corr, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" KeyDown="BindingUpdate" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.LogisticsCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -762,7 +818,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="14" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.Cost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -775,7 +831,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="12" Grid.Column="1" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="15" Grid.Column="1" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.Pay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -788,7 +844,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="16" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.Income, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -843,7 +899,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="6" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.PreparatnPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -856,7 +912,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.AdditionalPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -869,7 +925,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="8" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="11" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.SertificatPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -882,7 +938,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="12" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.CorrPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -895,7 +951,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="13" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.LogisticsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -908,7 +964,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="11" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="14" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.CostPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -921,7 +977,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="12" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="15" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.PayPer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -934,7 +990,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="13" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="16" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmConCMD.IncomePer, StringFormat=\{0:P\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -957,6 +1013,10 @@
                                 <ColumnDefinition MinWidth="80"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
+                                <RowDefinition SharedSizeGroup="r1" />
                                 <RowDefinition SharedSizeGroup="r1" />
                                 <RowDefinition SharedSizeGroup="r1" />
                                 <RowDefinition SharedSizeGroup="r1" />
@@ -997,27 +1057,39 @@
                                 <TextBlock Text="ТД" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="6" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Фрахт" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Pick-up" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="7" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="CMR" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="8" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="СВХ" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="9" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="EX1/T1" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="10" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Маркировка" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="11" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
-                            </Border>
-                            <Border Grid.Row="8" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Доп. услуги" HorizontalAlignment="Left"/>
-                            </Border>
-                            <Border Grid.Row="9" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Довоз" HorizontalAlignment="Left"/>
-                            </Border>
-                            <Border Grid.Row="10" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left" FontWeight="Bold"/>
-                            </Border>
-                            <Border Grid.Row="11" BorderBrush="White" BorderThickness="0,1,0,0">
-                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
                             </Border>
                             <Border Grid.Row="12" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО ТРАНСПОРТ" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="13" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Довоз" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="14" ToolTip="Довоз" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="ИТОГО ЛОГИСТИКА" HorizontalAlignment="Left" FontWeight="Bold"/>
+                            </Border>
+                            <Border Grid.Row="15" BorderBrush="White" BorderThickness="0,1,0,0">
+                                <TextBlock Text="Сертификация" HorizontalAlignment="Left"/>
+                            </Border>
+                            <Border Grid.Row="16" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBlock Text="Корректировка" HorizontalAlignment="Left"/>
                             </Border>
-                            <Border Grid.Row="13" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <Border Grid.Row="17" Grid.Column="0" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmNote1, TargetNullValue=''}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" ToolTip="Свободное поле" TextWrapping="Wrap" AcceptsReturn="True" VerticalAlignment="Center" BorderThickness="0" Margin="0,0,0,0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1030,10 +1102,10 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="14" BorderBrush="White" BorderThickness="0,1,0,0">
+                            <Border Grid.Row="18" BorderBrush="White" BorderThickness="0,1,0,0">
                                 <TextBlock Text="ИТОГО СЧЕТ" HorizontalAlignment="Left" FontWeight="Bold"/>
                             </Border>
-                            <Border Grid.Row="15" BorderBrush="White" BorderThickness="0,1,0,0" Background="#FF92D050">
+                            <Border Grid.Row="19" BorderBrush="White" BorderThickness="0,1,0,0" Background="#FF92D050">
                                 <TextBlock Text="ИТОГО ДОХОД" FontWeight="Bold" Margin="0,5,32,5"/>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
@@ -1101,7 +1173,7 @@
                                 </TextBox.Style>
                             </TextBox>-->
                             </Border>
-                            <Border Grid.Row="6" Grid.Column="1" ToolTip="Фрахт" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="6" Grid.Column="1" ToolTip="Pick-up" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=FreightCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1115,7 +1187,7 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="7" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.CMR, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=TwoWay}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -1127,8 +1199,8 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="8" Grid.Column="1" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="1,1,0,0">
-                                <TextBox Text="{Binding Path=AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                            <Border Grid.Row="8" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.CBX, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=TwoWay}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Style.Triggers>
@@ -1141,6 +1213,58 @@
                                 </TextBox>
                             </Border>
                             <Border Grid.Row="9" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.EX1T1, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=TwoWay}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=PreparatnCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Доп. услуги" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <TextBox Text="{Binding Path=AdditionalCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="12" Grid.Column="1" ToolTip="Pick-up" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.DeliveryTotal, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="False">
+                                                    <Setter Property="Background" Value="#f7ede0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=BringCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1153,7 +1277,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="10" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="14" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=LogisticsCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1166,7 +1290,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="11" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="15" Grid.Column="1" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=SertificatCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1179,7 +1303,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="12" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="16" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <!--<TextBox Text="{Binding Path=CorrCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
@@ -1192,8 +1316,8 @@
                                 </TextBox.Style>
                             </TextBox>-->
                             </Border>
-                            <Border Grid.Row="13" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0"/>
-                            <Border Grid.Row="14" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="17" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0"/>
+                            <Border Grid.Row="18" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=TotalCost, StringFormat=\{0:N2\}, Mode=OneWay, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1206,7 +1330,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="15" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
+                            <Border Grid.Row="19" Grid.Column="1" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
                                 <!--<TextBox Text="{Binding Path=IncomeCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1297,7 +1421,46 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                <Border Grid.Row="7" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.CMR2, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#f7ede0"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Border>
+                                <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.CBX2, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True, Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#f7ede0"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Border>
+                                <Border Grid.Row="9" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                                    <TextBox Text="{Binding Path=AlgorithmCMD.RequestProperties.EX1T12, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="False">
+                                                        <Setter Property="Background" Value="#f7ede0"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </Border>
+                                <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=PreparatnPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1310,7 +1473,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="8" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="11" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AdditionalPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1323,7 +1486,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="9" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="13" Grid.Column="2" ToolTip="Довоз" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=BringPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1336,7 +1499,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="10" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="14" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=LogisticsPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1349,7 +1512,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="11" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="15" Grid.Column="2" ToolTip="Серт" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=SertificatPay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1362,7 +1525,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="12" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="16" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=CorrCost, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" KeyDown="BindingUpdate">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1375,7 +1538,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="13" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="17" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=AlgorithmNote2, TargetNullValue=''}" IsReadOnly="{Binding Source={StaticResource MainDataContext}, Path=Data.IsReadOnly, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" TextAlignment="Left" VerticalAlignment="Center" BorderThickness="0" Margin="0,0,0,0">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1388,7 +1551,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="14" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
+                            <Border Grid.Row="18" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0">
                                 <TextBox Text="{Binding Path=TotalPay, StringFormat=\{0:N2\}, Mode=OneWay, TargetNullValue='', NotifyOnValidationError=True}" IsReadOnly="True" FontWeight="Bold" BorderThickness="0" TextAlignment="Left" VerticalAlignment="Center">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1401,7 +1564,7 @@
                                     </TextBox.Style>
                                 </TextBox>
                             </Border>
-                            <Border Grid.Row="15" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
+                            <Border Grid.Row="19" Grid.Column="2" BorderBrush="White" BorderThickness="1,1,0,0" Background="#FF92D050">
                                 <TextBox Text="{Binding Path=IncomePay, StringFormat=\{0:N2\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" IsReadOnly="True" TextAlignment="Left" FontWeight="Bold" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,5">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
@@ -1516,6 +1679,7 @@
                         </Grid>
                     </Border>
                 </Grid>
+                </ScrollViewer>
                 <Grid DataContext="{Binding Path=VM}" Grid.Column="2" Margin="10">
                     <Grid.Resources>
                         <CollectionViewSource x:Key="keyDocTypes" Source="{Binding Source={StaticResource MainDataContext}, Path=Data.DocTypes}" />
