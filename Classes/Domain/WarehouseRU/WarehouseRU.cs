@@ -676,6 +676,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myvolumefilter.ExecCommand1 = () => { FilterRunExec(null); };
             myvolumefilter.ExecCommand2 = () => { myvolumefilter.Clear(); };
 
+            this.FilterFill();
+
             if (myfilter.isEmpty)
                 this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
             #endregion
@@ -849,9 +851,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void FilterDefaultExec(object parametr)
         {
-            myfilter.RemoveCurrentWhere();
-            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
-            FilterFill();
+            this.Save.Execute(null);
+            if (!LastSaveResult)
+                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Не удалось сохранить изменения. \n Сохраните или отмените изменения, затем примените фильтр.", true);
+            else
+            {
+                myfilter.RemoveCurrentWhere();
+                myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
+                FilterFill();
+                this.Refresh.Execute(null);
+            }
         }
         private bool FilterDefaultCanExec(object parametr)
         { return true; }
@@ -1020,7 +1029,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.Save.Execute(null);
             if (!LastSaveResult)
-                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Перевозка содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
+                this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Не удалось сохранить изменения. \n Сохраните или отмените изменения, затем примените фильтр.", true);
             else
             {
                 this.Refresh.Execute(null);
@@ -1028,14 +1037,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void FilterFill()
         {
+            //mystatusfilter.SelectedItems.Clear();
+            //mystatusfilter.SelectedItems.Add();
             //myfilter.PullListBox(myfilter.FilterWhereId, "agent", "Id", myagentfilter., true);
-
+            bool isnull;
             DateTime? date1, date2;
-            myfilter.PullDate(myfilter.FilterWhereId, "receipted", "receipted", out date1, out date2);
+            myfilter.PullDate(myfilter.FilterWhereId, "receipted", "receipted", out date1, out date2, out isnull);
+            myreceiptedfilter.IsNull = isnull;
             myreceiptedfilter.DateStart = date1;
             myreceiptedfilter.DateStop = date2;
             myreceiptedfilter.IconVisibileChangedNotification();
-            myfilter.PullDate(myfilter.FilterWhereId, "shipped", "shipped", out date1, out date2);
+            myfilter.PullDate(myfilter.FilterWhereId, "shipped", "shipped", out date1, out date2, out isnull);
+            myshippedfilter.IsNull = isnull;
             myshippedfilter.DateStart = date1;
             myshippedfilter.DateStop = date2;
             myshippedfilter.IconVisibileChangedNotification();

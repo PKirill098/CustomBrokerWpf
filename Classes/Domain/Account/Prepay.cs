@@ -548,7 +548,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     date = (DateTime?)value;
                     if (date.HasValue)
                     {
-                        DateTime? maxdate = this.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.PayDate; }).Date;
+                        DateTime? maxdate = null;
+                        if(this.CurrencyPays.Count()>0)
+                            maxdate = this.CurrencyPays.Max((PrepayCurrencyPay item) => { return item.PayDate; }).Date;
                         if (maxdate.HasValue && maxdate.Value > date.Value)
                             errmsg = "Дата оплаты поставщику не может быть меньше даты платежа!";
                     }

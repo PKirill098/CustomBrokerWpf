@@ -59,14 +59,17 @@
         </ToolBar>
         <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Path=Items}" IsReadOnly="True" Grid.Row="1"
                   AutoGenerateColumns="False" EnableRowVirtualization="True" RowDetailsVisibilityMode="Collapsed" SelectionUnit="FullRow" HorizontalGridLinesBrush="RoyalBlue" VerticalGridLinesBrush="RoyalBlue" AlternatingRowBackground="WhiteSmoke" AlternationCount="2"
-                  >
+                  HorizontalScrollBarVisibility="Visible">
             <DataGrid.Resources>
                 <libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="BranchFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.BranchFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="CertificateFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CertificateFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="ClientFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ClientFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="CountryRuFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CountryRuFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="GenderFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.GenderFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="LegalFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.LegalFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="ParcelFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ParcelFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+                <libui:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
             </DataGrid.Resources>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
@@ -108,12 +111,27 @@
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Клиенты" Binding="{Binding Path=Specification.Customers, TargetNullValue='', Mode=OneWay}">
+                <DataGridTextColumn Header="Клиент" Binding="{Binding Path=Client.Customer.Name, TargetNullValue='', Mode=OneWay}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                            <Setter Property="ToolTip" Value="{Binding Path=Specification.Customers,Mode=OneTime}"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ClientFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="ClientFilterPopup_Open"/>
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <Setter Property="ToolTip" Value="{Binding Path=Client.Customer,Mode=OneTime}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Юр лица" Binding="{Binding Path=Specification.CustomerLegals, TargetNullValue='', Mode=OneWay}">
                     <DataGridTextColumn.HeaderStyle>
@@ -122,7 +140,24 @@
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Юр. лицо" Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Юр. лицо" Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="{Binding Path=Specification.CustomerLegals,Mode=OneTime}"/>
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.LegalFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="LegalFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Юр. лицо Excel" Binding="{Binding Path=Customer, TargetNullValue='', Mode=OneWay}" />
 				<DataGridTextColumn Header="Заявка" Binding="{Binding Path=StorePoint, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Перевод" Binding="{Binding Path=Name, TargetNullValue='', Mode=OneWay}" />
@@ -148,7 +183,23 @@
                 <DataGridTextColumn Header="Описание 1C" Binding="{Binding Path=DescriptionAccount, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Размер EN" Binding="{Binding Path=SizeEN, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}"/>
                 <DataGridTextColumn Header="Размер РФ" Binding="{Binding Path=SizeRU, TargetNullValue='', Mode=OneWay}" />
-                <DataGridTextColumn Header="Артикул" Binding="{Binding Path=VendorCode, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Артикул" Binding="{Binding Path=VendorCode, TargetNullValue='', Mode=OneWay}" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter.IconVisibile, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <EventSetter Event="MouseRightButtonUp" Handler="VendorCodeFilterPopup_Open"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Филиал" Binding="{Binding Path=Branch, TargetNullValue='', Mode=OneWay}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">

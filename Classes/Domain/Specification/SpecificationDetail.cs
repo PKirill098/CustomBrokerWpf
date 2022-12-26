@@ -1149,16 +1149,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
             myclientfilter = new SpecificationDetailClientFilter();
             myclientfilter.DeferredFill = true;
+            myclientfilter.DisplayPath = "Name";
+            myclientfilter.GetDisplayPropertyValueFunc = (item) => { return ((lib.Interfaces.INameId)item).Name; };
+            myclientfilter.SearchPath = "Name";
             myclientfilter.ItemsSource = myview.OfType<SpecificationDetailVM>();
+            myclientfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
             myclientfilter.ExecCommand1 = () => { FilterRunExec(null); };
             myclientfilter.ExecCommand2 = () => { myclientfilter.Clear(); };
             myclientfilter.FillDefault = () =>
             {
                 if (myfilter.isEmpty)
                     foreach (lib.ReferenceSimpleItem item in CustomBrokerWpf.References.CustomersName)
-                        myclientfilter.Items.Add(item.Name);
+                        myclientfilter.Items.Add(item);
                 return myfilter.isEmpty;
             };
+
+            mylegalfilter = new SpecificationDetailLegalFilter();
+            mylegalfilter.DeferredFill = true;
+            mylegalfilter.DisplayPath = "Name";
+            mylegalfilter.GetDisplayPropertyValueFunc = (item) => { return ((lib.Interfaces.INameId)item).Name; };
+            mylegalfilter.SearchPath = "Name";
+            mylegalfilter.ItemsSource = myview.OfType<SpecificationDetailVM>();
+            mylegalfilter.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mylegalfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mylegalfilter.ExecCommand2 = () => { mylegalfilter.Clear(); };
+            mylegalfilter.FillDefault = () =>
+            {
+                if (myfilter.isEmpty)
+                    foreach (CustomerLegal item in mylegalfilter.DefaultList)
+                        mylegalfilter.Items.Add(item);
+                return myfilter.isEmpty;
+            };
+            mylegalfilter.IsFillDefault = () =>
+            {
+                return myfilter.isEmpty;
+            };
+
+            myvendorcodefilter = new SpecificationDetailVendorCodeFilter();
+            myvendorcodefilter.ItemsSource = myview.OfType<SpecificationDetailVM>();
+            myvendorcodefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myvendorcodefilter.ExecCommand2 = () => { myvendorcodefilter.Clear(); };
 
             mygenderfilter = new libui.CheckListBoxVM();
             mygenderfilter.DisplayPath = "Name";
@@ -1211,10 +1241,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private libui.CheckListBoxVM mygenderfilter;
         public libui.CheckListBoxVM GenderFilter
         { get { return mygenderfilter; } }
+        private SpecificationDetailLegalFilter mylegalfilter;
+        public SpecificationDetailLegalFilter LegalFilter
+        {
+            get { return mylegalfilter; }
+        }
         private SpecificationDetailParcelNumberEntireFilter myparcelfilter;
         public SpecificationDetailParcelNumberEntireFilter ParcelFilter
         {
             get { return myparcelfilter; }
+        }
+        private SpecificationDetailVendorCodeFilter myvendorcodefilter;
+        public SpecificationDetailVendorCodeFilter VendorCodeFilter
+        {
+            get { return myvendorcodefilter; }
         }
 
         private RelayCommand myfilterrun;
@@ -1256,7 +1296,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             {
                 string[] items = new string[myclientfilter.SelectedItems.Count];
                 for (int i = 0; i < myclientfilter.SelectedItems.Count; i++)
-                    items[i] = (myclientfilter.SelectedItems[i] as Parcel).Id.ToString();
+                    items[i] = (myclientfilter.SelectedItems[i] as lib.Interfaces.INameId).Id.ToString();
                 myfilter.SetList(myfilter.FilterWhereId, "customer", items);
             }
             else
@@ -1279,6 +1319,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "gender", new string[0]);
+            if (mylegalfilter.FilterOn)
+            {
+                string[] items = new string[mylegalfilter.SelectedItems.Count];
+                for (int i = 0; i < mylegalfilter.SelectedItems.Count; i++)
+                    items[i] = (mylegalfilter.SelectedItems[i] as lib.Interfaces.INameId).Id.ToString();
+                myfilter.SetList(myfilter.FilterWhereId, "legal", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "legal", new string[0]);
             if (myparcelfilter.FilterOn)
             {
                 string[] parcels = new string[myparcelfilter.SelectedItems.Count];
@@ -1288,6 +1337,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "parcel", new string[0]);
+            if (myvendorcodefilter.FilterOn)
+            {
+                int n = myvendorcodefilter.SelectedItems.Count;
+                string[] items = new string[n];
+                if(n > 0)
+                    for (int i = 0; i < n; i++)
+                        items[i] = (string)myvendorcodefilter.SelectedItems[i];
+                else 
+                {
+                    items = new string[1] { myvendorcodefilter.ItemsViewFilter };
+                }
+                myfilter.SetList(myfilter.FilterWhereId, "vendorcode", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "vendorcode", new string[0]);
+
             //if (myservicetypefilter.FilterOn)
             //{
             //    bool isNullOrEmpty = false;
@@ -1308,7 +1373,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             //    foreach (SQLFilterCondition cond in myfilter.ConditionGet(myservicetypefiltergroup, "servicetype"))
             //        myfilter.ConditionDel(cond.propertyid);
             //myfilter.SetDate(myfilter.FilterWhereId, "shipmentdate", "shipmentdate", myshipmentdatefilter.DateStart, myshipmentdatefilter.DateStop);
-            if (!(mybranchfilter.FilterOn | mybrandfilter.FilterOn | myparcelfilter.FilterOn | myclientfilter.FilterOn | mycountryrufilter.FilterOn | mygenderfilter.FilterOn | mycertificatefilter.FilterOn))
+            if (!(mybranchfilter.FilterOn | mybrandfilter.FilterOn | myparcelfilter.FilterOn | myclientfilter.FilterOn | mycountryrufilter.FilterOn | mygenderfilter.FilterOn | mylegalfilter.FilterOn | mycertificatefilter.FilterOn | myvendorcodefilter.FilterOn))
                 this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора грузов!", false);
             else
                 this.RefreshData(null);
@@ -1326,17 +1391,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mybranchfilter.IconVisibileChangedNotification();
             mybrandfilter.Clear();
             mybrandfilter.IconVisibileChangedNotification();
-            myparcelfilter.Clear();
-            myparcelfilter.IconVisibileChangedNotification();
+            mycertificatefilter.Clear();
+            mycertificatefilter.IconVisibileChangedNotification();
             myclientfilter.Clear();
             myclientfilter.IconVisibileChangedNotification();
             mycountryrufilter.Clear();
             mycountryrufilter.IconVisibileChangedNotification();
             mygenderfilter.Clear();
             mygenderfilter.IconVisibileChangedNotification();
-            mycertificatefilter.Clear();
-            mycertificatefilter.IconVisibileChangedNotification();
-            this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+            mylegalfilter.Clear();
+            mylegalfilter.IconVisibileChangedNotification();
+            myparcelfilter.Clear();
+            myparcelfilter.IconVisibileChangedNotification();
+            myvendorcodefilter.Clear();
+            myvendorcodefilter.IconVisibileChangedNotification();
+            this.FilterRunExec(null);
+            //this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
         }
         private bool FilterClearCanExec(object parametr)
         { return true; }
@@ -1767,21 +1837,37 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             if (!Items.Contains(item.Certificate)) Items.Add(item.Certificate);
         }
     }
-    public class SpecificationDetailClientFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, string>
+    public class SpecificationDetailClientFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, lib.Interfaces.INameId>
     {
         protected override void AddItem(SpecificationDetailVM item)
         {
-            string[] names;
-            bool contains;
-            names = item.Name.Trim(new char[] { ' ', ',' }).Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string name in names)
-            {
-                contains = false;
-                foreach (string goods in Items)
-                    if (string.Equals(goods, name, StringComparison.CurrentCultureIgnoreCase))
-                    { contains = true; break; }
-                if (!contains) Items.Add(name);
-            }
+            if (!Items.Contains(item.Client.Customer)) Items.Add(item.Client.Customer);
+            //string[] names;
+            //bool contains;
+            //names = item.Name.Trim(new char[] { ' ', ',' }).Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+            //foreach (string name in names)
+            //{
+            //    contains = false;
+            //    foreach (string goods in Items)
+            //        if (string.Equals(goods, name, StringComparison.CurrentCultureIgnoreCase))
+            //        { contains = true; break; }
+            //    if (!contains) Items.Add(name);
+            //}
+        }
+    }
+    public class SpecificationDetailLegalFilter : libui.CheckListBoxVMFillDefaultList<SpecificationDetailVM, CustomerLegal>
+    {
+        public override void ListFill()
+        {
+            DefaultList = new List<CustomerLegal>();
+            CustomerLegalDBM dbm = new CustomerLegalDBM();
+            dbm.Fill();
+            DefaultList = dbm.Collection.ToList<CustomerLegal>();
+        }
+
+        protected override void AddItem(SpecificationDetailVM item)
+        {
+            if (!Items.Contains(item.Client)) Items.Add(item.Client);
         }
     }
     public class SpecificationDetailCountryRuFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, string>
@@ -1806,6 +1892,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             ParcelNumber name;
             name = CustomBrokerWpf.References.ParcelNumbers.FindFirstItem("Id", item.Specification.Parcel.Id);
             if (!Items.Contains(name)) Items.Add(name);
+        }
+    }
+    public class SpecificationDetailVendorCodeFilter : libui.CheckListBoxVMFill<SpecificationDetailVM, string>
+    {
+        public SpecificationDetailVendorCodeFilter() : base()
+        {
+            this.DeferredFill = true;
+        }
+        protected override void AddItem(SpecificationDetailVM item)
+        {
+            if (!Items.Contains(item.VendorCode)) Items.Add(item.VendorCode);
         }
     }
 }

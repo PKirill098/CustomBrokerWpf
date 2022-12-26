@@ -1,18 +1,8 @@
 ﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Specification;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
@@ -109,6 +99,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             ppp.IsOpen = true;
             e.Handled = true;
         }
+        private void ClientFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (mycmd.ClientFilter != null && !mycmd.ClientFilter.FilterOn) mycmd.ClientFilter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("ClientFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
         private void CountryRuFilterFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
             if (mycmd.CountryRuFilter != null && !mycmd.CountryRuFilter.FilterOn) mycmd.CountryRuFilter?.FillAsync();
@@ -132,6 +130,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             ppp.IsOpen = true;
             e.Handled = true;
         }
-        
+        private void VendorCodeFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (mycmd.VendorCodeFilter != null && !mycmd.VendorCodeFilter.FilterOn) mycmd.VendorCodeFilter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("VendorCodeFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+        private void LegalFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (mycmd.LegalFilter != null && !mycmd.LegalFilter.FilterOn) mycmd.LegalFilter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("LegalFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
     }
 }

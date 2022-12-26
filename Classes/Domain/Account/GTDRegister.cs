@@ -426,7 +426,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private SpecificationCustomerInvoiceRateDBM myratedbm;
         private GTDRegisterClientDBM mycdbm;
         internal GTDRegisterClientDBM ClientDBM
-        { set { mycdbm = value; } get { return mycdbm; } }
+        { set { mycdbm = value; mycdbm.Command.CommandTimeout = 10000; } get { return mycdbm; } }
         private ParcelDBM mypldbm;
 
         protected override GTDRegister CreateItem(SqlDataReader reader, SqlConnection addcon)

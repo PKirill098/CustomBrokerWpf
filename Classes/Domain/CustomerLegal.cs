@@ -6,7 +6,7 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
-    public class CustomerLegal : lib.DomainBaseStamp
+    public class CustomerLegal : lib.DomainBaseStamp,lib.Interfaces.INameId
     {
         public CustomerLegal(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
             , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, Customer customer, DateTime dayentry, int? deliverytype, byte edod, byte edot, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status

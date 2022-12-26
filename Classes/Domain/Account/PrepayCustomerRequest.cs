@@ -118,7 +118,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? CurrencyBuyRate
         {
             set { if (!this.CurrencyBoughtDate.HasValue) mycurrencybuyrate = value; this.PropertyChangedNotification(nameof(this.CurrencyBuyRate)); }
-            get { return mycurrencybuyrate.HasValue ? mycurrencybuyrate : (this.CurrencyBuySumTotal > 0 ? decimal.Multiply(decimal.Divide(this.Prepay.CurrencyBuySum, this.CurrencyBuySumTotal), this.Prepay.CurrencyBuyRate ?? 0M) + decimal.Multiply(decimal.Divide((this.CustomsInvoice?.CurrencyBuySum ?? 0M), this.CurrencyBuySumTotal), this.CustomsInvoice?.CurrencyBuyRate ?? 0M) : (decimal?)null); }
+            get { return mycurrencybuyrate.HasValue ? 
+                    mycurrencybuyrate 
+                    : (this.CurrencyBuySumTotal > 0 ? 
+                        decimal.Multiply(
+                            decimal.Divide(this.Prepay.CurrencyBuySum, this.CurrencyBuySumTotal)
+                            , this.Prepay.CurrencyBuyRate ?? 0M)
+                        + decimal.Multiply(
+                            decimal.Divide((this.CustomsInvoice?.CurrencyBuySum ?? 0M)
+                            , this.CurrencyBuySumTotal)
+                            , this.CustomsInvoice?.CurrencyBuyRate ?? 0M) 
+                        : (decimal?)null
+                      );
+            }
         }
         private decimal CurrencyBuySumTotal
         { get { return this.Prepay.CurrencyBuySum + this.CustomsInvoice?.CurrencyBuySum ?? 0M; } }

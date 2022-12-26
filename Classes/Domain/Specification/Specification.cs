@@ -1055,6 +1055,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         if (firstitem != null) firstitem = UpdateItem(firstitem);
                         dbm.Command.Connection = null;
                         errors.AddRange(dbm.Errors);
+                        dbm.Request = null;
+                        dbm.SelectParamsReset();
                         dbm.Errors.Clear();
                         mydbmanagers.Enqueue(dbm);
                     }
