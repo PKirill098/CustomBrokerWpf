@@ -4496,6 +4496,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public Parcel Parcel
         { get { return myparel; } }
 
+        public bool RequestCounted
+        { get { return myparel.RequestsIsLoaded & !this.Processing; } }
+
         private decimal myactualweight;
         public decimal ActualWeight
         { get { return myactualweight; } }

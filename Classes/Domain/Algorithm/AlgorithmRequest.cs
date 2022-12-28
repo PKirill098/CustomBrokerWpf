@@ -1567,7 +1567,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                                     {
                                         if (myrequest.Parcel.TransportTUn.HasValue) // old algoritm if in Parcel missing Transport
                                         {
-                                            values.FuncValue1 = (string error) => { return (myrequest.Parcel.TransportTUn??0M) * ((myrequest.ParcelGroup.HasValue ? (mygwdbm.Volume ?? 0M) : 0M) + (myrequest.Volume ?? 0M)); };
+                                            values.FuncValue1 = (string error) => {
+                                                if (myrequest.Parcel.RequestsIsLoaded)
+                                                    return (myrequest.Parcel.TransportTUn ?? 0M) * ((myrequest.ParcelGroup.HasValue ? (mygwdbm.Volume ?? 0M) : 0M) + (myrequest.Volume ?? 0M));
+                                                else
+                                                { 
+                                                    error = "Не все заявки загружены";
+                                                    return 0M;
+                                                }
+                                            };
                                             values.Formula.Formula1 = @"{Трансп. Расходы * Объем}";
                                         }
                                     }
@@ -1575,11 +1583,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                                     {
                                         if (myrequest.Parcel.TransportDUn.HasValue)
                                         {
-                                            values.FuncValue1 = (string error) => { return (myrequest.Parcel.TransportDUn??0M) * ((myrequest.ParcelGroup.HasValue ? (mygwdbm.Volume ?? 0M) : 0M) + (myrequest.Volume ?? 0M)); };
+                                            values.FuncValue1 = (string error) => {
+                                                if (myrequest.Parcel.RequestsIsLoaded)
+                                                    return (myrequest.Parcel.TransportDUn??0M) * ((myrequest.ParcelGroup.HasValue ? (mygwdbm.Volume ?? 0M) : 0M) + (myrequest.Volume ?? 0M));
+                                                else
+                                                { 
+                                                    error = "Не все заявки загружены";
+                                                    return 0M; 
+                                                }
+                                            };
                                             values.Formula.Formula1 = @"{Трансп. Расходы * Объем}";
                                         }
                                     }
                                     values.InitLater = false;
+                                    myrequest.Parcel.PropertyChanged += Parcel_14PropertyChanged;
                                 }
                                 break;
                             //case "П17":
@@ -1918,6 +1935,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 this.PopupText = err.ToString();
             else
                 this.Save.Execute(null);
+        }
+
+        private void Parcel_14PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "TransportTUn":
+                case "TransportDUn":
+                case "RequestsIsLoaded":
+                    foreach (AlgorithmValuesRequest values in this.Algorithm.Formulas)
+                        if (values.Formula.Code == "П14")
+                        {
+                            values.SetValue1();
+                            break;
+                        }
+                    break;
+            }
         }
     }
 
