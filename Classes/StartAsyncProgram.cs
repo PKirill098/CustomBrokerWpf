@@ -120,4 +120,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             return cmd;
         }
     }
+
+    internal class WarningAsyncExpiringContracts : WarningAsyncItem<ExpiringContractsWin, Domain.Contract>
+    {
+        internal WarningAsyncExpiringContracts() : base(new Domain.ContractDBM()) { }
+        internal override lib.ViewModelViewCommand GetCMD(IDBMFill<Domain.Contract> dbm)
+        {
+            ContractCMD cmd = new Domain.ContractCMD(false);
+            foreach (Contract item in dbm.Collection) cmd.DomainCollection.Add(item);
+            return cmd;
+        }
+    }
 }

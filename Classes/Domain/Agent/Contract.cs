@@ -246,6 +246,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public ContractVM():this(new Contract()) { }
 
+        public Agent Agent
+        { 
+            set { if(value!=null) SetProperty<Agent>(this.DomainObject.Agent,(Agent agent)=> { this.Agent = value; }, value); }
+            get { return GetProperty<Agent>(this.DomainObject.Agent, null); }
+        }
         public decimal? Amount
         {
             set
@@ -317,6 +322,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return this.IsEnabled ? this.DomainObject.Number : null; }
         }
 
+        public bool Expiring
+        { get { return this.DomainObject?.ExpiryDate.Subtract(DateTime.Today.AddMonths(1)).Days > 0 ; } }
+
         protected override bool DirtyCheckProperty()
         {
             return false;
@@ -363,6 +371,44 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override ContractVM Wrap(Contract fill)
         {
             return new ContractVM(fill);
+        }
+    }
+
+    public class ContractCMD : lib.ViewModelViewCommand
+    {
+        public ContractCMD(bool fill=true)
+        {
+            mymaindbm = new ContractDBM();
+            mydbm = mymaindbm;
+            mymaindbm.Collection = new System.Collections.ObjectModel.ObservableCollection<Contract>();
+            mymaindbm.FillAsyncCompleted = () => {
+                if (mymaindbm.Errors.Count > 0) OpenPopup(mymaindbm.ErrorMessage, true);
+            };
+            if(fill) mymaindbm.FillAsync();
+            mysync = new ContractSynchronizer();
+            mysync.DomainCollection = mymaindbm.Collection;
+            this.Collection = mysync.ViewModelCollection;
+        }
+
+        private ContractDBM mymaindbm;
+        private ContractSynchronizer mysync;
+
+        internal System.Collections.ObjectModel.ObservableCollection<Contract> DomainCollection
+        { get { return mysync.DomainCollection; } }
+
+
+        protected override void OtherViewRefresh()
+        {
+        }
+
+        protected override void RefreshData(object parametr)
+        {
+            mydbm.FillAsync();
+        }
+
+        protected override void SettingView()
+        {
+            myview.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(Contract.ExpiryDate), System.ComponentModel.ListSortDirection.Ascending));
         }
     }
 }

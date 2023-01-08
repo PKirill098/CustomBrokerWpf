@@ -597,6 +597,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
+        private void ExpiringContracts_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winExpiringContracts") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ContractCMD cmd = new ContractCMD(true);
+                ObjectWin = new ExpiringContractsWin();
+                ObjectWin.DataContext = cmd;
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
         private void MenuItemContractor_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -2177,5 +2198,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (PropertyChanged != null)
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
+
     }
 }

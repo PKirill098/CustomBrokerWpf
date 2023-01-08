@@ -184,6 +184,9 @@
     <Compile Include="ManagersWin.xaml.cs">
       <DependentUpon>ManagersWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Agent\ExpiringContractsWin.xaml.cs">
+      <DependentUpon>ExpiringContractsWin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Client\PaymentTypeWin.xaml.cs">
       <DependentUpon>PaymentTypeWin.xaml</DependentUpon>
     </Compile>
@@ -521,6 +524,10 @@
       <DependentUpon>TownWin.xaml</DependentUpon>
     </Compile>
     <Page Include="ManagersWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Agent\ExpiringContractsWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

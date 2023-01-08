@@ -123,7 +123,12 @@
 						<Image Source="/CustomBrokerWpf;component/Images/businessman.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="Контрагенты" Click="MenuItemContractor_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
+                <MenuItem Header="Истекающие контракты" Click="ExpiringContracts_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                    <MenuItem.Icon>
+                        <Image Source="/CustomBrokerWpf;component/Images/form_blue.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Контрагенты" Click="MenuItemContractor_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="{Binding Source={StaticResource keyVisibilityManagers},Path=Visibility}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/security_agent.png" />
 					</MenuItem.Icon>

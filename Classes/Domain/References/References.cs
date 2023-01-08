@@ -87,7 +87,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 App.Current.MainWindow = new MainWindow();
                 Classes.WarningAsyncItemGoods goods = new Classes.WarningAsyncItemGoods();
+                Classes.WarningAsyncExpiringContracts contracts = new Classes.WarningAsyncExpiringContracts();
                 mywarningasync = new Classes.WarningAsync(goods);
+                new Classes.WarningAsync(contracts)?.StartAsync();
             }
             System.Threading.Tasks.Task task = mywarningasync?.StartAsync();
             App.Current.MainWindow.Show();

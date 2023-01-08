@@ -8,7 +8,8 @@
              xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             DataContextChanged="UserControl_DataContextChanged">
+             DataContextChanged="UserControl_DataContextChanged" Loaded="UserControl_Loaded"
+             >
     <Grid>
         <Grid.Resources>
             <lib:BindingProxy x:Key="MainDataContext" Data="{Binding}"/>
@@ -17,7 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" IsReadOnly="{Binding IsReadOnly,Mode=OneTime}" CanUserAddRows="False" CanUserDeleteRows="False" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" VerticalScrollBarVisibility="Visible"
-                  SelectionChanged="DataGrid_SelectionChanged">
+                  SelectionChanged="DataGrid_SelectionChanged" MouseDoubleClick="MainDataGrid_MouseDoubleClick" >
             <DataGrid.Resources>
                 <libui:CheckListBoxPopup x:Key="AgentFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.AgentFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
                 <libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
