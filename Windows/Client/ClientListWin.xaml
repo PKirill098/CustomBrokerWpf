@@ -33,9 +33,9 @@
         </ToolBar>
         <DataGrid Grid.Row="1" x:Name="MainDataGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" GridLinesVisibility="Vertical" VerticalGridLinesBrush="RoyalBlue" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Single"
                  EnableRowVirtualization="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" CanUserResizeRows="False" FrozenColumnCount="1">
-            <DataGrid.Resources>
+            <!--<DataGrid.Resources>
                 <libbind:DataGridCellBorderConverter x:Key="CellBorderConverter"/>
-            </DataGrid.Resources>
+            </DataGrid.Resources>-->
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="ContextMenu" Value="{StaticResource DataGridCellContextMenu}"/>
@@ -52,7 +52,7 @@
                                 <Setter.Value>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomerFilter.IconVisibile, Mode=OneWay}"/>
+                                            <Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CustomerFilter.IconVisibile, Mode=OneWay}"/>
                                             <TextBlock Text="{Binding}"/>
                                         </StackPanel>
                                     </DataTemplate>

@@ -282,6 +282,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             set { if(value >= 1M) value = value / 100M; SetProperty<decimal>(ref mypercent, value, () => { this.PropertyChangedNotification(nameof(this.RubSum)); }); }
             get { return mypercent; }
         }
+        public decimal Percent100
+        {
+            set { if (value >= 1M) value = value / 100M; SetProperty<decimal>(ref mypercent, value, () => { this.PropertyChangedNotification(nameof(this.RubSum)); }); }
+            get { return mypercent*100M; }
+        }
         public decimal? RateDiffPer
         { get { return this.CBRatep2p.HasValue && this.CurrencyBoughtDate.HasValue && this.CurrencyBuyRate.HasValue ? decimal.Divide(this.CurrencyBuyRate.Value, this.CBRatep2p.Value) - 1M : (decimal?)null; } }
         public bool? RateDiffResult

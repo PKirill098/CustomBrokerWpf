@@ -1862,6 +1862,18 @@
                                                             </Style>
                                                         </DataGridTextColumn.CellStyle>
                                                     </DataGridTextColumn>
+                                                    <DataGridTextColumn Header="%" Binding="{Binding Prepay.Percent100, Mode=TwoWay, StringFormat=\{0:F0\},UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=true, NotifyOnValidationError=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                                        <DataGridTextColumn.CellStyle>
+                                                            <Style TargetType="DataGridCell">
+                                                                <Setter Property="ToolTip" Value="Процент счета клиенту по предоплате"/>
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="False">
+                                                                        <Setter Property="Background" Value="#FFFBEFEF"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DataGridTextColumn.CellStyle>
+                                                    </DataGridTextColumn>
                                                 </DataGrid.Columns>
                                             </DataGrid>
                                             <TextBlock Grid.Row="1" Visibility="{Binding Path=PrePrepaysVisibility,Mode=OneWay}" Text="Резерв валюты" ToolTip="Разница купленной валюты и привезенного товара из других заявок.&#xA;Для использования в заявке укажите сумму ДТ." Background="#FFF7E0E0" Padding="40,0,0,0"/>
@@ -1965,7 +1977,7 @@
                                             </Style>
                                         </DataGridTextColumn.CellStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Header="Таможен %" Binding="{Binding CustomsPercent, NotifyOnValidationError=True, StringFormat=\{0:F0\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="86">
+                                    <DataGridTextColumn Header="%" Binding="{Binding CustomsPercent, NotifyOnValidationError=True, StringFormat=\{0:F0\}, TargetNullValue='',UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" FontWeight="Bold" Width="86">
                                         <DataGridTextColumn.CellStyle>
                                             <Style TargetType="DataGridCell">
                                                 <Setter Property="ToolTip" Value="Ставка таможенного счета для клиента по машине"/>

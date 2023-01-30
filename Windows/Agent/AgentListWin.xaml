@@ -161,6 +161,90 @@
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Закрыт" Width="SizeToheader">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Contracts}" IsReadOnly="True" HeadersVisibility="None" CanUserAddRows="False" BorderThickness="0" GridLinesVisibility="Horizontal" Margin="0" Padding="0">
+                                <DataGrid.Columns>
+                                    <DataGridCheckBoxColumn Binding="{Binding Path=Expired}" IsThreeState="False" Width="*">
+                                        <!--<DataGridCheckBoxColumn.CellStyle>
+                                            <Style TargetType="DataGridCheckBoxColumn">
+                                            </Style>
+                                        </DataGridCheckBoxColumn.CellStyle>-->
+                                    </DataGridCheckBoxColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Номер" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Contracts}" HeadersVisibility="None" CanUserAddRows="False" BorderThickness="0" GridLinesVisibility="Horizontal" Padding="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                                <!--<DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                    </Style>
+                                </DataGrid.RowStyle>-->
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=Number}" Header="Номер" Width="*">
+                                        <!--<DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Margin" Value="0"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>-->
+                                        <DataGridTextColumn.EditingElementStyle>
+                                            <Style TargetType="{x:Type TextBox}">
+                                                <Setter Property="MaxLength" Value="10"/>
+                                                <Setter Property="Padding" Value="0" />
+                                                <Setter Property="BorderThickness" Value="0"/>
+                                            </Style>
+                                        </DataGridTextColumn.EditingElementStyle>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Дата" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Contracts}" HeadersVisibility="None" CanUserAddRows="False" BorderThickness="0" GridLinesVisibility="Horizontal">
+                                <!--<DataGrid.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="BorderBrush" Value="Red"/>
+                                    </Style>
+                                </DataGrid.CellStyle>-->
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=\{0:d\}, TargetNullValue=''}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Сумма" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Contracts}" HeadersVisibility="None" CanUserAddRows="False" BorderThickness="0" GridLinesVisibility="Horizontal">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat=\{0:N2\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRight}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Истекает" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Contracts}" HeadersVisibility="None" CanUserAddRows="False" BorderThickness="0" GridLinesVisibility="Horizontal">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Истекает" Binding="{Binding ExpiryDate, StringFormat=\{0:d\}}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentCenter}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <StatusBar Grid.Row="2" Background="#FFF0F0F0">
