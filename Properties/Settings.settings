@@ -38,7 +38,7 @@
       <Value Profile="(Default)">Data Source=PK\SQLEXPRESS;Initial Catalog=CustomBroker;Integrated Security=True;</Value>
     </Setting>
     <Setting Name="DocFileRoot" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\Programming\PROJECTS\Таможня\Global\Doc\</Value>
+      <Value Profile="(Default)">C:\PROJECTS\Таможня\Global\Doc\</Value>
     </Setting>
     <Setting Name="DocFileDefault" Type="System.String" Scope="User">
       <Value Profile="(Default)">Документы</Value>

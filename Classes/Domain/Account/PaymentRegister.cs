@@ -951,6 +951,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         switch (columninfo.Property)
                         {
                             case "Consolidate":
+                            case "ManagerName":
                             case nameof(Prepay.InvoiceNumber):
                             case nameof(Parcel.ParcelNumberOrder):
                                 exWh.Columns[column, Type.Missing].NumberFormat = "@";
@@ -1118,7 +1119,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             case nameof(PrepayCustomerRequestVM.Refund):
                                 exWh.Cells[row, column] = item.Refund;
                                 break;
-                            case nameof(Request.Manager):
+                            case "ManagerName":
                                 exWh.Cells[row, column] = item.Request?.Manager?.NameComb;
                                 break;
                             case nameof(Prepay.RateDiffPer):

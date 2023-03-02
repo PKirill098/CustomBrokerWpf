@@ -99,7 +99,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Programming\\PROJECTS\\Таможня\\Global\\Doc\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\PROJECTS\\Таможня\\Global\\Doc\\")]
         public string DocFileRoot {
             get {
                 return ((string)(this["DocFileRoot"]));
