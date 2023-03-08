@@ -402,14 +402,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             get
             {
+                if (this.Parcel == null) return null;
+                if (!this.Parcel.RequestsIsLoaded)
+                    this.Parcel.PropertyChanged += Parcel_PropertyChanged;
                 return this.Parcel?.Requests.Where((Request item) =>
                     {
                         return item.Parcel == this.Parcel && string.Equals(item.Consolidate, this.Consolidate)
-                          && (!string.IsNullOrEmpty(this.Consolidate) || (item.ParcelGroup == this.ParcelGroup
-                          && (this.ParcelGroup.HasValue || item.Id == this.Request?.Id)));
+                            && (!string.IsNullOrEmpty(this.Consolidate) || (item.ParcelGroup == this.ParcelGroup
+                            && (this.ParcelGroup.HasValue || item.Id == this.Request?.Id)));
                     });
             }
         }
+        private void Parcel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(Parcel.Requests):
+                    if (this.Parcel.RequestsIsLoaded)
+                    {
+                        this.Parcel.PropertyChanged -= Parcel_PropertyChanged;
+                        this.PropertyChangedNotification(nameof(Specification.Requests));
+                    }
+                    break;
+            }
+        }
+
         //private Dictionary<int, SpecificationCustomerInvoiceRate> myinvoicedtrates;
         //internal Dictionary<int, SpecificationCustomerInvoiceRate> InvoiceDTRates
         //{ get { return myinvoicedtrates; } }
@@ -1014,6 +1031,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             //rng.Columns[11, Type.Missing].AutoFit();
             //rng = exWh.Columns[12, Type.Missing]; rng.AutoFit();
 
+        }
+        private IEnumerable<Request> GetRequests()
+        {
+            return this.Parcel?.Requests.Where((Request item) =>
+            {
+                return item.Parcel == this.Parcel && string.Equals(item.Consolidate, this.Consolidate)
+                  && (!string.IsNullOrEmpty(this.Consolidate) || (item.ParcelGroup == this.ParcelGroup
+                  && (this.ParcelGroup.HasValue || item.Id == this.Request?.Id)));
+            });
         }
     }
 

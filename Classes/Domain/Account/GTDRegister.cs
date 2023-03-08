@@ -30,7 +30,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             //myspec.Declaration.ValueChanged += this.Declaration_ValueChanged;
             myspec.Parcel.PropertyChanged += this.Parcel_PropertyChanged;
             myservicetype = servicetype;
-            mymanagers = new List<Manager>();
         }
 
 
@@ -65,13 +64,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public List<Manager> Managers
         { 
             get {
-                if(mymanagers.Count==0)
-				{
-                    foreach (Request request in this.Specification.Requests)
-                        if (request.Manager != null && !mymanagers.Contains(request.Manager))
-                            mymanagers.Add(request.Manager);
-                    this.PropertyChangedNotification(nameof(GTDRegister.Managers));
-				}
+                if (mymanagers == null)
+                {
+                    mymanagers = new List<Manager>();
+                    this.ManagersRefresh();
+                }
                 return mymanagers;
             }
         }
@@ -269,7 +266,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 case nameof(Parcel.UsdRate):
                     this.Specification.PropertyChangedNotification(nameof(Specification.GTLS));
                     break;
-
+                case nameof(Parcel.Requests):
+                    this.ManagersRefresh();
+                    break;
             }
         }
         private void Specification_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -358,6 +357,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     this.PropertyChangedNotification(nameof(this.VolumeProfit));
                     break;
             }
+        }
+        private void ManagersRefresh()
+        {
+            if (mymanagers == null) return;
+
+            foreach (Request request in this.Specification.Requests)
+            if (request.Manager != null && !mymanagers.Contains(request.Manager))
+                mymanagers.Add(request.Manager);
+            this.PropertyChangedNotification(nameof(GTDRegister.Managers));
         }
         internal void Unbind()
         {
@@ -854,6 +862,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 str.Append((str.Length==0 ? string.Empty : ", ") + manager.Name);
 			}
             mymanagers = str.ToString();
+            this.PropertyChangedNotification(nameof(GTDRegisterVM.Managers));
             myinitmanagers = false;
         }
     }
@@ -1664,6 +1673,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         switch (columninfo.Property)
                         {
                             case nameof(Parcel.ParcelNumberOrder):
+                            case nameof(GTDRegister.Managers):
                                 exWh.Columns[column, Type.Missing].NumberFormat = "@";
                                 exWh.Columns[column, Type.Missing].HorizontalAlignment = Excel.Constants.xlCenter;
                                 break;
@@ -1833,6 +1843,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                 break;
                             case nameof(item.VolumeProfit):
                                 exWh.Cells[row, column] = item.VolumeProfit;
+                                break;
+                            case nameof(GTDRegister.Managers):
+                                exWh.Cells[row, column] = item.Managers;
                                 break;
                         }
                         column++;
