@@ -30,6 +30,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             //myspec.Declaration.ValueChanged += this.Declaration_ValueChanged;
             myspec.Parcel.PropertyChanged += this.Parcel_PropertyChanged;
             myservicetype = servicetype;
+            mymanagers = new List<Manager>();
         }
 
 
@@ -60,6 +61,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.DTSum ?? 0M; }); } }
         public decimal? DTSumRub
         { get { return myspec.Declaration?.CBRate * myspec.Declaration?.TotalSum; } }
+        private List<Manager> mymanagers;
+        public List<Manager> Managers
+        { 
+            get {
+                if(mymanagers.Count==0)
+				{
+                    foreach (Request request in this.Specification.Requests)
+                        if (request.Manager != null && !mymanagers.Contains(request.Manager))
+                            mymanagers.Add(request.Manager);
+                    this.PropertyChangedNotification(nameof(GTDRegister.Managers));
+				}
+                return mymanagers;
+            }
+        }
         public decimal? MarkupAlg
         {
             get
@@ -654,6 +669,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.DomainObject.DTSum; } }
         public decimal? DTSumRub
         { get { return this.DomainObject.DTSumRub; } }
+        private string mymanagers;
+        public string Managers
+		{
+			get
+			{
+                return mymanagers;
+            }
+		}
         public decimal? MarkupAlg
         {
             get { return this.DomainObject.MarkupAlg; }
@@ -771,11 +794,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     else
                         myspec.DomainObject = this.DomainObject.Specification;
                     break;
+                case nameof(GTDRegister.Managers):
+                    if(!myinitmanagers) this.InitManagers();
+                    break;
             }
         }
         protected override void InitProperties()
         {
             myspec = new Classes.Specification.SpecificationVM(this.DomainObject.Specification);
+            this.InitManagers();
             myclientsynchronizer.DomainCollection = this.DomainObject.Clients;
             myclients = new ListCollectionView(myclientsynchronizer.ViewModelCollection);
             myclients.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
@@ -815,6 +842,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override bool ValidateProperty(string propertyname, bool inform = true)
         {
             return true;
+        }
+
+        private bool myinitmanagers;
+        private void InitManagers()
+		{
+            myinitmanagers = true; // первая инициализация повторный вызов через событие
+            StringBuilder str = new StringBuilder();
+            foreach(Manager manager in this.DomainObject.Managers)
+			{
+                str.Append((str.Length==0 ? string.Empty : ", ") + manager.Name);
+			}
+            mymanagers = str.ToString();
+            myinitmanagers = false;
         }
     }
 

@@ -157,7 +157,8 @@
                                 <DataGridTextColumn Binding="{Binding Path=VATPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Volume, StringFormat=\{0:N3\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=VolumeProfit, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
-                            </DataGrid.Columns>
+								<DataGridTextColumn SortMemberPath="Managers" IsReadOnly="True"/>
+							</DataGrid.Columns>
                         </DataGrid>
                     </DataTemplate>
                 </DataGrid.RowDetailsTemplate>
@@ -1291,7 +1292,25 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                </DataGrid.Columns>
+					<DataGridTextColumn Header="Менеджеры" Binding="{Binding Path=Managers, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Ответственные менеджеры"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ManagerFilter.IconVisibile, Mode=OneWay}"/>
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="ManagersFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+				</DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>
     </Grid>

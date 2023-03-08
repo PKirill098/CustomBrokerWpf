@@ -243,6 +243,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             ppp.IsOpen = true;
             e.Handled = true;
         }
+		private void ManagersFilterPopup_Open(object sender, MouseButtonEventArgs e)
+		{
+
+		}
         private void MarkupAlgFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
 
@@ -609,5 +613,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             }
             return cancel;
         }
-    }
+
+	}
 }
