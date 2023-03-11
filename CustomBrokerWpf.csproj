@@ -167,6 +167,7 @@
     <Compile Include="Classes\Domain\DomainBaseClass.cs" />
     <Compile Include="Classes\Domain\Manager.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
+    <Compile Include="Classes\Domain\Marking\Marking.cs" />
     <Compile Include="Classes\Domain\ParcelLastShipdate.cs" />
     <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
     <Compile Include="Classes\Domain\StorageData.cs" />
