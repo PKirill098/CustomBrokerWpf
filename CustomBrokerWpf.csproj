@@ -204,6 +204,9 @@
     <Compile Include="Windows\Client\ClientNewWin.xaml.cs">
       <DependentUpon>ClientNewWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Marking\Marking_win.xaml.cs">
+      <DependentUpon>Marking_win.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Parcel\ParcelItemWin.xaml.cs">
       <DependentUpon>ParcelItemWin.xaml</DependentUpon>
     </Compile>
@@ -551,6 +554,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Client\ClientNewWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Marking\Marking_win.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

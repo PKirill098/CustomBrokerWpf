@@ -43,7 +43,8 @@
 			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
 			</Button>
-            <Button Content="Закрыть" Click="CloseButton_Click"/>
+			<Separator/>
+			<Button Content="Закрыть" Click="CloseButton_Click"/>
             <Popup IsOpen="{Binding Path=PopupIsOpen}" StaysOpen="False" Placement="Center" PopupAnimation="Fade" AllowsTransparency="True" Visibility="Collapsed" IsHitTestVisible="False" Grid.ColumnSpan="2" >
 				<Border BorderBrush="Beige" BorderThickness="2" Background="{Binding Path=PopupBackground}" CornerRadius="7">
 					<TextBlock Text="{Binding Path=PopupText}" Margin="2"  FontStyle="Italic" Foreground="Teal" />
