@@ -313,19 +313,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 filter.SetString(filter.FilterWhereId, "trailervin", trailervinTextBox.Text);
                 isChanchedTrailerVin = false;
             }
-            if (isChanchedParcelType)
-            {
-                int i = 0;
-                string[] values = new string[this.parcelTypeListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.parcelTypeListBox.SelectedItems)
-                {
-                    ReferenceDS.tableParcelTypeRow row = rowview.Row as ReferenceDS.tableParcelTypeRow;
-                    values[i] = row.parceltypeid.ToString();
-                    i++;
-                }
-                filter.SetList(filter.FilterWhereId, "parceltype", values);
-                isChanchedParcelType = false;
-            }
+            //if (isChanchedParcelType)
+            //{
+            //    int i = 0;
+            //    string[] values = new string[this.parcelTypeListBox.SelectedItems.Count];
+            //    foreach (System.Data.DataRowView rowview in this.parcelTypeListBox.SelectedItems)
+            //    {
+            //        ReferenceDS.tableParcelTypeRow row = rowview.Row as ReferenceDS.tableParcelTypeRow;
+            //        values[i] = row.parceltypeid.ToString();
+            //        i++;
+            //    }
+            //    filter.SetList(filter.FilterWhereId, "parceltype", values);
+            //    isChanchedParcelType = false;
+            //}
             if (isChanchedStatus)
             {
                 int i = 0;
@@ -632,13 +632,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             System.Data.DataView statusview = new System.Data.DataView(refDS.tableRequestStatus, "rowId>49", "rowId", DataViewRowState.CurrentRows);
             this.statusListBox.ItemsSource = statusview;
-            if (refDS.tableParcelType.Count == 0)
-            {
-                ReferenceDSTableAdapters.ParcelTypeAdapter parceltypeAdapter = new ReferenceDSTableAdapters.ParcelTypeAdapter();
-                parceltypeAdapter.Fill(refDS.tableParcelType);
-            }
-            System.Data.DataView typeview = new System.Data.DataView(refDS.tableParcelType);
-            this.parcelTypeListBox.ItemsSource = typeview;
+            //if (refDS.tableParcelType.Count == 0)
+            //{
+            //    ReferenceDSTableAdapters.ParcelTypeAdapter parceltypeAdapter = new ReferenceDSTableAdapters.ParcelTypeAdapter();
+            //    parceltypeAdapter.Fill(refDS.tableParcelType);
+            //}
+            //System.Data.DataView typeview = new System.Data.DataView(refDS.tableParcelType);
+            //this.parcelTypeListBox.ItemsSource = typeview;
             this.goodstypeListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             if (myfilterowner != null)
                 filter = myfilterowner.Filter;

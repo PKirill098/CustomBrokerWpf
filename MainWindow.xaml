@@ -133,6 +133,11 @@
 						<Image Source="/CustomBrokerWpf;component/Images/security_agent.png" />
 					</MenuItem.Icon>
 				</MenuItem>
+				<MenuItem Header="Маркировка" Click="MenuItemMarking_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+					<MenuItem.Icon>
+						<Image Source="/CustomBrokerWpf;component/Images/truck_blue.png" />
+					</MenuItem.Icon>
+				</MenuItem>
 				<MenuItem Header="Менеджеры" Click="MenuItemManagers_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/users_family.png" />

@@ -84,12 +84,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             managerGroupListBox.ItemsSource = CustomBrokerWpf.References.ManagerGroups;
 
             ReferenceDS refDS = this.FindResource("keyReferenceDS") as ReferenceDS;
-            //if (refDS.tableGoodsType.Count == 0) refDS.GoodsTypeRefresh();
             this.goodstypeListBox.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             if (refDS.tableRequestStatus.Count == 0) refDS.RequestStatusRefresh();
             this.statusListBox.ItemsSource = refDS.tableRequestStatus.DefaultView;
-            if (refDS.tableParcelType.Count == 0) refDS.ParcelTypeRefresh();
-            this.parcelTypeListBox.ItemsSource = refDS.tableParcelType.DefaultView;
+            this.parcelTypeListBox.ItemsSource = CustomBrokerWpf.References.ParcelTypes;
 
             filter = (this.Owner as ISQLFiltredWindow).Filter;
             Fill();
@@ -229,19 +227,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 filter.SetString(filter.FilterWhereId, "lorry", lorryTextBox.Text);
                 isChanchedLorry = false;
             }
-            if (isChanchedParcelType)
-            {
-                int i = 0;
-                string[] values = new string[this.parcelTypeListBox.SelectedItems.Count];
-                foreach (System.Data.DataRowView rowview in this.parcelTypeListBox.SelectedItems)
-                {
-                    ReferenceDS.tableParcelTypeRow row = rowview.Row as ReferenceDS.tableParcelTypeRow;
-                    values[i] = row.parceltypeid.ToString();
-                    i++;
-                }
-                filter.SetList(filter.FilterWhereId, "parceltype", values);
-                isChanchedParcelType = false;
-            }
+            //if (isChanchedParcelType)
+            //{
+            //    int i = 0;
+            //    string[] values = new string[this.parcelTypeListBox.SelectedItems.Count];
+            //    foreach (System.Data.DataRowView rowview in this.parcelTypeListBox.SelectedItems)
+            //    {
+            //        ReferenceDS.tableParcelTypeRow row = rowview.Row as ReferenceDS.tableParcelTypeRow;
+            //        values[i] = row.parceltypeid.ToString();
+            //        i++;
+            //    }
+            //    filter.SetList(filter.FilterWhereId, "parceltype", values);
+            //    isChanchedParcelType = false;
+            //}
             if (isChanchedStatus)
             {
                 int i = 0;

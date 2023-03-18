@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
@@ -32,6 +33,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			tnved = mytnved;
 			vendorcode = myvendorcode;
 		}
+		public Marking() : this(lib.NewObjectId.NewId,0L,null,null,lib.DomainObjectState.Added
+			, null,null,null,null,null,0L,null,null,null,null,null,null,DateTime.Today,null,null,null) { }
+
 		private string mybrand;
 		public string Brand
 		{ set { SetProperty<string>(ref mybrand, value); } get{return mybrand;}} 
@@ -57,7 +61,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		public string MaterialDown
 		{ set { SetProperty<string>(ref mymaterialdown,value); } get { return mymaterialdown;}}
 		private string mymaterialin;
-		public string MaterialInn
+		public string MaterialIn
 		{ set { SetProperty<string>(ref mymaterialin, value); } get { return mymaterialin;}}
 		private string mymaterialup;
 		public string MaterialUp
@@ -157,7 +161,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			this.Gtin = temp.Gtin;
 			this.Inn = temp.Inn;
 			this.MaterialDown=temp.MaterialDown;
-			this.MaterialInn=temp.MaterialInn;
+			this.MaterialIn=temp.MaterialIn;
 			this.MaterialUp=temp.MaterialUp;
 			this.ProductName=temp.ProductName;
 			this.ProductType=temp.ProductType;
@@ -194,7 +198,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				case nameof(this.MaterialDown):
 					mymaterialdown = (string)value;
 					break;
-				case nameof(this.MaterialInn):
+				case nameof(this.MaterialIn):
 					mymaterialin = (string)value;
 					break;
 				case nameof(this.MaterialUp):
@@ -229,15 +233,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			this.ConnectionString = CustomBrokerWpf.References.ConnectionString;
 			base.NeedAddConnection = false;
 
-			SelectCommandText = "dbo.Marking_sp";
-			InsertCommandText = "dbo.MarkingAdd_sp";
-			UpdateCommandText = "dbo.MarkingUpd_sp";
-			DeleteCommandText = "dbo.MarkingDel_sp";
+			SelectCommandText = "mark.Marking_sp";
+			InsertCommandText = "mark.MarkingAdd_sp";
+			UpdateCommandText = "mark.MarkingUpd_sp";
+			DeleteCommandText = "mark.MarkingDel_sp";
 
 			SelectParams = new SqlParameter[]
 			{
 				new SqlParameter("@id", System.Data.SqlDbType.Int),
-				new SqlParameter("@filter", System.Data.SqlDbType.Int){ Value = 0},
+				new SqlParameter("@filterid", System.Data.SqlDbType.Int){ Value = 0},
 			};
 			myinsertparams = new SqlParameter[]
 			{
@@ -330,6 +334,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 
 		protected override bool SetSpecificParametersValue(Marking item)
 		{
+			foreach (SqlParameter par in this.InsertParams)
+				switch (par.ParameterName)
+				{
+					case "@stamp":
+						par.Value = item.Stamp;
+						break;
+				}
 			foreach (SqlParameter par in this.UpdateParams)
 				switch (par.ParameterName)
 				{
@@ -358,7 +369,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 						par.Value = item.HasPropertyOutdatedValue(nameof(Marking.MaterialDown));
 						break;
 					case "@materialinupd":
-						par.Value = item.HasPropertyOutdatedValue(nameof(Marking.MaterialInn));
+						par.Value = item.HasPropertyOutdatedValue(nameof(Marking.MaterialIn));
 						break;
 					case "@materialupupd":
 						par.Value = item.HasPropertyOutdatedValue(nameof(Marking.MaterialUp));
@@ -410,7 +421,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 						par.Value = item.MaterialDown;
 						break;
 					case "@materialin":
-						par.Value = item.MaterialInn;
+						par.Value = item.MaterialIn;
 						break;
 					case "@materialup":
 						par.Value = item.MaterialUp;
@@ -444,6 +455,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		{
 			ValidetingProperties.AddRange(new string[] { nameof(this.Brand), nameof(this.Ean13), nameof(this.FileName), nameof(this.Gtin), nameof(this.Inn), nameof(this.MaterialUp), nameof(this.ProductName), nameof(this.ProductType), nameof(this.Published), nameof(this.Tnved), nameof(this.VendorCode) });
 		}
+		public MarkingVM():this(new Marking()) { }
 
 		private string mybrand;
 		public string Brand
@@ -487,10 +499,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			set { SetProperty(this.DomainObject.MaterialDown, (string v) => { this.DomainObject.MaterialDown = v; }, value); }
 			get { return GetProperty(this.DomainObject.MaterialDown, null); }
 		}
-		public string MaterialInn
+		public string MaterialIn
 		{
-			set { SetProperty(this.DomainObject.MaterialInn, (string v) => { this.DomainObject.MaterialInn = v; }, value); }
-			get { return GetProperty(this.DomainObject.MaterialInn, null); }
+			set { SetProperty(this.DomainObject.MaterialIn, (string v) => { this.DomainObject.MaterialIn = v; }, value); }
+			get { return GetProperty(this.DomainObject.MaterialIn, null); }
 		}
 		public string MaterialUp
 		{
@@ -573,8 +585,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				case nameof(this.MaterialDown):
 					this.DomainObject.MaterialDown = (string)value;
 					break;
-				case nameof(this.MaterialInn):
-					this.DomainObject.MaterialInn = (string)value;
+				case nameof(this.MaterialIn):
+					this.DomainObject.MaterialIn = (string)value;
 					break;
 				case nameof(this.MaterialUp):
 					this.DomainObject.MaterialUp = (string)value;
@@ -680,6 +692,98 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			base.Collection = mysync.ViewModelCollection;
 
 			base.DeleteQuestionHeader = "Удалить строки?";
+
+			#region Filter
+			myfilterclear = new RelayCommand(FilterClearExec, FilterClearCanExec);
+			myfilterdefault = new RelayCommand(FilterDefaultExec, FilterDefaultCanExec);
+			myfilterrun = new RelayCommand(FilterRunExec, FilterRunCanExec);
+			myfiltersave = new RelayCommand(FilterSaveExec, FilterSaveCanExec);
+
+			mybrandfilter = new MarkingBrandCheckListBoxVMFill();
+			mybrandfilter.DeferredFill = true;
+			mybrandfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mybrandfilter.ExecCommand2 = () => { mybrandfilter.Clear(); };
+			mybrandfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mycolorfilter = new MarkingColorCheckListBoxVMFill();
+			mycolorfilter.DeferredFill = true;
+			mycolorfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mycolorfilter.ExecCommand2 = () => { mycolorfilter.Clear(); };
+			mycolorfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mycountryfilter = new MarkingCountryCheckListBoxVMFill();
+			mycountryfilter.DeferredFill = true;
+			mycountryfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mycountryfilter.ExecCommand2 = () => { mycountryfilter.Clear(); };
+			mycountryfilter.ItemsSource = myview.OfType<MarkingVM>();
+			myean13filter = new MarkingEan13CheckListBoxVMFill();
+			myean13filter.DeferredFill = true;
+			myean13filter.ExecCommand1 = () => { FilterRunExec(null); };
+			myean13filter.ExecCommand2 = () => { myean13filter.Clear(); };
+			myean13filter.ItemsSource = myview.OfType<MarkingVM>();
+			myfilenamefilter = new MarkingFileNameCheckListBoxVMFill();
+			myfilenamefilter.DeferredFill = true;
+			myfilenamefilter.ExecCommand1 = () => { FilterRunExec(null); };
+			myfilenamefilter.ExecCommand2 = () => { myfilenamefilter.Clear(); };
+			myfilenamefilter.ItemsSource = myview.OfType<MarkingVM>();
+			mygtinfilter = new MarkingGtinCheckListBoxVMFill();
+			mygtinfilter.DeferredFill = true;
+			mygtinfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mygtinfilter.ExecCommand2 = () => { mygtinfilter.Clear(); };
+			mygtinfilter.ItemsSource = myview.OfType<MarkingVM>();
+			myinnfilter = new MarkingInnCheckListBoxVMFill();
+			myinnfilter.DeferredFill = true;
+			myinnfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			myinnfilter.ExecCommand2 = () => { myinnfilter.Clear(); };
+			myinnfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mymaterialdownfilter = new MarkingMaterialDownCheckListBoxVMFill();
+			mymaterialdownfilter.DeferredFill = true;
+			mymaterialdownfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mymaterialdownfilter.ExecCommand2 = () => { mymaterialdownfilter.Clear(); };
+			mymaterialdownfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mymaterialinfilter = new MarkingMaterialInCheckListBoxVMFill();
+			mymaterialinfilter.DeferredFill = true;
+			mymaterialinfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mymaterialinfilter.ExecCommand2 = () => { mymaterialinfilter.Clear(); };
+			mymaterialinfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mymaterialupfilter = new MarkingMaterialUpCheckListBoxVMFill();
+			mymaterialupfilter.DeferredFill = true;
+			mymaterialupfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mymaterialupfilter.ExecCommand2 = () => { mymaterialupfilter.Clear(); };
+			mymaterialupfilter.ItemsSource = myview.OfType<MarkingVM>();
+			myproductnamefilter = new MarkingProductNameCheckListBoxVMFill();
+			myproductnamefilter.DeferredFill = true;
+			myproductnamefilter.ExecCommand1 = () => { FilterRunExec(null); };
+			myproductnamefilter.ExecCommand2 = () => { myproductnamefilter.Clear(); };
+			myproductnamefilter.ItemsSource = myview.OfType<MarkingVM>();
+			myproducttypefilter = new MarkingProductTypeCheckListBoxVMFill();
+			myproducttypefilter.DeferredFill = true;
+			myproducttypefilter.ExecCommand1 = () => { FilterRunExec(null); };
+			myproducttypefilter.ExecCommand2 = () => { myproducttypefilter.Clear(); };
+			myproducttypefilter.ItemsSource = myview.OfType<MarkingVM>();
+			mysizefilter = new MarkingSizeCheckListBoxVMFill();
+			mysizefilter.DeferredFill = true;
+			mysizefilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mysizefilter.ExecCommand2 = () => { mysizefilter.Clear(); };
+			mysizefilter.ItemsSource = myview.OfType<MarkingVM>();
+			mytnvedfilter = new MarkingTnvedCheckListBoxVMFill();
+			mytnvedfilter.DeferredFill = true;
+			mytnvedfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mytnvedfilter.ExecCommand2 = () => { mytnvedfilter.Clear(); };
+			mytnvedfilter.ItemsSource = myview.OfType<MarkingVM>();
+			myvendorcodefilter = new MarkingVendorCodeCheckListBoxVMFill();
+			myvendorcodefilter.DeferredFill = true;
+			myvendorcodefilter.ExecCommand1 = () => { FilterRunExec(null); };
+			myvendorcodefilter.ExecCommand2 = () => { myvendorcodefilter.Clear(); };
+			myvendorcodefilter.ItemsSource = myview.OfType<MarkingVM>();
+
+			mypublishedfilter = new libui.DateFilterVM();
+			mypublishedfilter.ExecCommand1 = () => { FilterRunExec(null); };
+			mypublishedfilter.ExecCommand2 = () => { mypublishedfilter.Clear(); };
+
+			this.FilterFill();
+
+			if (myfilter.isEmpty)
+				this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+			#endregion
 		}
 
 		~MarkingViewCommader()
@@ -695,71 +799,62 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			get { return myfilter; }
 		}
 
-		private WarehouseRUAgentCheckListBoxVMFillDefault myagentfilter;
-		public WarehouseRUAgentCheckListBoxVMFillDefault AgentFilter
-		{
-			get { return myagentfilter; }
-		}
-		private WarehouseRUBrandCheckListBoxVMFillDefault mybrandfilter;
-		public WarehouseRUBrandCheckListBoxVMFillDefault BrandFilter
+		private MarkingBrandCheckListBoxVMFill mybrandfilter;
+		public MarkingBrandCheckListBoxVMFill BrandFilter
 		{ get { return mybrandfilter; } }
-		private WarehouseRUCustomerCheckListBoxVMFillDefault mycustomerfilter;
-		public WarehouseRUCustomerCheckListBoxVMFillDefault CustomerFilter
+		private MarkingColorCheckListBoxVMFill mycolorfilter;
+		public MarkingColorCheckListBoxVMFill ColorFilter
 		{
-			get { return mycustomerfilter; }
+			get { return mycolorfilter; }
 		}
-		private WarehouseRUNoteCheckListBoxVMFill mynotefilter;
-		public WarehouseRUNoteCheckListBoxVMFill NoteFilter
-		{ get { return mynotefilter; } }
-		private WarehouseRUParcelCheckListBoxVMFillDefault myparcelfilter;
-		public WarehouseRUParcelCheckListBoxVMFillDefault ParcelFilter
+		private MarkingCountryCheckListBoxVMFill mycountryfilter;
+		public MarkingCountryCheckListBoxVMFill CountryFilter
 		{
-			get { return myparcelfilter; }
+			get { return mycountryfilter; }
 		}
-		private libui.CheckListBoxVM mystatusfilter;
-		public libui.CheckListBoxVM StatusFilter
+		private MarkingEan13CheckListBoxVMFill myean13filter;
+		public MarkingEan13CheckListBoxVMFill Ean13Filter
+		{ get { return myean13filter; } }
+		private MarkingFileNameCheckListBoxVMFill myfilenamefilter;
+		public MarkingFileNameCheckListBoxVMFill FileNameFilter
 		{
-			get { return mystatusfilter; }
+			get { return myfilenamefilter; }
 		}
-		private libui.DateFilterVM myreceiptedfilter;
-		public libui.DateFilterVM ReceiptedFilter
-		{ get { return myreceiptedfilter; } }
-		private libui.DateFilterVM myshippedfilter;
-		public libui.DateFilterVM ShippedFilter
-		{ get { return myshippedfilter; } }
-		private WarehouseRURequestCheckListBoxVMFill myrequestidfilter;
-		public WarehouseRURequestCheckListBoxVMFill RequestIdFilter
-		{ get { return myrequestidfilter; } }
-		private WarehouseRUStoreNumCheckListBoxVMFill mystorenumfilter;
-		public WarehouseRUStoreNumCheckListBoxVMFill StoreNumFilter
-		{ get { return mystorenumfilter; } }
-		private libui.CheckListBoxVM myimporterfilter;
-		public libui.CheckListBoxVM ImporterFilter
-		{ get { return myimporterfilter; } }
-		private libui.NumberFilterVM myofficialweightfilter;
-		public libui.NumberFilterVM OfficialWeightFilter
-		{ get { return myofficialweightfilter; } }
-		private libui.NumberFilterVM myactualweightfilter;
-		public libui.NumberFilterVM ActualWeightFilter
-		{ get { return myactualweightfilter; } }
-		private libui.NumberFilterVM myvolumefilter;
-		public libui.NumberFilterVM VolumeFilter
-		{ get { return myvolumefilter; } }
-		private libui.NumberFilterVM mycellnumberfilter;
-		public libui.NumberFilterVM CellNumberFilter
-		{ get { return mycellnumberfilter; } }
-		private libui.CheckListBoxVM myservicetypefilter;
-		public libui.CheckListBoxVM ServiceTypeFilter
-		{ get { return myservicetypefilter; } }
-		private libui.CheckListBoxVM mycargofilter;
-		public libui.CheckListBoxVM CargoFilter
-		{ get { return mycargofilter; } }
-		private libui.CheckListBoxVM mydeliverytypefilter;
-		public libui.CheckListBoxVM DeliveryTypeFilter
-		{ get { return mydeliverytypefilter; } }
-		private WarehouseRUDeliveryAddressCheckListBoxVMFill mydeliveryaddressfilter;
-		public WarehouseRUDeliveryAddressCheckListBoxVMFill DeliveryAddressFilter
-		{ get { return mydeliveryaddressfilter; } }
+		private MarkingGtinCheckListBoxVMFill mygtinfilter;
+		public MarkingGtinCheckListBoxVMFill GtinFilter
+		{
+			get { return mygtinfilter; }
+		}
+		private MarkingInnCheckListBoxVMFill myinnfilter;
+		public MarkingInnCheckListBoxVMFill InnFilter
+		{ get { return myinnfilter; } }
+		private MarkingMaterialDownCheckListBoxVMFill mymaterialdownfilter;
+		public MarkingMaterialDownCheckListBoxVMFill MaterialDownFilter
+		{ get { return mymaterialdownfilter; } }
+		private MarkingMaterialInCheckListBoxVMFill mymaterialinfilter;
+		public MarkingMaterialInCheckListBoxVMFill MaterialInFilter
+		{ get { return mymaterialinfilter; } }
+		private MarkingMaterialUpCheckListBoxVMFill mymaterialupfilter;
+		public MarkingMaterialUpCheckListBoxVMFill MaterialUpFilter
+		{ get { return mymaterialupfilter; } }
+		private MarkingProductNameCheckListBoxVMFill myproductnamefilter;
+		public MarkingProductNameCheckListBoxVMFill ProductNameFilter
+		{ get { return myproductnamefilter; } }
+		private MarkingProductTypeCheckListBoxVMFill myproducttypefilter;
+		public MarkingProductTypeCheckListBoxVMFill ProductTypeFilter
+		{ get { return myproducttypefilter; } }
+		private libui.DateFilterVM mypublishedfilter;
+		public libui.DateFilterVM PublishedFilter
+		{ get { return mypublishedfilter; } }
+		private MarkingSizeCheckListBoxVMFill mysizefilter;
+		public MarkingSizeCheckListBoxVMFill SizeFilter
+		{ get { return mysizefilter; } }
+		private MarkingTnvedCheckListBoxVMFill mytnvedfilter;
+		public MarkingTnvedCheckListBoxVMFill TnvedFilter
+		{ get { return mytnvedfilter; } }
+		private MarkingVendorCodeCheckListBoxVMFill myvendorcodefilter;
+		public MarkingVendorCodeCheckListBoxVMFill VendorCodeFilter
+		{ get { return myvendorcodefilter; } }
 
 		private RelayCommand myfilterrun;
 		public ICommand FilterRun
@@ -780,44 +875,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		}
 		private void FilterClearExec(object parametr)
 		{
-			myagentfilter.Clear();
-			myagentfilter.IconVisibileChangedNotification();
 			mybrandfilter.Clear();
 			mybrandfilter.IconVisibileChangedNotification();
-			mycustomerfilter.Clear();
-			mycustomerfilter.IconVisibileChangedNotification();
-			mynotefilter.Clear();
-			mynotefilter.IconVisibileChangedNotification();
-			myparcelfilter.Clear();
-			myparcelfilter.IconVisibileChangedNotification();
-			mystatusfilter.Clear();
-			mystatusfilter.IconVisibileChangedNotification();
-			myreceiptedfilter.Clear();
-			myreceiptedfilter.IconVisibileChangedNotification();
-			myshippedfilter.Clear();
-			myshippedfilter.IconVisibileChangedNotification();
-			myrequestidfilter.Clear();
-			myrequestidfilter.IconVisibileChangedNotification();
-			mystorenumfilter.Clear();
-			mystorenumfilter.IconVisibileChangedNotification();
-			myimporterfilter.Clear();
-			myimporterfilter.IconVisibileChangedNotification();
-			myofficialweightfilter.Clear();
-			myofficialweightfilter.IconVisibileChangedNotification();
-			myactualweightfilter.Clear();
-			myactualweightfilter.IconVisibileChangedNotification();
-			myvolumefilter.Clear();
-			myvolumefilter.IconVisibileChangedNotification();
-			mycellnumberfilter.Clear();
-			mycellnumberfilter.IconVisibileChangedNotification();
-			myservicetypefilter.Clear();
-			myservicetypefilter.IconVisibileChangedNotification();
-			mycargofilter.Clear();
-			mycargofilter.IconVisibileChangedNotification();
-			mydeliverytypefilter.Clear();
-			mydeliverytypefilter.IconVisibileChangedNotification();
-			mydeliveryaddressfilter.Clear();
-			mydeliveryaddressfilter.IconVisibileChangedNotification();
+			mycolorfilter.Clear();
+			mycolorfilter.IconVisibileChangedNotification();
+			mycountryfilter.Clear();
+			mycountryfilter.IconVisibileChangedNotification();
+			myean13filter.Clear();
+			myean13filter.IconVisibileChangedNotification();
+			myfilenamefilter.Clear();
+			myfilenamefilter.IconVisibileChangedNotification();
+			mygtinfilter.Clear();
+			mygtinfilter.IconVisibileChangedNotification();
+			myinnfilter.Clear();
+			myinnfilter.IconVisibileChangedNotification();
+			mypublishedfilter.Clear();
+			mypublishedfilter.IconVisibileChangedNotification();
+			mymaterialdownfilter.Clear();
+			mymaterialdownfilter.IconVisibileChangedNotification();
+			mymaterialinfilter.Clear();
+			mymaterialinfilter.IconVisibileChangedNotification();
+			mymaterialupfilter.Clear();
+			mymaterialupfilter.IconVisibileChangedNotification();
+			myproductnamefilter.Clear();
+			myproductnamefilter.IconVisibileChangedNotification();
+			myproducttypefilter.Clear();
+			myproducttypefilter.IconVisibileChangedNotification();
+			mysizefilter.Clear();
+			mysizefilter.IconVisibileChangedNotification();
+			mytnvedfilter.Clear();
+			mytnvedfilter.IconVisibileChangedNotification();
+			myvendorcodefilter.Clear();
+			myvendorcodefilter.IconVisibileChangedNotification();
 			this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
 		}
 		private bool FilterClearCanExec(object parametr)
@@ -889,120 +978,239 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			get
 			{
 				return !(
-					myagentfilter.FilterOn
-					|| mybrandfilter.FilterOn
-					|| mycustomerfilter.FilterOn
-					|| mynotefilter.FilterOn
-					|| myparcelfilter.FilterOn
-					|| mystatusfilter.FilterOn
-					|| myreceiptedfilter.FilterOn
-					|| myshippedfilter.FilterOn
-					|| myrequestidfilter.FilterOn
-					|| mystorenumfilter.FilterOn
-					|| myimporterfilter.FilterOn
-					|| myofficialweightfilter.FilterOn
-					|| myactualweightfilter.FilterOn
-					|| myvolumefilter.FilterOn
-					|| mycellnumberfilter.FilterOn
-					|| myservicetypefilter.FilterOn
-					|| mycargofilter.FilterOn
-					|| mydeliverytypefilter.FilterOn
-					|| mydeliveryaddressfilter.FilterOn
+					mybrandfilter.FilterOn
+					|| mycolorfilter.FilterOn
+					|| mycountryfilter.FilterOn
+					|| myean13filter.FilterOn
+					|| myfilenamefilter.FilterOn
+					|| mygtinfilter.FilterOn
+					|| myinnfilter.FilterOn
+					|| mymaterialdownfilter.FilterOn
+					|| mymaterialinfilter.FilterOn
+					|| mymaterialupfilter.FilterOn
+					|| myproductnamefilter.FilterOn
+					|| myproducttypefilter.FilterOn
+					|| mypublishedfilter.FilterOn
+					|| mysizefilter.FilterOn
+					|| mytnvedfilter.FilterOn
+					|| myvendorcodefilter.FilterOn
 				);
 			}
 		}
 
 		private void UpdateFilter()
 		{
-			if (myagentfilter.FilterOn)
-			{
-				string[] items = new string[myagentfilter.SelectedItems.Count];
-				for (int i = 0; i < myagentfilter.SelectedItems.Count; i++)
-					items[i] = (myagentfilter.SelectedItems[i] as lib.ReferenceSimpleItem).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "agent", items);
-			}
-			else
-				myfilter.SetList(myfilter.FilterWhereId, "agent", new string[0]);
 			if (mybrandfilter.FilterOn)
 			{
-				string[] items = new string[mybrandfilter.SelectedItems.Count];
-				for (int i = 0; i < mybrandfilter.SelectedItems.Count; i++)
-					items[i] = (mybrandfilter.SelectedItems[i] as Brand).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "brand", items);
+				if (mybrandfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mybrandfilter.SelectedItems.Count];
+					for (int i = 0; i < mybrandfilter.SelectedItems.Count; i++)
+						items[i] = (string)mybrandfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "brand", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "brand", mybrandfilter.ItemsViewFilter);
 			}
 			else
 				myfilter.SetList(myfilter.FilterWhereId, "brand", new string[0]);
-			if (mycustomerfilter.FilterOn)
+			if (mycolorfilter.FilterOn)
 			{
-				string[] items = new string[mycustomerfilter.SelectedItems.Count];
-				for (int i = 0; i < mycustomerfilter.SelectedItems.Count; i++)
-					items[i] = (mycustomerfilter.SelectedItems[i] as CustomerLegal).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "customer", items);
-			}
-			else
-				myfilter.SetList(myfilter.FilterWhereId, "customer", new string[0]);
-			if (myimporterfilter.FilterOn)
-			{
-				string[] items = new string[myimporterfilter.SelectedItems.Count];
-				for (int i = 0; i < myimporterfilter.SelectedItems.Count; i++)
-					items[i] = (myimporterfilter.SelectedItems[i] as Importer).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "importer", items);
-			}
-			else
-				myfilter.SetList(myfilter.FilterWhereId, "importer", new string[0]);
-			if (mynotefilter.FilterOn)
-			{
-				if (mynotefilter.SelectedItems.Count > 0)
+				if (mycolorfilter.SelectedItems.Count > 0)
 				{
-					string[] items = new string[mynotefilter.SelectedItems.Count];
-					for (int i = 0; i < mynotefilter.SelectedItems.Count; i++)
-						items[i] = (string)mynotefilter.SelectedItems[i];
-					myfilter.SetList(myfilter.FilterWhereId, "note", items);
+					string[] items = new string[mycolorfilter.SelectedItems.Count];
+					for (int i = 0; i < mycolorfilter.SelectedItems.Count; i++)
+						items[i] = (string)mycolorfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "color", items);
 				}
 				else
-					myfilter.SetString(myfilter.FilterWhereId, "note", mynotefilter.ItemsViewFilter);
+					myfilter.SetString(myfilter.FilterWhereId, "color", mycolorfilter.ItemsViewFilter);
 			}
 			else
-				myfilter.SetList(myfilter.FilterWhereId, "note", new string[0]);
-			if (myparcelfilter.FilterOn)
+				myfilter.SetList(myfilter.FilterWhereId, "color", new string[0]);
+			if (mycountryfilter.FilterOn)
 			{
-				string[] items = new string[myparcelfilter.SelectedItems.Count];
-				for (int i = 0; i < myparcelfilter.SelectedItems.Count; i++)
-					items[i] = (myparcelfilter.SelectedItems[i] as ParcelNumber).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "parcel", items);
+				if (mycountryfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mycountryfilter.SelectedItems.Count];
+					for (int i = 0; i < mycountryfilter.SelectedItems.Count; i++)
+						items[i] = (string)mycountryfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "country", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "country", mycountryfilter.ItemsViewFilter);
 			}
 			else
-				myfilter.SetList(myfilter.FilterWhereId, "parcel", new string[0]);
-			if (myrequestidfilter.FilterOn)
+				myfilter.SetList(myfilter.FilterWhereId, "country", new string[0]);
+			if (myean13filter.FilterOn)
 			{
-				string[] items = new string[myrequestidfilter.SelectedItems.Count];
-				for (int i = 0; i < myrequestidfilter.SelectedItems.Count; i++)
-					items[i] = (myrequestidfilter.SelectedItems[i] as Request).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "request", items);
+				if (myean13filter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myean13filter.SelectedItems.Count];
+					for (int i = 0; i < myean13filter.SelectedItems.Count; i++)
+						items[i] = (string)myean13filter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "ean13", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "ean13", myean13filter.ItemsViewFilter);
 			}
 			else
-				myfilter.SetList(myfilter.FilterWhereId, "request", new string[0]);
-			if (mystatusfilter.FilterOn)
+				myfilter.SetList(myfilter.FilterWhereId, "ean13", new string[0]);
+			if (myfilenamefilter.FilterOn)
 			{
-				string[] items = new string[mystatusfilter.SelectedItems.Count];
-				for (int i = 0; i < mystatusfilter.SelectedItems.Count; i++)
-					items[i] = (mystatusfilter.SelectedItems[i] as lib.ReferenceSimpleItem).Id.ToString();
-				myfilter.SetList(myfilter.FilterWhereId, "status", items);
+				if (myfilenamefilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myfilenamefilter.SelectedItems.Count];
+					for (int i = 0; i < myfilenamefilter.SelectedItems.Count; i++)
+						items[i] = (string)myfilenamefilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "filename", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "filename", myfilenamefilter.ItemsViewFilter);
 			}
 			else
-				myfilter.SetList(myfilter.FilterWhereId, "status", new string[0]);
-			if (mystorenumfilter.FilterOn)
+				myfilter.SetList(myfilter.FilterWhereId, "filename", new string[0]);
+			if (mygtinfilter.FilterOn)
 			{
-				string[] items = new string[mystorenumfilter.SelectedItems.Count];
-				for (int i = 0; i < mystorenumfilter.SelectedItems.Count; i++)
-					items[i] = (string)mystorenumfilter.SelectedItems[i];
-				myfilter.SetList(myfilter.FilterWhereId, "storenum", items);
+				if (mygtinfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mygtinfilter.SelectedItems.Count];
+					for (int i = 0; i < mygtinfilter.SelectedItems.Count; i++)
+						items[i] = ((long)mygtinfilter.SelectedItems[i]).ToString();
+					myfilter.SetList(myfilter.FilterWhereId, "gtin", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "gtin", mygtinfilter.ItemsViewFilter);
 			}
 			else
-				myfilter.SetList(myfilter.FilterWhereId, "storenum", new string[0]);
-			myfilter.SetDate(myfilter.FilterWhereId, "receipted", "receipted", myreceiptedfilter.DateStart, myreceiptedfilter.DateStop, myreceiptedfilter.IsNull);
-			myfilter.SetDate(myfilter.FilterWhereId, "shipped", "shipped", myshippedfilter.DateStart, myshippedfilter.DateStop, myshippedfilter.IsNull);
-
+				myfilter.SetList(myfilter.FilterWhereId, "gtin", new string[0]);
+			if (myinnfilter.FilterOn)
+			{
+				if (myinnfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myinnfilter.SelectedItems.Count];
+					for (int i = 0; i < myinnfilter.SelectedItems.Count; i++)
+						items[i] = (string)myinnfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "inn", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "inn", myinnfilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "inn", new string[0]);
+			if (mymaterialdownfilter.FilterOn)
+			{
+				if (mymaterialdownfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mymaterialdownfilter.SelectedItems.Count];
+					for (int i = 0; i < mymaterialdownfilter.SelectedItems.Count; i++)
+						items[i] = (string)mymaterialdownfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "materialdown", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "materialdown", mymaterialdownfilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "materialdown", new string[0]);
+			if (mymaterialinfilter.FilterOn)
+			{
+				if (mymaterialinfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mymaterialinfilter.SelectedItems.Count];
+					for (int i = 0; i < mymaterialinfilter.SelectedItems.Count; i++)
+						items[i] = (string)mymaterialinfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "materialin", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "materialin", mymaterialinfilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "materialin", new string[0]);
+			if (mymaterialupfilter.FilterOn)
+			{
+				if (mymaterialupfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mymaterialupfilter.SelectedItems.Count];
+					for (int i = 0; i < mymaterialupfilter.SelectedItems.Count; i++)
+						items[i] = (string)mymaterialupfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "materialup", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "materialup", mymaterialupfilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "materialup", new string[0]);
+			if (myproductnamefilter.FilterOn)
+			{
+				if (myproductnamefilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myproductnamefilter.SelectedItems.Count];
+					for (int i = 0; i < myproductnamefilter.SelectedItems.Count; i++)
+						items[i] = (string)myproductnamefilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "productname", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "productname", myproductnamefilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "productname", new string[0]);
+			if (myproducttypefilter.FilterOn)
+			{
+				if (myproducttypefilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myproducttypefilter.SelectedItems.Count];
+					for (int i = 0; i < myproducttypefilter.SelectedItems.Count; i++)
+						items[i] = (string)myproducttypefilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "producttype", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "producttype", myproducttypefilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "producttype", new string[0]);
+			if (mysizefilter.FilterOn)
+			{
+				if (mysizefilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mysizefilter.SelectedItems.Count];
+					for (int i = 0; i < mysizefilter.SelectedItems.Count; i++)
+						items[i] = (string)mysizefilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "size", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "size", mysizefilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "size", new string[0]);
+			if (mytnvedfilter.FilterOn)
+			{
+				if (mytnvedfilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[mytnvedfilter.SelectedItems.Count];
+					for (int i = 0; i < mytnvedfilter.SelectedItems.Count; i++)
+						items[i] = (string)mytnvedfilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "tnved", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "tnved", mytnvedfilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "tnved", new string[0]);
+			if (myvendorcodefilter.FilterOn)
+			{
+				if (myvendorcodefilter.SelectedItems.Count > 0)
+				{
+					string[] items = new string[myvendorcodefilter.SelectedItems.Count];
+					for (int i = 0; i < myvendorcodefilter.SelectedItems.Count; i++)
+						items[i] = (string)myvendorcodefilter.SelectedItems[i];
+					myfilter.SetList(myfilter.FilterWhereId, "vendorcode", items);
+				}
+				else
+					myfilter.SetString(myfilter.FilterWhereId, "vendorcode", myvendorcodefilter.ItemsViewFilter);
+			}
+			else
+				myfilter.SetList(myfilter.FilterWhereId, "vendorcode", new string[0]);
+			myfilter.SetDate(myfilter.FilterWhereId, "published", "published", mypublishedfilter.DateStart, mypublishedfilter.DateStop, mypublishedfilter.IsNull);
 		}
 		public void RunFilter(lib.Filter.FilterItem[] filters)
 		{
@@ -1016,21 +1224,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		}
 		private void FilterFill()
 		{
-			//mystatusfilter.SelectedItems.Clear();
-			//mystatusfilter.SelectedItems.Add();
 			//myfilter.PullListBox(myfilter.FilterWhereId, "agent", "Id", myagentfilter., true);
 			bool isnull;
 			DateTime? date1, date2;
-			myfilter.PullDate(myfilter.FilterWhereId, "receipted", "receipted", out date1, out date2, out isnull);
-			myreceiptedfilter.IsNull = isnull;
-			myreceiptedfilter.DateStart = date1;
-			myreceiptedfilter.DateStop = date2;
-			myreceiptedfilter.IconVisibileChangedNotification();
-			myfilter.PullDate(myfilter.FilterWhereId, "shipped", "shipped", out date1, out date2, out isnull);
-			myshippedfilter.IsNull = isnull;
-			myshippedfilter.DateStart = date1;
-			myshippedfilter.DateStop = date2;
-			myshippedfilter.IconVisibileChangedNotification();
+			myfilter.PullDate(myfilter.FilterWhereId, "published", "published", out date1, out date2, out isnull);
+			mypublishedfilter.IsNull = isnull;
+			mypublishedfilter.DateStart = date1;
+			mypublishedfilter.DateStop = date2;
+			mypublishedfilter.IconVisibileChangedNotification();
 		}
 		private string myfilterbuttonimagepath;
 		public string FilterButtonImagePath
@@ -1045,14 +1246,152 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		protected override void RefreshData(object parametr)
 		{
 			UpdateFilter();
+			mymdbm.FillAsync();
 		}
 		protected override void SettingView()
 		{
+			myview.NewItemPlaceholderPosition = System.ComponentModel.NewItemPlaceholderPosition.AtBeginning;
 		}
 
 		public void Dispose()
 		{
 			myfilter.RemoveFilter();
+		}
+	}
+
+	public class MarkingBrandCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Brand) || Items.Contains(item.Brand))) Items.Add(item.Brand);
+		}
+	}
+	public class MarkingColorCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Color) || Items.Contains(item.Color))) Items.Add(item.Color);
+		}
+	}
+	public class MarkingCountryCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Country) || Items.Contains(item.Country))) Items.Add(item.Country);
+		}
+	}
+	public class MarkingEan13CheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Ean13) || Items.Contains(item.Ean13))) Items.Add(item.Ean13);
+		}
+	}
+	public class MarkingFileNameCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.FileName) || Items.Contains(item.FileName))) Items.Add(item.FileName);
+		}
+	}
+	public class MarkingGtinCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, long?>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (item.Gtin.HasValue && !Items.Contains(item.Gtin)) Items.Add(item.Gtin);
+		}
+	}
+	public class MarkingInnCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Inn) || Items.Contains(item.Inn))) Items.Add(item.Inn);
+		}
+	}
+	public class MarkingMaterialDownCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.MaterialDown) || Items.Contains(item.MaterialDown))) Items.Add(item.MaterialDown);
+		}
+	}
+	public class MarkingMaterialInCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.MaterialIn) || Items.Contains(item.MaterialIn))) Items.Add(item.MaterialIn);
+		}
+	}
+	public class MarkingMaterialUpCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.MaterialUp) || Items.Contains(item.MaterialUp))) Items.Add(item.MaterialUp);
+		}
+	}
+	public class MarkingProductNameCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.ProductName) || Items.Contains(item.ProductName))) Items.Add(item.ProductName);
+		}
+	}
+	public class MarkingProductTypeCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.ProductType) || Items.Contains(item.ProductType))) Items.Add(item.ProductType);
+		}
+	}
+	public class MarkingSizeCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Size) || Items.Contains(item.Size))) Items.Add(item.Size);
+		}
+	}
+	public class MarkingTnvedCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.Tnved) || Items.Contains(item.Tnved))) Items.Add(item.Tnved);
+		}
+	}
+	public class MarkingVendorCodeCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
+	{
+		protected override void AddItem(MarkingVM item)
+		{
+			if (Items.Count == 0)
+				Items.Add(string.Empty);
+			if (!(string.IsNullOrEmpty(item.VendorCode) || Items.Contains(item.VendorCode))) Items.Add(item.VendorCode);
 		}
 	}
 }

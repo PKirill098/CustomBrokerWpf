@@ -31,11 +31,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             try
             {
-
-                //ReferenceDS ds = this.FindResource("keyReferenceDS") as ReferenceDS;
-                //KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter keyReferenceDSGoodsTypeAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.GoodsTypeAdapter();
-                //keyReferenceDSGoodsTypeAdapter.ClearBeforeFill = false;
-                //keyReferenceDSGoodsTypeAdapter.Fill(ds.tableGoodsType);
                 this.mainDataGrid.ItemsSource = CustomBrokerWpf.References.GoodsTypesParcel;
             }
             catch (Exception ex)

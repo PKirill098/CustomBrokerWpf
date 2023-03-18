@@ -67,6 +67,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
+		private void MenuItemMarking_Click(object sender, RoutedEventArgs e)
+		{
+            Window ObjectWin = null;
+            //foreach (Window item in mychildwindows)
+            //{
+            //    if (item.Name == "winGoods") ObjectWin = item;
+            //}
+            //if (ObjectWin == null)
+            //{
+                ObjectWin = new MarkingWin();
+                ObjectWin.DataContext = new Classes.Domain.Marking.MarkingViewCommader();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            //}
+            //else
+            //{
+            //    ObjectWin.Activate();
+            //    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            //}
+        }
         private void MenuItemManagGroup_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -1054,236 +1074,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             this.RequestGrid.DataContext = myrequestcmd;
             RequestTotalDataRefresh();
         }
-        //private void RequestDataLoad()
-        //{
-        //    try
-        //    {
-        //        KirillPolyanskiy.CustomBrokerWpf.RequestDS requestDS = ((KirillPolyanskiy.CustomBrokerWpf.RequestDS)(this.RequestGrid.FindResource("requestDS")));
-        //        RequestDSTableAdapters.tableAgentNameAdapter thisAgentNameAdapter = new RequestDSTableAdapters.tableAgentNameAdapter();
-        //        thisAgentNameAdapter.Fill(requestDS.tableAgentName);
-        //        RequestDSTableAdapters.tableCustomerNameAdapter thisCustomerNameAdapter = new RequestDSTableAdapters.tableCustomerNameAdapter();
-        //        thisCustomerNameAdapter.Fill(requestDS.tableCustomerName);
-        //        ReferenceDS refDS = this.RequestGrid.FindResource("keyReferenceDS") as ReferenceDS;
-        //        if (refDS.tableRequestStatus.Count == 0)
-        //        {
-        //            ReferenceDSTableAdapters.RequestStatusAdapter adapterStatus = new ReferenceDSTableAdapters.RequestStatusAdapter();
-        //            adapterStatus.Fill(refDS.tableRequestStatus);
-        //        }
-        //        CollectionViewSource statusVS = this.RequestGrid.FindResource("keyStatusVS") as CollectionViewSource;
-        //        statusVS.Source = new System.Data.DataView(refDS.tableRequestStatus, "rowId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-        //        if (refDS.tableGoodsType.Count == 0)
-        //        {
-        //            ReferenceDSTableAdapters.GoodsTypeAdapter adapterGoodsType = new ReferenceDSTableAdapters.GoodsTypeAdapter();
-        //            adapterGoodsType.Fill(refDS.tableGoodsType);
-        //        }
-        //        CollectionViewSource goodsVS = this.RequestGrid.FindResource("keyGoodsTypeVS") as CollectionViewSource;
-        //        goodsVS.Source = new System.Data.DataView(refDS.tableGoodsType, "Iditem>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-        //        if (refDS.tableStore.Count == 0)
-        //        {
-        //            ReferenceDSTableAdapters.StoreAdapter adapterStore = new ReferenceDSTableAdapters.StoreAdapter();
-        //            adapterStore.Fill(refDS.tableStore);
-        //        }
-        //        CollectionViewSource storeVS = this.RequestGrid.FindResource("keyStoreVS") as CollectionViewSource;
-        //        storeVS.Source = new System.Data.DataView(refDS.tableStore, "storeId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-        //        if (refDS.tableForwarder.Count == 0)
-        //        {
-        //            ReferenceDSTableAdapters.ForwarderAdapter adapterStore = new ReferenceDSTableAdapters.ForwarderAdapter();
-        //            adapterStore.Fill(refDS.tableForwarder);
-        //        }
-        //        CollectionViewSource forwarderVS = this.RequestGrid.FindResource("keyForwarderVS") as CollectionViewSource;
-        //        forwarderVS.Source = new System.Data.DataView(refDS.tableForwarder, "itemId>0", string.Empty, System.Data.DataViewRowState.CurrentRows);
-        //        if (refDS.tableParcelType.Count == 0) refDS.ParcelTypeRefresh();
-        //        CollectionViewSource parceltypeVS = this.RequestGrid.FindResource("keyParcelTypeVS") as CollectionViewSource;
-        //        parceltypeVS.Source = new System.Data.DataView(refDS.tableParcelType);
-        //        RequestDataRefresh();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex is System.Data.SqlClient.SqlException)
-        //        {
-        //            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //            System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //            {
-        //                errs.Append(sqlerr.Message + "\n");
-        //            }
-        //            MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        if (MessageBox.Show("Повторить загрузку данных?", "Загрузка данных", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-        //        {
-        //            RequestDataLoad();
-        //        }
-        //    }
-        //}
-        //private void RequestDataRefresh()
-        //{
-        //    try
-        //    {
-        //        BindingListCollectionView view;
-        //        KirillPolyanskiy.CustomBrokerWpf.RequestDS requestDS = ((KirillPolyanskiy.CustomBrokerWpf.RequestDS)(this.RequestGrid.FindResource("requestDS")));
-        //        view = CollectionViewSource.GetDefaultView(requestDS.tableRequest.DefaultView) as BindingListCollectionView;
-        //        System.ComponentModel.SortDescription[] sortColl = new System.ComponentModel.SortDescription[view.SortDescriptions.Count];
-        //        view.SortDescriptions.CopyTo(sortColl, 0);
-        //        KirillPolyanskiy.CustomBrokerWpf.RequestDSTableAdapters.adapterRequest requestAdapter = new KirillPolyanskiy.CustomBrokerWpf.RequestDSTableAdapters.adapterRequest();
-        //        RequestDataGrid.ItemsSource = null;
-        //        requestAdapter.Fill(requestDS.tableRequest, myrequestfilter.FilterWhereId);
-        //        RequestDataGrid.ItemsSource = requestDS.tableRequest.DefaultView;
-        //        using (view.DeferRefresh())
-        //        {
-        //            foreach (System.ComponentModel.SortDescription itemsort in sortColl)
-        //            {
-        //                view.SortDescriptions.Add(itemsort);
-        //                foreach (DataGridColumn colmn in RequestDataGrid.Columns)
-        //                {
-        //                    if (colmn.SortMemberPath.Equals(itemsort.PropertyName))
-        //                    {
-        //                        colmn.SortDirection = itemsort.Direction;
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        RequestTotalDataRefresh();
-        //        //string uribitmap;
-        //        //if (myrequestfilter.isEmpty) uribitmap = @"/CustomBrokerWpf;component/Images/funnel.png";
-        //        //else uribitmap = @"/CustomBrokerWpf;component/Images/funnel_preferences.png";
-        //        //System.Windows.Media.Imaging.BitmapImage bi3 = new System.Windows.Media.Imaging.BitmapImage(new Uri(uribitmap, UriKind.Relative));
-        //        //(RequestFilterButton.Content as Image).Source = bi3;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex is System.Data.SqlClient.SqlException)
-        //        {
-        //            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //            System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //            {
-        //                errs.Append(sqlerr.Message + "\n");
-        //            }
-        //            MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        if (MessageBox.Show("Повторить загрузку данных?", "Загрузка данных", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-        //        {
-        //            RequestDataLoad();
-        //        }
-        //    }
-        //}
-        //private void RequestFilterLoad()
-        //{
-        //    using (SqlConnection con = new SqlConnection(KirillPolyanskiy.CustomBrokerWpf.References.ConnectionString))
-        //    {
-        //        try
-        //        {
-        //            SqlCommand com = new SqlCommand();
-        //            com.Connection = con;
-        //            com.CommandType = CommandType.StoredProcedure;
-        //            com.CommandText = "dbo.UserFilter_sp";
-        //            SqlParameter winname = new SqlParameter("@winName", this.Name);
-        //            com.Parameters.Add(winname);
-        //            System.Xml.XmlReader reader = com.ExecuteXmlReader();
-
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            if (ex is System.Data.SqlClient.SqlException)
-        //            {
-        //                System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //                System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //                foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //                {
-        //                    errs.Append(sqlerr.Message + "\n");
-        //                }
-        //                MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //            else
-        //            {
-        //                MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //            if (MessageBox.Show("Повторить загрузку данных?", "Загрузка данных", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-        //            {
-        //                RequestDataLoad();
-        //            }
-        //        }
-        //        finally { con.Close(); }
-        //    }
-        //}
-        //private bool RequestSaveChanges()
-        //{
-        //    bool isSuccess = false;
-        //    RequestDS requestDS = ((KirillPolyanskiy.CustomBrokerWpf.RequestDS)(this.RequestGrid.FindResource("requestDS")));
-        //    try
-        //    {
-        //        RequestDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-        //        RequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-        //        KirillPolyanskiy.CustomBrokerWpf.RequestDSTableAdapters.adapterRequest requestDSRequest_tbTableAdapter = new KirillPolyanskiy.CustomBrokerWpf.RequestDSTableAdapters.adapterRequest();
-        //        requestDSRequest_tbTableAdapter.Adapter.ContinueUpdateOnError = false;
-        //        requestDSRequest_tbTableAdapter.Update(requestDS.tableRequest);
-
-        //        isSuccess = true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex is System.Data.SqlClient.SqlException)
-        //        {
-        //            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //            if (err.Number > 49999)
-        //            {
-        //                switch (err.Number)
-        //                {
-        //                    case 50000:
-        //                        MessageBox.Show(err.Message, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                        break;
-        //                    case 50001:
-        //                        try
-        //                        {
-        //                            DataRow[] errrows = requestDS.tableRequest.GetErrors();
-        //                            RequestDS.tableRequestRow requestrow = errrows[0] as RequestDS.tableRequestRow;
-        //                            RequestConflictResolution res = new RequestConflictResolution(requestrow);
-        //                            int newstamp = res.isCheckedRow();
-        //                            if (newstamp != 0)
-        //                            {
-        //                                requestrow.ClearErrors();
-        //                                requestrow.stamp = newstamp;
-        //                                requestrow.EndEdit();
-        //                                return RequestSaveChanges();
-        //                            }
-        //                            else
-        //                            {
-        //                                MessageBox.Show(err.Message, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                            }
-        //                        }
-        //                        catch (Exception ep)
-        //                        {
-        //                            MessageBox.Show(ep.Message + "\n" + ep.Source, "Разрешение конфликта записи", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                        }
-        //                        break;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //                foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //                {
-        //                    errs.Append(sqlerr.Message + "\n");
-        //                }
-        //                MessageBox.Show(errs.ToString(), "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show(ex.Message + "\n" + ex.Source, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //    }
-        //    return isSuccess;
-        //}
         private bool Request_Closing()
         {
             bool cancel = false;
@@ -1956,153 +1746,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             return cancel;
         }
-        //private void CheckGroup(DataRow[] rows)
-        //{
-        //    SqlCommand com = new SqlCommand();
-        //    using (SqlConnection con = new SqlConnection(References.ConnectionString))
-        //    {
-        //        com.CommandType = CommandType.StoredProcedure;
-        //        com.CommandText = "ParcelGroupCheck_sp";
-        //        com.Connection = con;
-        //        SqlParameter parId = new SqlParameter();
-        //        parId.ParameterName = "@parcelId";
-        //        parId.SqlDbType = SqlDbType.Int;
-        //        com.Parameters.Add(parId);
-        //        SqlParameter parRez = new SqlParameter();
-        //        parRez.Direction = ParameterDirection.Output;
-        //        parRez.ParameterName = "@equals";
-        //        parRez.SqlDbType = SqlDbType.TinyInt;
-        //        com.Parameters.Add(parRez);
-        //        con.Open();
-        //        foreach (DataRow row in rows)
-        //        {
-        //            parId.Value = (row as ParcelDS.tableParcelRow).parcelId;
-        //            com.ExecuteNonQuery();
-        //            if ((byte)parRez.Value != 0) MessageBox.Show("Не все группы заявок поставлены в загрузку " + (row as ParcelDS.tableParcelRow).fullNumber + " полностью!", "Группы заявок", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        }
-        //        con.Close();
-        //    }
-        //}
-
-        //private void ParceltoDocButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (ParcelNumberList.SelectedItem is DataRowView)
-        //        {
-        //            ParcelDS.tableParcelRow prow = (ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow;
-        //            string path = CustomBrokerWpf.Properties.Settings.Default.DocFileRoot + "Отправки\\" + prow.docdirpath;
-        //            if (!Directory.Exists(path))
-        //            {
-        //                System.IO.Directory.CreateDirectory(path);
-        //            }
-        //            System.Diagnostics.Process.Start(path);
-        //            //else if (Directory.Exists("E:\\Счета\\" + prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5)))
-        //            //{
-        //            //    prow.docdirpath = prow.fullNumber + prow.docdirpath.Substring(prow.docdirpath.Length - 5);
-        //            //    prow.EndEdit();
-        //            //    System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-        //            //}
-        //            //else
-        //            //{
-        //            //    if (MessageBox.Show("Не удалось найти папку отправки: E:\\Счета\\" + prow.docdirpath + "\nСоздать папку?", "Папка документов", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-        //            //    {
-        //            //        System.IO.Directory.CreateDirectory("E:\\Счета\\" + prow.docdirpath);
-        //            //        System.Diagnostics.Process.Start("E:\\Счета\\" + prow.docdirpath);
-        //            //    }
-        //            //}
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message, "Папка документов");
-        //    }
-        //}
-        //private void MoveInformStore_Click(object sender, RoutedEventArgs e)
-        //{
-        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-        //    ParcelRequestDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-        //    for (int i = 0; i < ParcelRequestDataGrid.Items.Count; i++)
-        //    {
-        //        Classes.Domain.RequestVM row = this.ParcelRequestDataGrid.Items[i] as Classes.Domain.RequestVM;
-        //        if (!row.StoreInform.HasValue)
-        //        {
-        //            row.StoreInform = DateTime.Today;
-        //        }
-        //    }
-        //}
-        //private void MoveSpecification_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (this.ParcelSaveChanges() && this.ParcelNumberList.SelectedIndex > -1 && ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parceltype == 1)
-        //    {
-        //        FileInfo[] files;
-        //        string num = ((this.ParcelNumberList.SelectedItem as DataRowView).Row as ParcelDS.tableParcelRow).parcelnumber;
-        //        DirectoryInfo dirIn = new DirectoryInfo(@"V:\Отправки");
-        //        if (dirIn.Exists)
-        //        {
-        //            if (dirIn.GetDirectories(num + "_*").Length > 0)
-        //            {
-        //                dirIn = dirIn.GetDirectories(num + "_*")[0];
-        //                DirectoryInfo dirOut = new DirectoryInfo(@"V:\Спецификации");
-        //                if (dirOut.Exists)
-        //                {
-        //                    foreach (Classes.Domain.RequestVM row in viewParcelRequest)
-        //                    {
-        //                        if (!row.DomainObject.ParcelId.HasValue) continue;
-        //                        files = dirOut.GetFiles("*" + row.StorePoint + "*");
-        //                        if (files.Length > 0)
-        //                        {
-        //                            try
-        //                            {
-        //                                if (File.Exists(dirIn.FullName + "\\" + files[0].Name))
-        //                                    File.Delete(dirIn.FullName + "\\" + files[0].Name);
-        //                                files[0].MoveTo(dirIn.FullName + "\\" + files[0].Name);
-        //                            }
-        //                            catch (Exception ex)
-        //                            {
-        //                                MessageBox.Show(ex.Message, "Ошибка доступа к файлу", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                            }
-        //                        }
-        //                        if (dirIn.GetFiles("*" + row.StorePoint + "*").Length > 0)
-        //                        {
-        //                            row.IsSpecification = true;
-        //                        }
-        //                    }
-        //                }
-        //                else
-        //                    MessageBox.Show(@"Папка 'V:\Спецификации' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //            else
-        //                MessageBox.Show(@"Папка 'V:\Отправки\" + num + "_...' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //            MessageBox.Show(@"Папка 'V:\Отправки' не найдена!", "Перенос спецификаций", MessageBoxButton.OK, MessageBoxImage.Error);
-        //    }
-        //}
-
-        //private void ParcelNumberList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //        cellNumberFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.CellNumber ?? 0M).ToString("N0");
-        //        VolumeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.Volume ?? 0M).ToString("N4");
-        //        OfficialWeightTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.OfficialWeight ?? 0M).ToString("N4");
-        //        actualWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.ActualWeight ?? 0M).ToString("N4");
-        //        offactWeightFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.DifferenceWeight ?? 0M).ToString("N4");
-        //        goodValueFreeTextBox.Text = (myparcelcmd.CurrentItem?.RequestTotal.InvoiceDiscount ?? 0M).ToString("N2");
-        //}
-
-        //private bool ParcelRequestDataGridRowChanged;
-        //private void ParcelRequestDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        //{
-        //    ParcelRequestDataGridRowChanged = e.EditAction==DataGridEditAction.Commit;
-        //}
-
-        //private void ParcelRequestUpDown_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        //{
-        //    if ((bool)e.NewValue)
-        //        viewRequest.Filter = (object item) => { return !(item as Classes.Domain.RequestVM).DomainObject.ParcelId.HasValue && lib.ViewModelViewCommand.ViewFilterDefault(item); };
-        //    else
-        //        viewRequest.Filter = (object item) => { return false; };
-        //}
 
         #endregion
 
@@ -2199,5 +1842,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
 
-    }
+	}
 }

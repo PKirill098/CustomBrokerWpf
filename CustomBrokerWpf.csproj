@@ -204,8 +204,8 @@
     <Compile Include="Windows\Client\ClientNewWin.xaml.cs">
       <DependentUpon>ClientNewWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Marking\Marking_win.xaml.cs">
-      <DependentUpon>Marking_win.xaml</DependentUpon>
+    <Compile Include="Windows\Marking\MarkingWin.xaml.cs">
+      <DependentUpon>MarkingWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Parcel\ParcelItemWin.xaml.cs">
       <DependentUpon>ParcelItemWin.xaml</DependentUpon>
@@ -445,14 +445,6 @@
     </Compile>
     <Compile Include="DataGridColumnsJoiner.cs" />
     <Compile Include="Converters\NoNullValueConverterClass.cs" />
-    <Compile Include="ParcelDS.cs">
-      <DependentUpon>ParcelDS.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="ParcelDS.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ParcelDS.xsd</DependentUpon>
-    </Compile>
     <Compile Include="Windows\Parcel\ParcelFilterWin.xaml.cs">
       <DependentUpon>ParcelFilterWin.xaml</DependentUpon>
     </Compile>
@@ -557,7 +549,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Marking\Marking_win.xaml">
+    <Page Include="Windows\Marking\MarkingWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -917,17 +909,6 @@
     </None>
     <None Include="Templates\ТТН.xltx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ParcelDS.xsc">
-      <DependentUpon>ParcelDS.xsd</DependentUpon>
-    </None>
-    <None Include="ParcelDS.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>ParcelDS.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="ParcelDS.xss">
-      <DependentUpon>ParcelDS.xsd</DependentUpon>
     </None>
     <None Include="Properties\DataSources\RequestHistoryEntities.datasource" />
     <None Include="ReferenceDS.xsc">

@@ -66,8 +66,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             System.Data.DataView forwarderview = new System.Data.DataView(ds.tableForwarder, string.Empty, "[itemName]", System.Data.DataViewRowState.CurrentRows);
             forwarderListBox.ItemsSource = forwarderview;
-            //if (ds.tableParcelType.Count == 0) ds.ParcelTypeRefresh();
-            //System.Data.DataView parceltypeview = new System.Data.DataView(ds.tableParcelType);
             this.parceltypeComboBox.Items.Add("EURO"); this.parceltypeComboBox.Items.Add("USD");
             if (ds.tableCustomerName.Count == 0) ds.CustomerNameRefresh();
             System.Data.DataView customerview = new System.Data.DataView(ds.tableCustomerName, string.Empty, "[customerName]", System.Data.DataViewRowState.CurrentRows);

@@ -99,7 +99,7 @@ Check Consolidate Algoritm, changing persent when Refresh. Fist value is incorre
 В тотал добавить вертуальный метод подключения события объекта коллекции к событию изменения свойства
 Сохранение фильтра в модуле Склад
 В Total needs property that the calculation has finished
-Create UI StatusBar and Maneger object.
+Create UI StatusBar and Maneger object 1 Filter and count record; 2 Last Messages(add here Загрузка начата Загрузка завершена).
 При разбиении инвойса на две строки появляется ошибка (Индекс за границей диапазона)
 В разбивках проверять название агента на запрещенные символы
 Добавлять FondPrepay в выборку для бухгалтерии

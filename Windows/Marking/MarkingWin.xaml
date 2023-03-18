@@ -1,4 +1,4 @@
-﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.Marking_win"
+﻿<Window x:Class="KirillPolyanskiy.CustomBrokerWpf.MarkingWin"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -18,14 +18,20 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 		<ToolBar Height="32">
+			<Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
+				<Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
+			</Button>
 			<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
 			</Button>
+			<ToggleButton x:Name="ToggleButtonAdd" ToolTip="Включить ручное добавление строк" IsChecked="False">
+				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
+			</ToggleButton>
 			<Button ToolTip="Копировать" Command="Copy" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/copy.png" />
 			</Button>
 			<Separator/>
-			<Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=SKU, Path=SelectedItems,Mode=OneWay}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
+			<Button Command="{Binding Path=Delete}" CommandParameter="{Binding ElementName=MainDataGrid, Path=SelectedItems,Mode=OneWay}" ToolTip="Удалить" IsTabStop="False" Visibility="{Binding Path=VisibilityEdit, Mode=OneTime}">
 				<Image Source="/CustomBrokerWpf;component/Images/remove.png" />
 			</Button>
 			<Separator/>
@@ -56,28 +62,28 @@
 				</Border>
 			</Popup>
 		</ToolBar>
-		<DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" CanUserAddRows="True" CanUserDeleteRows="True" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" VerticalScrollBarVisibility="Visible"
-			>
+		<DataGrid x:Name="MainDataGrid" ItemsSource="{Binding Items}" CanUserDeleteRows="True" AlternatingRowBackground="#FFC1DEDE" SelectionUnit="CellOrRowHeader" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible"
+			Grid.Row="1" CanUserAddRows="{Binding ElementName=ToggleButtonAdd, Path=IsChecked}">
 			<DataGrid.CommandBindings>
 				<CommandBinding Command="Delete" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed"/>
 			</DataGrid.CommandBindings>
 			<DataGrid.Resources>
-				<libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="ColorFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ColorFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="CountryFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.CountryFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="Ean13FilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.Ean13Filter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="FileNameFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.FileNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="GtinFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.GtinFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="InnFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.InnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="MaterialDownFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialDownFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="MaterialInFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialInnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="MaterialUpFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialUpFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="ProductNameFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ProductNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="ProductTypeFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.ProductTypeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:DateFilterPopup x:Key="PublishedFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.PublishedFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="SizeFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.SizeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="TnvedFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.TnvedFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource MainDataContext}, Path=Data.VendorCodeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="BrandFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="ColorFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ColorFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="CountryFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.CountryFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="Ean13FilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.Ean13Filter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="FileNameFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.FileNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="GtinFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.GtinFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="InnFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.InnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="MaterialDownFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialDownFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="MaterialInFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialInnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="MaterialUpFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialUpFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="ProductNameFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ProductNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="ProductTypeFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ProductTypeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:DateFilterPopup x:Key="PublishedFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.PublishedFilter}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="SizeFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.SizeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="TnvedFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.TnvedFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="VendorCodeFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 			</DataGrid.Resources>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="GTIN" Binding="{Binding Path=Gtin, TargetNullValue=''}" Width="100">
@@ -87,7 +93,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.GtinFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.GtinFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -109,7 +115,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.Ean13Filter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.Ean13Filter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -131,7 +137,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.VendorCodeFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.VendorCodeFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -153,7 +159,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.ProductNameFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ProductNameFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -175,7 +181,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.BrandFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -197,7 +203,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.InnFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.InnFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -219,7 +225,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.CountryFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.CountryFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -241,7 +247,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.ProductTypeFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ProductTypeFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -263,7 +269,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialUpFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.MaterialUpFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -285,7 +291,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialInFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.MaterialInFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -307,7 +313,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.MaterialDownFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.MaterialDownFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -329,7 +335,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.ColorFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ColorFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -351,7 +357,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.SizeFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.SizeFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -373,7 +379,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.TnvedFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.TnvedFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -396,7 +402,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.PublishedFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.PublishedFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>
@@ -422,7 +428,7 @@
 								<Setter.Value>
 									<DataTemplate>
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource MainDataContext}, Path=Data.FileNameFilter.IconVisibile, Mode=OneWay}"/>
+											<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.FileNameFilter.IconVisibile, Mode=OneWay}"/>
 											<TextBlock Text="{Binding}" FontWeight="Bold"/>
 										</StackPanel>
 									</DataTemplate>

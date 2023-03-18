@@ -19,14 +19,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 	/// <summary>
 	/// Логика взаимодействия для Marking_win.xaml
 	/// </summary>
-	public partial class Marking_win : Window
+	public partial class MarkingWin : Window
 	{
 		MarkingViewCommader mycmd;
 		lib.BindingDischarger mybinddisp;
 
-		public Marking_win()
+		public MarkingWin()
 		{
-			InitializeComponent();
+			this.InitializeComponent();
 			mybinddisp = new lib.BindingDischarger(this, new DataGrid[] { this.MainDataGrid });
 		}
 
@@ -137,6 +137,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 		}
 
 		private void VendorCodeFilterPopup_Open(object sender, MouseButtonEventArgs e)
+		{
+
+		}
+
+		private void TnvedFilterPopup_Open(object sender, MouseButtonEventArgs e)
 		{
 
 		}
