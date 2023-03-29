@@ -7,7 +7,7 @@
         xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
         xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
         mc:Ignorable="d"
-        Title="Маркировка" Name="winMarking" Loaded="Window_Loaded" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing" Language="ru-RU" Top="5" Left="10" WindowState="Maximized" FontSize="11" Icon="/CustomBrokerWpf;component/Images/truck_blue.png" d:DesignWidth="1700">
+        Title="Маркировка" Name="winMarking" DataContextChanged="Window_DataContextChanged" Closing="Window_Closing" Language="ru-RU" Top="5" Left="10" WindowState="Maximized" FontSize="11" Icon="/CustomBrokerWpf;component/Images/truck_blue.png" d:DesignWidth="1700">
     <Grid>
 		<Grid.Resources>
 			<lib:BindingProxy x:Key="DataContext" Data="{Binding}"/>
@@ -21,9 +21,10 @@
 			<Button ToolTip="Импорт из Excel" Command="{Binding Path=ExcelImport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/excel_import.png" />
 			</Button>
-			<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False">
+			<Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=MainDataGrid, Path=.}" IsTabStop="False" Visibility="Collapsed">
 				<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
 			</Button>
+			<Separator/>
 			<ToggleButton x:Name="ToggleButtonAdd" ToolTip="Включить ручное добавление строк" IsChecked="False">
 				<Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
 			</ToggleButton>
@@ -38,10 +39,10 @@
 			<Button Command="{Binding Path=FilterClear}" ToolTip="Очистить фильтры" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/funnel_delete.png" />
 			</Button>
-			<Button Command="{Binding Path=FilterDefault}" ToolTip="Фильтр по умолчанию" Visibility="Visible">
+			<Button Command="{Binding Path=FilterDefault}" ToolTip="Фильтр по умолчанию" Visibility="Collapsed">
 				<Image Source="/CustomBrokerWpf;component/Images/funnel_preferences.png" />
 			</Button>
-			<Button Command="{Binding Path=FilterSave}" ToolTip="Сохранить фильтр как фильтр по умолчанию" Visibility="Visible">
+			<Button Command="{Binding Path=FilterSave}" ToolTip="Сохранить фильтр как фильтр по умолчанию" Visibility="Collapsed">
 				<Image Source="/CustomBrokerWpf;component/Images/funnel_edit.png" />
 			</Button>
 			<Separator/>
@@ -51,7 +52,7 @@
 			<Button ToolTip="Сохранить изменения в БД" Command="{Binding Path=Save}" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/save.png" />
 			</Button>
-			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения" Visibility="{Binding Source={StaticResource keyVisibilityAccounts}, Path=Visibility, Mode=OneWay}" >
+			<Button Command="{Binding Path=Reject}" ToolTip="Отменить несохраненные изменения">
 				<Image Source="/CustomBrokerWpf;component/Images/rRemove-512.png" />
 			</Button>
 			<Separator/>
@@ -76,7 +77,7 @@
 				<libui:CheckListBoxPopup x:Key="GtinFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.GtinFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 				<libui:CheckListBoxPopup x:Key="InnFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.InnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 				<libui:CheckListBoxPopup x:Key="MaterialDownFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialDownFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
-				<libui:CheckListBoxPopup x:Key="MaterialInFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialInnFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
+				<libui:CheckListBoxPopup x:Key="MaterialInFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialInFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 				<libui:CheckListBoxPopup x:Key="MaterialUpFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.MaterialUpFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 				<libui:CheckListBoxPopup x:Key="ProductNameFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ProductNameFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>
 				<libui:CheckListBoxPopup x:Key="ProductTypeFilterPopup" DataContext="{Binding Source={StaticResource DataContext}, Path=Data.ProductTypeFilter}" MinWidth="50" MaxHeight="{x:Static local:References.WorkAreaHight}" Placement="Right" VerticalOffset="0" HorizontalOffset="4" PopupAnimation="Fade"/>

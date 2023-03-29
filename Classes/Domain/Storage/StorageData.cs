@@ -1083,7 +1083,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 
 				StorageData item;
 				decimal dval; Int16 bval;string str; DateTime sdate;
-				string[] dateformats = new string[] { "yy.MM.dd", "yyyy.MM.dd", "dd.MM.yyyy", "dd-MM-yy", "yy-MM-dd", "yyyy-MM-dd", "dd-MM-yyyy", "dd-MM-yy" };
+				string[] dateformats = new string[] { "yy.MM.dd", "yyyy.MM.dd", "dd.MM.yyyy", "dd.MM.yy", "yy-MM-dd", "yyyy-MM-dd", "dd-MM-yyyy", "dd-MM-yy" };
 				if (store.Id == 1)
 				{
 					for (; r <= maxr; r++)

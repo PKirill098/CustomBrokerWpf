@@ -70,7 +70,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (!e.Cancel)
             {
-                if (!e.Cancel) (App.Current.MainWindow as MainWindow).ListChildWindow.Remove(this);
+                mycmd.Dispose();
+                (App.Current.MainWindow as MainWindow).ListChildWindow.Remove(this);
                 (App.Current.MainWindow as MainWindow).Activate();
             }
         }

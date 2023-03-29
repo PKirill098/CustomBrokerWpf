@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
-
+using Excel = Microsoft.Office.Interop.Excel;
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 {
 	public class Marking : lib.DomainBaseStamp
@@ -16,22 +17,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			, string productname, string producttype, DateTime published, string size, string tnved, string vendorcode
 			) : base(id, stamp, updated, updater, state, true)
 		{
-			brand = mybrand;
-			color = mycolor;
-			country=mycountry;
-			ean13 = myean13;
-			filename = myfilename;
-			gtin = mygtin;
-			inn=myinn;
-			materialdown = mymaterialdown;
-			materialin = mymaterialin;
-			materialup = mymaterialup;
-			productname = myproductname;
-			producttype = myproducttype;
-			published = mypublished;
-			size = mysize;
-			tnved = mytnved;
-			vendorcode = myvendorcode;
+			mybrand = brand;
+			mycolor = color;
+			mycountry=country;
+			myean13 = ean13;
+			myfilename = filename;
+			mygtin = gtin;
+			myinn=inn;
+			mymaterialdown = materialdown;
+			mymaterialin = materialin;
+			mymaterialup = materialup;
+			myproductname = productname;
+			myproducttype = producttype;
+			mypublished = published;
+			mysize = size;
+			mytnved = tnved;
+			myvendorcode = vendorcode;
 		}
 		public Marking() : this(lib.NewObjectId.NewId,0L,null,null,lib.DomainObjectState.Added
 			, null,null,null,null,null,0L,null,null,null,null,null,null,DateTime.Today,null,null,null) { }
@@ -284,7 +285,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				,new SqlParameter("@producttype", System.Data.SqlDbType.NVarChar,100)
 				,new SqlParameter("@published", System.Data.SqlDbType.DateTime2)
 				,new SqlParameter("@size", System.Data.SqlDbType.NVarChar,128)
-				,new SqlParameter("@tnved", System.Data.SqlDbType.NVarChar,10)
+				,new SqlParameter("@tnved", System.Data.SqlDbType.NVarChar,1024)
 				,new SqlParameter("@vendorcode", System.Data.SqlDbType.NVarChar,50)
 			};
 		}
@@ -454,6 +455,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		public MarkingVM(Marking model) : base(model)
 		{
 			ValidetingProperties.AddRange(new string[] { nameof(this.Brand), nameof(this.Ean13), nameof(this.FileName), nameof(this.Gtin), nameof(this.Inn), nameof(this.MaterialUp), nameof(this.ProductName), nameof(this.ProductType), nameof(this.Published), nameof(this.Tnved), nameof(this.VendorCode) });
+			InitProperties();
 		}
 		public MarkingVM():this(new Marking()) { }
 
@@ -542,15 +544,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 
 		protected override bool DirtyCheckProperty()
 		{
-			return false;
+			return mybrand != this.DomainObject.Brand || mygtin != this.DomainObject.Gtin;
 		}
 		protected override void DomainObjectPropertyChanged(string property)
 		{
+			switch (property)
+			{
+				case nameof(Marking.Brand):
+					mybrand = this.DomainObject.Brand;
+					break;
+				case nameof(Marking.Gtin):
+					mygtin = this.DomainObject.Gtin;
+					break;
+			}
 		}
 		protected override void InitProperties()
 		{
+			mybrand = this.DomainObject.Brand;
+			mygtin = this.DomainObject.Gtin;
 		}
-
 		protected override void RejectProperty(string property, object value)
 		{
 			switch (property)
@@ -729,6 +741,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			mygtinfilter.ExecCommand1 = () => { FilterRunExec(null); };
 			mygtinfilter.ExecCommand2 = () => { mygtinfilter.Clear(); };
 			mygtinfilter.ItemsSource = myview.OfType<MarkingVM>();
+			mygtinfilter.GetDisplayPropertyValueFunc = (object item) => { return item.ToString(); };
 			myinnfilter = new MarkingInnCheckListBoxVMFill();
 			myinnfilter.DeferredFill = true;
 			myinnfilter.ExecCommand1 = () => { FilterRunExec(null); };
@@ -784,6 +797,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			if (myfilter.isEmpty)
 				this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
 			#endregion
+
+			mymarkingadd = new RelayCommand(MarkingAddExec, MarkingAddCanExec);
 		}
 
 		~MarkingViewCommader()
@@ -791,6 +806,187 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 
 		private MarkingDBM mymdbm;
 		private MarkingSynchronizer mysync;
+
+		private RelayCommand mymarkingadd;
+		public ICommand ExcelImport
+		{
+			get { return mymarkingadd; }
+		}
+		private void MarkingAddExec(object parametr)
+		{
+			if (myexceltask == null)
+				myexceltask = new lib.TaskAsync.TaskAsync();
+			if (!myexceltask.IsBusy)
+			{
+				Microsoft.Win32.OpenFileDialog fd = new Microsoft.Win32.OpenFileDialog();
+				fd.Multiselect = false;
+				fd.CheckPathExists = true;
+				fd.CheckFileExists = true;
+				if (System.IO.Directory.Exists(CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault)) fd.InitialDirectory = CustomBrokerWpf.Properties.Settings.Default.DetailsFileDefault;
+				fd.Title = "Выбор файла маркировки";
+				fd.Filter = "Файлы Excel|*.xls;*.xlsx;*.xlsm;";
+				if (fd.ShowDialog().Value)
+				{
+					try
+					{
+						int producttype=0;
+						if (fd.FileName.ToLower().IndexOf("обувь") > 0)
+							producttype = 1;
+						else if (fd.FileName.ToLower().IndexOf("одежда") > 0)
+							producttype = 2;
+						else
+						{
+							this.OpenPopup("В имени файла не указан тип маркированого товара!", true);
+							return;
+						}
+						myexceltask.DoProcessing = OnExcelImport;
+						myexceltask.Run(new object[2] { fd.FileName, producttype });
+					}
+					catch (Exception ex)
+					{
+						this.OpenPopup("Не удалось загрузить файл.\n" + ex.Message, true);
+					}
+				}
+			}
+			else
+			{
+				System.Windows.MessageBox.Show("Предыдущая обработка еще не завершена, подождите.", "Обработка данных", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Hand);
+			}
+		}
+		private bool MarkingAddCanExec(object parametr)
+		{ return myexceltask == null || !myexceltask.IsBusy; }
+		private lib.TaskAsync.TaskAsync myexceltask;
+		private KeyValuePair<bool, string> OnExcelImport(object parm)
+		{
+			object[] param = parm as object[];
+			string filepath = (string)param[0];
+			int filetype = (int)param[1];
+			return new KeyValuePair<bool, string>(false, this.ImportMarking(filepath, filetype, myexceltask).ToString() + " строк обработано.");
+		}
+		internal int ImportMarking(string filepath, int filetype, lib.TaskAsync.TaskAsync myexceltask)
+		{
+			int maxr, usedr = 0, r = 7;
+			Excel.Application exApp = new Excel.Application();
+			Excel.Application exAppProt = new Excel.Application();
+			try
+			{
+				exApp.Visible = false;
+				exApp.DisplayAlerts = false;
+				exApp.ScreenUpdating = false;
+
+				Excel.Workbook exWb = exApp.Workbooks.Open(filepath, false, true);
+				Excel.Worksheet exWh = exWb.Sheets[1];
+				maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
+				myexceltask.ProgressChange(5);
+
+				int c;
+				string ean13, inn;
+				DateTime date;
+				Marking marking;
+				System.Text.StringBuilder str = new System.Text.StringBuilder();
+				string[] dateformats = new string[] { "dd.MM.yyyy", "dd.MM.yy", "dd-MM-yyyy", "dd-MM-yy" };
+				for (; r <= maxr; r++)
+				{
+					if (string.IsNullOrEmpty(exWh.Cells[r, 2].Text as string)) continue;
+
+					c = filetype == 1 ? 3 : 27;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует EAN-13");
+					else
+						ean13 = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 8 : 8;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует ИНН");
+					else
+						inn = exWh.Cells[r, c].Text;
+					marking = mysync.DomainCollection.FirstOrDefault((Marking item) => { return item.Ean13 == ean13 && item.Inn == inn; });
+					if (marking == null)
+					{
+						marking = new Marking();
+						marking.Ean13 = ean13;
+						marking.Inn = inn;
+					}
+					if ((exWh.Cells[r, 2].Text as string).Length > 20)
+						throw new Exception("Некорректное значение GTIN: " + exWh.Cells[r, 2].Text);
+					else
+						marking.Gtin = (long)exWh.Cells[r, 2].Value;
+					c = filetype == 1 ? 4 : 3;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует Модель производителя");
+					else
+						marking.VendorCode = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 6 : 5;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует Наименование товара");
+					else
+						marking.ProductName = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 7 : 6;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует Бренд (торговая марка)");
+					else
+						marking.Brand = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 9 : 7;
+					marking.Country = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 10 : 10;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует Вид изделия");
+					else
+						marking.ProductType = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 11 : 19;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует " + (filetype == 1 ? "Материал верха" : "(Состав сырья)"));
+					else
+						marking.MaterialUp = exWh.Cells[r, c].Text;
+					if(filetype == 1) marking.MaterialIn = exWh.Cells[r, 12].Text;
+					if (filetype == 1) marking.MaterialDown = exWh.Cells[r, 13].Text;
+					c = filetype == 1 ? 14 : 16;
+					marking.Color = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 15 : 14;
+					marking.Size = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 17 : 12;
+					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+						throw new Exception("Отсутствует ТНВЭД");
+					else
+						marking.Tnved = exWh.Cells[r, c].Text;
+					c = filetype == 1 ? 5 : 4;
+					str.Clear();
+					str.Append((exWh.Cells[r, c].Text as string).Trim());
+					if (DateTime.TryParseExact(str.ToString(), dateformats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date))
+						marking.Published = date;
+					else
+						throw new Exception("Отсутствует Дата публикации");
+					marking.FileName = System.IO.Path.GetFileName(filepath);
+
+					App.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action<Marking>(mysync.DomainCollection.Add), marking);
+					usedr++;
+					myexceltask.ProgressChange(r, maxr, 0.85M, 0.15M);
+				}
+				myexceltask.ProgressChange(99);
+				exWb.Close();
+				exApp.Quit();
+
+				myexceltask.ProgressChange(100);
+				return usedr;
+			}
+			catch (Exception ex)
+			{
+				if (exApp != null)
+				{
+					foreach (Excel.Workbook itemBook in exApp.Workbooks)
+					{
+						itemBook.Close(false);
+					}
+					exApp.Quit();
+				}
+				throw new Exception("Ошибка в строке " + r.ToString() + ": " + ex.Message);
+			}
+			finally
+			{
+				exApp = null;
+				if (exAppProt != null && exAppProt.Workbooks.Count == 0) exAppProt.Quit();
+				exAppProt = null;
+			}
+		}
 
 		#region Filter
 		private lib.SQLFilter.SQLFilter myfilter;
@@ -1256,6 +1452,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		public void Dispose()
 		{
 			myfilter.RemoveFilter();
+			myfilter.Dispose();
 		}
 	}
 
@@ -1263,18 +1460,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Count == 0)
-				Items.Add(string.Empty);
-			if (!(string.IsNullOrEmpty(item.Brand) || Items.Contains(item.Brand))) Items.Add(item.Brand);
+			if (Items.Contains(item.Brand)) Items.Add(item.Brand);
 		}
 	}
 	public class MarkingColorCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Count == 0)
-				Items.Add(string.Empty);
-			if (!(string.IsNullOrEmpty(item.Color) || Items.Contains(item.Color))) Items.Add(item.Color);
+			if (Items.Contains(item.Color)) Items.Add(item.Color);
 		}
 	}
 	public class MarkingCountryCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
@@ -1290,9 +1483,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Count == 0)
-				Items.Add(string.Empty);
-			if (!(string.IsNullOrEmpty(item.Ean13) || Items.Contains(item.Ean13))) Items.Add(item.Ean13);
+			if (Items.Contains(item.Ean13)) Items.Add(item.Ean13);
 		}
 	}
 	public class MarkingFileNameCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
@@ -1304,13 +1495,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			if (!(string.IsNullOrEmpty(item.FileName) || Items.Contains(item.FileName))) Items.Add(item.FileName);
 		}
 	}
-	public class MarkingGtinCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, long?>
+	public class MarkingGtinCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, long>
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Count == 0)
-				Items.Add(string.Empty);
-			if (item.Gtin.HasValue && !Items.Contains(item.Gtin)) Items.Add(item.Gtin);
+			if (item.Gtin.HasValue && !Items.Contains(item.Gtin.Value)) Items.Add(item.Gtin.Value);
 		}
 	}
 	public class MarkingInnCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>

@@ -585,9 +585,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal void Income1C()
         {
             Mouse.OverrideCursor = Cursors.Wait;
-            bool iserr;
-            int r = 2;
-            string str, filepath = string.Empty;
+            bool iserr,found;
+            int r = 2, dr;
+            string str, filepath = string.Empty, r2,r3;
             Variation variation;
             VariationDBM vdbm = new VariationDBM();
             Excel.Range rng;
@@ -649,27 +649,52 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         if (variation == null)
                             vdbm.SaveItemChanches(new Variation() { Plural = vdbm.Plural.ToLower() });
                     }
-                    exWh.Cells[r, 1] = r - 1;
-                    exWh.Cells[r, 2] = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                    
+                    r2 = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
                         detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
                             detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
-                    exWh.Cells[r, 3] = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
-                    if (iserr)
-                        exWh.Cells[r, 3].Interior.Color = 255;
-                    else
-                        exWh.Cells[r, 3].Interior.Color = 16777215;
-                    exWh.Cells[r, 4] = exWh.Cells[r, 3];
-                    exWh.Cells[r, 5] = detail.VendorCode;
-                    exWh.Cells[r, 6] = this.Agent.Name;
-                    exWh.Cells[r, 7] = "шт";
-                    exWh.Cells[r, 8] = this.Declaration?.Number;
-                    exWh.Cells[r, 9] = detail.CountryRU;
-                    exWh.Cells[r, 10] = detail.Amount;
-                    exWh.Cells[r, 11] = detail.Price;
-                    exWh.Cells[r, 12] = detail.Cost;
-                    exWh.Cells[r, 13] = detail.TNVED;
+                    r3 = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
 
-                    r++;
+                    found = false;
+                    for(dr = 2; dr<r; dr++)
+					{
+                        if(
+                            exWh.Cells[dr, 2].Text == r2
+                            && exWh.Cells[dr, 3].Text == r3
+                            && exWh.Cells[dr, 5].Text == detail.VendorCode
+                            && exWh.Cells[dr, 9].Text == detail.CountryRU
+                            && ((decimal?)exWh.Cells[dr, 11].Value) == detail.Price
+                            && ((decimal?)exWh.Cells[dr, 12].Value) == detail.Cost
+                            && (exWh.Cells[dr, 13].Value)?.ToString() == detail.TNVED
+                            )
+						{
+                            exWh.Cells[dr, 10] = ((int?)exWh.Cells[dr, 10].Value) + detail.Amount;
+                            found = true;
+                            break;
+						}
+					}
+                    if (!found)
+                    {
+                        exWh.Cells[r, 1] = r - 1;
+                        exWh.Cells[r, 2] = r2;
+                        exWh.Cells[r, 3] = r3;
+                        if (iserr)
+                            exWh.Cells[r, 3].Interior.Color = 255;
+                        else
+                            exWh.Cells[r, 3].Interior.Color = 16777215;
+                        exWh.Cells[r, 4] = exWh.Cells[r, 3];
+                        exWh.Cells[r, 5] = detail.VendorCode;
+                        exWh.Cells[r, 6] = this.Agent.Name;
+                        exWh.Cells[r, 7] = "шт";
+                        exWh.Cells[r, 8] = this.Declaration?.Number;
+                        exWh.Cells[r, 9] = detail.CountryRU;
+                        exWh.Cells[r, 10] = detail.Amount;
+                        exWh.Cells[r, 11] = detail.Price;
+                        exWh.Cells[r, 12] = detail.Cost;
+                        exWh.Cells[r, 13] = detail.TNVED;
+
+                        r++;
+                    }
                 }
 
                 rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 13]];
