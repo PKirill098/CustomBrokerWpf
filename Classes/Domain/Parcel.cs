@@ -1517,7 +1517,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public ParcelVM(Parcel item) : base(item)
         {
             mylock = new object();
-            ValidetingProperties.AddRange(new string[] { "ParcelType", "Requests", "ShipPlanDate", nameof(ParcelVM.DocDirPath) });
+            ValidetingProperties.AddRange(new string[] { "ParcelType", "ParcelRequests", "ShipPlanDate", nameof(ParcelVM.DocDirPath) });
             DeleteRefreshProperties.AddRange(new string[] { "Carrier", "CarrierPerson", "CarrierTel", "CrossedBorder", "Declaration", "DocDirPath", "GoodsType", "Lorry", "LorryRegNum", "LorryTonnage", "LorryVIN", "LorryVolume", "ParcelNumber", "ParcelNumberEntire", "ParcelType", "Prepared", "RateDate", "ShipDate", "ShipPlanDate", "ShipmentNumber", "Status", "TerminalIn", "TerminalOut", "TrailerRegNum", "TrailerVIN", "Trucker", "TruckerTel", "Unloaded", "UsdRate" });
             InitProperties();
         }
@@ -2763,10 +2763,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         isvalid = false;
                     }
                     break;
-                case "Requests":
+                case "ParcelRequests":
+                    System.Text.StringBuilder errs = new System.Text.StringBuilder();
                     if (myrsync != null && this.Status?.Id == 50)
+                    {
                         foreach (RequestVM ritem in myrsync.ViewModelCollection)
-                            if (ritem.Parcel != null) isvalid &= ritem.Validate(inform);
+                            if (ritem.Parcel != null && !ritem.Validate(inform))
+                            {
+                                isvalid = false;
+                                errs.AppendLine(ritem.Errors);
+                            }
+                        errmsg = errs.ToString();
+                    }
                     break;
                 case "ShipPlanDate":
                     if (!this.ShipPlanDate.HasValue)
