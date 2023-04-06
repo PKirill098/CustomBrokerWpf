@@ -96,57 +96,87 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				case nameof(this.Brand):
 					string str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указана торговая марка!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.Ean13):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
-						errmsg = "Не указан EAN-13!";
+					{ errmsg = "Не указан EAN-13!"; isvalid = false; }
 					break;
 				case nameof(this.FileName):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указано имя файла(поставка)!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.Gtin):
 					long? lng = (long?)value;
 					if (!lng.HasValue || lng.Value==0L)
+					{
 						errmsg = "Не указан GTIN!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.Inn):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указан ИНН!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.MaterialUp):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указан состав сырья(материал верха)!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.ProductName):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указано наименование товара!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.ProductType):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указан вид изделия!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.Published):
 					DateTime? date = (DateTime?)value;
 					if (!date.HasValue)
+					{
 						errmsg = "Не указана дата публикации!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.Tnved):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указан ТНВЭД!";
+						isvalid = false;
+					}
 					break;
 				case nameof(this.VendorCode):
 					str = (string)value;
 					if (string.IsNullOrEmpty(str))
+					{
 						errmsg = "Не указан артикул (модель производителя)!";
+						isvalid = false;
+					}
 					break;
 			}
 			return isvalid;

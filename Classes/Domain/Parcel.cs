@@ -935,6 +935,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.TransportD = newitem.TransportD;
             this.TransportT = newitem.TransportT;
         }
+		public override bool ValidateProperty(string propertyname, object value, out string errmsg, out byte errmsgkey)
+		{
+            bool isvalid = true;
+            errmsg = null;
+            errmsgkey = 0;
+            switch (propertyname)
+            {
+                case nameof(this.Lorry):
+                    string str = (string)value;
+                    if (!lib.Common.PathExtension.CheckInvalidChars(str))
+                    { 
+                        errmsg = "Указан некорректный номер машины!";
+                        isvalid = false;
+                    }
+                    break;
+            }
+            return isvalid;
+        }
     }
 
     internal class ParcelStore : lib.DomainStorageLoad<Parcel, ParcelDBM>
@@ -1499,7 +1517,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public ParcelVM(Parcel item) : base(item)
         {
             mylock = new object();
-            ValidetingProperties.AddRange(new string[] { "ParcelType", "Requests", "ShipPlanDate" });
+            ValidetingProperties.AddRange(new string[] { "ParcelType", "Requests", "ShipPlanDate", nameof(ParcelVM.DocDirPath) });
             DeleteRefreshProperties.AddRange(new string[] { "Carrier", "CarrierPerson", "CarrierTel", "CrossedBorder", "Declaration", "DocDirPath", "GoodsType", "Lorry", "LorryRegNum", "LorryTonnage", "LorryVIN", "LorryVolume", "ParcelNumber", "ParcelNumberEntire", "ParcelType", "Prepared", "RateDate", "ShipDate", "ShipPlanDate", "ShipmentNumber", "Status", "TerminalIn", "TerminalOut", "TrailerRegNum", "TrailerVIN", "Trucker", "TruckerTel", "Unloaded", "UsdRate" });
             InitProperties();
         }
@@ -1575,19 +1593,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.Declaration : null; }
         }
+        private string mydocdirpath;
         public string DocDirPath
         {
             set
             {
-                if (!(this.IsReadOnly || string.Equals(this.DomainObject.DocDirPath, value)))
-                {
-                    string name = "DocDirPath";
-                    if (!myUnchangedPropertyCollection.ContainsKey(name))
-                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.DocDirPath);
-                    ChangingDomainProperty = name; this.DomainObject.DocDirPath = value;
-                }
+                SetPropertyValidate<string>(ref mydocdirpath, () => { this.DomainObject.DocDirPath = value; }, value);
+                
+                //if (!(this.IsReadOnly || string.Equals(this.DomainObject.DocDirPath, value)))
+                //{
+                //    string name = "DocDirPath";
+                //    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                //        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.DocDirPath);
+                //    ChangingDomainProperty = name; this.DomainObject.DocDirPath = value;
+                //}
             }
-            get { return this.IsEnabled ? this.DomainObject.DocDirPath : null; }
+            get { return this.IsEnabled ? mydocdirpath : null; }
         }
         public lib.ReferenceSimpleItem GoodsType
         {
@@ -2542,6 +2563,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             switch (property)
             {
+                case nameof(Parcel.DocDirPath):
+                    mydocdirpath=this.DomainObject.DocDirPath;
+                    break;
                 case "Status":
                     this.Requests.Refresh();
                     PropertyChangedNotification("RequestAreaVisibility");
@@ -2594,6 +2618,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override void InitProperties()
         {
+            mydocdirpath = this.DomainObject.DocDirPath;
         }
         protected override void RejectProperty(string property, object value)
         {
@@ -2615,7 +2640,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     this.DomainObject.Declaration = (string)value;
                     break;
                 case "DocDirPath":
-                    this.DomainObject.DocDirPath = (string)value;
+                    if (mydocdirpath != this.DomainObject.DocDirPath)
+                        mydocdirpath = this.DomainObject.DocDirPath;
+                    else
+                        mydocdirpath = (string)value;
                     break;
                 case "GoodsType":
                     this.DomainObject.GoodsType = (lib.ReferenceSimpleItem)value;
@@ -2725,6 +2753,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             string errmsg = null;
             switch (propertyname)
             {
+                case nameof(ParcelVM.DocDirPath):
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, mydocdirpath, out errmsg,out _);
+                    break;
                 case "ParcelType":
                     if (this.ParcelType == null)
                     {
@@ -2750,7 +2781,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool DirtyCheckProperty()
         {
-            return false;
+            return mydocdirpath != this.DomainObject.DocDirPath;
         }
     }
 
@@ -2924,7 +2955,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                     exApp.Quit();
                 }
-                this.OpenPopup("Создание заявки/n" + ex.Message, true);
+                this.OpenPopup("Создание заявки " + ex.Message, true);
             }
             finally
             {

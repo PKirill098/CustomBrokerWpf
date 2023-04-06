@@ -585,9 +585,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal void Income1C()
         {
             Mouse.OverrideCursor = Cursors.Wait;
-            bool iserr,found;
-            int r = 2, dr;
-            string str, filepath = string.Empty, r2,r3;
+            bool iserr;//,found
+            int r = 2;//, dr
+            string str, filepath = string.Empty;//, r2,r3
             Variation variation;
             VariationDBM vdbm = new VariationDBM();
             Excel.Range rng;
@@ -650,34 +650,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                             vdbm.SaveItemChanches(new Variation() { Plural = vdbm.Plural.ToLower() });
                     }
                     
-                    r2 = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
-                        detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
-                            detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
-                    r3 = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
+                    //r2 = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                    //    detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
+                    //        detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
+                    //r3 = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
 
-                    found = false;
-                    for(dr = 2; dr<r; dr++)
-					{
-                        if(
-                            exWh.Cells[dr, 2].Text == r2
-                            && exWh.Cells[dr, 3].Text == r3
-                            && exWh.Cells[dr, 5].Text == detail.VendorCode
-                            && exWh.Cells[dr, 9].Text == detail.CountryRU
-                            && ((decimal?)exWh.Cells[dr, 11].Value) == detail.Price
-                            && ((decimal?)exWh.Cells[dr, 12].Value) == detail.Cost
-                            && (exWh.Cells[dr, 13].Value)?.ToString() == detail.TNVED
-                            )
-						{
-                            exWh.Cells[dr, 10] = ((int?)exWh.Cells[dr, 10].Value) + detail.Amount;
-                            found = true;
-                            break;
-						}
-					}
-                    if (!found)
-                    {
+     //               found = false;
+     //               for(dr = 2; dr<r; dr++)
+					//{
+     //                   if(
+     //                       exWh.Cells[dr, 2].Text == r2
+     //                       && exWh.Cells[dr, 3].Text == r3
+     //                       && exWh.Cells[dr, 5].Text == detail.VendorCode
+     //                       && exWh.Cells[dr, 9].Text == detail.CountryRU
+     //                       && ((decimal?)exWh.Cells[dr, 11].Value) == detail.Price
+     //                       && ((decimal?)exWh.Cells[dr, 12].Value) == detail.Cost
+     //                       && (exWh.Cells[dr, 13].Value)?.ToString() == detail.TNVED
+     //                       )
+					//	{
+     //                       exWh.Cells[dr, 10] = ((int?)exWh.Cells[dr, 10].Value) + detail.Amount;
+     //                       found = true;
+     //                       break;
+					//	}
+					//}
+                    //if (!found)
+                    //{
                         exWh.Cells[r, 1] = r - 1;
-                        exWh.Cells[r, 2] = r2;
-                        exWh.Cells[r, 3] = r3;
+                        exWh.Cells[r, 2] = string.IsNullOrEmpty(detail.DescriptionAccount) ? "Товары" : (
+                            detail.TNVED.StartsWith("64") ? "Обувная продукция" : (
+                                detail.TNVED.StartsWith("43") | detail.TNVED.StartsWith("61") | detail.TNVED.StartsWith("62") ? "Товары легкой промышленности" : "Товары"));
+                        exWh.Cells[r, 3] = string.IsNullOrEmpty(detail.DescriptionAccount) ? str + " " + detail.VendorCode + " " + detail.Brand : detail.DescriptionAccount;
                         if (iserr)
                             exWh.Cells[r, 3].Interior.Color = 255;
                         else
@@ -694,7 +696,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         exWh.Cells[r, 13] = detail.TNVED;
 
                         r++;
-                    }
+                    //}
                 }
 
                 rng = exWh.Range[exWh.Cells[1, 1], exWh.Cells[r - 1, 13]];
@@ -935,8 +937,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     if(goodstype == "Обувная продукция" || goodstype == "Товары легкой промышленности")
                     {
                         for (int i=2; i<r; i++)
-                            if(!iserr
-                                && exWh.Cells[i, 2].Text == goodstype
+                            if(
+                                exWh.Cells[i, 2].Text == goodstype
                                 && exWh.Cells[i, 4].Text == descr
                                 && exWh.Cells[i, 6].Text == this.Agent.Name
                                 && exWh.Cells[i, 9].Text == detail.CountryRU
@@ -1048,14 +1050,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             rng = exWh.Range[exWh.Cells[1, 5], exWh.Cells[r + 1, 16]];
             rng.Columns.AutoFit();
 
-            //
             //rng.Columns.AutoFit();
             //rng.Rows.AutoFit();
             //rng = exWh.Columns[1, Type.Missing]; rng.AutoFit();
             //rng = exWh.Columns[5, Type.Missing]; rng.AutoFit();
             //rng.Columns[11, Type.Missing].AutoFit();
             //rng = exWh.Columns[12, Type.Missing]; rng.AutoFit();
-
         }
         private IEnumerable<Request> GetRequests()
         {
