@@ -909,7 +909,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
 				myexceltask.ProgressChange(5);
 
-				int c;
+				int c;long gtin;
 				string ean13, inn;
 				DateTime date;
 				Marking marking;
@@ -939,7 +939,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 					if ((exWh.Cells[r, 2].Text as string).Length > 20)
 						throw new Exception("Некорректное значение GTIN: " + exWh.Cells[r, 2].Text);
 					else
-						marking.Gtin = (long)exWh.Cells[r, 2].Value;
+					{
+						if(long.TryParse(exWh.Cells[r, 2].Text as String,out gtin))
+							marking.Gtin = gtin;
+						else
+							throw new Exception("Не удалось преобразовать GTIN "+ exWh.Cells[r, 2].Text as String + " в число!");
+					}
 					c = filetype == 1 ? 4 : 3;
 					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
 						throw new Exception("Отсутствует Модель производителя");
