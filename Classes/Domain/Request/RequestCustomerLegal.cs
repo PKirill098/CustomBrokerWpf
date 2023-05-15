@@ -268,6 +268,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 { this.PrePrepays.Clear(); });
                 foreach (Prepay pay in pfdbm.Collection)
                 {
+                    find = false;
                     foreach (PrepayCustomerRequest item in pdbm.Collection)
                         if (item.Prepay.Id == pay.Id)
                         {
