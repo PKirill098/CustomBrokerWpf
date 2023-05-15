@@ -1074,6 +1074,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.mydispatcher.Invoke(new Action(() => { requestlegal.PrePrepays.Clear(); })); 
             foreach (Prepay pay in mypfdbm.Collection)
             {
+                find = false;
                 foreach (PrepayCustomerRequest item in requestlegal.Prepays)
                     if (item.Prepay.Id == pay.Id)
                     {
@@ -1093,7 +1094,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         }
                 if (!find) // BeginInvoke - double items because twice invoke in one time 
                     this.mydispatcher.Invoke(new Action(() =>
-                    { requestlegal.PrePrepays.Add(new PrepayCustomerRequest(requestlegal, pay, null)); }));
+                      { requestlegal.PrePrepays.Add(new PrepayCustomerRequest(requestlegal, pay, null)); }));
             }
         }
     }
