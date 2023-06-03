@@ -919,7 +919,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				{
 					if (string.IsNullOrEmpty(exWh.Cells[r, 2].Text as string)) continue;
 
-					c = filetype == 1 ? 3 : 27;
+					c = filetype == 1 ? 19 : 26;
 					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
 						throw new Exception("Отсутствует EAN-13");
 					else
