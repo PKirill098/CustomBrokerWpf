@@ -140,7 +140,8 @@
             </DataGrid.Columns>
         </DataGrid>
         <GridSplitter Grid.Row="3" Height="2" VerticalAlignment="Center" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
-		<DataGrid Name="StorageDateMathDataGrid" ItemsSource="{Binding Path=MathView}" AutoGenerateColumns="False" EnableRowVirtualization="True" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Top" CanUserAddRows="False" FrozenColumnCount="2" RowHeaderWidth="15" CanUserResizeRows="False">
+		<DataGrid Name="StorageDateMathDataGrid" ItemsSource="{Binding Path=MathView}" AutoGenerateColumns="False" EnableRowVirtualization="True" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Top" CanUserAddRows="False" FrozenColumnCount="2" RowHeaderWidth="15" CanUserResizeRows="False"
+				  MouseDoubleClick="StorageDateMathDataGrid_MouseDoubleClick">
 			<DataGrid.InputBindings>
 				<KeyBinding Key="Delete" Command="{Binding Path=RequestDelete}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=DataGrid,AncestorLevel=1}, Path=SelectedItems}"/>
 			</DataGrid.InputBindings>
@@ -159,22 +160,28 @@
             </DataGrid.CellStyle>
             <DataGrid.Columns>
 				<DataGridTemplateColumn SortMemberPath="Request.ColorMark">
-                    <DataGridTemplateColumn.Header>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Rectangle Fill="Green" Grid.Row="0" Width="6" Height="6" />
-                            <Rectangle Fill="Red" Grid.Column="1" Width="6" Height="6" />
-                            <Rectangle Fill="Blue" Grid.Row="1" Width="6" Height="6" />
-                            <Rectangle Fill="Yellow" Grid.Row="1" Grid.Column="1" Width="6" Height="6" />
-                        </Grid>
-                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.HeaderStyle>
+						<Style TargetType="DataGridColumnHeader">
+							<Setter Property="Content">
+								<Setter.Value>
+						            <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Rectangle Fill="Green" Grid.Row="0" Width="6" Height="6" />
+                                        <Rectangle Fill="Red" Grid.Column="1" Width="6" Height="6" />
+                                        <Rectangle Fill="Blue" Grid.Row="1" Width="6" Height="6" />
+                                        <Rectangle Fill="Yellow" Grid.Row="1" Grid.Column="1" Width="6" Height="6" />
+                                    </Grid>
+								</Setter.Value>
+							</Setter>
+						</Style>
+                    </DataGridTemplateColumn.HeaderStyle>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
 							<Rectangle Fill="{Binding Path=Request.ColorMark}" RadiusX="2" RadiusY="2" Width="15" Height="15" Margin="1" />

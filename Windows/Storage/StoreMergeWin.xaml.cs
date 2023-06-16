@@ -523,115 +523,46 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
 
-        //private bool SaveChanges()
-        //{
-        //    bool isSuccess = false;
-        //    StoreMergeDS mergeDS = ((KirillPolyanskiy.CustomBrokerWpf.StoreMergeDS)(this.FindResource("storeMergeDS")));
-        //    try
-        //    {
-        //        StorageDateMathDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-        //        StorageDataDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-        //        KirillPolyanskiy.CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDateMathAdapter mathAdapter = new KirillPolyanskiy.CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDateMathAdapter();
-        //        mathAdapter.Update(mergeDS.tableStorageDateMath);
-        //        StoreMergeDSTableAdapters.StorageDataAdapter storeageAdapter = new StoreMergeDSTableAdapters.StorageDataAdapter();
-        //        storeageAdapter.Update(mergeDS.tableStorageData);
-        //        isSuccess = true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex is System.Data.SqlClient.SqlException)
-        //        {
-        //            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //            if (err.Number > 49999)
-        //            {
-        //                MessageBox.Show(err.Message, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //                mergeDS.tableStorageData.RejectChanges();
-        //            }
-        //            else
-        //            {
-        //                System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //                foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //                {
-        //                    errs.Append(sqlerr.Message + "\n");
-        //                }
-        //                MessageBox.Show(errs.ToString(), "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show(ex.Message + "\n" + ex.Source, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        if (MessageBox.Show("Повторить попытку сохранения?", "Сохранение изменений", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-        //        {
-        //            isSuccess = SaveChanges();
-        //        }
-        //    }
-        //    return isSuccess;
-        //}
-        //private void MathRequest()
-        //{
-        //    try
-        //    {
-        //        KirillPolyanskiy.CustomBrokerWpf.StoreMergeDS storeMergeDS = ((KirillPolyanskiy.CustomBrokerWpf.StoreMergeDS)(this.FindResource("storeMergeDS")));
-        //        storeMergeDS.tableStorageDateMath.Clear();
-        //        CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDateMathAdapter adapter = new KirillPolyanskiy.CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDateMathAdapter();
-        //        adapter.ClearBeforeFill = false;
-        //        StoreMergeDS.tableStorageDataDataTable storagetable = ((System.Windows.Data.CollectionViewSource)(this.FindResource("tableStorageDataViewSource"))).Source as StoreMergeDS.tableStorageDataDataTable;
-        //        foreach (StoreMergeDS.tableStorageDataRow row in storagetable)
-        //        {
-        //            //StoreMergeDS.tableStorageDateMathRow mathrow = row.Row as StoreMergeDS.tableStorageDateMathRow;
-        //            adapter.Fill(storeMergeDS.tableStorageDateMath, row.IsrequestIdNull() ? 0 : row.requestId, row.storagePoint, row.storeId, row.customer, row.agent);
-        //        }
-        //        BindingListCollectionView mathview = CollectionViewSource.GetDefaultView(this.StorageDateMathDataGrid.ItemsSource) as BindingListCollectionView;
-        //        mathview.Refresh();
-
-        //        //System.Windows.Data.CollectionViewSource tableStorageDateMathViewSource = ((System.Windows.Data.CollectionViewSource)(this.FindResource("tableStorageDateMathViewSource")));
-        //        //tableStorageDateMathViewSource.View.MoveCurrentToFirst();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex is System.Data.SqlClient.SqlException)
-        //        {
-        //            System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-        //            System.Text.StringBuilder errs = new System.Text.StringBuilder();
-        //            foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-        //            {
-        //                errs.Append(sqlerr.Message + "\n");
-        //            }
-        //            MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //        else
-        //        {
-        //            MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        }
-        //    }
-        //}
-        //private void DataRefresh()
-        //{
-        //    KirillPolyanskiy.CustomBrokerWpf.StoreMergeDS storeMergeDS = ((KirillPolyanskiy.CustomBrokerWpf.StoreMergeDS)(this.FindResource("storeMergeDS")));
-        //    KirillPolyanskiy.CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDataAdapter storeMergeDSStorageDataAdapter = new KirillPolyanskiy.CustomBrokerWpf.StoreMergeDSTableAdapters.StorageDataAdapter();
-        //    //storeMergeDSStorageDataAdapter.ClearBeforeFill = false;
-        //    CollectionViewSource StorageViewSource = this.FindResource("tableStorageDataViewSource") as CollectionViewSource;
-        //    StorageViewSource.Source = null;
-        //    storeMergeDSStorageDataAdapter.Fill(storeMergeDS.tableStorageData, mythisfilter.FilterWhereId);
-        //    StorageViewSource.Source = storeMergeDS.tableStorageData;
-        //    MathRequest();
-        //    setFilterButtonImage();
-        //}
-        //private void tableStorageDataDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (e.OriginalSource == StorageDataDataGrid & e.AddedItems.Count > 0)
-        //    {
-        //        BindingListCollectionView mathview = CollectionViewSource.GetDefaultView(this.StorageDateMathDataGrid.ItemsSource) as BindingListCollectionView;
-        //        StoreMergeDS.tableStorageDataRow row = (e.AddedItems[0] as DataRowView).Row as StoreMergeDS.tableStorageDataRow;
-        //        if (row.IsrequestIdNull())
-        //            mathview.CustomFilter = "storage='" + row.storagePoint + "'";
-        //        else
-        //            mathview.CustomFilter = "storage='" + row.storagePoint + "' AND requestId=" + row.requestId;
-        //        mergeButton.IsEnabled = row.IsrequestIdNull();
-        //        createButton.IsEnabled = row.IsrequestIdNull();
-        //        severButton.IsEnabled = !row.IsrequestIdNull();
-        //    }
-        //}
+		private void StorageDateMathDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			if (e.OriginalSource is TextBlock && (StorageDateMathDataGrid.CurrentCell.Column?.SortMemberPath == "Request.Id" || StorageDateMathDataGrid.CurrentCell.Column?.SortMemberPath == "Request.RequestDate"))
+			{
+				if (mymanager.MathView.CurrentItem is StorageMathVM & StorageDateMathDataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+				{
+                    StorageMathVM math = mymanager.MathView.CurrentItem as StorageMathVM;
+					OpenRequest(math.Request);
+				}
+				e.Handled = true;
+			}
+		}
+		private void OpenRequest(Classes.Domain.RequestVM request)
+		{
+			RequestNewWin newWin = null;
+            MainWindow mainwindow = App.Current.MainWindow as MainWindow;
+			foreach (Window item in mainwindow.ListChildWindow)
+			{
+				if (item.Name == "winRequestNew")
+				{
+					if ((item.DataContext as Classes.Domain.RequestVMCommand).VModel.DomainObject.Equals(request.DomainObject))
+						newWin = item as RequestNewWin;
+				}
+			}
+			if (newWin == null)
+			{
+				newWin = new RequestNewWin();
+				newWin.thisStoragePointValidationRule.RequestId = request.Id;
+				Classes.Domain.RequestVMCommand cmd = new Classes.Domain.RequestVMCommand(request, null);
+				cmd.EndEdit = newWin.BindingDischarger.EndEdit;
+				cmd.CancelEdit = newWin.BindingDischarger.CancelEdit;
+				newWin.DataContext = cmd;
+				mainwindow.ListChildWindow.Add(newWin);
+				newWin.Show();
+			}
+			else
+			{
+				newWin.Activate();
+				if (newWin.WindowState == WindowState.Minimized) newWin.WindowState = WindowState.Normal;
+			}
+		}
 	}
 }
