@@ -157,7 +157,7 @@
                                 <DataGridTextColumn Binding="{Binding Path=VATPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Volume, StringFormat=\{0:N3\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=VolumeProfit, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
-								<DataGridTextColumn SortMemberPath="Managers" IsReadOnly="True"/>
+								<DataGridTextColumn Binding="{Binding Path=Managers, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" IsReadOnly="True"/>
 							</DataGrid.Columns>
                         </DataGrid>
                     </DataTemplate>

@@ -121,7 +121,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? GTLS { private set; get; }
         private decimal? mygtlscurold;
         public decimal? GTLSCur { private set; get; }
-        public decimal? MarkupAlg
+		private List<Manager> mymanagers;
+		public List<Manager> Managers
+		{
+			get
+			{
+				if (mymanagers == null)
+				{
+					mymanagers = new List<Manager>();
+					this.ManagersRefresh();
+				}
+				return mymanagers;
+			}
+		}
+		public decimal? MarkupAlg
         {
             get { return (this.CC ?? 0M) > 0M ? (this.Selling - this.CC) / this.CC : null; }
         }
@@ -239,7 +252,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.SellingDate = templ.SellingDate;
             this.SL = templ.SL;
             this.Volume = templ.Volume;
-        }
+            ManagersRefresh();
+		}
         protected override void RejectProperty(string property, object value)
         {
         }
@@ -446,9 +460,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mygtd.Specification.PropertyChanged -= this.Specification_PropertyChanged;
             mygtd.Specification.Declaration.PropertyChanged -= this.Declaration_PropertyChanged;
         }
-    }
+		private void ManagersRefresh()
+		{
+			if (mymanagers == null) return;
+            mymanagers.Clear();
+			foreach (Request request in this.GTD.Specification.Requests)
+				if (request.Manager != null 
+                        && !mymanagers.Contains(request.Manager)
+                        && request.CustomerLegals.FirstOrDefault<RequestCustomerLegal>((RequestCustomerLegal legal) => { return legal.Selected && legal.CustomerLegal == this.Client; })!=null)
+					mymanagers.Add(request.Manager);
+			this.PropertyChangedNotification(nameof(GTDRegisterClient.Managers));
+		}
+	}
 
-    internal class GTDRegisterClientDBM:lib.DBManagerWhoWhen<GTDRegisterClient>
+	internal class GTDRegisterClientDBM:lib.DBManagerWhoWhen<GTDRegisterClient>
     {
         internal GTDRegisterClientDBM()
         {
@@ -632,7 +657,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsEnabled ? this.DomainObject.GTLS : (decimal?)null; } }
         public decimal? GTLSCur
         { get { return this.IsEnabled ? this.DomainObject.GTLSCur : (decimal?)null; } }
-        public decimal? MarkupAlg
+		private string mymanagers;
+		public string Managers
+		{
+			get
+			{
+				return mymanagers;
+			}
+		}
+		public decimal? MarkupAlg
         {
             get { return this.DomainObject.MarkupAlg; }
         }
@@ -737,14 +770,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     mycustomer = new CustomerLegalVM(this.DomainObject.Client);
                     this.PropertyChangedNotification(nameof(this.Client));
                     break;
-            }
-        }
+				case nameof(GTDRegisterClient.Managers):
+					if (!myinitmanagers) this.InitManagers();
+					break;
+			}
+		}
         protected override void InitProperties()
         {
             if (this.DomainObject.Client != null)
+            {
                 mycustomer = new CustomerLegalVM(this.DomainObject.Client);
-            //mygtd = new GTDRegisterVM(this.DomainObject.GTD);
-            this.DomainObject.ValueChanged += this.Model_ValueChanged;
+				this.InitManagers();
+			}
+			this.DomainObject.ValueChanged += this.Model_ValueChanged;
         }
         protected override void RejectProperty(string property, object value)
         {
@@ -766,9 +804,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             this.OnValueChanged(e.PropertyName, e.OldValue, e.NewValue);
         }
-    }
 
-    public class GTDRegisterClientSynchronizer : lib.ModelViewCollectionsSynchronizer<GTDRegisterClient, GTDRegisterClientVM>
+		private bool myinitmanagers;
+		private void InitManagers()
+		{
+			myinitmanagers = true; // первая инициализация повторный вызов через событие
+			StringBuilder str = new StringBuilder();
+			foreach (Manager manager in this.DomainObject.Managers)
+			{
+				str.Append((str.Length == 0 ? string.Empty : ", ") + manager.Name);
+			}
+			mymanagers = str.ToString();
+			this.PropertyChangedNotification(nameof(GTDRegisterVM.Managers));
+			myinitmanagers = false;
+		}
+	}
+
+	public class GTDRegisterClientSynchronizer : lib.ModelViewCollectionsSynchronizer<GTDRegisterClient, GTDRegisterClientVM>
     {
         protected override GTDRegisterClient UnWrap(GTDRegisterClientVM wrap)
         {

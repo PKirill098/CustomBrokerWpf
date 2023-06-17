@@ -194,7 +194,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         protected override void PropertiesUpdate(lib.DomainBaseReject sample)
         {
             this.Specification.UpdateProperties((sample as GTDRegister).Specification);
-        }
+            ManagersRefresh();
+		}
         protected override void RejectProperty(string property, object value)
         {
         }
@@ -361,8 +362,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private void ManagersRefresh()
         {
             if (mymanagers == null) return;
-
-            foreach (Request request in this.Specification.Requests)
+            mymanagers.Clear();
+			foreach (Request request in this.Specification.Requests)
             if (request.Manager != null && !mymanagers.Contains(request.Manager))
                 mymanagers.Add(request.Manager);
             this.PropertyChangedNotification(nameof(GTDRegister.Managers));
@@ -1721,7 +1722,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             case nameof(Parcel.ParcelNumberOrder):
                                 exWh.Cells[row, column] = item.Specification.Parcel.ParcelNumber;
                                 break;
-                            case nameof(Declaration.Number):
+							case nameof(GTDRegister.Managers):
+								exWh.Cells[row, column] = item.Managers;
+								break;
+							case nameof(Declaration.Number):
                                 exWh.Cells[row, column] = item.Specification.Declaration.Number;
                                 break;
                             case "AgentName":
@@ -1844,9 +1848,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             case nameof(item.VolumeProfit):
                                 exWh.Cells[row, column] = item.VolumeProfit;
                                 break;
-                            case nameof(GTDRegister.Managers):
-                                exWh.Cells[row, column] = item.Managers;
-                                break;
                         }
                         column++;
                     }
@@ -1874,7 +1875,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                                     case "ClientName":
                                         exWh.Cells[row, column] = client.Client.Name;
                                         break;
-                                    case nameof(GTDRegister.Rate):
+									case nameof(GTDRegister.Managers):
+										exWh.Cells[row, column] = client.Managers;
+										break;
+									case nameof(GTDRegister.Rate):
                                         exWh.Cells[row, column] = client.Rate;
                                         break;
                                     case nameof(Specification.Specification.Declaration.Fee):
