@@ -381,7 +381,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         {
                             if (string.IsNullOrEmpty(mycustomers) || mycustomers.IndexOf(req.CustomerName) < 0)
                                 mycustomers = (string.IsNullOrEmpty(mycustomers) ? string.Empty : mycustomers + ", ") + req.CustomerName;
-                            string[] names = req.CustomerLegalsNames.Split(',');
+                            string[] names = req.CustomerLegalsNames?.Split(',');
                             foreach (string name in names)
                                 if (string.IsNullOrEmpty(mycustomerlegal) || mycustomerlegal.IndexOf(name) < 0)
                                     mycustomerlegal = (string.IsNullOrEmpty(mycustomerlegal) ? string.Empty : mycustomerlegal + ", ") + name.Trim();
