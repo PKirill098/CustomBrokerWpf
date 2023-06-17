@@ -4,6 +4,7 @@ using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             //mygtd.PropertyChanged += this.GTD_PropertyChanged;
             mygtd.Specification.PropertyChanged += this.Specification_PropertyChanged;
             mygtd.Specification.Declaration.PropertyChanged += this.Declaration_PropertyChanged;
-            myselling = selling;
+			mygtd.Specification.Parcel.PropertyChanged += this.Parcel_PropertyChanged;
+			myselling = selling;
             mysellingdate = sellingdate;
             mysl = sl;
             myvolume = volume;
@@ -38,7 +40,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.OldUpdate();
         }
 
-        private decimal? myalgvalue2;
+		private decimal? myalgvalue2;
         internal decimal? AlgValue2
         {
             get
@@ -454,7 +456,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
             }
         }
-        internal void Unbind()
+		private void Parcel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(Parcel.Requests):
+					this.ManagersRefresh();
+					break;
+			}
+		}
+		internal void Unbind()
         {
             //mygtd.PropertyChanged -= this.GTD_PropertyChanged;
             mygtd.Specification.PropertyChanged -= this.Specification_PropertyChanged;
@@ -815,7 +826,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 				str.Append((str.Length == 0 ? string.Empty : ", ") + manager.Name);
 			}
 			mymanagers = str.ToString();
-			this.PropertyChangedNotification(nameof(GTDRegisterVM.Managers));
+			this.PropertyChangedNotification(nameof(GTDRegisterClientVM.Managers));
 			myinitmanagers = false;
 		}
 	}
