@@ -247,6 +247,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
 		{
 
 		}
+		private void ManagerGroupFilterPopup_Open(object sender, MouseButtonEventArgs e)
+		{
+
+        }
         private void MarkupAlgFilterPopup_Open(object sender, MouseButtonEventArgs e)
         {
 
@@ -613,6 +617,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             }
             return cancel;
         }
-
-	}
+    }
 }

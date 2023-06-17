@@ -305,8 +305,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 base.SetProperty<int?>(ref mycustomerid, value, () => {
                     mycustomer = mycustomerid.HasValue ? CustomBrokerWpf.References.CustomerStore.GetItemLoad(mycustomerid.Value, out _) : null;
-                    //mycustomername = null;
-                    this.ManagerGroupName = mycustomerid.HasValue && mycustomer.ManagerGroup.HasValue ? CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", mycustomer.ManagerGroup.Value).Name : null;
+                    this.ManagerGroupName = mycustomer.ManagerGroup.Name;
                     base.PropertyChangedNotification("Customer");
                     base.PropertyChangedNotification("CustomerName");
                     RequestCustomerLegalDBM ldbm = App.Current.Dispatcher.Invoke<RequestCustomerLegalDBM>(() => { return new RequestCustomerLegalDBM(); });
@@ -1077,11 +1076,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                //if (this.DomainState < lib.DomainObjectState.Deleted && (mybrokercost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mybrokercost.Value, value.Value))))
-                //{
-                //    mybrokercost = value;
-                //    this.PropertyChangedNotification("BrokerCost");
-                //}
+                if (value.HasValue) value = decimal.Round(value.Value, 4);
                 this.SetProperty<decimal?>(ref mybrokercost, value);
             }
             get { return mybrokercost; }
@@ -1149,7 +1144,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             set
             {
-                if (this.DomainState < lib.DomainObjectState.Deleted && (mydeliverycost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mydeliverycost.Value, value.Value))))
+				if (value.HasValue) value = decimal.Round(value.Value, 4);
+				if (this.DomainState < lib.DomainObjectState.Deleted && (mydeliverycost.HasValue != value.HasValue || (value.HasValue && !decimal.Equals(mydeliverycost.Value, value.Value))))
                 {
                     if (!myUnchangedPropertyCollection.ContainsKey(nameof(this.DeliveryCost)))
                         this.myUnchangedPropertyCollection.Add(nameof(this.DeliveryCost),mydeliverycost);

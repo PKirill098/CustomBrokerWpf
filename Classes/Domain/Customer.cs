@@ -14,7 +14,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     public class Customer : lib.DomainBaseStamp, lib.Interfaces.INameId
     {
         public Customer(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
-            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, lib.ReferenceSimpleItem managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
             ,int? parcelcount,DateTime? parcellastdate
             ) : base(id, stamp, updated, updater, dstate)
         {
@@ -44,7 +44,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myparcellock = new object();
         }
         public Customer(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
-            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, DateTime dayentry, int? deliverytype, string fullname, string inn, lib.ReferenceSimpleItem managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
             ) : this(id,stamp,updater,updated,dstate
             ,account, bankaccount, bankbic, bankname, contractdate,contractnum,corraccount,dayentry,deliverytype,fullname,inn,managergroup,name,notespecial,payaccount,paytypeid,recommend,state,status
             , null, null) {}
@@ -154,12 +154,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return myinn; }
         }
-        private int? mymanagergroup;
-        public int? ManagerGroup
+        private lib.ReferenceSimpleItem mymanagergroup;
+        public lib.ReferenceSimpleItem ManagerGroup
         {
             set
             {
-                base.SetProperty<int?>(ref mymanagergroup, value);
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mymanagergroup, value);
             }
             get { return mymanagergroup; }
         }
@@ -524,7 +524,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , deliverytype: reader.IsDBNull(this.Fields["deliverytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["deliverytypeID"])
                 , fullname: reader.IsDBNull(this.Fields["customerFullName"]) ? null : reader.GetString(this.Fields["customerFullName"])
                 , inn: reader.IsDBNull(this.Fields["inn"]) ? null : reader.GetString(this.Fields["inn"])
-                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? (int?)null : reader.GetInt32(this.Fields["managerGroupID"])
+                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? null : CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", reader.GetInt32(this.Fields["managerGroupID"]))
                 , name: reader.IsDBNull(this.Fields["customerName"]) ? null : reader.GetString(this.Fields["customerName"])
                 , notespecial: reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null : reader.GetString(this.Fields["customerNoteSpecial"])
                 , payaccount: reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null : reader.GetInt32(this.Fields["payaccount"])
@@ -648,7 +648,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[i++].Value = item.PayType;
             myinsertupdateparams[i++].Value = item.PayAccount;
             myinsertupdateparams[i++].Value = item.DeliveryType;
-            myinsertupdateparams[i++].Value = item.ManagerGroup;
+            myinsertupdateparams[i++].Value = item.ManagerGroup?.Id;
             myinsertupdateparams[i++].Value = item.INN;
             myinsertupdateparams[i++].Value = item.BankAccount;
             myinsertupdateparams[i++].Value = item.CorrAccount;
@@ -906,17 +906,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.INN : null; }
         }
-        public int? ManagerGroup
+        public lib.ReferenceSimpleItem ManagerGroup
         {
             set
             {
-                if (!this.IsReadOnly && (this.DomainObject.ManagerGroup.HasValue != value.HasValue || (value.HasValue && this.DomainObject.ManagerGroup.Value != value.Value)))
-                {
-                    string name = "ManagerGroup";
-                    if (!myUnchangedPropertyCollection.ContainsKey(name))
-                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.ManagerGroup);
-                    ChangingDomainProperty = name; this.DomainObject.ManagerGroup = value;
-                }
+                SetProperty<lib.ReferenceSimpleItem>(this.DomainObject.ManagerGroup, (lib.ReferenceSimpleItem v) => { this.DomainObject.ManagerGroup = value; }, value);
             }
             get { return this.IsEnabled ? this.DomainObject.ManagerGroup : null; }
         }
@@ -1185,7 +1179,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     this.DomainObject.INN = (string)value;
                     break;
                 case "ManagerGroup":
-                    this.DomainObject.ManagerGroup = (int?)value;
+                    this.DomainObject.ManagerGroup = (lib.ReferenceSimpleItem)value;
                     break;
                 case "Name":
                     if (myname != this.DomainObject.Name)
@@ -1356,8 +1350,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public CustomerCommand(CustomerVM vm, ListCollectionView view) : base(vm, view)
         {
-            mymanadgergroups = new ListCollectionView(CustomBrokerWpf.References.ManagerGroups);
-            mymanadgergroups.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            mymanagergroups = new ListCollectionView(CustomBrokerWpf.References.ManagerGroups);
+            mymanagergroups.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
             try
             {
                 ReferenceDS referenceDS = CustomBrokerWpf.References.ReferenceDS;
@@ -1435,9 +1429,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mystates;
             }
         }
-        private ListCollectionView mymanadgergroups;
+        private ListCollectionView mymanagergroups;
         public ListCollectionView ManagerGroups
-        { get { return mymanadgergroups; } }
+        { get { return mymanagergroups; } }
         private System.Data.DataView mydeliverytypes;
         public System.Data.DataView DeliveryTypes
         { get { return mydeliverytypes; } }
@@ -1492,11 +1486,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             myfastfilter = new RelayCommand(FastFilterExec, FastFilterCanExec);
             base.DeleteQuestionHeader = "Удалить клиента?";
-        }
+			mymanagergroups = new ListCollectionView(CustomBrokerWpf.References.ManagerGroups);
+			mymanagergroups.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+		}
 
-        CustomerSynchronizer mysync;
+		CustomerSynchronizer mysync;
 
-        private ListCollectionView mystates;
+		private ListCollectionView mymanagergroups;
+		public ListCollectionView ManagerGroups
+		{ get { return mymanagergroups; } }
+		private ListCollectionView mystates;
         public ListCollectionView States
         {
             get
@@ -2030,7 +2029,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                             where = false;
                             ids = filter.Value.Split(',');
                             foreach (string id in ids)
-                                if (citem.ManagerGroup.HasValue && citem.ManagerGroup.Value == int.Parse(id))
+                                if (citem.ManagerGroup?.Id == int.Parse(id))
                                 {
                                     where = true;
                                     break;

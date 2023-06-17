@@ -182,7 +182,7 @@
                     <TextBlock Text="Менеджер" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Border>
                 <Border Grid.Row="5" Grid.Column="1" BorderThickness="1,1,1,1">
-                    <ComboBox Grid.Row="5" Grid.Column="1" SelectedValue="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Path=DataContext.ManagerGroups}" SelectedValuePath="managergroupID" DisplayMemberPath="managergroupName" Margin="2" />
+                    <ComboBox Grid.Row="5" Grid.Column="1" SelectedItem="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Path=DataContext.ManagerGroups}" DisplayMemberPath="Name" Margin="2" />
                 </Border>
                 <Border Grid.Row="6" Grid.Column="0" BorderThickness="1,1,0,1">
                     <TextBlock Text="ЭДО Деливери" VerticalAlignment="Center" HorizontalAlignment="Right" />

@@ -112,6 +112,8 @@
                                 <DataGridTextColumn Binding="{Binding Path=Selling, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=SellingWithoutRate, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=SellingRate, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
+								<DataGridTextColumn Binding="{Binding Path=Client.ManagerGroup.Name, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" IsReadOnly="True"/>
+								<DataGridTextColumn Binding="{Binding Path=Managers, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" IsReadOnly="True"/>
                                 <DataGridTextColumn Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}">
                                     <DataGridTextColumn.CellStyle>
                                         <Style TargetType="DataGridCell">
@@ -157,7 +159,6 @@
                                 <DataGridTextColumn Binding="{Binding Path=VATPay, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Volume, StringFormat=\{0:N3\}, TargetNullValue='', Mode=TwoWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" EditingElementStyle="{StaticResource StyleTextBoxAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=VolumeProfit, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
-								<DataGridTextColumn Binding="{Binding Path=Managers, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}" IsReadOnly="True"/>
 							</DataGrid.Columns>
                         </DataGrid>
                     </DataTemplate>
@@ -358,6 +359,42 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+					<DataGridTextColumn Header="Группа" Binding="{Binding Path=Client.ManagerGroup.Name, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Группа менеджеров"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<!--<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ManagersFilter.IconVisibile, Mode=OneWay}"/>-->
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="ManagerGroupFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Менеджеры" Binding="{Binding Path=Managers, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Ответственные менеджеры"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<StackPanel Orientation="Horizontal">
+												<!--<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ManagersFilter.IconVisibile, Mode=OneWay}"/>-->
+												<TextBlock Text="{Binding}" FontWeight="Bold"/>
+											</StackPanel>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="ManagersFilterPopup_Open"/>
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
                     <DataGridTextColumn Header="Покупатель" Binding="{Binding Path=Client.Name, TargetNullValue='', Mode=OneWay}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
@@ -1292,24 +1329,6 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-					<DataGridTextColumn Header="Менеджеры" Binding="{Binding Path=Managers, Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
-						<DataGridTextColumn.HeaderStyle>
-							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-								<Setter Property="ToolTip" Value="Ответственные менеджеры"/>
-								<Setter Property="ContentTemplate">
-									<Setter.Value>
-										<DataTemplate>
-											<StackPanel Orientation="Horizontal">
-												<!--<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.ManagersFilter.IconVisibile, Mode=OneWay}"/>-->
-												<TextBlock Text="{Binding}" FontWeight="Bold"/>
-											</StackPanel>
-										</DataTemplate>
-									</Setter.Value>
-								</Setter>
-								<EventSetter Event="MouseRightButtonUp" Handler="ManagersFilterPopup_Open"/>
-							</Style>
-						</DataGridTextColumn.HeaderStyle>
-					</DataGridTextColumn>
 				</DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>

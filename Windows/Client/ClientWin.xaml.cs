@@ -49,8 +49,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                     ReferenceDSTableAdapters.ManagerGroupAdapter thisManagerGroupAdapter = new ReferenceDSTableAdapters.ManagerGroupAdapter();
                     thisManagerGroupAdapter.Fill(referenceDS.tableManagerGroup);
                 }
-                CollectionViewSource managerGroupVS = this.FindResource("keyManagerGroupVS") as CollectionViewSource;
-                managerGroupVS.Source = new DataView(referenceDS.tableManagerGroup, string.Empty, string.Empty, DataViewRowState.Unchanged | DataViewRowState.ModifiedCurrent);
                 if (referenceDS.DeliveryType.Count == 0)
                 {
                     ReferenceDSTableAdapters.DeliveryType thisDeliveryTypeAdapter = new ReferenceDSTableAdapters.DeliveryType();
@@ -314,7 +312,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                             case "managergroupID":
                                 ids = filter.Value.Split(',');
                                 foreach(string id in ids)
-                                    if(!(client.ManagerGroup.HasValue && client.ManagerGroup.Value==int.Parse(id)))
+                                    if(!(client.ManagerGroup?.Id==int.Parse(id)))
                                     {
                                         where = false;
                                         break;

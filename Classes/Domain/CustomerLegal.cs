@@ -9,7 +9,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     public class CustomerLegal : lib.DomainBaseStamp,lib.Interfaces.INameId
     {
         public CustomerLegal(int id, long stamp, string updater, DateTime? updated, lib.DomainObjectState dstate
-            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, Customer customer, DateTime dayentry, int? deliverytype, byte edod, byte edot, string fullname, string inn, int? managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
+            , int? account, string bankaccount, string bankbic, string bankname, DateTime? contractdate, string contractnum, string corraccount, Customer customer, DateTime dayentry, int? deliverytype, byte edod, byte edot, string fullname, string inn, lib.ReferenceSimpleItem managergroup, string name, string notespecial, int? payaccount, int? paytypeid, string recommend, int state, string status
             ) : base(id, stamp, updated, updater, dstate)
         {
             myaccount = account;
@@ -155,14 +155,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return myinn; }
         }
-        private int? mymanagergroup;
-        public int? ManagerGroup
+        private lib.ReferenceSimpleItem mymanagergroup;
+        public lib.ReferenceSimpleItem ManagerGroup
         {
             set
             {
-                base.SetProperty<int?>(ref mymanagergroup, value);
+                base.SetProperty<lib.ReferenceSimpleItem>(ref mymanagergroup, value);
             }
-            get { return mymanagergroup; }
+            get { return mymanagergroup==null? mycustomer.ManagerGroup : mymanagergroup; }
         }
         private string myname;
         public string Name
@@ -473,7 +473,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , edot: reader.GetByte(this.Fields["edot"])
                 , fullname: reader.IsDBNull(this.Fields["customerFullName"]) ? null : reader.GetString(this.Fields["customerFullName"])
                 , inn: reader.IsDBNull(this.Fields["inn"]) ? null : reader.GetString(this.Fields["inn"])
-                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? (int?)null : reader.GetInt32(this.Fields["managerGroupID"])
+                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? null : CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", reader.GetInt32(this.Fields["managerGroupID"]))
                 , name: reader.IsDBNull(this.Fields["customerName"]) ? null : reader.GetString(this.Fields["customerName"])
                 , notespecial: reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null : reader.GetString(this.Fields["customerNoteSpecial"])
                 , payaccount: reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null : reader.GetInt32(this.Fields["payaccount"])
@@ -669,7 +669,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         par.Value = item.INN;
                         break;
                     case "@managerGroupID":
-                        par.Value = item.ManagerGroup;
+                        par.Value = item.ManagerGroup?.Id;
                         break;
                     case "@customerName":
                         par.Value = item.Name;
@@ -949,21 +949,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.INN : null; }
         }
-        public int? ManagerGroup
-        {
-            set
-            {
-                if (!this.IsReadOnly && (this.DomainObject.ManagerGroup.HasValue != value.HasValue || (value.HasValue && this.DomainObject.ManagerGroup.Value != value.Value)))
-                {
-                    string name = "ManagerGroup";
-                    if (!myUnchangedPropertyCollection.ContainsKey(name))
-                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.ManagerGroup);
-                    ChangingDomainProperty = name; this.DomainObject.ManagerGroup = value;
-                }
-            }
-            get { return this.IsEnabled ? this.DomainObject.ManagerGroup : null; }
-        }
-        private string myname;
+		public lib.ReferenceSimpleItem ManagerGroup
+		{
+			set
+			{
+				SetProperty<lib.ReferenceSimpleItem>(this.DomainObject.ManagerGroup, (lib.ReferenceSimpleItem v) => { this.DomainObject.ManagerGroup = value; }, value);
+			}
+			get { return this.IsEnabled ? this.DomainObject.ManagerGroup : null; }
+		}
+		private string myname;
         public string Name
         {
             set
@@ -1223,7 +1217,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     this.DomainObject.INN = (string)value;
                     break;
                 case "ManagerGroup":
-                    this.DomainObject.ManagerGroup = (int?)value;
+                    this.DomainObject.ManagerGroup = (lib.ReferenceSimpleItem)value;
                     break;
                 case "Name":
                     if (myname != this.DomainObject.Name)
@@ -1377,9 +1371,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydbm = new Domain.CustomerLegalDBM();
             mydbm.ItemId = vm.Id;
             mycopycontact = new RelayCommand(CopyContactExec, CopyContactCanExec);
-        }
+			mymanagergroups = new ListCollectionView(CustomBrokerWpf.References.ManagerGroups);
+			mymanagergroups.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
 
-        private System.Data.DataView mydeliverytypes;
+		}
+
+		private System.Data.DataView mydeliverytypes;
         public System.Data.DataView DeliveryTypes
         {
             get
@@ -1391,15 +1388,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mydeliverytypes;
             }
         }
-        private System.Data.DataView mymanagergroups;
-        public System.Data.DataView ManagerGroups
+        private ListCollectionView mymanagergroups;
+        public ListCollectionView ManagerGroups
         {
             get
             {
-                if (mymanagergroups == null)
-                {
-                    mymanagergroups = new System.Data.DataView(CustomBrokerWpf.References.ReferenceDS.tableManagerGroup, string.Empty, "managergroupName", System.Data.DataViewRowState.CurrentRows);
-                }
                 return mymanagergroups;
             }
         }

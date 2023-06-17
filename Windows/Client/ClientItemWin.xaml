@@ -152,7 +152,7 @@
                         <TextBlock Text="Менеджер" Margin="5,0,0,0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" />
                     </Border>
                     <Border Grid.Row="4" Grid.Column="1" BorderThickness="1,1,0,0">
-                        <ComboBox SelectedValue="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource DataContext}, Path=Data.ManagerGroups}" SelectedValuePath="Id" DisplayMemberPath="Name" Margin="2" />
+                        <ComboBox SelectedItem="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource DataContext}, Path=Data.ManagerGroups}" DisplayMemberPath="Name" Margin="2" />
                     </Border>
                 </Grid>
             </Border>

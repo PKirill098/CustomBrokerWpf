@@ -11,11 +11,6 @@
         <my:NoNullValueBackConverter x:Key="keyNoNullValueBackConverter"/>
         <my:BitVisibilityConverter x:Key="keyBitVisibilityConverter"/>
         <CollectionViewSource x:Key="keyContactPointTypeVS" Source="{Binding Source={StaticResource keyReferenceDS}, Path=ContactPointTypeTb}"/>
-        <CollectionViewSource x:Key="keyManagerGroupVS">
-            <CollectionViewSource.SortDescriptions>
-                <cm:SortDescription PropertyName="managergroupName"/>
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
         <CollectionViewSource x:Key="keyDeliveryTypeVS">
             <CollectionViewSource.SortDescriptions>
                 <cm:SortDescription PropertyName="deliverytypeName"/>
@@ -191,7 +186,7 @@
                         <TextBlock Text="Менеджер" Margin="5,0,0,0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" />
                     </Border>
                     <Border Grid.Row="4" Grid.Column="1" BorderThickness="1,1,0,0">
-                        <ComboBox SelectedValue="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource keyManagerGroupVS}}" SelectedValuePath="managergroupID" DisplayMemberPath="managergroupName" Margin="2" />
+						<ComboBox SelectedItem="{Binding Path=ManagerGroup, Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Path=DataContext.ManagerGroups}" DisplayMemberPath="Name" Margin="2" />
                     </Border>
                 </Grid>
             </Border>
