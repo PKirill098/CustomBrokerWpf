@@ -15,10 +15,96 @@ using KirillPolyanskiy.DataModelClassLibrary;
 using System.Collections.Generic;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
 using KirillPolyanskiy.DataModelClassLibrary.Filter;
+using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
     //internal enum ShipmentDelay { timely, expiring, expired }
+    public struct RequestRecord
+    {
+        internal int id; 
+        internal Int64 stamp;
+        internal DateTime? updated;
+        internal string updater;
+
+        internal int? agent;
+        internal int status;
+        internal int? country;
+        internal int currency;
+        internal int? customer;
+        internal int? freight;
+        internal int? parcelgroup;
+        internal int? parcel;
+        internal int? store;
+        internal  short? cellnumber;
+        internal byte? statedoc;
+        internal byte? stateexc;
+        internal byte? stateinv;
+        internal bool currencypa;
+        internal bool specloaded;
+        internal bool ttlpayinvoice;
+        internal bool ttlpaycurrency;
+        internal int? parceltype;
+        internal decimal? additionalcost;
+        internal decimal? additionalpay;
+        internal decimal? actualweight;
+        internal decimal? bringcost;
+        internal decimal? bringpay;
+        internal decimal? brokercost;
+        internal decimal? brokerpay;
+        internal decimal? currencyrate;
+        internal decimal? currencysum;
+        internal decimal? customscost;
+        internal decimal? customspay;
+        internal decimal? deliverycost;
+        internal decimal? deliverypay;
+        internal decimal? dtrate;
+        internal decimal? goodvalue;
+        internal decimal? freightcost;
+        internal decimal? freightpay;
+        internal decimal? insurancecost;
+        internal decimal? insurancepay;
+        internal decimal? invoice;
+        internal decimal? invoicediscount;
+        internal decimal? officialweight;
+        internal decimal? preparatncost;
+        internal decimal? preparatnpay;
+        internal decimal? selling;
+        internal decimal? sellingmarkup;
+        internal decimal? sellingmarkuprate;
+        internal decimal? sertificatcost;
+        internal decimal? sertificatpay;
+        internal decimal? tdcost;
+        internal decimal? tdpay;
+        internal decimal? volume;
+        internal DateTime? currencydate;
+        internal DateTime? currencypaiddate;
+        internal DateTime? gtddate;
+        internal DateTime requestdate;
+        internal DateTime? shipplandate;
+        internal DateTime? specification;
+        internal DateTime? storedate;
+        internal DateTime? storeinform;
+        internal string algorithmnote1;
+        internal string algorithmnote2;
+        internal string cargo;
+        internal string colormark;
+        internal string consolidate;
+        internal string currencynote;
+        internal string customernote;
+        internal string docdirpath;
+        internal string gtd;
+        internal string fullnumber;
+        internal string managergroupname;
+        internal string managernote;
+        internal string servicetype;
+        internal string storenote;
+        internal string storepoint;
+        internal int? importer;
+        internal int? manager;
+    }
+
     public class Request : lib.DomainStampValueChanged
     {
         bool mycurrencypaid, myisspecification, myttlpayinvoice, myttlpaycurrency;
@@ -2513,7 +2599,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //#endregion
     }
 
-    public class RequestDBM : lib.DBManagerWhoWhen<Request>
+    public class RequestDBM : lib.DBManagerWhoWhen<RequestRecord,Request>
     {
         public RequestDBM()
         {
@@ -2739,101 +2825,183 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal DateTime? UpdateWhen { set; get; }
         internal bool SpecificationLoad { set; get; }
 
-        protected override Request CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override RequestRecord CreateRecord(SqlDataReader reader)
+        {
+                return new RequestRecord()
+                {
+                    id = reader.GetInt32(0), stamp=reader.GetInt32(this.Fields["stamp"]), updated=reader.GetDateTime(this.Fields["UpdateWhen"]), updater=reader.GetString(this.Fields["UpdateWho"])
+                    , status=reader.GetInt32(this.Fields["status"])
+                    , agent = reader.IsDBNull(this.Fields["agentId"]) ? (int?)null : reader.GetInt32(this.Fields["agentId"])
+                    , country=reader.IsDBNull(this.Fields["country"]) ? (int?)null : reader.GetInt32(this.Fields["country"])
+                    , currency=reader.GetInt32(this.Fields["currency"])
+                    , customer = reader.IsDBNull(this.Fields["customerId"]) ? (int?)null : reader.GetInt32(this.Fields["customerId"])
+                    , freight=reader.IsDBNull(this.Fields["freight"]) ? (int?)null : reader.GetInt32(this.Fields["freight"])
+                    , parcelgroup=reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                    , parcel=reader.IsDBNull(this.Fields["parcel"]) ? (int?)null : reader.GetInt32(this.Fields["parcel"])
+                    , store=reader.IsDBNull(this.Fields["storeid"]) ? (int?)null : reader.GetInt32(this.Fields["storeid"])
+                    , cellnumber=reader.IsDBNull(this.Fields["cellNumber"]) ? (short?)null : reader.GetInt16(this.Fields["cellNumber"])
+                    , statedoc=reader.IsDBNull(this.Fields["statedoc"]) ? (byte?)null : reader.GetByte(this.Fields["statedoc"])
+                    , stateexc=reader.IsDBNull(this.Fields["stateexc"]) ? (byte?)null : reader.GetByte(this.Fields["stateexc"])
+                    , stateinv=reader.IsDBNull(this.Fields["stateinv"]) ? (byte?)null : reader.GetByte(this.Fields["stateinv"])
+                    , currencypa=reader.IsDBNull(this.Fields["currencypaid"]) ? false : reader.GetBoolean(this.Fields["currencypaid"])
+                    , specloaded=reader.IsDBNull(this.Fields["specloaded"]) ? false : reader.GetBoolean(this.Fields["specloaded"])
+                    , ttlpayinvoice=reader.IsDBNull(this.Fields["ttlpayinvoice"]) ? false : reader.GetBoolean(this.Fields["ttlpayinvoice"])
+                    , ttlpaycurrency=reader.IsDBNull(this.Fields["ttlpaycurrency"]) ? false : reader.GetBoolean(this.Fields["ttlpaycurrency"])
+                    , parceltype=reader.IsDBNull(this.Fields["parceltype"]) ? (int?)null : (int)reader.GetByte(this.Fields["parceltype"])
+                    , additionalcost=reader.IsDBNull(this.Fields["additionalcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalcost"])
+                    , additionalpay=reader.IsDBNull(this.Fields["additionalpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalpay"])
+                    , actualweight=reader.IsDBNull(this.Fields["actualWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualWeight"])
+                    , bringcost=reader.IsDBNull(this.Fields["bringcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringcost"])
+                    , bringpay=reader.IsDBNull(this.Fields["bringpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringpay"])
+                    , brokercost=reader.IsDBNull(this.Fields["brokercost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokercost"])
+                    , brokerpay=reader.IsDBNull(this.Fields["brokerpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokerpay"])
+                    , currencyrate=reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
+                    , currencysum=reader.IsDBNull(this.Fields["currencysum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencysum"])
+                    , customscost=reader.IsDBNull(this.Fields["customscost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customscost"])
+                    , customspay=reader.IsDBNull(this.Fields["customspay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customspay"])
+                    , deliverycost=reader.IsDBNull(this.Fields["deliverycost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverycost"])
+                    , deliverypay=reader.IsDBNull(this.Fields["deliverypay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverypay"])
+                    , dtrate=reader.IsDBNull(this.Fields["dtrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtrate"])
+                    , goodvalue=reader.IsDBNull(this.Fields["goodValue"]) ? (decimal?)null : reader.GetDecimal(this.Fields["goodValue"])
+                    , freightcost=reader.IsDBNull(this.Fields["freightcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightcost"])
+                    , freightpay=reader.IsDBNull(this.Fields["freightpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightpay"])
+                    , insurancecost=reader.IsDBNull(this.Fields["insurancecost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancecost"])
+                    , insurancepay=reader.IsDBNull(this.Fields["insurancepay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancepay"])
+                    , invoice=reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
+                    , invoicediscount=reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
+                    , officialweight=reader.IsDBNull(this.Fields["officialWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialWeight"])
+                    , preparatncost=reader.IsDBNull(this.Fields["preparatncost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatncost"])
+                    , preparatnpay=reader.IsDBNull(this.Fields["preparatnpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatnpay"])
+                    , selling=reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
+                    , sellingmarkup=reader.IsDBNull(this.Fields["sellingmarkup"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkup"])
+                    , sellingmarkuprate=reader.IsDBNull(this.Fields["sellingmarkuprate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkuprate"])
+                    , sertificatcost=reader.IsDBNull(this.Fields["sertificatcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatcost"])
+                    , sertificatpay=reader.IsDBNull(this.Fields["sertificatpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatpay"])
+                    , tdcost=reader.IsDBNull(this.Fields["tdcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdcost"])
+                    , tdpay=reader.IsDBNull(this.Fields["tdpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdpay"])
+                    , volume=reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"])
+                    , currencydate=reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
+                    , currencypaiddate=reader.IsDBNull(this.Fields["currencypaiddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencypaiddate"])
+                    , gtddate=reader.IsDBNull(this.Fields["gtddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["gtddate"])
+                    , requestdate=reader.GetDateTime(this.Fields["requestDate"])
+                    , shipplandate=reader.IsDBNull(this.Fields["shipplandate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipplandate"])
+                    , specification=reader.IsDBNull(this.Fields["specification"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["specification"])
+                    , storedate=reader.IsDBNull(this.Fields["storageDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageDate"])
+                    , storeinform=reader.IsDBNull(this.Fields["storageInform"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageInform"])
+                    , algorithmnote1=reader.IsDBNull(this.Fields["algorithmnote1"]) ? null : reader.GetString(this.Fields["algorithmnote1"])
+                    , algorithmnote2=reader.IsDBNull(this.Fields["algorithmnote2"]) ? null : reader.GetString(this.Fields["algorithmnote2"])
+                    , cargo=reader.IsDBNull(this.Fields["loadDescription"]) ? null : reader.GetString(this.Fields["loadDescription"])
+                    , colormark=reader.IsDBNull(this.Fields["colorMark"]) ? null : reader.GetString(this.Fields["colorMark"])
+                    , consolidate=reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                    , currencynote=reader.IsDBNull(this.Fields["currencynote"]) ? null : reader.GetString(this.Fields["currencynote"])
+                    , customernote=reader.IsDBNull(this.Fields["customerNote"]) ? null : reader.GetString(this.Fields["customerNote"])
+                    , docdirpath=reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
+                    , gtd=reader.IsDBNull(this.Fields["gtd"]) ? null : reader.GetString(this.Fields["gtd"])
+                    , fullnumber=reader.IsDBNull(this.Fields["fullnumber"]) ? null : reader.GetString(this.Fields["fullnumber"])
+                    , managergroupname=reader.IsDBNull(this.Fields["managergroupName"]) ? null : reader.GetString(this.Fields["managergroupName"])
+                    , managernote=reader.IsDBNull(this.Fields["managerNote"]) ? null : reader.GetString(this.Fields["managerNote"])
+                    , servicetype=reader.IsDBNull(this.Fields["servicetype"]) ? null : reader.GetString(this.Fields["servicetype"])
+                    , storenote=reader.IsDBNull(this.Fields["storageNote"]) ? null : reader.GetString(this.Fields["storageNote"])
+                    , storepoint=reader.IsDBNull(this.Fields["storagePoint"]) ? null : reader.GetString(this.Fields["storagePoint"])
+                    , importer=reader.IsDBNull(this.Fields["importer"]) ? (int?)null : reader.GetInt32(this.Fields["importer"])
+                    , manager=reader.IsDBNull(this.Fields["managerid"]) ? (int?)null : reader.GetInt32(this.Fields["managerid"])
+                };
+        }
+        protected override Request CreateModel(RequestRecord record,SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
             Request request = null;
             if (this.FillType == lib.FillType.PrefExist)
-                request = CustomBrokerWpf.References.RequestStore.GetItem(reader.GetInt32(0));
+                request = CustomBrokerWpf.References.RequestStore.GetItem(record.id);
             if(request == null)
             {
-                System.Collections.Generic.List<lib.DBMError> errors=new System.Collections.Generic.List<DBMError>();
-                Agent agent = reader.IsDBNull(this.Fields["agentId"]) ? null : CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentId"]), addcon, out errors);
+                List<lib.DBMError> errors=new List<DBMError>();
+                Agent agent = record.agent.HasValue ? CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent.Value, addcon, out errors) : null;
                 this.Errors.AddRange(errors);
-                Customer customer = reader.IsDBNull(this.Fields["customerId"]) ? null : CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(this.Fields["customerId"]), addcon, out errors);
+                Customer customer = record.customer.HasValue ? CustomBrokerWpf.References.CustomerStore.GetItemLoad(record.customer.Value, addcon, out errors) : null;
                 this.Errors.AddRange(errors);
-                Request newitem = new Request(reader.GetInt32(0), reader.GetInt32(this.Fields["stamp"]), reader.GetDateTime(this.Fields["UpdateWhen"]), reader.GetString(this.Fields["UpdateWho"]), lib.DomainObjectState.Unchanged
+                Request newitem = new Request(record.id, record.stamp, record.updated, record.updater, lib.DomainObjectState.Unchanged
                     , agent
-                    , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(this.Fields["status"]))
-                    , reader.IsDBNull(this.Fields["agentId"]) ? (int?)null : reader.GetInt32(this.Fields["agentId"])
-                    , reader.IsDBNull(this.Fields["country"]) ? null : CustomBrokerWpf.References.Countries.FindFirstItem("Code", reader.GetInt32(this.Fields["country"]))
-                    , reader.GetInt32(this.Fields["currency"])
+                    , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", record.status)
+                    , record.agent
+                    , record.country.HasValue ? CustomBrokerWpf.References.Countries.FindFirstItem("Code", record.country.Value) : null
+                    , record.currency
                     , customer
-                    , reader.IsDBNull(this.Fields["customerId"]) ? (int?)null : reader.GetInt32(this.Fields["customerId"])
+                    , record.customer
                     , (int?)null
-                    , reader.IsDBNull(this.Fields["freight"]) ? (int?)null : reader.GetInt32(this.Fields["freight"])
-                    , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
-                    , reader.IsDBNull(this.Fields["parcel"]) ? (int?)null : reader.GetInt32(this.Fields["parcel"])
-                    , reader.IsDBNull(this.Fields["storeid"]) ? (int?)null : reader.GetInt32(this.Fields["storeid"])
-                    , reader.IsDBNull(this.Fields["cellNumber"]) ? (short?)null : reader.GetInt16(this.Fields["cellNumber"])
-                    , reader.IsDBNull(this.Fields["statedoc"]) ? (byte?)null : reader.GetByte(this.Fields["statedoc"])
-                    , reader.IsDBNull(this.Fields["stateexc"]) ? (byte?)null : reader.GetByte(this.Fields["stateexc"])
-                    , reader.IsDBNull(this.Fields["stateinv"]) ? (byte?)null : reader.GetByte(this.Fields["stateinv"])
-                    , reader.IsDBNull(this.Fields["currencypaid"]) ? false : reader.GetBoolean(this.Fields["currencypaid"])
-                    , reader.IsDBNull(this.Fields["specloaded"]) ? false : reader.GetBoolean(this.Fields["specloaded"])
-                    , reader.IsDBNull(this.Fields["ttlpayinvoice"]) ? false : reader.GetBoolean(this.Fields["ttlpayinvoice"])
-                    , reader.IsDBNull(this.Fields["ttlpaycurrency"]) ? false : reader.GetBoolean(this.Fields["ttlpaycurrency"])
-                    , reader.IsDBNull(this.Fields["parceltype"]) ? null : CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(this.Fields["parceltype"]))
-                    , reader.IsDBNull(this.Fields["additionalcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalcost"])
-                    , reader.IsDBNull(this.Fields["additionalpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["additionalpay"])
-                    , reader.IsDBNull(this.Fields["actualWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualWeight"])
-                    , reader.IsDBNull(this.Fields["bringcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringcost"])
-                    , reader.IsDBNull(this.Fields["bringpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["bringpay"])
-                    , reader.IsDBNull(this.Fields["brokercost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokercost"])
-                    , reader.IsDBNull(this.Fields["brokerpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["brokerpay"])
-                    , reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
-                    , reader.IsDBNull(this.Fields["currencysum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencysum"])
-                    , reader.IsDBNull(this.Fields["customscost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customscost"])
-                    , reader.IsDBNull(this.Fields["customspay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["customspay"])
-                    , reader.IsDBNull(this.Fields["deliverycost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverycost"])
-                    , reader.IsDBNull(this.Fields["deliverypay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliverypay"])
-                    , reader.IsDBNull(this.Fields["dtrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtrate"])
-                    , reader.IsDBNull(this.Fields["goodValue"]) ? (decimal?)null : reader.GetDecimal(this.Fields["goodValue"])
-                    , reader.IsDBNull(this.Fields["freightcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightcost"])
-                    , reader.IsDBNull(this.Fields["freightpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["freightpay"])
-                    , reader.IsDBNull(this.Fields["insurancecost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancecost"])
-                    , reader.IsDBNull(this.Fields["insurancepay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insurancepay"])
-                    , reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
-                    , reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
-                    , reader.IsDBNull(this.Fields["officialWeight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialWeight"])
-                    , reader.IsDBNull(this.Fields["preparatncost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatncost"])
-                    , reader.IsDBNull(this.Fields["preparatnpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["preparatnpay"])
-                    , reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
-                    , reader.IsDBNull(this.Fields["sellingmarkup"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkup"])
-                    , reader.IsDBNull(this.Fields["sellingmarkuprate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingmarkuprate"])
-                    , reader.IsDBNull(this.Fields["sertificatcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatcost"])
-                    , reader.IsDBNull(this.Fields["sertificatpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sertificatpay"])
-                    , reader.IsDBNull(this.Fields["tdcost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdcost"])
-                    , reader.IsDBNull(this.Fields["tdpay"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdpay"])
-                    , reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"])
-                    , reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
-                    , reader.IsDBNull(this.Fields["currencypaiddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencypaiddate"])
-                    , reader.IsDBNull(this.Fields["gtddate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["gtddate"])
-                    , reader.GetDateTime(this.Fields["requestDate"])
-                    , reader.IsDBNull(this.Fields["shipplandate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipplandate"])
-                    , reader.IsDBNull(this.Fields["specification"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["specification"])
-                    , reader.IsDBNull(this.Fields["storageDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageDate"])
-                    , reader.IsDBNull(this.Fields["storageInform"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageInform"])
-                    , reader.IsDBNull(this.Fields["algorithmnote1"]) ? null : reader.GetString(this.Fields["algorithmnote1"])
-                    , reader.IsDBNull(this.Fields["algorithmnote2"]) ? null : reader.GetString(this.Fields["algorithmnote2"])
-                    , reader.IsDBNull(this.Fields["loadDescription"]) ? null : reader.GetString(this.Fields["loadDescription"])
-                    , reader.IsDBNull(this.Fields["colorMark"]) ? null : reader.GetString(this.Fields["colorMark"])
-                    , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
-                    , reader.IsDBNull(this.Fields["currencynote"]) ? null : reader.GetString(this.Fields["currencynote"])
-                    , reader.IsDBNull(this.Fields["customerNote"]) ? null : reader.GetString(this.Fields["customerNote"])
-                    , reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
-                    , reader.IsDBNull(this.Fields["gtd"]) ? null : reader.GetString(this.Fields["gtd"])
-                    , reader.IsDBNull(this.Fields["fullnumber"]) ? null : reader.GetString(this.Fields["fullnumber"])
-                    , reader.IsDBNull(this.Fields["managergroupName"]) ? null : reader.GetString(this.Fields["managergroupName"])
-                    , reader.IsDBNull(this.Fields["managerNote"]) ? null : reader.GetString(this.Fields["managerNote"])
-                    , reader.IsDBNull(this.Fields["servicetype"]) ? null : reader.GetString(this.Fields["servicetype"])
-                    , reader.IsDBNull(this.Fields["storageNote"]) ? null : reader.GetString(this.Fields["storageNote"])
-                    , reader.IsDBNull(this.Fields["storagePoint"]) ? null : reader.GetString(this.Fields["storagePoint"])
-                    , reader.IsDBNull(this.Fields["importer"]) ? null : CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importer"]))
-                    , reader.IsDBNull(this.Fields["managerid"]) ? null : CustomBrokerWpf.References.Managers.FindFirstItem("Id", reader.GetInt32(this.Fields["managerid"]))
+                    , record.freight
+                    , record.parcelgroup
+                    , record.parcel
+                    , record.store
+                    , record.cellnumber
+                    , record.statedoc
+                    , record.stateexc
+                    , record.stateinv
+                    , record.currencypa
+                    , record.specloaded
+                    , record.ttlpayinvoice
+                    , record.ttlpaycurrency
+                    , record.parceltype.HasValue ? CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", record.parceltype) : null
+                    , record.additionalcost
+                    , record.additionalpay
+                    , record.actualweight
+                    , record.bringcost
+                    , record.bringpay
+                    , record.brokercost
+                    , record.brokerpay
+                    , record.currencyrate
+                    , record.currencysum
+                    , record.customscost
+                    , record.customspay
+                    , record.deliverycost
+                    , record.deliverypay
+                    , record.dtrate
+                    , record.goodvalue
+                    , record.freightcost
+                    , record.freightpay
+                    , record.insurancecost
+                    , record.insurancepay
+                    , record.invoice
+                    , record.invoicediscount
+                    , record.officialweight
+                    , record.preparatncost
+                    , record.preparatnpay
+                    , record.selling
+                    , record.sellingmarkup
+                    , record.sellingmarkuprate
+                    , record.sertificatcost
+                    , record.sertificatpay
+                    , record.tdcost
+                    , record.tdpay
+                    , record.volume
+                    , record.currencydate
+                    , record.currencypaiddate
+                    , record.gtddate
+                    , record.requestdate
+                    , record.shipplandate
+                    , record.specification
+                    , record.storedate
+                    , record.storeinform
+                    , record.algorithmnote1
+                    , record.algorithmnote2
+                    , record.cargo
+                    , record.colormark
+                    , record.consolidate
+                    , record.currencynote
+                    , record.customernote
+                    , record.docdirpath
+                    , record.gtd
+                    , record.fullnumber
+                    , record.managergroupname
+                    , record.managernote
+                    , record.servicetype
+                    , record.storenote
+                    , record.storepoint
+                    , record.importer.HasValue ? CustomBrokerWpf.References.Importers.FindFirstItem("Id", record.importer.Value) : null
+                    , record.manager.HasValue ? CustomBrokerWpf.References.Managers.FindFirstItem("Id", record.manager.Value) : null
                     );
                 request = CustomBrokerWpf.References.RequestStore.UpdateItem(newitem, this.FillType == lib.FillType.Refresh);
                 
-                if (this.CancelingLoad) return request;
+                if (canceltasktoken.IsCancellationRequested) return request;
                 if(!request.BrandsIsNull & this.FillType == lib.FillType.Refresh)
                 {
                     mybdbm.Request= request;
@@ -3203,14 +3371,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                 }
         }
-        protected override void CancelLoad()
-        {
-            mybdbm.CancelingLoad = this.CancelingLoad;
-            myldbm.CancelingLoad = this.CancelingLoad;
-        }
+        //protected override void CancelLoad()
+        //{
+        //    mybdbm.CancelingLoad = this.CancelingLoad;
+        //    myldbm.CancelingLoad = this.CancelingLoad;
+        //}
     }
 
-    internal class RequestStore : lib.DomainStorageLoad<Request, RequestDBM>
+    internal class RequestStore : lib.DomainStorageLoad<RequestRecord,Request, RequestDBM>
     {
         public RequestStore(RequestDBM dbm) : base(dbm) { }
 
@@ -5592,7 +5760,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RequestVMCommand : lib.ViewModelCommand<Request, RequestVM, RequestDBM>
+    public class RequestVMCommand : lib.ViewModelCommand<RequestRecord,Request, RequestVM, RequestDBM>
     {
         public RequestVMCommand(RequestVM vm, ListCollectionView view) : base(vm, view)
         {

@@ -45,7 +45,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class MappingGenderDBM : lib.DBManager<MappingGender>
+    internal class MappingGenderDBM : lib.DBManager<MappingGender,MappingGender>
     {
         internal MappingGenderDBM()
         {
@@ -87,11 +87,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override MappingGender CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override MappingGender CreateRecord(SqlDataReader reader)
+		{
             return new MappingGender(References.Genders.FindFirstItem("Id",reader.GetInt32(0)),lib.DomainObjectState.Unchanged);
+		}
+		protected override MappingGender CreateModel(MappingGender reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override void GetOutputParametersValue(MappingGender item) { }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default, System.Func<bool> reading =null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(MappingGender item) { }
         protected override void ItemAcceptChanches(MappingGender item)
         {
             item.AcceptChanches();
@@ -128,8 +140,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 myupdateparams[0].Value = item.Gender.Id;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class MappingGenderVM : lib.ViewModelErrorNotifyItem<MappingGender>

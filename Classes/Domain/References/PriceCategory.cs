@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
@@ -107,7 +108,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         }
     }
 
-    internal class PriceCategoryDBM : lib.DBManager<PriceCategory>
+    internal class PriceCategoryDBM : lib.DBManager<PriceCategory,PriceCategory>
     {
         internal PriceCategoryDBM()
         {
@@ -142,10 +143,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override PriceCategory CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override PriceCategory CreateRecord(SqlDataReader reader)
         {
             return new PriceCategory(reader.GetInt32(0),reader.GetString(1), reader.IsDBNull(2)?null: reader.GetString(2), reader.IsDBNull(3) ? (int?)null : reader.GetInt32(3), reader.GetBoolean(4), reader.GetBoolean(5),lib.DomainObjectState.Unchanged);
         }
+		protected override PriceCategory CreateModel(PriceCategory record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(PriceCategory item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -184,14 +197,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         {
             item.AcceptChanches();
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class PriceCategoryCollection : lib.ReferenceCollectionDomainBase<PriceCategory>
     {
         public PriceCategoryCollection():this(new PriceCategoryDBM()) { }
-        public PriceCategoryCollection(lib.DBManager<PriceCategory> dbm) : base(dbm)
+        public PriceCategoryCollection(lib.DBManager<PriceCategory,PriceCategory> dbm) : base(dbm)
         {
             Fill();
         }

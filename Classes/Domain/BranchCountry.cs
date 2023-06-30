@@ -11,6 +11,13 @@ using libui = KirillPolyanskiy.WpfControlLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
+    public struct BranchCountryRecord
+    {
+        internal int goods;
+        internal int?[] branches;
+        internal int[] countries;
+    }
+
     public class BranchCountry: System.ComponentModel.INotifyPropertyChanged
     {
         internal BranchCountry(GoodsVM goods, BranchVM[] branches)
@@ -48,7 +55,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class BranchCountryDBM : DataModelClassLibrary.DBMSFill<BranchCountry>
+    public class BranchCountryDBM : DataModelClassLibrary.DBMSFill<BranchCountryRecord,BranchCountry>
     {
         internal BranchCountryDBM()
         {
@@ -60,21 +67,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         internal Country[] Countries { set; get; }
 
-        protected override BranchCountry CreateItem(SqlDataReader reader,SqlConnection addcon)
+		protected override BranchCountryRecord CreateRecord(SqlDataReader reader)
+		{
+            BranchCountryRecord record = new BranchCountryRecord()
+            {
+                goods = reader.GetInt32(0),
+                branches = new int?[reader.FieldCount - 1],
+                countries = new int[reader.FieldCount - 1]
+            };
+            if (this.Countries == null)
+                for (int i = 1; i < reader.FieldCount; i++)
+                    record.countries[i-1] = int.Parse(reader.GetName(i));
+            for (int i = 1; i < reader.FieldCount; i++)
+                record.branches[i - 1] = reader.IsDBNull(i) ? (int?)null : reader.GetInt32(i);
+			return record;
+		}
+        protected override BranchCountry CreateModel(BranchCountryRecord record,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
             if(this.Countries==null)
             {
-                this.Countries = new Country[reader.FieldCount - 1];
-                for (int i = 1; i < reader.FieldCount; i++)
-                {
-                    this.Countries[i - 1] = CustomBrokerWpf.References.Countries.FindFirstItem("Code", int.Parse(reader.GetName(i)));
-                }
+                this.Countries = new Country[record.countries.Length];
+                for (int i = 0; i < record.countries.Length; i++)
+                    this.Countries[i] = CustomBrokerWpf.References.Countries.FindFirstItem("Code", record.countries[i]);
             }
-            BranchCountry item = new BranchCountry(new GoodsVM(CustomBrokerWpf.References.GoodsStore.GetItemLoad(reader.GetInt32(0), addcon, out var errors)), new BranchVM[reader.FieldCount - 1]);
+            BranchCountry item = new BranchCountry(new GoodsVM(CustomBrokerWpf.References.GoodsStore.GetItemLoad(record.goods, addcon, out var errors)), new BranchVM[record.branches.Length]);
             this.Errors.AddRange(errors);
-            for (int i = 1; i < reader.FieldCount; i++)
+            for (int i = 0; i < record.branches.Length; i++)
             {
-                item.Branches[i - 1] = reader.IsDBNull(i) ? null : new BranchVM(CustomBrokerWpf.References.BranchStore.GetItemLoad(reader.GetInt32(i), addcon, out errors));
+                item.Branches[i] = record.branches[i].HasValue ? new BranchVM(CustomBrokerWpf.References.BranchStore.GetItemLoad(record.branches[i].Value, addcon, out errors)) : null;
                 this.Errors.AddRange(errors);
             }
             return item;
@@ -82,8 +102,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class BranchCountryCommand : DataModelClassLibrary.ViewModelBaseCommand

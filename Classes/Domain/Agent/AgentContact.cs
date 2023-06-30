@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -31,7 +32,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AgentContactDBM : lib.DBManager<AgentContact>
+    public class AgentContactDBM : lib.DBManager<AgentContact, AgentContact>
     {
         public AgentContactDBM()
         {
@@ -87,7 +88,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private ContactPointDBM mypdbm;
 
-        protected override AgentContact CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override AgentContact CreateRecord(SqlDataReader reader)
         {
             return new AgentContact(reader.GetInt32(this.Fields["ContactID"]), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(this.Fields["contactType"]) ? null : reader.GetString(this.Fields["contactType"])
@@ -96,7 +97,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(this.Fields["thirdname"]) ? null : reader.GetString(this.Fields["thirdname"])
                 , myagent);
         }
-        protected override void GetOutputParametersValue(AgentContact item)
+		protected override AgentContact CreateModel(AgentContact record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(AgentContact item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
                 item.Id = (int)myinsertparams[0].Value;
@@ -149,8 +162,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             SelectParams[0].Value = myagent?.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
     
     public class AgentContactVM: ContactVM

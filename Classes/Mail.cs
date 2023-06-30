@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using MailKit;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 {
@@ -104,7 +105,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         }
     }
 
-    internal class MailStateCustomerDBM : lib.DBManagerStamp<MailStateCustomer>
+    internal class MailStateCustomerDBM : lib.DBManagerStamp<MailStateCustomer,MailStateCustomer>
     { // сохранение факта отправки
         internal MailStateCustomerDBM()
         {
@@ -143,13 +144,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             get { return mytype; }
         }
 
-        protected override MailStateCustomer CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override MailStateCustomer CreateRecord(SqlDataReader reader)
         {
             return new MailStateCustomer(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
                 , reader.GetInt32(reader.GetOrdinal("objectid")), reader.GetInt32(reader.GetOrdinal("customerid")), reader.GetInt32(4)
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")));
         }
-        protected override void GetOutputSpecificParametersValue(MailStateCustomer item)
+		protected override MailStateCustomer CreateModel(MailStateCustomer record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(MailStateCustomer item)
         {
         }
         protected override bool SaveChildObjects(MailStateCustomer item)
@@ -180,11 +193,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 this.Errors.Add(new lib.DBMError(item, "Объект рассылки не сохранен в БД!", "0"));
             return myobject.Id > 0;
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class MailCustomerDBM : lib.DBMSFill<KeyValuePair<int, string>>
+    internal class MailCustomerDBM : lib.DBMSFill<KeyValuePair<int, string>,KeyValuePair<int, string>>
     {
         internal MailCustomerDBM()
         {
@@ -203,16 +214,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             get { return myobject; }
         }
 
-        protected override KeyValuePair<int, string> CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override KeyValuePair<int, string> CreateRecord(SqlDataReader reader)
         {
             return new KeyValuePair<int, string>(reader.GetInt32(0), reader.IsDBNull(1) ? null : reader.GetString(1));
         }
-        protected override void PrepareFill(SqlConnection addcon)
+		protected override KeyValuePair<int, string> CreateModel(KeyValuePair<int, string> record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value = myobject.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     internal class MailState : lib.DomainBaseNotifyChanged

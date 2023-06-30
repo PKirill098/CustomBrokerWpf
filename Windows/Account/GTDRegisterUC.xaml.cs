@@ -243,6 +243,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             ppp.IsOpen = true;
             e.Handled = true;
         }
+		private void IncomeAlgFilterPopup_Open(object sender, MouseButtonEventArgs e)
+		{
+            //Popup ppp = this.MainDataGrid.FindResource("IncomeAlgFilterPopup") as Popup;
+            //ppp.PlacementTarget = (UIElement)sender;
+            //ppp.IsOpen = true;
+            //e.Handled = true;
+        }
 		private void ManagersFilterPopup_Open(object sender, MouseButtonEventArgs e)
 		{
 
@@ -617,5 +624,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.WindowsAccount
             }
             return cancel;
         }
+
     }
 }

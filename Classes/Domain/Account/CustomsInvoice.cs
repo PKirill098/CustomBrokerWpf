@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -815,7 +816,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class CustomsInvoiceDBM : lib.DBManagerWhoWhen<CustomsInvoice>
+    internal struct CustomsInvoiceRecord
+    {
+        internal bool isnew;
+		internal int id;
+		internal long stamp;
+		internal DateTime? updated;
+		internal string updater;
+		internal decimal? cbrate;
+		internal decimal? custmcursum;
+		internal decimal? custmrubsum;
+		internal int customer;
+		internal decimal finalcursum;
+		internal decimal finalcursum2;
+		internal int? importer;
+		internal DateTime? invoicedate;
+		internal string invoicenumber;
+		internal decimal percent;
+        internal int request;
+        internal decimal? selling;
+	}
+
+	internal class CustomsInvoiceDBM : lib.DBManagerWhoWhen<CustomsInvoiceRecord,CustomsInvoice>
     {
         public CustomsInvoiceDBM()
         {
@@ -885,132 +907,139 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal RequestCustomerLegal RequestCustomer
         { set { myparcel = value; } get { return myparcel; } }
 
-        protected override CustomsInvoice CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override CustomsInvoiceRecord CreateRecord(SqlDataReader reader)
         {
-            System.Collections.Generic.List<lib.DBMError> errors;
-            RequestCustomerLegal customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
-            this.Errors.AddRange(errors);
-            CustomsInvoice item = new CustomsInvoice(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"])
-                , reader.IsDBNull(this.Fields["updated"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["updated"])
-                , reader.IsDBNull(this.Fields["updater"]) ? null : reader.GetString(this.Fields["updater"])
-                , reader.IsDBNull(0) ? lib.DomainObjectState.Added : lib.DomainObjectState.Unchanged
-                , reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
-                , reader.IsDBNull(this.Fields["custmcursum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmcursum"])
-                , reader.IsDBNull(this.Fields["custmrubsum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmrubsum"])
-                , customer.CustomerLegal
-                , reader.GetDecimal(this.Fields["finalcursum"])
-                , reader.GetDecimal(this.Fields["finalcursum2"])
-                , reader.IsDBNull(this.Fields["importerid"]) ? null : CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
-                , reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
-                , reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
-                , reader.GetDecimal(this.Fields["percent"])
-                , customer);
-            if (item.Id > 0)
-                item = CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item);
-            if (this.Fields.ContainsKey("selling") && !reader.IsDBNull(this.Fields["selling"]))
-                item.Selling = reader.GetDecimal(reader.GetOrdinal("selling"));
+            return new CustomsInvoiceRecord()
+            { 
+                isnew= reader.IsDBNull(0)
+				,id =reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), stamp=reader.GetInt64(this.Fields["stamp"])
+                , updated=reader.IsDBNull(this.Fields["updated"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["updated"])
+                , updater=reader.IsDBNull(this.Fields["updater"]) ? null : reader.GetString(this.Fields["updater"])
+                , cbrate=reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
+                , custmcursum=reader.IsDBNull(this.Fields["custmcursum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmcursum"])
+                , custmrubsum=reader.IsDBNull(this.Fields["custmrubsum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["custmrubsum"])
+                , finalcursum=reader.GetDecimal(this.Fields["finalcursum"])
+                , finalcursum2=reader.GetDecimal(this.Fields["finalcursum2"])
+                , importer=reader.IsDBNull(this.Fields["importerid"]) ? (int?)null : reader.GetInt32(this.Fields["importerid"])
+                , invoicedate=reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
+                , invoicenumber=reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
+                , percent=reader.GetDecimal(this.Fields["percent"])
+                , customer=reader.GetInt32(this.Fields["parcelid"])
+                , selling= this.Fields.ContainsKey("selling") && !reader.IsDBNull(this.Fields["selling"]) ? reader.GetDecimal(reader.GetOrdinal("selling")) : (decimal?)null
+		    };
+        }
+		protected override CustomsInvoice CreateModel(CustomsInvoiceRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			System.Collections.Generic.List<lib.DBMError> errors;
+			RequestCustomerLegal customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(record.customer, addcon, out errors);
+			this.Errors.AddRange(errors);
+			CustomsInvoice item = new CustomsInvoice(record.id, record.stamp
+				, record.updated
+				, record.updater
+				, record.isnew ? lib.DomainObjectState.Added : lib.DomainObjectState.Unchanged
+				, record.cbrate
+				, record.custmcursum
+				, record.custmrubsum
+				, customer.CustomerLegal
+				, record.finalcursum
+				, record.finalcursum2
+				, record.importer.HasValue ? CustomBrokerWpf.References.Importers.FindFirstItem("Id", record.importer.Value) : null
+				, record.invoicedate
+				, record.invoicenumber
+				, record.percent
+				, customer);
+			if (item.Id > 0)
+				item = CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item);
+			if (record.selling.HasValue)
+				item.Selling = record.selling;
 
-            mypdbm.Errors.Clear();
-            mypdbm.Invoice = item;
-            mypdbm.Validator = new CustomsInvoicePayValidatorRub();
-            mypdbm.SelectCommandText = "account.CustomsInvoicePay_sp";
-            if (item.Pays != null)
-            {
-                mypdbm.Collection = item.Pays;
-                mypdbm.Fill();
-            }
-            else
-            {
-                mypdbm.Fill();
-                item.Pays = mypdbm.Collection;
-            }
-            mypdbm.Collection = null;
-            foreach (DBMError err in mypdbm.Errors) this.Errors.Add(err);
-            myfpdbm.Errors.Clear();
-            myfpdbm.Invoice = item;
-            if (item.FinalRubPays != null)
-            {
-                myfpdbm.Collection = item.FinalRubPays;
-                myfpdbm.Fill();
-            }
-            else
-            {
-                myfpdbm.Fill();
-                item.FinalRubPays = myfpdbm.Collection;
-            }
-            myfpdbm.Collection = null;
-            foreach (DBMError err in myfpdbm.Errors) this.Errors.Add(err);
-            mycurdbm.Errors.Clear();
-            mycurdbm.Invoice = item;
-            mycurdbm.Validator = new CustomsInvoicePayValidatorFinalCur1();
-            mycurdbm.SelectCommandText = "account.FinalInvoicePayCur1_sp";
-            if (item.FinalCurPays1 != null)
-            {
-                mycurdbm.Collection = item.FinalCurPays1;
-                mycurdbm.Fill();
-            }
-            else
-            {
-                mycurdbm.Fill();
-                item.FinalCurPays1 = mycurdbm.Collection;
-            }
-            mycurdbm.Collection = null;
-            foreach (DBMError err in mycurdbm.Errors) this.Errors.Add(err);
-            mycurdbm.Validator = new CustomsInvoicePayValidatorFinalCur2();
-            mycurdbm.SelectCommandText = "account.FinalInvoicePayCur2_sp";
-            if (item.FinalCurPays2 != null)
-            {
-                mycurdbm.Collection = item.FinalCurPays2;
-                mycurdbm.Fill();
-            }
-            else
-            {
-                mycurdbm.Fill();
-                item.FinalCurPays2 = mycurdbm.Collection;
-            }
-            mycurdbm.Collection = null;
-            foreach (DBMError err in mycurdbm.Errors) this.Errors.Add(err);
-            mycbdbm.Errors.Clear();
-            mycbdbm.Invoice = item;
-            if (item.CurrencyBuys != null)
-            {
-                mycbdbm.Collection = item.CurrencyBuys;
-                mycbdbm.Fill();
-            }
-            else
-            {
-                mycbdbm.Fill();
-                item.CurrencyBuys = mycbdbm.Collection;
-            }
-            mycbdbm.Collection = null;
-            foreach (DBMError err in mycbdbm.Errors) this.Errors.Add(err);
-            //mycpdbm.Errors.Clear();
-            //mycpdbm.Invoice = item;
-            //if (item.CurrencyPays != null)
-            //{
-            //    mycpdbm.Collection = item.CurrencyPays;
-            //    mycpdbm.Fill();
-            //}
-            //else
-            //{
-            //    mycpdbm.Fill();
-            //    item.CurrencyPays = mycpdbm.Collection;
-            //}
-            //mycpdbm.Collection = null;
-            //foreach (DBMError err in mycpdbm.Errors) this.Errors.Add(err);
+			mypdbm.Errors.Clear();
+			mypdbm.Invoice = item;
+			mypdbm.Validator = new CustomsInvoicePayValidatorRub();
+			mypdbm.SelectCommandText = "account.CustomsInvoicePay_sp";
+			if (item.Pays != null)
+			{
+				mypdbm.Collection = item.Pays;
+				mypdbm.Fill();
+			}
+			else
+			{
+				mypdbm.Fill();
+				item.Pays = mypdbm.Collection;
+			}
+			mypdbm.Collection = null;
+			foreach (DBMError err in mypdbm.Errors) this.Errors.Add(err);
+			myfpdbm.Errors.Clear();
+			myfpdbm.Invoice = item;
+			if (item.FinalRubPays != null)
+			{
+				myfpdbm.Collection = item.FinalRubPays;
+				myfpdbm.Fill();
+			}
+			else
+			{
+				myfpdbm.Fill();
+				item.FinalRubPays = myfpdbm.Collection;
+			}
+			myfpdbm.Collection = null;
+			foreach (DBMError err in myfpdbm.Errors) this.Errors.Add(err);
+			mycurdbm.Errors.Clear();
+			mycurdbm.Invoice = item;
+			mycurdbm.Validator = new CustomsInvoicePayValidatorFinalCur1();
+			mycurdbm.SelectCommandText = "account.FinalInvoicePayCur1_sp";
+			if (item.FinalCurPays1 != null)
+			{
+				mycurdbm.Collection = item.FinalCurPays1;
+				mycurdbm.Fill();
+			}
+			else
+			{
+				mycurdbm.Fill();
+				item.FinalCurPays1 = mycurdbm.Collection;
+			}
+			mycurdbm.Collection = null;
+			foreach (DBMError err in mycurdbm.Errors) this.Errors.Add(err);
+			mycurdbm.Validator = new CustomsInvoicePayValidatorFinalCur2();
+			mycurdbm.SelectCommandText = "account.FinalInvoicePayCur2_sp";
+			if (item.FinalCurPays2 != null)
+			{
+				mycurdbm.Collection = item.FinalCurPays2;
+				mycurdbm.Fill();
+			}
+			else
+			{
+				mycurdbm.Fill();
+				item.FinalCurPays2 = mycurdbm.Collection;
+			}
+			mycurdbm.Collection = null;
+			foreach (DBMError err in mycurdbm.Errors) this.Errors.Add(err);
+			mycbdbm.Errors.Clear();
+			mycbdbm.Invoice = item;
+			if (item.CurrencyBuys != null)
+			{
+				mycbdbm.Collection = item.CurrencyBuys;
+				mycbdbm.Fill();
+			}
+			else
+			{
+				mycbdbm.Fill();
+				item.CurrencyBuys = mycbdbm.Collection;
+			}
+			mycbdbm.Collection = null;
+			foreach (DBMError err in mycbdbm.Errors) this.Errors.Add(err);
 
-            return item;
-        }
-        protected override void GetOutputSpecificParametersValue(CustomsInvoice item)
+			return item;
+		}
+		protected override void GetOutputSpecificParametersValue(CustomsInvoice item)
         {
         }
-        protected override void CancelLoad()
-        {
-            mypdbm.CancelingLoad = this.CancelingLoad;
-            myfpdbm.CancelingLoad = this.CancelingLoad;
-            mycurdbm.CancelingLoad = this.CancelingLoad;
-            mycbdbm.CancelingLoad = this.CancelingLoad;
-        }
+        //protected override void CancelLoad()
+        //{
+        //    mypdbm.CancelingLoad = this.CancelingLoad;
+        //    myfpdbm.CancelingLoad = this.CancelingLoad;
+        //    mycurdbm.CancelingLoad = this.CancelingLoad;
+        //    mycbdbm.CancelingLoad = this.CancelingLoad;
+        //}
         protected override bool SaveChildObjects(CustomsInvoice item)
         {
             bool isSuccess = true;
@@ -1179,7 +1208,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class CustomsInvoiceStore : lib.DomainStorageLoad<CustomsInvoice, CustomsInvoiceDBM>
+    internal class CustomsInvoiceStore : lib.DomainStorageLoad<CustomsInvoiceRecord,CustomsInvoice, CustomsInvoiceDBM>
     {
         public CustomsInvoiceStore(CustomsInvoiceDBM dbm) : base(dbm) { }
 

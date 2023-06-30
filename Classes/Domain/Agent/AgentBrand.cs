@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -36,7 +37,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AgentBrandDBM : lib.DBManager<AgentBrand>
+    public class AgentBrandDBM : lib.DBManager<AgentBrand,AgentBrand>
     {
         public AgentBrandDBM()
         {
@@ -78,10 +79,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myagent; }
         }
 
-        protected override void CancelLoad()
-        {
-        }
-        protected override AgentBrand CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override AgentBrand CreateRecord(SqlDataReader reader)
         {
             return new AgentBrand(lib.DomainObjectState.Unchanged
                     , myagent
@@ -90,7 +88,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         , reader.GetString(this.Fields["brandName"]))
                     );
         }
-        protected override void GetOutputParametersValue(AgentBrand item)
+		protected override AgentBrand CreateModel(AgentBrand record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(AgentBrand item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
                 item.Brand.Id = (int)myinsertparams[0].Value;

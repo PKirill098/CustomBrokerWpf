@@ -157,7 +157,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class MappingDBM : lib.DBManagerWhoWhen<Mapping>
+    public class MappingDBM : lib.DBManagerWhoWhen<Mapping, Mapping>
     {
         public MappingDBM()
         {
@@ -195,15 +195,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Mapping CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Mapping CreateRecord(SqlDataReader reader)
+		{
             return new Mapping(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.IsDBNull(3) ? null : References.Materials.FindFirstItem("Id", reader.GetInt32(3)),
                 reader.GetInt64(4),
                 reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5),
                 reader.IsDBNull(6) ? string.Empty : reader.GetString(6),
                 lib.DomainObjectState.Unchanged);
+		}
+		protected override Mapping CreateModel(Mapping reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override bool SaveChildObjects(Mapping item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override bool SaveChildObjects(Mapping item)
         {
             bool isSuccess = true;
             gsdbm.Errors.Clear();
@@ -259,8 +271,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void GetOutputSpecificParametersValue(Mapping item)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class MappingVM : lib.ViewModelErrorNotifyItem<Mapping>
@@ -545,7 +555,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class MappingCommand : lib.ViewModelCommand<Mapping,MappingVM, MappingDBM>
+    public class MappingCommand : lib.ViewModelCommand<Mapping,Mapping,MappingVM, MappingDBM>
     {
         internal MappingCommand(MappingVM vm, System.Windows.Data.ListCollectionView view) :base(vm, view)
         {

@@ -257,7 +257,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		}
 	}
 
-	public class MarkingDBM : lib.DBManagerStamp<Marking>
+	public class MarkingDBM : lib.DBManagerStamp<Marking,Marking>
 	{
 		public MarkingDBM()
 		{
@@ -324,10 +324,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		public lib.SQLFilter.SQLFilter Filter
 		{ set { myfilter = value; } get { return myfilter; } }
 
-		protected override void CancelLoad()
-		{
-		}
-		protected override Marking CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override Marking CreateRecord(SqlDataReader reader)
 		{
 			return new Marking(reader.GetInt32(this.Fields["id"]), reader.GetInt64(this.Fields["stamp"]), reader.GetDateTime(this.Fields["updated"]), reader.GetString(this.Fields["updater"]), lib.DomainObjectState.Unchanged
 				,reader.GetString(this.Fields["brand"])
@@ -347,6 +344,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				, reader.GetString(this.Fields["tnved"])
 				, reader.GetString(this.Fields["vendorcode"])
 				);
+		}
+		protected override Marking CreateModel(Marking reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			return reader;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
 		}
 		protected override void GetOutputSpecificParametersValue(Marking item)
 		{
@@ -1495,14 +1504,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Contains(item.Brand)) Items.Add(item.Brand);
+			if (!Items.Contains(item.Brand)) Items.Add(item.Brand);
 		}
 	}
 	public class MarkingColorCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Contains(item.Color)) Items.Add(item.Color);
+			if (!Items.Contains(item.Color)) Items.Add(item.Color);
 		}
 	}
 	public class MarkingCountryCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>
@@ -1518,7 +1527,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 	{
 		protected override void AddItem(MarkingVM item)
 		{
-			if (Items.Contains(item.Ean13)) Items.Add(item.Ean13);
+			if (!Items.Contains(item.Ean13)) Items.Add(item.Ean13);
 		}
 	}
 	public class MarkingFileNameCheckListBoxVMFill : libui.CheckListBoxVMFill<MarkingVM, string>

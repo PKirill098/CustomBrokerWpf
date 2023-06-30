@@ -74,7 +74,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelCustomerMailStateDBM : lib.DBManagerStamp<ParcelCustomerMailState>
+    internal class ParcelCustomerMailStateDBM : lib.DBManagerStamp<ParcelCustomerMailState,ParcelCustomerMailState>
     {
         internal ParcelCustomerMailStateDBM()
         {
@@ -115,7 +115,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myparcel; }
         }
 
-        protected override ParcelCustomerMailState CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override ParcelCustomerMailState CreateRecord(SqlDataReader reader)
         {
             return new ParcelCustomerMailState(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(3) ? 0 : reader.GetInt32(3)
@@ -126,6 +126,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(reader.GetOrdinal("terminaloutupdated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("terminaloutupdated"))
                 , reader.IsDBNull(reader.GetOrdinal("unloadedupdated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("unloadedupdated")));
         }
+        protected override ParcelCustomerMailState CreateModel(ParcelCustomerMailState reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+           return reader;
+        }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader),addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(ParcelCustomerMailState item)
         {
         }
@@ -165,8 +177,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 this.Errors.Add(new lib.DBMError(item, "Загруска не сохранена в БД!", "0"));
             return myparcel.Id > 0;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     internal class ParcelCustomerMailDBM : MailCustomerDBM
@@ -183,7 +193,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myparcel; }
         }
 
-        protected override KeyValuePair<int, string> CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override KeyValuePair<int, string> CreateRecord(SqlDataReader reader)
         {
             return new KeyValuePair<int, string>(reader.GetInt32(0), reader.IsDBNull(1) ? null : reader.GetString(1));
         }

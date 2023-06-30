@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -60,8 +61,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             return isvalid;
         }
     }
-
-    public class AgentAliasDBM : lib.DBManagerStamp<AgentAlias>
+    public struct AgentAliasRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int agent;
+        internal string alias;
+	}
+	public class AgentAliasDBM : lib.DBManagerStamp<AgentAliasRecord,AgentAlias>
     {
         public AgentAliasDBM()
         {
@@ -92,16 +99,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal Agent Agent { set; get; }
         internal string Alias { set; get; }
 
-        protected override AgentAlias CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override AgentAliasRecord CreateRecord(SqlDataReader reader)
         {
-            return new AgentAlias(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
-                ,this.Agent??CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon, out _)
-                ,reader.GetString(reader.GetOrdinal("alias")));
+            return new AgentAliasRecord(){
+                id=reader.GetInt32(0),
+                stamp=reader.GetInt64(reader.GetOrdinal("stamp")),
+                agent=reader.GetInt32(reader.GetOrdinal("agentid")),
+                alias=reader.GetString(reader.GetOrdinal("alias")) };
         }
-        protected override void GetOutputSpecificParametersValue(AgentAlias item)
-        {
-        }
-        protected override void CancelLoad()
+		protected override AgentAlias CreateModel(AgentAliasRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return new AgentAlias(record.id, record.stamp, lib.DomainObjectState.Unchanged
+				, this.Agent ?? CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out _)
+				, record.alias);
+		}
+		protected override void GetOutputSpecificParametersValue(AgentAlias item)
         {
         }
         protected override bool SaveChildObjects(AgentAlias item)

@@ -42,7 +42,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RemiderDBM : lib.DBManagerStamp<Reminder>
+    public class RemiderDBM : lib.DBManagerStamp<Reminder,Reminder>
     {
         public RemiderDBM():base()
         {
@@ -71,10 +71,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Reminder CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Reminder CreateRecord(SqlDataReader reader)
+		{
             return new Reminder(reader.GetInt32(0), reader.GetInt64(1), null,null,lib.DomainObjectState.Unchanged,reader.GetString(4), reader.GetInt32(5), (reader.IsDBNull(6) ? null : reader.GetString(6)),(reader.IsDBNull(7) ? (DateTime?)null: reader.GetDateTime(7)),reader.GetBoolean(8));
+		}
+        protected override Reminder CreateModel(Reminder reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(Reminder item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -108,7 +120,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[3].Value = item.Stop;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 }

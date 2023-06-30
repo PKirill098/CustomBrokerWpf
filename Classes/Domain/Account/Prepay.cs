@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
 using System.ComponentModel;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -577,8 +578,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
     }
+    
+    public struct PrepayRecord
+    {
+		internal int id;
+		internal long stamp;
+		internal DateTime? updated;
+		internal string updater;
+        internal int agent;
+		internal decimal? cbrate;
+		internal DateTime? paydate;
+        internal int customer;
+		internal bool dealpass;
+		internal decimal eurosum;
+		internal int importer;
+		internal decimal initsum;
+		internal DateTime? invoicedate;
+		internal string invoicenumber;
+		internal decimal percent;
+		internal decimal refund;
+        internal DateTime shipplandate;
+        internal decimal? fundsum;
+        internal bool? isprepay;
+	}
 
-    internal class PrepayStore : lib.DomainStorageLoad<Prepay, PrepayDBM>
+    internal class PrepayStore : lib.DomainStorageLoad<PrepayRecord,Prepay, PrepayDBM>
     {
         public PrepayStore(PrepayDBM dbm) : base(dbm) { }
 
@@ -588,7 +612,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class PrepayDBM : lib.DBManagerStamp<Prepay>
+    public class PrepayDBM : lib.DBManagerStamp<PrepayRecord,Prepay>
     {
         public PrepayDBM()
         {
@@ -643,75 +667,94 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private CurrencyBuyPrepayDBM mycbdbm;
         private PrepayCurrencyPayDBM mycpdbm;
 
-        protected override Prepay CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override PrepayRecord CreateRecord(SqlDataReader reader)
         {
-            List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
-            this.Errors.AddRange(errors);
-            CustomerLegal customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["customerid"]), addcon, out errors);
-            this.Errors.AddRange(errors);
-            Prepay item = new Prepay(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), reader.GetDateTime(this.Fields["updated"]), reader.GetString(this.Fields["updater"]), lib.DomainObjectState.Unchanged
-                , agent
-                , reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
-                , reader.IsDBNull(this.Fields["paydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["paydate"])
-                , customer
-                , reader.GetBoolean(this.Fields["dealpass"])
-                , reader.GetDecimal(this.Fields["eurosum"])
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
-                , reader.GetDecimal(this.Fields["initsum"])
-                , reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
-                , reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
-                , reader.GetDecimal(this.Fields["percent"])
-                , reader.GetDecimal(this.Fields["refund"])
-                , reader.GetDateTime(this.Fields["shipplandate"]));
-            
-            myrdbm.Errors.Clear();
-            mycbdbm.Errors.Clear();
-            mycpdbm.Errors.Clear();
-            myrdbm.Prepay = item;
-            mycbdbm.Prepay = item;
-            mycpdbm.Prepay = item;
-            if (item.RubPays != null)
-            {
-                myrdbm.Collection = item.RubPays;
-                myrdbm.Fill();
-            }
-            else
-            {
-                myrdbm.Fill();
-                item.RubPays = myrdbm.Collection;
-            }
-            if (item.CurrencyBuys != null)
-            {
-                mycbdbm.Collection = item.CurrencyBuys;
-                mycbdbm.Fill();
-            }
-            else
-            {
-                mycbdbm.Fill();
-                item.CurrencyBuys = mycbdbm.Collection;
-            }
-            if (item.CurrencyPays != null)
-            {
-                mycpdbm.Collection = item.CurrencyPays;
-                mycpdbm.Fill();
-            }
-            else
-            {
-                mycpdbm.Fill();
-                item.CurrencyPays = mycpdbm.Collection;
-            }
-            item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item,this.FillType==lib.FillType.Refresh);
-            myrdbm.Collection = null;
-            mycbdbm.Collection = null;
-            mycpdbm.Collection = null;
-            foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
-            foreach (lib.DBMError err in mycbdbm.Errors) this.Errors.Add(err);
-            foreach (lib.DBMError err in mycpdbm.Errors) this.Errors.Add(err);
-
-            return item;
+            return new PrepayRecord()
+            { id=reader.GetInt32(0), stamp=reader.GetInt64(this.Fields["stamp"]), updated=reader.GetDateTime(this.Fields["updated"]), updater=reader.GetString(this.Fields["updater"])
+                , agent= reader.GetInt32(this.Fields["agentid"])
+                , cbrate=reader.IsDBNull(this.Fields["cbrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbrate"])
+                , paydate=reader.IsDBNull(this.Fields["paydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["paydate"])
+                , customer= reader.GetInt32(this.Fields["customerid"])
+                , dealpass=reader.GetBoolean(this.Fields["dealpass"])
+                , eurosum=reader.GetDecimal(this.Fields["eurosum"])
+                , importer=reader.GetInt32(this.Fields["importerid"])
+                , initsum=reader.GetDecimal(this.Fields["initsum"])
+                , invoicedate=reader.IsDBNull(this.Fields["invoicedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["invoicedate"])
+                , invoicenumber=reader.IsDBNull(this.Fields["invoicenumber"]) ? null : reader.GetString(this.Fields["invoicenumber"])
+                , percent=reader.GetDecimal(this.Fields["percent"])
+                , refund=reader.GetDecimal(this.Fields["refund"])
+                , shipplandate=reader.GetDateTime(this.Fields["shipplandate"])
+            };
         }
-        protected override void GetOutputSpecificParametersValue(Prepay item)
+		protected override Prepay CreateModel(PrepayRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			List<lib.DBMError> errors;
+			Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out errors);
+			this.Errors.AddRange(errors);
+			CustomerLegal customer = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.customer, addcon, out errors);
+			this.Errors.AddRange(errors);
+			Prepay item = new Prepay(record.id, record.stamp, record.updated, record.updater, lib.DomainObjectState.Unchanged
+				, agent
+				, record.cbrate
+				, record.paydate
+				, customer
+				, record.dealpass
+				, record.eurosum
+				, CustomBrokerWpf.References.Importers.FindFirstItem("Id", record.importer)
+				, record.initsum
+				, record.invoicedate
+				, record.invoicenumber
+				, record.percent
+				, record.refund
+				, record.shipplandate);
+
+			myrdbm.Errors.Clear();
+			mycbdbm.Errors.Clear();
+			mycpdbm.Errors.Clear();
+			myrdbm.Prepay = item;
+			mycbdbm.Prepay = item;
+			mycpdbm.Prepay = item;
+			if (item.RubPays != null)
+			{
+				myrdbm.Collection = item.RubPays;
+				myrdbm.Fill();
+			}
+			else
+			{
+				myrdbm.Fill();
+				item.RubPays = myrdbm.Collection;
+			}
+			if (item.CurrencyBuys != null)
+			{
+				mycbdbm.Collection = item.CurrencyBuys;
+				mycbdbm.Fill();
+			}
+			else
+			{
+				mycbdbm.Fill();
+				item.CurrencyBuys = mycbdbm.Collection;
+			}
+			if (item.CurrencyPays != null)
+			{
+				mycpdbm.Collection = item.CurrencyPays;
+				mycpdbm.Fill();
+			}
+			else
+			{
+				mycpdbm.Fill();
+				item.CurrencyPays = mycpdbm.Collection;
+			}
+			item = CustomBrokerWpf.References.PrepayStore.UpdateItem(item, this.FillType == lib.FillType.Refresh);
+			myrdbm.Collection = null;
+			mycbdbm.Collection = null;
+			mycpdbm.Collection = null;
+			foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
+			foreach (lib.DBMError err in mycbdbm.Errors) this.Errors.Add(err);
+			foreach (lib.DBMError err in mycpdbm.Errors) this.Errors.Add(err);
+
+			return item;
+		}
+		protected override void GetOutputSpecificParametersValue(Prepay item)
         {
             if(item.DomainState==lib.DomainObjectState.Added)
                 CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
@@ -865,12 +908,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             return item.Agent?.Id > 0 & item.Customer?.Id > 0;
         }
-        protected override void CancelLoad()
-        {
-            myrdbm.CancelingLoad = this.CancelingLoad;
-            mycbdbm.CancelingLoad = this.CancelingLoad;
-            mycpdbm.CancelingLoad = this.CancelingLoad;
-        }
     }
 
     internal class PrepayFundDBM : PrepayDBM
@@ -885,11 +922,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal RequestCustomerLegal Customer
         { set { mycustomer = value; } }
 
-        protected override Prepay CreateItem(SqlDataReader reader,SqlConnection addcon)
+		protected override PrepayRecord CreateRecord(SqlDataReader reader)
+		{
+			PrepayRecord prepay=base.CreateRecord(reader);
+            prepay.fundsum= reader.IsDBNull(reader.GetOrdinal("fundsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("fundsum"));
+            prepay.isprepay= reader.IsDBNull(reader.GetOrdinal("isprepay")) ? (bool?)null : reader.GetBoolean(reader.GetOrdinal("isprepay"));
+			return prepay;
+		}
+		protected override Prepay CreateModel(PrepayRecord record,SqlConnection addcon, CancellationToken mycanceltasktoken = default)
         {
-            Prepay prepay = base.CreateItem(reader, addcon);
-            prepay.FundSum = reader.IsDBNull(reader.GetOrdinal("fundsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("fundsum"));
-            prepay.IsPrepay = reader.IsDBNull(reader.GetOrdinal("isprepay")) ? (bool?)null : reader.GetBoolean(reader.GetOrdinal("isprepay"));
+            Prepay prepay = base.CreateModel(record, addcon, mycanceltasktoken);
+            prepay.FundSum = record.fundsum;
+            prepay.IsPrepay = record.isprepay;
             return prepay;
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)

@@ -24,7 +24,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
         }
     }
 
-    public class WarehouseAddressDBM : lib.DBManager<WarehouseAddress>
+    public class WarehouseAddressDBM : lib.DBManager<WarehouseAddress,WarehouseAddress>
     {
         public WarehouseAddressDBM()
         {
@@ -71,15 +71,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
             get { return mywarehouse; }
         }
 
-        protected override WarehouseAddress CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override WarehouseAddress CreateRecord(SqlDataReader reader)
+		{
             return new WarehouseAddress(reader.GetInt32(this.Fields["AddressID"]), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(this.Fields["AddressDescr"]) ? null : reader.GetString(this.Fields["AddressDescr"])
                 , reader.IsDBNull(this.Fields["addresstypeid"]) ? (byte)0 : reader.GetByte(this.Fields["addresstypeid"])
                 , reader.IsDBNull(this.Fields["Locality"]) ? null : reader.GetString(this.Fields["Locality"])
                 , reader.IsDBNull(this.Fields["Town"]) ? null : reader.GetString(this.Fields["Town"])
                 , mywarehouse);
+		}
+        protected override WarehouseAddress CreateModel(WarehouseAddress reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default, System.Func<bool> reading =null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(WarehouseAddress item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -128,8 +140,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
         {
             SelectParams[0].Value = mywarehouse?.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class WarehouseAddressVM : AddressVM

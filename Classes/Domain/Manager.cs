@@ -46,7 +46,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ManagerDBM : lib.DBManager<Manager>
+    public class ManagerDBM : lib.DBManager<Manager,Manager>
     {
         public ManagerDBM()
         {
@@ -76,22 +76,31 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams = new SqlParameter[] { myinsertupdateparams[0] };
         }
 
-        protected override Manager CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Manager CreateRecord(SqlDataReader reader)
         {
             return new Manager(reader.GetInt32(0),lib.DomainObjectState.Unchanged
                 ,CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", reader.GetInt32(1))
                 ,reader.IsDBNull(2)?null:reader.GetString(2)
                 , reader.GetByte(3));
         }
+		protected override Manager CreateModel(Manager record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(Manager item)
         {
         }
         protected override void ItemAcceptChanches(Manager item)
         {
             item.AcceptChanches();
-        }
-        protected override void CancelLoad()
-        {
         }
         protected override bool SaveChildObjects(Manager item)
         {

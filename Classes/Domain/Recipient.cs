@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Windows.Data;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
@@ -183,7 +184,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RecipientDBM : lib.DBManagerWhoWhen<Recipient>
+    public class RecipientDBM : lib.DBManagerWhoWhen<Recipient, Recipient>
     {
         public RecipientDBM()
         {
@@ -261,7 +262,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Recipient CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Recipient CreateRecord(SqlDataReader reader)
         {
             Recipient newitem = new Recipient(id: reader.GetInt32(0), stamp: reader.GetInt32(reader.GetOrdinal("stamp")), updater: reader.IsDBNull(reader.GetOrdinal("updtWho")) ? null : reader.GetString(reader.GetOrdinal("updtWho")), updated: reader.IsDBNull(reader.GetOrdinal("updtDate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updtDate")), dstate: lib.DomainObjectState.Unchanged
                 , customer: CustomBrokerWpf.References.CustomerStore.GetItemLoad(reader.GetInt32(1), out _)
@@ -278,7 +279,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 );
             return newitem;//CustomBrokerWpf.References.RecipientStore.UpdateItem()
         }
-        protected override void GetOutputSpecificParametersValue(Recipient item)
+		protected override Recipient CreateModel(Recipient record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(Recipient item)
         {
         }
         protected override bool SaveChildObjects(Recipient item)
@@ -397,11 +410,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class RecipientStore : lib.DomainStorageLoad<Recipient, RecipientDBM>
+    internal class RecipientStore : lib.DomainStorageLoad<Recipient,Recipient, RecipientDBM>
     {
         public RecipientStore(RecipientDBM dbm) : base(dbm) { }
 
@@ -769,7 +780,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RecipientVMCommand : lib.ViewModelCommand<Recipient, RecipientVM, RecipientDBM>
+    public class RecipientVMCommand : lib.ViewModelCommand<Recipient,Recipient, RecipientVM, RecipientDBM>
     {
         public RecipientVMCommand(RecipientVM vm, System.Windows.Data.ListCollectionView view) : base(vm, view)
         {

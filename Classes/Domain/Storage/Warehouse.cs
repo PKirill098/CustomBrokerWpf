@@ -7,6 +7,12 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 {
+    public struct WarehouseRecord
+    {
+        internal int id;
+        internal string name;
+    }
+
     public class Warehouse : lib.DomainBaseUpdate
     {
         public Warehouse(int id, lib.DomainObjectState domainstate
@@ -82,7 +88,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
         }
     }
 
-    public class WarehouseDBM : lib.DBManagerId<Warehouse>
+    public class WarehouseDBM : lib.DBManagerId<WarehouseRecord,Warehouse>
     {
         public WarehouseDBM()
         {
@@ -118,12 +124,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
         private WarehouseAddressDBM myaddbm;
         private WarehouseContactDBM mycdbm;
 
-        protected override void CancelLoad()
+		protected override WarehouseRecord CreateRecord(SqlDataReader reader)
+		{
+			return new WarehouseRecord() { id=reader.GetInt32(this.Fields["id"]),name=reader.GetString(this.Fields["name"])};
+		}
+		protected override Warehouse CreateModel(WarehouseRecord record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default )
         {
-        }
-        protected override Warehouse CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
-            Warehouse warehouse = new Warehouse(reader.GetInt32(this.Fields["id"]), lib.DomainObjectState.Unchanged, reader.GetString(this.Fields["name"]));
+            Warehouse warehouse = new Warehouse(record.id, lib.DomainObjectState.Unchanged, record.name);
             if (this.FillType == lib.FillType.Refresh)
             {
                 if (!warehouse.AddressesIsNull & myaddbm != null)
@@ -362,7 +369,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
         }
     }
 
-    public class WarehouseCommand : lib.ViewModelCommand<Warehouse, WarehouseVM, WarehouseDBM>
+    public class WarehouseCommand : lib.ViewModelCommand<WarehouseRecord,Warehouse, WarehouseVM, WarehouseDBM>
     {
         public WarehouseCommand(WarehouseVM vm, ListCollectionView view) : base(vm, view)
         {

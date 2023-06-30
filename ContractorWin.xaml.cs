@@ -61,7 +61,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             try
             {
                 System.Windows.Data.CollectionViewSource recipientCollectionView = new System.Windows.Data.CollectionViewSource();
-                recipientCollectionView.Source = References.Contractors;
+                recipientCollectionView.Source = CustomBrokerWpf.References.Contractors;
                 recipientCollectionView.View.Filter = delegate (object item) { return (item as Domain.References.Contractor).Id > 0; };
                 this.mainDataGrid.ItemsSource = recipientCollectionView.View;
             }

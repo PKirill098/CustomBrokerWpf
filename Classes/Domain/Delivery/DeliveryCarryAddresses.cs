@@ -39,7 +39,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class DeliveryCarryAddressesDBM : lib.DBManagerId<DeliveryCarryAddresses>
+    internal class DeliveryCarryAddressesDBM : lib.DBManagerId<DeliveryCarryAddresses,DeliveryCarryAddresses>
     {
         internal DeliveryCarryAddressesDBM()
         {
@@ -75,10 +75,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private DeliveryCarry mycarry;
         internal DeliveryCarry Carry { get { return mycarry; } set { mycarry = value; } }
 
-        protected override DeliveryCarryAddresses CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override DeliveryCarryAddresses CreateRecord(SqlDataReader reader)
+		{
             return new DeliveryCarryAddresses(reader.GetInt32(0),lib.DomainObjectState.Unchanged, mycarry,reader.GetString(2));
+		}
+        protected override DeliveryCarryAddresses CreateModel(DeliveryCarryAddresses reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(DeliveryCarryAddresses item)
         {
             if(item.DomainState==lib.DomainObjectState.Added)
@@ -111,7 +123,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             base.SelectParams[0].Value = this.Carry?.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
 }

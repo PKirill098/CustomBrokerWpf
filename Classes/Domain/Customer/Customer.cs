@@ -1,8 +1,10 @@
-﻿using System;
+﻿using KirillPolyanskiy.DataModelClassLibrary;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using System.Windows.Input;
 using excel = Microsoft.Office.Interop.Excel;
@@ -415,7 +417,38 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class CustomerDBM : lib.DBManagerWhoWhen<Customer>
+    public struct CustomerRecord
+    {
+		internal int id;
+		internal long stamp;
+		internal string updater;
+		internal DateTime? updated;
+		internal lib.DomainObjectState dstate;
+		internal string bankaccount;
+		internal string bankbic;
+		internal string bankname;
+		internal DateTime? contractdate;
+		internal string contractnum;
+		internal string corraccount;
+		internal DateTime dayentry;
+		internal int? deliverytype;
+        internal byte edod;
+        internal byte edot;
+		internal string fullname;
+		internal string inn;
+		internal int? managergroup;
+		internal string name;
+		internal string notespecial;
+        internal int parent;
+		internal int? payaccount;
+		internal int? paytypeid;
+		internal string recommend;
+		internal int state;
+		internal string status;
+		internal int? parcelcount;
+        internal DateTime? parcellastdate;
+	}
+    public class CustomerDBM : lib.DBManagerWhoWhen<CustomerRecord,Customer>
     {
         public CustomerDBM()
         {
@@ -510,40 +543,117 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal lib.SQLFilter.SQLFilter Filter
         { set { myfilter = value; } get { return myfilter; } }
 
-        protected override Customer CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override CustomerRecord CreateRecord(SqlDataReader reader)
         {
-            Customer newitem = new Customer(id: reader.GetInt32(0), stamp: reader.GetInt32(this.Fields["stamp"]), updater: reader.IsDBNull(this.Fields["updtWho"]) ? null : reader.GetString(this.Fields["updtWho"]), updated: reader.IsDBNull(this.Fields["updtDate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["updtDate"]), dstate: lib.DomainObjectState.Unchanged
-                , account: null
-                , bankaccount: reader.IsDBNull(this.Fields["raccount"]) ? null : reader.GetString(this.Fields["raccount"])
-                , bankbic: reader.IsDBNull(this.Fields["bankbic"]) ? null : reader.GetString(this.Fields["bankbic"])
-                , bankname: reader.IsDBNull(this.Fields["bankname"]) ? null : reader.GetString(this.Fields["bankname"])
-                , contractdate: reader.IsDBNull(this.Fields["contractdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["contractdate"])
-                , contractnum: reader.IsDBNull(this.Fields["contractnum"]) ? null : reader.GetString(this.Fields["contractnum"])
-                , corraccount: reader.IsDBNull(this.Fields["coraccount"]) ? null : reader.GetString(this.Fields["coraccount"])
-                , dayentry: reader.GetDateTime(this.Fields["customerDayEntry"])
-                , deliverytype: reader.IsDBNull(this.Fields["deliverytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["deliverytypeID"])
-                , fullname: reader.IsDBNull(this.Fields["customerFullName"]) ? null : reader.GetString(this.Fields["customerFullName"])
-                , inn: reader.IsDBNull(this.Fields["inn"]) ? null : reader.GetString(this.Fields["inn"])
-                , managergroup: reader.IsDBNull(this.Fields["managerGroupID"]) ? null : CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", reader.GetInt32(this.Fields["managerGroupID"]))
-                , name: reader.IsDBNull(this.Fields["customerName"]) ? null : reader.GetString(this.Fields["customerName"])
-                , notespecial: reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null : reader.GetString(this.Fields["customerNoteSpecial"])
-                , payaccount: reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null : reader.GetInt32(this.Fields["payaccount"])
-                , paytypeid: reader.IsDBNull(this.Fields["paytypeID"]) ? (int?)null : reader.GetInt32(this.Fields["paytypeID"])
-                , recommend: reader.IsDBNull(this.Fields["customerRecommend"]) ? null : reader.GetString(this.Fields["customerRecommend"])
-                , state: reader.GetByte(this.Fields["customerState"])
-                , status: reader.IsDBNull(this.Fields["customerStatus"]) ? null : reader.GetString(this.Fields["customerStatus"])
-                , parcelcount: this.Fields.ContainsKey("parcelcount") ? reader.GetInt32(this.Fields["parcelcount"]) : (int?)null
-                , parcellastdate: this.Fields.ContainsKey("parcellastdate") && !reader.IsDBNull(this.Fields["parcellastdate"]) ? reader.GetDateTime(this.Fields["parcellastdate"]) : (DateTime?)null
-                );
-            Customer olditem = CustomBrokerWpf.References.CustomerStore.UpdateItem(newitem);
-            if (this.FillType==lib.FillType.Refresh | newitem.ParcelCount != null)
+            return new CustomerRecord()
             {
-                olditem.ParcelCount = newitem.ParcelCount;
-                olditem.ParcelLastDate = newitem.ParcelLastDate;
-            }
-            return olditem;
+                id=reader.GetInt32(0), stamp=reader.GetInt32(this.Fields["stamp"]), updater=reader.IsDBNull(this.Fields["updtWho"]) ? null :reader.GetString(this.Fields["updtWho"]), updated=reader.IsDBNull(this.Fields["updtDate"]) ? (DateTime?)null :reader.GetDateTime(this.Fields["updtDate"])
+                , bankaccount=reader.IsDBNull(this.Fields["raccount"]) ? null :reader.GetString(this.Fields["raccount"])
+                , bankbic=reader.IsDBNull(this.Fields["bankbic"]) ? null :reader.GetString(this.Fields["bankbic"])
+                , bankname=reader.IsDBNull(this.Fields["bankname"]) ? null :reader.GetString(this.Fields["bankname"])
+                , contractdate=reader.IsDBNull(this.Fields["contractdate"]) ? (DateTime?)null :reader.GetDateTime(this.Fields["contractdate"])
+                , contractnum=reader.IsDBNull(this.Fields["contractnum"]) ? null :reader.GetString(this.Fields["contractnum"])
+                , corraccount=reader.IsDBNull(this.Fields["coraccount"]) ? null :reader.GetString(this.Fields["coraccount"])
+                , dayentry=reader.GetDateTime(this.Fields["customerDayEntry"])
+                , deliverytype=reader.IsDBNull(this.Fields["deliverytypeID"]) ? (int?)null :reader.GetInt32(this.Fields["deliverytypeID"])
+                , fullname=reader.IsDBNull(this.Fields["customerFullName"]) ? null :reader.GetString(this.Fields["customerFullName"])
+                , inn=reader.IsDBNull(this.Fields["inn"]) ? null :reader.GetString(this.Fields["inn"])
+                , managergroup=reader.IsDBNull(this.Fields["managerGroupID"]) ? (int?)null : reader.GetInt32(this.Fields["managerGroupID"])
+                , name=reader.IsDBNull(this.Fields["customerName"]) ? null :reader.GetString(this.Fields["customerName"])
+                , notespecial=reader.IsDBNull(this.Fields["customerNoteSpecial"]) ? null :reader.GetString(this.Fields["customerNoteSpecial"])
+                , payaccount=reader.IsDBNull(this.Fields["payaccount"]) ? (int?)null :reader.GetInt32(this.Fields["payaccount"])
+                , paytypeid=reader.IsDBNull(this.Fields["paytypeID"]) ? (int?)null :reader.GetInt32(this.Fields["paytypeID"])
+                , recommend=reader.IsDBNull(this.Fields["customerRecommend"]) ? null :reader.GetString(this.Fields["customerRecommend"])
+                , state=reader.GetByte(this.Fields["customerState"])
+                , status=reader.IsDBNull(this.Fields["customerStatus"]) ? null :reader.GetString(this.Fields["customerStatus"])
+                , parcelcount=this.Fields.ContainsKey("parcelcount") ? reader.GetInt32(this.Fields["parcelcount"]) :(int?)null
+                , parcellastdate=this.Fields.ContainsKey("parcellastdate") && !reader.IsDBNull(this.Fields["parcellastdate"]) ? reader.GetDateTime(this.Fields["parcellastdate"]) : (DateTime?)null
+            };
         }
-        protected override void GetOutputSpecificParametersValue(Customer item) { }
+		protected override Customer CreateModel(CustomerRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			Customer newitem = new Customer(record.id, record.stamp, record.updater, record.updated, record.dstate
+				, null
+				, record.bankaccount
+				, record.bankbic
+				, record.bankname
+				, record.contractdate
+				, record.contractnum
+				, record.corraccount
+				, record.dayentry
+				, record.deliverytype
+				, record.fullname
+				, record.inn
+				, record.managergroup==null ? null : CustomBrokerWpf.References.ManagerGroups.FindFirstItem("Id", record.managergroup)
+				, record.name
+				, record.notespecial
+				, record.payaccount
+				, record.paytypeid
+				, record.recommend
+				, record.state
+				, record.status
+				, record.parcelcount
+				, record.parcellastdate
+				);
+			Customer olditem = CustomBrokerWpf.References.CustomerStore.UpdateItem(newitem);
+			if (this.FillType == lib.FillType.Refresh | newitem.ParcelCount != null)
+			{
+				olditem.ParcelCount = newitem.ParcelCount;
+				olditem.ParcelLastDate = newitem.ParcelLastDate;
+			}
+			return olditem;
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+            bool success = base.GetModels(canceltasktoken);
+            if (!myisrefreshcollection || canceltasktoken.IsCancellationRequested) return success;
+            foreach (Customer item in this.Collection)
+            {
+                if (!item.LegalsIsNull)
+                {
+                    myldbm.Errors.Clear();
+                    myldbm.CustomerId = item.Id;
+                    myldbm.Collection = item.Legals;
+                    myldbm.RefreshCollection();
+                    foreach (lib.DBMError err in myldbm.Errors) this.Errors.Add(err);
+                }
+                if (!item.AliasesIsNull)
+                {
+                    myadbm.Errors.Clear();
+                    myadbm.ItemId = item.Id;
+                    myadbm.Collection = item.Aliases;
+                    myadbm.Fill();
+                    foreach (lib.DBMError err in myadbm.Errors) this.Errors.Add(err);
+                }
+                if (!item.CustomerAddressesIsNull)
+                {
+                    mycdbm.Errors.Clear();
+                    mycdbm.ItemId = item.Id;
+                    mycdbm.Collection = item.Addresses;
+                    mycdbm.Fill();
+                    foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
+                }
+                if (!item.CustomerContactsIsNull)
+                {
+                    myccdbm.Errors.Clear();
+                    myccdbm.ItemId = item.Id;
+                    myccdbm.Collection = item.Contacts;
+                    myccdbm.Fill();
+                    foreach (lib.DBMError err in myccdbm.Errors) this.Errors.Add(err);
+                }
+                if (!item.RecipientsIsNull)
+                {
+                    myrdbm.Errors.Clear();
+                    myrdbm.CustomerId = item.Id;
+                    myrdbm.Collection = item.Recipients;
+                    myrdbm.Fill();
+                    foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
+                }
+                if (canceltasktoken.IsCancellationRequested) break;
+            }
+            return this.Errors.Count == 0;
+		}
+		protected override void GetOutputSpecificParametersValue(Customer item) { }
         protected override bool SaveChildObjects(Customer item)
         {
             bool issuccess = true;
@@ -676,59 +786,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
         }
 
+        private bool myisrefreshcollection;
         internal void RefreshCollection()
         {
             this.Errors.Clear();
+            myisrefreshcollection = true;
             this.Fill();
-            foreach (Customer item in this.Collection)
-            {
-                if (!item.LegalsIsNull)
-                {
-                    myldbm.Errors.Clear();
-                    myldbm.CustomerId = item.Id;
-                    myldbm.Collection = item.Legals;
-                    myldbm.RefreshCollection();
-                    foreach (lib.DBMError err in myldbm.Errors) this.Errors.Add(err);
-                }
-                if (!item.AliasesIsNull)
-                {
-                    myadbm.Errors.Clear();
-                    myadbm.ItemId = item.Id;
-                    myadbm.Collection = item.Aliases;
-                    myadbm.Fill();
-                    foreach (lib.DBMError err in myadbm.Errors) this.Errors.Add(err);
-                }
-                if (!item.CustomerAddressesIsNull)
-                {
-                    mycdbm.Errors.Clear();
-                    mycdbm.ItemId = item.Id;
-                    mycdbm.Collection = item.Addresses;
-                    mycdbm.Fill();
-                    foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
-                }
-                if (!item.CustomerContactsIsNull)
-                {
-                    myccdbm.Errors.Clear();
-                    myccdbm.ItemId = item.Id;
-                    myccdbm.Collection = item.Contacts;
-                    myccdbm.Fill();
-                    foreach (lib.DBMError err in myccdbm.Errors) this.Errors.Add(err);
-                }
-                if (!item.RecipientsIsNull)
-                {
-                    myrdbm.Errors.Clear();
-                    myrdbm.CustomerId = item.Id;
-                    myrdbm.Collection = item.Recipients;
-                    myrdbm.Fill();
-                    foreach (lib.DBMError err in myrdbm.Errors) this.Errors.Add(err);
-                }
-            }
+            myisrefreshcollection = false;
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class CustomerStore : lib.DomainStorageLoad<Customer, CustomerDBM>
+    internal class CustomerStore : lib.DomainStorageLoad<CustomerRecord,Customer, CustomerDBM>
     {
         public CustomerStore(CustomerDBM dbm) : base(dbm) { }
 
@@ -1346,7 +1414,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class CustomerCommand : lib.ViewModelCommand<Customer, CustomerVM, CustomerDBM>
+    public class CustomerCommand : lib.ViewModelCommand<CustomerRecord,Customer, CustomerVM, CustomerDBM>
     {
         public CustomerCommand(CustomerVM vm, ListCollectionView view) : base(vm, view)
         {

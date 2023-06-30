@@ -531,7 +531,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class GoodsDBM : lib.DBManagerId<Goods>
+    public class GoodsDBM : lib.DBManagerId<Goods,Goods>
     {
         public GoodsDBM():base()
         {
@@ -600,8 +600,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Goods CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Goods CreateRecord(SqlDataReader reader)
+		{
             Goods item = new Goods(
                 reader.GetInt32(0),
                 reader.GetString(1),
@@ -633,7 +633,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 lib.DomainObjectState.Unchanged);
 
             return KirillPolyanskiy.CustomBrokerWpf.References.GoodsStore.UpdateItem(item);
+		}
+        protected override Goods CreateModel(Goods reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(Goods item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -710,11 +722,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override void CancelLoad()
-        {}
     }
 
-    internal class GoodsStore : lib.DomainStorageLoad<Goods, GoodsDBM>
+    internal class GoodsStore : lib.DomainStorageLoad<Goods,Goods, GoodsDBM>
     {
         public GoodsStore(GoodsDBM dbm) : base(dbm) {}
 
@@ -1399,7 +1409,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class GoodsCommand : lib.ViewModelCommand<Goods, GoodsVM, GoodsDBM>
+    public class GoodsCommand : lib.ViewModelCommand<Goods,Goods, GoodsVM, GoodsDBM>
     {
         internal GoodsCommand(GoodsVM item, ListCollectionView view)
         {
@@ -2630,7 +2640,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class GetProducerDBM : lib.DBMSFill<string>
+    internal class GetProducerDBM : lib.DBMSFill<string,string>
     {
         internal GetProducerDBM(int clientid) : base()
         {
@@ -2643,12 +2653,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override string CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override string CreateRecord(SqlDataReader reader)
+		{
             return reader.GetString(0);
+		}
+		protected override string CreateModel(string reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override void CancelLoad()
-        { }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
     }
 
     public class GoodsNameCheckListBoxVM : libui.CheckListBoxVMFill<GoodsVM, string>

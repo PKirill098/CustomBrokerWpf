@@ -82,7 +82,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class TNVEDGroupDBM : lib.DBManager<TNVEDGroup>
+    public class TNVEDGroupDBM : lib.DBManager<TNVEDGroup,TNVEDGroup>
     {
         public TNVEDGroupDBM()
         {
@@ -121,11 +121,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override TNVEDGroup CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override TNVEDGroup CreateRecord(SqlDataReader reader)
+		{
             return new TNVEDGroup(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.GetString(1), reader.IsDBNull(2) ? null : References.Materials.FindFirstItem("Id", reader.GetInt32(2)));
+		}
+		protected override TNVEDGroup CreateModel(TNVEDGroup reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override bool SaveChildObjects(TNVEDGroup item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override bool SaveChildObjects(TNVEDGroup item)
         {
             bool isSuccess = true;
             mygdbm.Errors.Clear();
@@ -179,8 +191,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             item.AcceptChanches();
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class TNVEDGroupVM : lib.ViewModelErrorNotifyItem<TNVEDGroup>
@@ -374,7 +384,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class TNVEDGroupCommand : lib.ViewModelCommand<TNVEDGroup, TNVEDGroupVM, TNVEDGroupDBM>
+    public class TNVEDGroupCommand : lib.ViewModelCommand<TNVEDGroup,TNVEDGroup, TNVEDGroupVM, TNVEDGroupDBM>
     {
         internal TNVEDGroupCommand(TNVEDGroupVM vm, System.Windows.Data.ListCollectionView view) : base(vm, view)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -89,7 +90,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class CustomerContactDBM : lib.DBManagerId<CustomerContact>
+    public class CustomerContactDBM : lib.DBManagerId<CustomerContact, CustomerContact>
     {
         public CustomerContactDBM()
         {
@@ -128,11 +129,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private ContactPointDBM mypdbm;
 
-        protected override CustomerContact CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override CustomerContact CreateRecord(SqlDataReader reader)
         {
             return new CustomerContact(reader.GetInt32(reader.GetOrdinal("ContactId")), lib.DomainObjectState.Unchanged, reader.IsDBNull(reader.GetOrdinal("contactType")) ? null : reader.GetString(reader.GetOrdinal("contactType")), reader.GetInt32(0), reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
         }
-        protected override void GetOutputParametersValue(CustomerContact item)
+		protected override CustomerContact CreateModel(CustomerContact record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(CustomerContact item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
                 item.Id = (int)myinsertparams[0].Value;
@@ -184,8 +197,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class CustomerContactVM : lib.ViewModelErrorNotifyItem<CustomerContact>

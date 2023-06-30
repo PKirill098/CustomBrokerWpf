@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
@@ -100,7 +101,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ContractDBM : lib.DBManagerWhoWhen<Contract>
+    public struct ContractRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal DateTime? updated;
+        internal string updater;
+        internal int agent;
+        internal decimal amount;
+        internal DateTime? date;
+        internal bool expired;
+        internal DateTime expirydate;
+        internal string number;
+	}
+    public class ContractDBM : lib.DBManagerWhoWhen<ContractRecord, Contract>
     {
         internal ContractDBM()
         {
@@ -146,25 +160,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myagent; }
         }
 
-        protected override void CancelLoad()
+        protected override ContractRecord CreateRecord(SqlDataReader reader)
         {
+            return new ContractRecord()
+            { 
+                id=reader.GetInt32(this.Fields["id"]),
+                stamp=reader.GetInt64(this.Fields["stamp"]),
+                updated=reader.GetDateTime(this.Fields["updated"]),
+                updater=reader.GetString(this.Fields["updater"]),
+                agent=reader.GetInt32(this.Fields["agent"]),
+                amount=reader.GetDecimal(this.Fields["amount"]),
+                date=reader.IsDBNull(this.Fields["date"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["date"]),
+				expired=reader.GetBoolean(this.Fields["expired"]),
+				expirydate=reader.GetDateTime(this.Fields["expirydate"]),
+				number=reader.IsDBNull(this.Fields["number"]) ? null : reader.GetString(this.Fields["number"]) 
+            };
         }
-        protected override Contract CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
-            List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agent"]), addcon, out errors);
-            this.Errors.AddRange(errors);
-            return new Contract(reader.GetInt32(this.Fields["id"]), reader.GetInt64(this.Fields["stamp"])
-                ,reader.GetDateTime(this.Fields["updated"]),reader.GetString(this.Fields["updater"])
-                ,lib.DomainObjectState.Unchanged
-                , agent
-                ,reader.GetDecimal(this.Fields["amount"])
-                ,reader.IsDBNull(this.Fields["date"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["date"])
-                ,reader.GetBoolean(this.Fields["expired"])
-                ,reader.GetDateTime(this.Fields["expirydate"])
-                ,reader.IsDBNull(this.Fields["number"]) ? null : reader.GetString(this.Fields["number"]));
-        }
-        protected override void GetOutputSpecificParametersValue(Contract item)
+		protected override Contract CreateModel(ContractRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			List<lib.DBMError> errors;
+			Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out errors);
+			this.Errors.AddRange(errors);
+			return new Contract(record.id, record.stamp, record.updated, record.updater, lib.DomainObjectState.Unchanged
+				, agent
+				, record.amount
+				, record.date
+				, record.expired
+				, record.expirydate
+				, record.number);
+		}
+		protected override void GetOutputSpecificParametersValue(Contract item)
         {
             //if(item.DomainState==lib.DomainObjectState.Added)
             //    if (myinsertparams[1].Value != DBNull.Value) item.Stamp = (Int64)myinsertparams[1].Value;

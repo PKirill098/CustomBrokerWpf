@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
@@ -228,7 +229,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class AgentStore : lib.DomainStorageLoad<Agent, AgentDBM>
+    public struct AgentRecord
+    {
+        internal int id;
+        internal long stamp;
+		internal string mycreater;
+		internal DateTime mydateentry;
+		internal string myfullname;
+		internal string myname;
+		internal string myrecommend;
+		internal byte mystate;
+	}
+
+	internal class AgentStore : lib.DomainStorageLoad<AgentRecord,Agent, AgentDBM>
     {
         public AgentStore(AgentDBM dbm) : base(dbm) { }
 
@@ -238,7 +251,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AgentDBM : lib.DBManagerStamp<Agent>
+    public class AgentDBM : lib.DBManagerStamp<AgentRecord,Agent>
     {
         public AgentDBM()
         {
@@ -298,74 +311,87 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal lib.SQLFilter.SQLFilter Filter
         { set { myfilter = value; } get { return myfilter; } }
 
-        protected override Agent CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override AgentRecord CreateRecord(SqlDataReader reader)
         {
-            Agent agent = null;
-            if (this.FillType == lib.FillType.PrefExist)
-                agent = CustomBrokerWpf.References.AgentStore.GetItem(reader.GetInt32(0));
-            if (agent == null)
-            {
-                agent = new Agent(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
-                  , reader.IsDBNull(this.Fields["creater"]) ? null : reader.GetString(this.Fields["creater"])
-                  , reader.GetDateTime(this.Fields["agentDayEntry"])
-                  , reader.IsDBNull(this.Fields["agentFullName"]) ? null : reader.GetString(this.Fields["agentFullName"])
-                  , reader.GetString(this.Fields["agentName"])
-                  , reader.IsDBNull(this.Fields["agentRecommend"]) ? null : reader.GetString(this.Fields["agentRecommend"])
-                  , reader.GetByte(this.Fields["agentState"])
-                  );
-                agent = CustomBrokerWpf.References.AgentStore.UpdateItem(agent);
-            }
-            if((agent.Aliases.Count==0 | this.FillType == lib.FillType.Refresh) & myadbm != null)
-            {
-                myadbm.Errors.Clear();
-                myadbm.Command.Connection = addcon;
-                myadbm.Agent = agent;
-                myadbm.Collection = agent.Aliases;
-                myadbm.Fill();
-                foreach (lib.DBMError err in myadbm.Errors) this.Errors.Add(err);
-            }
-            if (this.FillType == lib.FillType.Refresh)
-            {
-                if (!agent.AgentAddressesIsNull & myaddbm != null)
-                {
-                    myaddbm.Errors.Clear();
-                    myaddbm.Command.Connection = addcon;
-                    myaddbm.Agent = agent;
-                    myaddbm.Collection = agent.Addresses;
-                    myaddbm.Fill();
-                    foreach (lib.DBMError err in myaddbm.Errors) this.Errors.Add(err);
-                }
-                if (!agent.AgentBrandsIsNull & mybrdbm != null)
-                {
-                    mybrdbm.Errors.Clear();
-                    mybrdbm.Command.Connection = addcon;
-                    mybrdbm.Agent = agent;
-                    mybrdbm.Collection = agent.Brands;
-                    mybrdbm.Fill();
-                    foreach (lib.DBMError err in mybrdbm.Errors) this.Errors.Add(err);
-                }
-                if (!agent.ContactsIsNull & mycdbm != null)
-                {
-                    mycdbm.Errors.Clear();
-                    mycdbm.Command.Connection = addcon;
-                    mycdbm.Agent = agent;
-                    mycdbm.Collection = agent.Contacts;
-                    mycdbm.Fill();
-                    foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
-                }
-                if(!agent.ContractsIsNull & mycntrdbm != null)
-                {
-                    mycntrdbm.Errors.Clear();
-                    mycntrdbm.Command.Connection = addcon;
-                    mycntrdbm.Agent = agent;
-                    mycntrdbm.Collection = agent.Contracts;
-                    mycntrdbm.Fill();
-                    foreach (lib.DBMError err in mycntrdbm.Errors) this.Errors.Add(err);
-                }
-            }
-            return agent;
+            return new AgentRecord() {
+                id=reader.GetInt32(0)
+                , stamp=reader.GetInt64(this.Fields["stamp"])
+                , mycreater = reader.IsDBNull(this.Fields["creater"]) ? null : reader.GetString(this.Fields["creater"])
+                , mydateentry = reader.GetDateTime(this.Fields["agentDayEntry"])
+                , myfullname = reader.IsDBNull(this.Fields["agentFullName"]) ? null : reader.GetString(this.Fields["agentFullName"])
+                , myname = reader.GetString(this.Fields["agentName"])
+                , myrecommend = reader.IsDBNull(this.Fields["agentRecommend"]) ? null : reader.GetString(this.Fields["agentRecommend"])
+                , mystate = reader.GetByte(this.Fields["agentState"])
+                };
         }
-        protected override void GetOutputSpecificParametersValue(Agent item)
+		protected override Agent CreateModel(AgentRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			Agent agent = null;
+			if (this.FillType == lib.FillType.PrefExist)
+				agent = CustomBrokerWpf.References.AgentStore.GetItem(record.id);
+			if (agent == null)
+			{
+				agent = new Agent(record.id, record.stamp, lib.DomainObjectState.Unchanged
+				  , record.mycreater
+				  , record.mydateentry
+				  , record.myfullname
+				  , record.myname
+				  , record.myrecommend
+				  , record.mystate
+				  );
+				agent = CustomBrokerWpf.References.AgentStore.UpdateItem(agent);
+			}
+			if ((agent.Aliases.Count == 0 | this.FillType == lib.FillType.Refresh) & myadbm != null)
+			{
+				myadbm.Errors.Clear();
+				myadbm.Command.Connection = addcon;
+				myadbm.Agent = agent;
+				myadbm.Collection = agent.Aliases;
+				myadbm.Fill();
+				foreach (lib.DBMError err in myadbm.Errors) this.Errors.Add(err);
+			}
+			if (this.FillType == lib.FillType.Refresh)
+			{
+				if (!agent.AgentAddressesIsNull & myaddbm != null)
+				{
+					myaddbm.Errors.Clear();
+					myaddbm.Command.Connection = addcon;
+					myaddbm.Agent = agent;
+					myaddbm.Collection = agent.Addresses;
+					myaddbm.Fill();
+					foreach (lib.DBMError err in myaddbm.Errors) this.Errors.Add(err);
+				}
+				if (!agent.AgentBrandsIsNull & mybrdbm != null)
+				{
+					mybrdbm.Errors.Clear();
+					mybrdbm.Command.Connection = addcon;
+					mybrdbm.Agent = agent;
+					mybrdbm.Collection = agent.Brands;
+					mybrdbm.Fill();
+					foreach (lib.DBMError err in mybrdbm.Errors) this.Errors.Add(err);
+				}
+				if (!agent.ContactsIsNull & mycdbm != null)
+				{
+					mycdbm.Errors.Clear();
+					mycdbm.Command.Connection = addcon;
+					mycdbm.Agent = agent;
+					mycdbm.Collection = agent.Contacts;
+					mycdbm.Fill();
+					foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
+				}
+				if (!agent.ContractsIsNull & mycntrdbm != null)
+				{
+					mycntrdbm.Errors.Clear();
+					mycntrdbm.Command.Connection = addcon;
+					mycntrdbm.Agent = agent;
+					mycntrdbm.Collection = agent.Contracts;
+					mycntrdbm.Fill();
+					foreach (lib.DBMError err in mycntrdbm.Errors) this.Errors.Add(err);
+				}
+			}
+			return agent;
+		}
+		protected override void GetOutputSpecificParametersValue(Agent item)
         {
         }
         protected override bool SaveChildObjects(Agent item)
@@ -488,14 +514,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                 }
             return true;
-        }
-        protected override void CancelLoad()
-        { 
-            if (myadbm != null) myadbm.CancelingLoad=this.CancelingLoad;
-            if (myaddbm != null) myaddbm.CancelingLoad = this.CancelingLoad;
-            if (mybrdbm != null) mybrdbm.CancelingLoad = this.CancelingLoad;
-            if (mycdbm != null) mycdbm.CancelingLoad = this.CancelingLoad;
-            if (mycntrdbm != null) mycntrdbm.CancelingLoad = this.CancelingLoad;
         }
     }
 
@@ -867,7 +885,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AgentCommand : lib.ViewModelCommand<Agent, AgentVM, AgentDBM>
+    public class AgentCommand : lib.ViewModelCommand<AgentRecord, Agent, AgentVM, AgentDBM>
     {
         public AgentCommand(AgentVM vm, ListCollectionView view) : base(vm, view)
         {

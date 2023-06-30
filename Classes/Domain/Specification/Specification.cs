@@ -16,6 +16,34 @@ using System.Windows;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
+    public struct SpecificationRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int agent;
+        internal string consolidate;
+        internal int? declaration;
+        internal string filepath;
+        internal int importer;
+        internal int parcel;
+        internal int? parcelgroup;
+        internal int? request;
+        internal decimal? pari;
+        internal decimal? gtls;
+        internal decimal? gtlscur;
+        internal decimal? gtlsrate;
+        internal decimal? ddspidy;
+        internal decimal? westgate;
+        internal decimal? mfk;
+        internal int amount;
+        internal decimal cellnumber;
+        internal decimal clientsumdiff;
+        internal decimal cost;
+        internal decimal fondsum;
+        internal decimal grossweight;
+        internal decimal netweight;
+      }
+
     public class Specification : lib.DomainBaseStamp
     {
         private Specification(int id, long stamp, lib.DomainObjectState mstate
@@ -1068,7 +1096,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class SpecificationStore : lib.DomainStorageLoad<Specification, SpecificationDBM>
+    internal class SpecificationStore : lib.DomainStorageLoad<SpecificationRecord,Specification, SpecificationDBM>
     {
         public SpecificationStore(SpecificationDBM dbm) : base(dbm) { }
 
@@ -1129,7 +1157,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class SpecificationDBM : lib.DBManagerStamp<Specification>
+    public class SpecificationDBM : lib.DBManagerStamp<SpecificationRecord,Specification>
     {
         public SpecificationDBM()
         {
@@ -1203,50 +1231,79 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         DeclarationDBM mytddbm;
         SpecificationCustomerInvoiceRateDBM myratedbm;
 
-        protected override Specification CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override SpecificationRecord CreateRecord(SqlDataReader reader)
+        {
+            return new SpecificationRecord()
+            {
+                id=reader.GetInt32(0), stamp=reader.GetInt64(this.Fields["stamp"])
+                , agent=reader.GetInt32(this.Fields["agentid"])
+                , consolidate=reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                , declaration=reader.IsDBNull(this.Fields["declarationid"])?(int?)null:reader.GetInt32(this.Fields["declarationid"])
+                , filepath=reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
+                , importer=reader.GetInt32(this.Fields["importerid"])
+                , parcel=reader.GetInt32(this.Fields["parcelid"])
+                , parcelgroup=reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                , request=reader.IsDBNull(this.Fields["requestid"])?(int?)null:reader.GetInt32(this.Fields["requestid"])
+                , pari=reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
+                , gtls=reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
+                , gtlscur=reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
+                , gtlsrate=reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
+                , ddspidy=reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
+                , westgate=reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
+                , mfk=reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
+                , amount=reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
+                , cellnumber=reader.IsDBNull(this.Fields["cellnumber"]) ? 0M : reader.GetDecimal(this.Fields["cellnumber"])
+                , clientsumdiff=reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
+                , cost=reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
+                , fondsum=reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
+                , grossweight=reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
+                , netweight=reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
+            };
+        }
+        protected override Specification CreateModel(SpecificationRecord record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
             List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out errors);
             this.Errors.AddRange(errors);
             Declaration declaration = null;
-            if (!reader.IsDBNull(this.Fields["declarationid"]))
+            if (record.declaration.HasValue)
             {
                 mytddbm.Errors.Clear();
                 mytddbm.Command.Connection = addcon;
-                mytddbm.ItemId = reader.GetInt32(this.Fields["declarationid"]);
+                mytddbm.ItemId = record.declaration.Value;
                 declaration = mytddbm.GetFirst();
             }
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(record.parcel, addcon, out errors);
             this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(this.Fields["requestid"]))
+            if (record.request.HasValue)
             {
-                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors);
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request.Value, addcon, out errors);
                 this.Errors.AddRange(errors);
             }
-            Specification spec = new Specification(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
+            Specification spec = new Specification(record.id, record.stamp, lib.DomainObjectState.Unchanged
                 , agent
-                , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                , record.consolidate
                 , declaration
-                , reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
+                , record.filepath
+                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", record.importer)
                 , parcel
-                , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                , record.parcelgroup
                 , request
-                , reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
-                , reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
-                , reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
-                , reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
-                , reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
-                , reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
-                , reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
-                , reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
-                , reader.IsDBNull(this.Fields["cellnumber"]) ? 0M : reader.GetDecimal(this.Fields["cellnumber"])
-                , reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
-                , reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
-                , reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
-                , reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
-                , reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
+                , record.pari
+                , record.gtls
+                , record.gtlscur
+                , record.gtlsrate
+                , record.ddspidy
+                , record.westgate
+                , record.mfk
+                , record.amount
+                , record.cellnumber
+                , record.clientsumdiff
+                , record.cost
+                , record.fondsum
+                , record.grossweight
+                , record.netweight
                 );
             Specification specsore = CustomBrokerWpf.References.SpecificationStore.UpdateItem(spec, this.FillType == lib.FillType.Refresh);
             if ((this.FillType == lib.FillType.Refresh & specsore.Declaration?.DomainState == lib.DomainObjectState.Modified) || specsore.Declaration?.Stamp != declaration?.Stamp)
@@ -1267,12 +1324,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 specsore.NetWeight = spec.NetWeight;
                 specsore.CustomersLegalsRefresh();
             }
-            //specsore.InvoiceDTRates.Clear();
-            //myratedbm.Command.Connection = addcon;
-            //myratedbm.Specification = specsore;
-            //myratedbm.Load();
-            //if(myratedbm.Errors.Count>0) foreach (lib.DBMError err in myratedbm.Errors) this.Errors.Add(err);
-
             return specsore;
         }
         protected override void GetOutputSpecificParametersValue(Specification item)
@@ -1447,9 +1498,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             return item.Parcel.Id > 0 & (item.Request?.Id ?? 1) > 0;
-        }
-        protected override void CancelLoad()
-        {
         }
     }
 
@@ -1780,7 +1828,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class SpecificationVMCommand : lib.ViewModelCommand<Specification, SpecificationVM, SpecificationDBM>
+    public class SpecificationVMCommand : lib.ViewModelCommand<SpecificationRecord,Specification, SpecificationVM, SpecificationDBM>
     {
         public SpecificationVMCommand(SpecificationVM vm, ListCollectionView view) : base(vm, view)
         {

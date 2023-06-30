@@ -39,7 +39,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class BranchDBM : lib.DBManagerStamp<Branch>
+    public class BranchDBM : lib.DBManagerStamp<Branch,Branch>
     {
         public BranchDBM()
         {
@@ -63,15 +63,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
         }
 
-        protected override Branch CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Branch CreateRecord(SqlDataReader reader)
+		{
             Branch item = new Branch(reader.GetInt32(0), reader.GetInt64(1), null, null, lib.DomainObjectState.Unchanged
                 ,CustomBrokerWpf.References.GoodsStore.GetItem(reader.GetInt32(4))
                 , CustomBrokerWpf.References.Countries.FindFirstItem("Id", reader.GetInt32(5))
                 ,reader.GetString(6)
                 );
             return CustomBrokerWpf.References.BranchStore.UpdateItem(item);
+		}
+        protected override Branch CreateModel(Branch reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(Branch item) {}
         protected override bool SaveChildObjects(Branch item)
         {
@@ -95,11 +107,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class BranchStore : lib.DomainStorageLoad<Branch, BranchDBM>
+    internal class BranchStore : lib.DomainStorageLoad<Branch,Branch, BranchDBM>
     {
         public BranchStore(BranchDBM dbm) : base(dbm) {}
 

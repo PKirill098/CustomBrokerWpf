@@ -8,20 +8,40 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
+    internal struct GTDRegisterClientRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal DateTime? updated;
+        internal string updater;
+
+        internal decimal? buyrate;
+        internal int? customer;
+        internal decimal? dtsum;
+        internal decimal? incomealg;
+        internal decimal? p3347value1;
+        internal decimal? p3140value2;
+        internal decimal? selling;
+        internal DateTime? sellingdate;
+        internal decimal? sl;
+        internal decimal? volume;
+    }
     public class GTDRegisterClient : lib.DomainStampValueChanged
     {
         public GTDRegisterClient(int id, long stamp, DateTime? updatewhen, string updatewho, lib.DomainObjectState state
-            , decimal? algvalue1, decimal? algvalue2, decimal? buyrate,CustomerLegal client, decimal? dtsum, decimal eurosum, GTDRegister gtd, decimal? selling,DateTime? sellingdate, decimal? sl,decimal? volume
+            , decimal? p3347value1, decimal? p3140value2, decimal? buyrate,CustomerLegal client, decimal? dtsum, decimal eurosum, GTDRegister gtd,decimal? incomealg, decimal? selling,DateTime? sellingdate, decimal? sl,decimal? volume
             ) : base(id, stamp, updatewhen, updatewho, state)
         {
-            myprofitalge = algvalue1;
-            myalgvalue2 = algvalue2;
+            myprofitalge = p3347value1;
+            myalgvalue2 = p3140value2;
             mybuyrate = buyrate;
             myclient = client;
             mydtsum = dtsum;
@@ -31,7 +51,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mygtd.Specification.PropertyChanged += this.Specification_PropertyChanged;
             mygtd.Specification.Declaration.PropertyChanged += this.Declaration_PropertyChanged;
 			mygtd.Specification.Parcel.PropertyChanged += this.Parcel_PropertyChanged;
-			myselling = selling;
+            myincomealg = incomealg;
+            myselling = selling;
             mysellingdate = sellingdate;
             mysl = sl;
             myvolume = volume;
@@ -77,6 +98,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return (this.Fee??0M) + (this.Tax??0M) + (this.CC??0M) + (this.CostLogistics??0M); } }
         private decimal? myddspidyold;
         public decimal? DDSpidy { private set; get; }
+        public decimal? DifProfitIncomeAlg
+        { get { return this.Profit - this.IncomeAlg; } }
         private decimal? mydtsum;
         public decimal? DTSum
         {
@@ -123,6 +146,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? GTLS { private set; get; }
         private decimal? mygtlscurold;
         public decimal? GTLSCur { private set; get; }
+        private decimal? myincomealg;
+        public decimal? IncomeAlg
+        { private set 
+            {
+                decimal? difprofitincomealgold = this.DifProfitIncomeAlg;
+                decimal? incomealgold = myincomealg;
+                myincomealg = value;
+                this.PropertyChangedNotification(nameof(this.IncomeAlg));
+                this.OnValueChanged(nameof(this.IncomeAlg), incomealgold, myincomealg);
+                this.PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
+                this.OnValueChanged(nameof(this.DifProfitIncomeAlg), difprofitincomealgold, this.DifProfitIncomeAlg);
+            } 
+            get { return myincomealg; } }
 		private List<Manager> mymanagers;
 		public List<Manager> Managers
 		{
@@ -176,7 +212,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? ProfitDiff
         { get { return this.Profit - this.ProfitAlgR; } }
         public decimal? Rate
-        { get { return (mygtd.Specification.Declaration?.TotalSum ?? 0M)>0M ? mydtsum / mygtd.Specification.Declaration.TotalSum : null; } }
+        { get { return (mygtd.Specification.Cost ?? 0M)>0M ? mydtsum / mygtd.Specification.Cost : null; } }
         private decimal? mysl;
         public decimal? SL
         { set {
@@ -250,6 +286,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.BuyRate = templ.BuyRate;
             this.DTSum = templ.DTSum;
             this.EuroSum = templ.EuroSum;
+            this.IncomeAlg = templ.IncomeAlg;
             this.Selling = templ.Selling;
             this.SellingDate = templ.SellingDate;
             this.SL = templ.SL;
@@ -484,7 +521,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		}
 	}
 
-	internal class GTDRegisterClientDBM:lib.DBManagerWhoWhen<GTDRegisterClient>
+	internal class GTDRegisterClientDBM:lib.DBManagerWhoWhen<GTDRegisterClientRecord,GTDRegisterClient>
     {
         internal GTDRegisterClientDBM()
         {
@@ -528,36 +565,54 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set { myservicetype = value; } get { return myservicetype; } }
         private GTDRegisterStore mygtdstore;
 
-        protected override GTDRegisterClient CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override GTDRegisterClientRecord CreateRecord(SqlDataReader reader)
+        {
+            return new GTDRegisterClientRecord()
+            {
+                id=reader.GetInt32(0)
+                , stamp=reader.IsDBNull(reader.GetOrdinal("stamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("stamp"))
+                , updated=reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated"))
+                , updater=reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
+                , buyrate=reader.IsDBNull(reader.GetOrdinal("buyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("buyrate"))
+                , customer = reader.IsDBNull(reader.GetOrdinal("customerid")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("customerid"))
+                , dtsum=reader.IsDBNull(reader.GetOrdinal("dtsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("dtsum"))
+                , incomealg=reader.IsDBNull(reader.GetOrdinal("r44value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("r44value1"))
+                , p3347value1=reader.IsDBNull(reader.GetOrdinal("p3347value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("p3347value1"))
+                , p3140value2=reader.IsDBNull(reader.GetOrdinal("p3140value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("p3140value2"))
+                , selling=reader.IsDBNull(reader.GetOrdinal("selling")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("selling"))
+                , sellingdate=reader.IsDBNull(reader.GetOrdinal("sellingdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sellingdate"))
+                , sl=reader.IsDBNull(reader.GetOrdinal("sl")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sl"))
+                , volume=reader.IsDBNull(reader.GetOrdinal("volume")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("volume"))
+            };
+        }
+        protected override GTDRegisterClient CreateModel(GTDRegisterClientRecord record,SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
             List<DBMError> errors = new List<DBMError>();
-            CustomerLegal customer = reader.IsDBNull(reader.GetOrdinal("customerid")) ? null : CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out errors);
+            CustomerLegal customer = record.customer.HasValue ? CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.customer.Value, addcon, out errors) : null;
             this.Errors.AddRange(errors);
-            GTDRegisterClient item = new GTDRegisterClient(reader.GetInt32(0)
-                , reader.IsDBNull(reader.GetOrdinal("stamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("stamp"))
-                , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated"))
-                , reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater")), lib.DomainObjectState.Unchanged
-                , reader.IsDBNull(reader.GetOrdinal("algvalue1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("algvalue1"))
-                , reader.IsDBNull(reader.GetOrdinal("algvalue2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("algvalue2"))
-                , reader.IsDBNull(reader.GetOrdinal("buyrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("buyrate"))
+            GTDRegisterClient item = new GTDRegisterClient(record.id, record.stamp, record.updated, record.updater, lib.DomainObjectState.Unchanged
+                , record.p3347value1
+                , record.p3140value2
+                , record.buyrate
                 , customer
-                , reader.IsDBNull(reader.GetOrdinal("dtsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("dtsum"))
+                , record.dtsum
                 , 0//reader.IsDBNull(reader.GetOrdinal("eurosum")) ? 0 : reader.GetDecimal(reader.GetOrdinal("eurosum"))
                 , mygtd
-                , reader.IsDBNull(reader.GetOrdinal("selling")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("selling"))
-                , reader.IsDBNull(reader.GetOrdinal("sellingdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sellingdate"))
-                , reader.IsDBNull(reader.GetOrdinal("sl")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("sl"))
-                , reader.IsDBNull(reader.GetOrdinal("volume")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("volume"))
+                , record.incomealg
+                , record.selling
+                , record.sellingdate
+                , record.sl
+                , record.volume
                 );
             return item;
         }
         protected override void GetOutputSpecificParametersValue(GTDRegisterClient item)
         {
         }
-        protected override void CancelLoad()
-        {
-            if (mygdtdbm != null) mygdtdbm.CancelingLoad = this.CancelingLoad;
-        }
+        //protected override void CancelLoad()
+        //{
+        //    if (mygdtdbm != null) mygdtdbm.CancelingLoad = this.CancelingLoad;
+        //}
         protected override bool SaveChildObjects(GTDRegisterClient item)
         {
             return true;
@@ -655,6 +710,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             get { return this.IsEnabled ? this.DomainObject.DDSpidy : (decimal?)null; }
         }
+        public decimal? DifProfitIncomeAlg
+        { get { return this.IsEnabled ? this.DomainObject.DifProfitIncomeAlg : (decimal?)null; } }
         public decimal? DTSum
         { get { return this.IsEnabled ? this.DomainObject.DTSum : (decimal?)null; } }
         public decimal? EuroSum
@@ -668,6 +725,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.IsEnabled ? this.DomainObject.GTLS : (decimal?)null; } }
         public decimal? GTLSCur
         { get { return this.IsEnabled ? this.DomainObject.GTLSCur : (decimal?)null; } }
+        public decimal? IncomeAlg
+        { get { return this.IsEnabled ? this.DomainObject.IncomeAlg : (decimal?)null; } }
 		private string mymanagers;
 		public string Managers
 		{
@@ -1012,6 +1071,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal GTLS { set { mygtls = value; } get { return mygtls; } }
         private decimal mygtlscur;
         public decimal GTLSCur { set { mygtlscur = value; } get { return mygtlscur; } }
+        private decimal myincomealg;
+        public decimal IncomeAlg { set { myincomealg = value; } get { return myincomealg; } }
         private decimal mymfk;
         public decimal MFK { set { mymfk = value; } get { return mymfk; } }
         private decimal mypari;
@@ -1048,19 +1109,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     propertyoldvalue = mymfk;
                     mymfk += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.MFK));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mymfk);
+                    OnValueChanged(nameof(this.MFK), propertyoldvalue, mymfk);
                     break;
                 case nameof(GTDRegisterClientVM.DDSpidy):
                     propertyoldvalue = myddspidy;
                     myddspidy += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.DDSpidy));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myddspidy);
+                    OnValueChanged(nameof(this.DDSpidy), propertyoldvalue, myddspidy);
                     break;
                 case nameof(GTDRegisterClientVM.DTSum):
                     propertyoldvalue = mydtsum;
                     mydtsum += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.DTSum));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mydtsum);
+                    OnValueChanged(nameof(this.DTSum), propertyoldvalue, mydtsum);
                     break;
                 //case nameof(GTDRegisterClientVM.EuroSum):
                 //    propertyoldvalue = myeurosum;
@@ -1072,73 +1133,79 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     propertyoldvalue = myfee;
                     myfee += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Fee));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myfee);
+                    OnValueChanged(nameof(this.Fee), propertyoldvalue, myfee);
                     break;
                 case nameof(GTDRegisterClientVM.GTLS):
                     propertyoldvalue = mygtls;
                     mygtls += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.GTLS));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mygtls);
+                    OnValueChanged(nameof(this.GTLS), propertyoldvalue, mygtls);
                     break;
                 case nameof(GTDRegisterClientVM.GTLSCur):
                     propertyoldvalue = mygtlscur;
                     mygtlscur += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.GTLSCur));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mygtlscur);
+                    OnValueChanged(nameof(this.GTLSCur), propertyoldvalue, mygtlscur);
+                    break;
+                case nameof(GTDRegisterClientVM.IncomeAlg):
+                    propertyoldvalue = myincomealg;
+                    myincomealg += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.IncomeAlg));
+                    OnValueChanged(nameof(this.IncomeAlg), propertyoldvalue, myincomealg);
                     break;
                 case nameof(GTDRegisterClientVM.Pari):
                     propertyoldvalue = mypari;
                     mypari += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Pari));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mypari);
+                    OnValueChanged(nameof(this.Pari), propertyoldvalue, mypari);
                     break;
                 case nameof(GTDRegisterClientVM.ProfitAlgE):
                     propertyoldvalue = myprofitalge;
                     myprofitalge += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.ProfitAlgE));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myprofitalge);
+                    OnValueChanged(nameof(this.ProfitAlgE), propertyoldvalue, myprofitalge);
                     break;
                 case nameof(GTDRegisterClientVM.ProfitAlgR):
                     propertyoldvalue = myprofitalgr;
                     myprofitalgr += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.ProfitAlgR));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myprofitalgr);
+                    OnValueChanged(nameof(this.ProfitAlgR), propertyoldvalue, myprofitalgr);
                     break;
                 case nameof(GTDRegisterClientVM.Selling):
                     propertyoldvalue = myselling;
                     myselling += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Selling));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myselling);
+                    OnValueChanged(nameof(this.Selling), propertyoldvalue, myselling);
                     break;
                 case nameof(GTDRegisterClientVM.SL):
                     propertyoldvalue = mysl;
                     mysl += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.SL));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mysl);
+                    OnValueChanged(nameof(this.SL), propertyoldvalue, mysl);
                     break;
                 case nameof(GTDRegisterClientVM.Tax):
                     propertyoldvalue = mytax;
                     mytax += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Tax));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mytax);
+                    OnValueChanged(nameof(this.Tax), propertyoldvalue, mytax);
                     break;
                 case nameof(GTDRegisterClientVM.VAT):
                     propertyoldvalue = myvat;
                     myvat += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Vat));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myvat);
+                    OnValueChanged(nameof(this.Vat), propertyoldvalue, myvat);
                     break;
                 case nameof(GTDRegisterClientVM.Volume):
                     propertyoldvalue = myvolume;
                     myvolume += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.Volume));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, myvolume);
+                    OnValueChanged(nameof(this.Volume), propertyoldvalue, myvolume);
                     break;
                 case nameof(GTDRegisterClientVM.WestGate):
                     propertyoldvalue = mywestgate;
                     mywestgate += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.WestGate));
-                    OnValueChanged(nameof(this.CC), propertyoldvalue, mywestgate);
+                    OnValueChanged(nameof(this.WestGate), propertyoldvalue, mywestgate);
                     break;
             }
         }
@@ -1152,6 +1219,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee = 0M;
             mygtls = 0M;
             mygtlscur = 0M;
+            myincomealg = 0M;
             mymfk = 0M;
             mypari = 0M;
             myprofitalge = 0M;
@@ -1172,6 +1240,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee += item.Fee ?? 0M;
             mygtls += item.GTLS ?? 0M;
             mygtlscur += item.GTLSCur ?? 0M;
+            myincomealg += item.IncomeAlg ?? 0M;
             mymfk += item.MFK ?? 0M;
             //myeurosum += item.EuroSum ?? 0M;
             mypari += item.Pari ?? 0M;
@@ -1193,6 +1262,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee -= item.Fee ?? 0M;
             mygtls -= item.GTLS ?? 0M;
             mygtlscur -= item.GTLSCur ?? 0M;
+            myincomealg -= item.IncomeAlg ?? 0M;
             mymfk -= item.MFK ?? 0M;
             //myeurosum -= item.EuroSum ?? 0M;
             mypari -= item.Pari ?? 0M;
@@ -1214,6 +1284,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.PropertyChangedNotification(nameof(this.Fee));
             this.PropertyChangedNotification(nameof(this.GTLS));
             this.PropertyChangedNotification(nameof(this.GTLSCur));
+            this.PropertyChangedNotification(nameof(this.IncomeAlg));
             this.PropertyChangedNotification(nameof(this.MFK));
             //this.PropertyChangedNotification(nameof(this.EuroSum));
             this.PropertyChangedNotification(nameof(this.Pari));

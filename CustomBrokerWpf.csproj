@@ -168,9 +168,8 @@
     <Compile Include="Classes\Domain\Manager.cs" />
     <Compile Include="Classes\Domain\Account\GTDRegisterClient.cs" />
     <Compile Include="Classes\Domain\Marking\Marking.cs" />
-    <Compile Include="Classes\Domain\ParcelLastShipdate.cs" />
+    <Compile Include="Classes\Domain\Parcel\ParcelLastShipdate.cs" />
     <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
-    <Compile Include="Classes\Domain\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\Warehouse.cs" />
     <Compile Include="Classes\Domain\Storage\WarehouseAddress.cs" />
@@ -271,23 +270,23 @@
     <Compile Include="Classes\Domain\AllPrice.cs" />
     <Compile Include="Classes\Domain\Branch.cs" />
     <Compile Include="Classes\Domain\BranchCountry.cs" />
-    <Compile Include="Classes\Domain\DeliveryCarry.cs" />
-    <Compile Include="Classes\Domain\DeliveryCarryAddresses.cs" />
-    <Compile Include="Classes\Domain\DeliveryCars.cs" />
+    <Compile Include="Classes\Domain\Delivery\DeliveryCarry.cs" />
+    <Compile Include="Classes\Domain\Delivery\DeliveryCarryAddresses.cs" />
+    <Compile Include="Classes\Domain\Delivery\DeliveryCars.cs" />
     <Compile Include="Classes\Domain\Importer.cs" />
     <Compile Include="Classes\Domain\ImporterParcelRequestTotal.cs" />
     <Compile Include="Classes\Domain\MailTemplate.cs" />
-    <Compile Include="Classes\Domain\ParcelMailState.cs" />
+    <Compile Include="Classes\Domain\Parcel\ParcelMailState.cs" />
     <Compile Include="Classes\Domain\Recipient.cs" />
     <Compile Include="Classes\Domain\ContactPoint.cs" />
-    <Compile Include="Classes\Domain\Customer.cs" />
-    <Compile Include="Classes\Domain\CustomerAddress.cs" />
-    <Compile Include="Classes\Domain\CustomerContact.cs" />
-    <Compile Include="Classes\Domain\CustomerLegal.cs" />
+    <Compile Include="Classes\Domain\Customer\Customer.cs" />
+    <Compile Include="Classes\Domain\Customer\CustomerAddress.cs" />
+    <Compile Include="Classes\Domain\Customer\CustomerContact.cs" />
+    <Compile Include="Classes\Domain\Customer\CustomerLegal.cs" />
     <Compile Include="Classes\Domain\EventLog.cs" />
     <Compile Include="Classes\Domain\Gender.cs" />
     <Compile Include="Classes\Domain\Goods.cs" />
-    <Compile Include="Classes\Domain\Parcel.cs" />
+    <Compile Include="Classes\Domain\Parcel\Parcel.cs" />
     <Compile Include="Classes\Domain\Participant.cs" />
     <Compile Include="Classes\Domain\References\Color.cs" />
     <Compile Include="Classes\Domain\References\Countries.cs" />
@@ -322,7 +321,7 @@
     <Compile Include="Classes\Domain\Specification\Mapping.cs" />
     <Compile Include="Classes\Domain\Specification\MappingGender.cs" />
     <Compile Include="Classes\Domain\Specification\Material.cs" />
-    <Compile Include="Classes\ViewModelBaseClass.cs" />
+    <Compile Include="Trash\ViewModelBaseClass.cs" />
     <Compile Include="ContractorWin.xaml.cs">
       <DependentUpon>ContractorWin.xaml</DependentUpon>
     </Compile>

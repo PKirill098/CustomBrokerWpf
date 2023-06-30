@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class RequestBrandDBM : lib.DBManager<RequestBrand>
+    internal class RequestBrandDBM : lib.DBManager<RequestBrand,RequestBrand>
     {
         internal RequestBrandDBM()
         {
@@ -68,12 +68,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myrequest; }
         }
 
-        protected override void CancelLoad()
-        {
-            abdbm.CancelingLoad = this.CancelingLoad;
-        }
-        protected override RequestBrand CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+        //protected override void CancelLoad()
+        //{
+        //    abdbm.CancelingLoad = this.CancelingLoad;
+        //}
+		protected override RequestBrand CreateRecord(SqlDataReader reader)
+		{
             return new RequestBrand(
                 new AgentBrand(lib.DomainObjectState.Unchanged
                     , myagent
@@ -84,7 +84,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.GetBoolean(this.Fields["selected"])
                 , lib.DomainObjectState.Unchanged
                 );
+		}
+        protected override RequestBrand CreateModel(RequestBrand reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default, System.Func<bool> reading =null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(RequestBrand item)
         {
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 
@@ -47,7 +48,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class GoodsSynonymDBM : lib.DBManager<GoodsSynonym>
+    internal class GoodsSynonymDBM : lib.DBManager<GoodsSynonym,GoodsSynonym>
     {
         internal GoodsSynonymDBM()
         {
@@ -90,11 +91,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override GoodsSynonym CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override GoodsSynonym CreateRecord(SqlDataReader reader)
         {
             return new GoodsSynonym(reader.GetInt32(0), mymapping, reader.GetString(1), lib.DomainObjectState.Unchanged);
         }
-        protected override void GetOutputParametersValue(GoodsSynonym item)
+		protected override GoodsSynonym CreateModel(GoodsSynonym record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(GoodsSynonym item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
             {
@@ -124,8 +137,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[0].Value = item.Name;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class GoodsSynonymVM : lib.ViewModelErrorNotifyItem<GoodsSynonym>

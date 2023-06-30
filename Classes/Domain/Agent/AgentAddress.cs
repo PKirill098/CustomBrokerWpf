@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
@@ -24,7 +25,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AgentAddressDBM : lib.DBManager<AgentAddress>
+    public class AgentAddressDBM : lib.DBManager<AgentAddress,AgentAddress>
     {
         public AgentAddressDBM()
         {
@@ -71,7 +72,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myagent; }
         }
 
-        protected override AgentAddress CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override AgentAddress CreateRecord(SqlDataReader reader)
         {
             Agent agent;
             System.Collections.Generic.List<lib.DBMError> errors;
@@ -90,7 +91,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(4) ? null : reader.GetString(4)
                 , reader.IsDBNull(5) ? null : reader.GetString(5));
         }
-        protected override void ItemAcceptChanches(AgentAddress item)
+		protected override AgentAddress CreateModel(AgentAddress record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default, System.Func<bool> reading =null)
+		{
+			return true;
+		}
+		protected override void ItemAcceptChanches(AgentAddress item)
         {
             item.AcceptChanches();
         }
@@ -110,18 +123,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             SelectParams[0].Value = myagent?.Id;
         }
-        protected override void CancelLoad()
-        { }
         protected override bool SetParametersValue(AgentAddress item)
         {
             bool success = true;
-            //if (item.AddressTypeID == 0)
-            //{
-            //    this.Errors.Add(new lib.DBMError(item, "Не указан вид адреса!", ""));
-            //    success = false;
-            //}
-            //else
-            //{
                 myupdateparams[0].Value = item.Id;
                 myupdateparams[1].Value = item.HasPropertyOutdatedValue("AddressDescription");
                 myupdateparams[2].Value = item.HasPropertyOutdatedValue("Locality");
@@ -132,7 +136,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 myinsertupdateparams[2].Value = item.AddressDescription;
                 myinsertupdateparams[3].Value = item.Locality;
                 myinsertupdateparams[4].Value = item.Town;
-            //}
             return success;
         }
         protected override void GetOutputParametersValue(AgentAddress item)

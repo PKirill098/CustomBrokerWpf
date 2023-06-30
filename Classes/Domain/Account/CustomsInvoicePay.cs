@@ -181,7 +181,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class CustomsInvoicePayDBM : lib.DBManagerWhoWhen<CustomsInvoicePay>
+    public class CustomsInvoicePayDBM : lib.DBManagerWhoWhen<CustomsInvoicePay,CustomsInvoicePay>
     {
         public CustomsInvoicePayDBM()
         {
@@ -215,19 +215,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private CustomsInvoice myinvoice;
         internal CustomsInvoice Invoice { set { myinvoice = value; } get { return myinvoice; } }
         internal IValidator Validator { set; get; }
-
-        protected override CustomsInvoicePay CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override CustomsInvoicePay CreateRecord(SqlDataReader reader)
+		{
             return new CustomsInvoicePay(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp"))
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , lib.DomainObjectState.Unchanged
                 , myinvoice, reader.GetDateTime(reader.GetOrdinal("pdate")), reader.GetDecimal(reader.GetOrdinal("psum"))
                 ,this.Validator);
-        }
-        protected override void GetOutputSpecificParametersValue(CustomsInvoicePay item)
+		}
+		protected override CustomsInvoicePay CreateModel(CustomsInvoicePay reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+			return reader;
         }
-        protected override void CancelLoad()
+        protected override void GetRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+            this.ModelFirst=CreateModel(CreateRecord(reader),addcon,canceltasktoken);
+        }
+        protected override CustomsInvoicePay GetModel(SqlConnection addcon, System.Threading.CancellationToken canceltasktoken)
+        {
+            return this.ModelFirst;
+        }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(CustomsInvoicePay item)
         {
         }
         protected override bool SaveChildObjects(CustomsInvoicePay item)

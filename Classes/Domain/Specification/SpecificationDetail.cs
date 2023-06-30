@@ -14,6 +14,40 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 {
+    public struct SpecificationDetailRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int? amount;
+        internal string branch;
+        internal string brand;
+        internal string cellnumber;
+        internal string certificate;
+        internal int customerlegal;
+        internal string contexture;
+        internal decimal? cost;
+        internal string countryru;
+        internal string countryen;
+        internal string clientuser;
+        internal string description;
+        internal string descriptionaccount;
+        internal string gender;
+        internal decimal? grossweight;
+        internal decimal? netweight;
+        internal string name;
+        internal string note;
+        internal string packing;
+        internal decimal? price;
+        internal string producer;
+        internal int? request;
+        internal int roworder;
+        internal string sizeen;
+        internal string sizeru;
+        internal int? specification;
+        internal string tnved;
+        internal string vendorcode;
+    }
+
     public class SpecificationDetail : lib.DomainBaseStamp
     {
         private SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
@@ -265,7 +299,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class SpecificationDetailDBM : lib.DBManagerStamp<SpecificationDetail>
+    public class SpecificationDetailDBM : lib.DBManagerStamp<SpecificationDetailRecord,SpecificationDetail>
     {
         public SpecificationDetailDBM()
         {
@@ -346,37 +380,72 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         { set { myspec = value; } get { return myspec; } }
         public lib.SQLFilter.SQLFilter Filter { set; get; }
 
-        protected override SpecificationDetail CreateItem(SqlDataReader reader,SqlConnection addcon)
+		protected override SpecificationDetailRecord CreateRecord(SqlDataReader reader)
+		{
+			return new SpecificationDetailRecord()
+            {
+                id = reader.GetInt32(0), stamp = reader.GetInt64(this.Fields["stamp"])
+                , amount = reader.IsDBNull(this.Fields["amount"]) ? (int?)null : reader.GetInt32(this.Fields["amount"])
+                , branch = reader.IsDBNull(this.Fields["branch"]) ? null : reader.GetString(this.Fields["branch"])
+                , brand = reader.IsDBNull(this.Fields["brand"]) ? null : reader.GetString(this.Fields["brand"])
+                , cellnumber = reader.IsDBNull(this.Fields["cellnumber"]) ? null : reader.GetString(this.Fields["cellnumber"])
+                , certificate = reader.IsDBNull(this.Fields["certificate"]) ? null : reader.GetString(this.Fields["certificate"])
+                , customerlegal = reader.IsDBNull(this.Fields["customerid"]) ? 0 : reader.GetInt32(this.Fields["customerid"])
+                , contexture = reader.IsDBNull(this.Fields["contexture"]) ? null : reader.GetString(this.Fields["contexture"])
+                , cost = reader.IsDBNull(this.Fields["cost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cost"])
+                , countryru = reader.IsDBNull(this.Fields["countryru"]) ? null : reader.GetString(this.Fields["countryru"])
+                , countryen = reader.IsDBNull(this.Fields["countryen"]) ? null : reader.GetString(this.Fields["countryen"])
+                , clientuser = reader.IsDBNull(this.Fields["customer"]) ? null : reader.GetString(this.Fields["customer"])
+                , description = reader.IsDBNull(this.Fields["description"]) ? null : reader.GetString(this.Fields["description"])
+                , descriptionaccount = reader.IsDBNull(this.Fields["descriptionaccount"]) ? null : reader.GetString(this.Fields["descriptionaccount"])
+                , gender = reader.IsDBNull(this.Fields["gender"]) ? null : reader.GetString(this.Fields["gender"])
+                , grossweight = reader.IsDBNull(this.Fields["grossweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["grossweight"])
+                , netweight = reader.IsDBNull(this.Fields["netweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["netweight"])
+                , name = reader.IsDBNull(this.Fields["name"]) ? null : reader.GetString(this.Fields["name"])
+                , note = reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
+                , packing = reader.IsDBNull(this.Fields["packing"]) ? null : reader.GetString(this.Fields["packing"])
+                , price = reader.IsDBNull(this.Fields["price"]) ? (decimal?)null : reader.GetDecimal(this.Fields["price"])
+                , producer = reader.IsDBNull(this.Fields["producer"]) ? null : reader.GetString(this.Fields["producer"])
+                , request = reader.IsDBNull(this.Fields["request"]) ? (int?)null : reader.GetInt32(this.Fields["request"])
+                , roworder = reader.GetInt32(this.Fields["roworder"])
+                , sizeen = reader.IsDBNull(this.Fields["sizeen"]) ? null : reader.GetString(this.Fields["sizeen"])
+                , sizeru = reader.IsDBNull(this.Fields["sizeru"]) ? null : reader.GetString(this.Fields["sizeru"])
+                , specification = reader.IsDBNull(this.Fields["specificationid"]) ? (int?)null : reader.GetInt32(this.Fields["specificationid"])
+                , tnved = reader.IsDBNull(this.Fields["tnved"]) ? null : reader.GetString(this.Fields["tnved"])
+                , vendorcode = reader.IsDBNull(this.Fields["vendorcode"]) ? null : reader.GetString(this.Fields["vendorcode"])
+            };
+		}
+        protected override SpecificationDetail CreateModel(SpecificationDetailRecord record,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
-			return new SpecificationDetail(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
-                , reader.IsDBNull(this.Fields["amount"]) ? (int?)null : reader.GetInt32(this.Fields["amount"])
-                , reader.IsDBNull(this.Fields["branch"]) ? null : reader.GetString(this.Fields["branch"])
-                , reader.IsDBNull(this.Fields["brand"]) ? null : reader.GetString(this.Fields["brand"])
-                , reader.IsDBNull(this.Fields["cellnumber"]) ? null : reader.GetString(this.Fields["cellnumber"])
-                , reader.IsDBNull(this.Fields["certificate"]) ? null : reader.GetString(this.Fields["certificate"])
-                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.IsDBNull(this.Fields["customerid"]) ? 0 : reader.GetInt32(this.Fields["customerid"]), addcon, out _)
-                , reader.IsDBNull(this.Fields["contexture"]) ? null : reader.GetString(this.Fields["contexture"])
-                , reader.IsDBNull(this.Fields["cost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cost"])
-                , reader.IsDBNull(this.Fields["countryru"]) ? null : reader.GetString(this.Fields["countryru"])
-                , reader.IsDBNull(this.Fields["countryen"]) ? null : reader.GetString(this.Fields["countryen"])
-                , reader.IsDBNull(this.Fields["customer"]) ? null : reader.GetString(this.Fields["customer"])
-                , reader.IsDBNull(this.Fields["description"]) ? null : reader.GetString(this.Fields["description"])
-                , reader.IsDBNull(this.Fields["descriptionaccount"]) ? null : reader.GetString(this.Fields["descriptionaccount"])
-                , reader.IsDBNull(this.Fields["gender"]) ? null : reader.GetString(this.Fields["gender"])
-                , reader.IsDBNull(this.Fields["grossweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["grossweight"])
-                , reader.IsDBNull(this.Fields["netweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["netweight"])
-                , reader.IsDBNull(this.Fields["name"]) ? null : reader.GetString(this.Fields["name"])
-                , reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
-                , reader.IsDBNull(this.Fields["packing"]) ? null : reader.GetString(this.Fields["packing"])
-                , reader.IsDBNull(this.Fields["price"]) ? (decimal?)null : reader.GetDecimal(this.Fields["price"])
-                , reader.IsDBNull(this.Fields["producer"]) ? null : reader.GetString(this.Fields["producer"])
-                , reader.IsDBNull(this.Fields["request"]) ? null : CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["request"]), addcon, out _)
-                , reader.GetInt32(this.Fields["roworder"])
-                , reader.IsDBNull(this.Fields["sizeen"]) ? null : reader.GetString(this.Fields["sizeen"])
-                , reader.IsDBNull(this.Fields["sizeru"]) ? null : reader.GetString(this.Fields["sizeru"])
-                , this.Specification ?? (reader.IsDBNull(this.Fields["specificationid"]) ? null : CustomBrokerWpf.References.SpecificationStore.GetItemLoad(reader.GetInt32(this.Fields["specificationid"]), addcon, out _))
-                , reader.IsDBNull(this.Fields["tnved"]) ? null : reader.GetString(this.Fields["tnved"])
-                , reader.IsDBNull(this.Fields["vendorcode"]) ? null : reader.GetString(this.Fields["vendorcode"])
+			return new SpecificationDetail(record.id, record.stamp, lib.DomainObjectState.Unchanged
+                , record.amount
+                , record.branch
+                , record.brand
+                , record.cellnumber
+                , record.certificate
+                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.customerlegal, addcon, out _)
+                , record.contexture
+                , record.cost
+                , record.countryru
+                , record.countryen
+                , record.clientuser
+                , record.description
+                , record.descriptionaccount
+                , record.gender
+                , record.grossweight
+                , record.netweight
+                , record.name
+                , record.note
+                , record.packing
+                , record.price
+                , record.producer
+                , record.request.HasValue ? CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request.Value, addcon, out _) : null
+                , record.roworder
+                , record.sizeen
+                , record.sizeru
+                , this.Specification ?? (record.specification.HasValue ? CustomBrokerWpf.References.SpecificationStore.GetItemLoad(record.specification.Value, addcon, out _) : null)
+                , record.tnved
+                , record.vendorcode
             );
         }
         protected override void GetOutputSpecificParametersValue(SpecificationDetail item)
@@ -576,9 +645,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             if (!(item.Specification.Id > 0)) this.Errors.Add(new lib.DBMError(item, "Спецификация не сохранена", "specnew"));
             return item.Specification.Id > 0;
-        }
-        protected override void CancelLoad()
-        {
         }
     }
 

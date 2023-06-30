@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -49,7 +50,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class AliasDBM : lib.DBManagerId<Alias>
+    public class AliasDBM : lib.DBManagerId<Alias, Alias>
     {
         public AliasDBM()
         {
@@ -78,11 +79,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams = new SqlParameter[] { parid };
         }
 
-        protected override Alias CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Alias CreateRecord(SqlDataReader reader)
         {
-           return new Alias(reader.GetInt32(0),lib.DomainObjectState.Unchanged, reader.GetInt32(1), reader.IsDBNull(2)?null:reader.GetString(2));
+			return new Alias(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.GetInt32(1), reader.IsDBNull(2) ? null : reader.GetString(2));
         }
-        protected override void GetOutputParametersValue(Alias item)
+		protected override Alias CreateModel(Alias record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader),addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(Alias item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
                 item.Id = (int)myinsertparams[0].Value;
@@ -110,8 +123,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AliasVM:lib.ViewModelErrorNotifyItem<Alias>

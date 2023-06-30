@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -139,7 +140,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ContactPointDBM : lib.DBManagerId<ContactPoint>
+    public class ContactPointDBM : lib.DBManagerId<ContactPoint, ContactPoint>
     {
         public ContactPointDBM()
         {
@@ -168,13 +169,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams = new SqlParameter[] { parid };
         }
 
-        protected override ContactPoint CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override ContactPoint CreateRecord(SqlDataReader reader)
         {
             return new ContactPoint(reader.GetInt32(0), lib.DomainObjectState.Unchanged,
                 reader.IsDBNull(1) ? null : reader.GetString(1),
                 reader.GetString(2));
         }
-        protected override void GetOutputParametersValue(ContactPoint item)
+		protected override ContactPoint CreateModel(ContactPoint record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(ContactPoint item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
                 item.Id = (int)myinsertparams[0].Value;
@@ -203,8 +216,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class ContactPointVM : lib.ViewModelErrorNotifyItem<ContactPoint>

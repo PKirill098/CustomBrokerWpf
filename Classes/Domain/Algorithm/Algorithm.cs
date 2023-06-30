@@ -53,7 +53,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    public class AlgorithmDBM : lib.DBManagerId<Algorithm>
+    public class AlgorithmDBM : lib.DBManagerId<Algorithm,Algorithm>
     {
         public AlgorithmDBM()
         {
@@ -91,10 +91,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
         }
 
-        protected override Algorithm CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Algorithm CreateRecord(SqlDataReader reader)
+		{
             return new Algorithm(reader.GetInt32(0), lib.DomainObjectState.Unchanged, reader.GetString(1), reader.GetByte(2));
+		}
+        protected override Algorithm CreateModel(Algorithm reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(Algorithm item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -128,8 +140,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        {  }
     }
 
     public class AlgorithmWeightDBM : lib.DBMExec

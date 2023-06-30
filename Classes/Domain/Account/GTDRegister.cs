@@ -12,13 +12,47 @@ using KirillPolyanskiy.CustomBrokerWpf.Classes.Specification;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
-using Microsoft.Win32;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
-using System.Windows.Navigation;
+using System.Threading;
+using System.Windows;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
-    public class GTDRegister : lib.DomainStampValueChanged
+    public struct GTDRegisterRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal DateTime? updatewhen;
+        internal string updatewho;
+
+        internal int agent;
+        internal int amount;
+        internal int cellnumber;
+        internal decimal clientsumdiff;
+        internal string consolidate;
+        internal decimal cost;
+        internal decimal? ddspidy;
+		internal int? declaration;
+        internal string filepath;
+        internal decimal fondsum;
+        internal decimal grossweight;
+        internal decimal? gtls;
+        internal decimal? gtlscur;
+        internal decimal? gtlsrate;
+		internal int importer;
+        internal decimal? mfk;
+        internal decimal netweight;
+        internal int parcel;
+        internal int? parcelgroup;
+        internal decimal? pari;
+
+		internal int? request;
+        internal int spec;
+        internal string servicetype;
+        internal decimal? westgate;
+	}
+
+	public class GTDRegister : lib.DomainStampValueChanged
     {
         public GTDRegister(int id, long stamp, DateTime? updatewhen, string updatewho, lib.DomainObjectState state
             , Specification.Specification spec, string servicetype
@@ -56,10 +90,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return (this.SellingWithoutRate ?? 0) > 0M ? this.CostTotal / this.SellingWithoutRate : null; } }
         public decimal? CostTotal
         { get { return this.Specification.Declaration.Fee + this.Specification.Declaration.Tax + this.CC + this.CostLogistics; } }
+        public decimal? DifProfitIncomeAlg
+        { get { return this.Profit - this.IncomeAlg; } }
         public decimal? DTSum
         { get { return myclients.Sum((GTDRegisterClient item) => { return item.DTSum ?? 0M; }); } }
         public decimal? DTSumRub
         { get { return myspec.Declaration?.CBRate * myspec.Declaration?.TotalSum; } }
+        public decimal? IncomeAlg
+        { get { return myclients.Sum((GTDRegisterClient item) => { return item.IncomeAlg; }); } }
         private List<Manager> mymanagers;
         public List<Manager> Managers
         { 
@@ -101,7 +139,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
         public decimal? Profit
-        { get { return this.SellingWithoutRate - (myservicetype == "ТД" ? this.CostTotal : this.CostLogistics); } }
+        { get { return this.SellingWithoutRate - (myservicetype == "ТД" ? (this.CostTotal??0M) : this.CostLogistics); } }
         public decimal? Profitability
         { get { return this.Profit.HasValue && (this.SellingWithoutRate??0M) != 0M ? decimal.Divide(this.Profit.Value, this.SellingWithoutRate.Value) : (decimal?)null; } }
         public decimal? ProfitAlgE
@@ -382,7 +420,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class GTDRegisterStore : lib.DomainStorageLoad<GTDRegister, GTDRegisterDBM>
+    internal class GTDRegisterStore : lib.DomainStorageLoad<GTDRegisterRecord,GTDRegister, GTDRegisterDBM>
     {
         public GTDRegisterStore(GTDRegisterDBM dbm) : base(dbm) { }
 
@@ -392,7 +430,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class GTDRegisterDBM : lib.DBManagerStamp<GTDRegister>
+    public class GTDRegisterDBM : lib.DBManagerStamp<GTDRegisterRecord,GTDRegister>
     {
         public GTDRegisterDBM()
         {
@@ -453,63 +491,86 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set { mycdbm = value; mycdbm.Command.CommandTimeout = 10000; } get { return mycdbm; } }
         private ParcelDBM mypldbm;
 
-        protected override GTDRegister CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override GTDRegisterRecord CreateRecord(SqlDataReader reader)
+        {
+            return new GTDRegisterRecord()
+            {
+                id = reader.GetInt32(0), stamp = reader.GetInt64(this.Fields["stamp"])
+                , agent = reader.GetInt32(this.Fields["agentid"])
+                , consolidate = reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                , declaration = reader.IsDBNull(this.Fields["declarationid"]) ? (int?)null : reader.GetInt32(this.Fields["declarationid"])
+                , filepath = reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
+                , importer = reader.GetInt32(this.Fields["importerid"])
+                , parcel = reader.GetInt32(this.Fields["parcelid"])
+                , parcelgroup = reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                , request = reader.IsDBNull(this.Fields["requestid"]) ? (int?)null : reader.GetInt32(this.Fields["requestid"])
+                , pari = reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
+                , gtls = reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
+                , gtlscur = reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
+                , gtlsrate = reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
+                , ddspidy = reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
+                , westgate = reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
+                , mfk = reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
+                , amount = reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
+                , cellnumber = reader.IsDBNull(this.Fields["cellnumber"]) ? 0 : (int)reader.GetDecimal(this.Fields["cellnumber"])
+                , clientsumdiff = reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
+                , cost = reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
+                , fondsum = reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
+                , grossweight = reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
+                , netweight = reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
+            };
+        }
+        protected override GTDRegister CreateModel(GTDRegisterRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
             List<lib.DBMError> errors;
-            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(this.Fields["agentid"]), addcon, out errors);
+            Agent agent = CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out errors);
             this.Errors.AddRange(errors);
             Declaration declaration = null;
-            if (!reader.IsDBNull(this.Fields["declarationid"]))
+            if (record.declaration.HasValue)
             {
                 mytddbm.Errors.Clear();
                 mytddbm.Command.Connection = addcon;
-                mytddbm.ItemId = reader.GetInt32(this.Fields["declarationid"]);
+                mytddbm.ItemId = record.declaration.Value;
                 declaration = mytddbm.GetFirst();
             }
             errors.Clear();
-            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(reader.GetInt32(this.Fields["parcelid"]), addcon, out errors);
+            Parcel parcel = CustomBrokerWpf.References.ParcelStore.GetItemLoad(record.parcel, addcon, out errors);
             this.Errors.AddRange(errors);
             Request request = null;
-            if (!reader.IsDBNull(this.Fields["requestid"]))
+            if (record.request.HasValue)
             {
                 errors.Clear();
-                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors);
+                request = CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request.Value, addcon, out errors);
                 this.Errors.AddRange(errors);
             }
 
-            Specification.Specification spec = new Specification.Specification(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
+            Specification.Specification spec = new Specification.Specification(record.id, record.stamp, lib.DomainObjectState.Unchanged
                 , agent
-                , reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
+                , record.consolidate
                 , declaration
-                , reader.IsDBNull(this.Fields["filepath"]) ? null : reader.GetString(this.Fields["filepath"])
-                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", reader.GetInt32(this.Fields["importerid"]))
+                , record.filepath
+                , CustomBrokerWpf.References.Importers.FindFirstItem("Id", record.importer)
                 , parcel
-                , reader.IsDBNull(this.Fields["parcelgroup"]) ? (int?)null : reader.GetInt32(this.Fields["parcelgroup"])
+                , record.parcelgroup
                 , request
-                , reader.IsDBNull(this.Fields["pari"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["pari"])
-                , reader.IsDBNull(this.Fields["gtls"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtls"])
-                , reader.IsDBNull(this.Fields["gtlscur"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlscur"])
-                , reader.IsDBNull(this.Fields["gtlsrate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["gtlsrate"])
-                , reader.IsDBNull(this.Fields["ddspidy"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["ddspidy"])
-                , reader.IsDBNull(this.Fields["westgate"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["westgate"])
-                , reader.IsDBNull(this.Fields["mfk"]) ? (decimal?)null : (decimal)reader.GetDecimal(this.Fields["mfk"])
-                , reader.IsDBNull(this.Fields["amount"]) ? 0 : reader.GetInt32(this.Fields["amount"])
-                , reader.IsDBNull(this.Fields["cellnumber"]) ? 0 : (int)reader.GetDecimal(this.Fields["cellnumber"])
-                , reader.IsDBNull(this.Fields["clientsumdiff"]) ? 0M : reader.GetDecimal(this.Fields["clientsumdiff"])
-                , reader.IsDBNull(this.Fields["cost"]) ? 0M : reader.GetDecimal(this.Fields["cost"])
-                , reader.IsDBNull(this.Fields["fondsum"]) ? 0M : reader.GetDecimal(this.Fields["fondsum"])
-                , reader.IsDBNull(this.Fields["grossweight"]) ? 0M : reader.GetDecimal(this.Fields["grossweight"])
-                , reader.IsDBNull(this.Fields["netweight"]) ? 0M : reader.GetDecimal(this.Fields["netweight"])
+                , record.pari
+                , record.gtls
+                , record.gtlscur
+                , record.gtlsrate
+                , record.ddspidy
+                , record.westgate
+                , record.mfk
+                , record.amount
+                , record.cellnumber
+                , record.clientsumdiff
+                , record.cost
+                , record.fondsum
+                , record.grossweight
+                , record.netweight
                 );
             spec = CustomBrokerWpf.References.SpecificationStore.UpdateItem(spec);
-            //spec.InvoiceDTRates.Clear();
-            //myratedbm.Specification = spec;
-            //myratedbm.Command.Connection = addcon;
-            //myratedbm.Load();
-            //if (myratedbm.Errors.Count > 0) foreach (lib.DBMError err in myratedbm.Errors) this.Errors.Add(err);
             GTDRegister gtd = new GTDRegister(spec.Id, spec.Stamp, spec.UpdateWhen, spec.UpdateWho, spec.DomainState, spec, myservicetype, true);
-            //foreach (GTDRegisterClient client in gtd.Clients) client.Unbind();
-            if (!this.CancelingLoad & mycdbm != null)
+            if (!canceltasktoken.IsCancellationRequested & mycdbm != null)
             {
                 mycdbm.Errors.Clear();
                 mycdbm.Command.Connection = addcon;
@@ -517,7 +578,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 mycdbm.Collection = gtd.Clients;
                 foreach (GTDRegisterClient item in gtd.Clients)
                     item.PropertyChanged -= gtd.Client_PropertyChanged;
-                if (!this.CancelingLoad) mycdbm.Fill();
+                if (!canceltasktoken.IsCancellationRequested) mycdbm.Fill();
                 foreach (GTDRegisterClient item in gtd.Clients)
                     item.PropertyChanged += gtd.Client_PropertyChanged;
                 mycdbm.Collection = null;
@@ -641,14 +702,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             return true;
         }
-        protected override void CancelLoad()
-        {
-            if(mycdbm!=null) mycdbm.CancelingLoad = this.CancelingLoad;
-            mypldbm.CancelingLoad = this.CancelingLoad;
-            mysdbm.CancelingLoad = this.CancelingLoad;
-            mytddbm.CancelingLoad = this.CancelingLoad;
-            myratedbm.CancelingLoad = this.CancelingLoad;
-        }
+        //protected override void CancelLoad()
+        //{
+        //    if(mycdbm!=null) mycdbm.CancelingLoad = this.CancelingLoad;
+        //    mypldbm.CancelingLoad = this.CancelingLoad;
+        //    mysdbm.CancelingLoad = this.CancelingLoad;
+        //    mytddbm.CancelingLoad = this.CancelingLoad;
+        //    myratedbm.CancelingLoad = this.CancelingLoad;
+        //}
     }
 
     public class GTDRegisterVM : lib.ViewModelErrorNotifyItem<GTDRegister>, ITotalValuesItem
@@ -674,10 +735,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { get { return this.DomainObject.CostPer; } }
         public decimal? CostTotal
         { get { return this.DomainObject.CostTotal; } }
+        public decimal? DifProfitIncomeAlg
+        { get { return this.IsEnabled ? this.DomainObject.DifProfitIncomeAlg : (decimal?)null; } }
         public decimal? DTSum
         { get { return this.DomainObject.DTSum; } }
         public decimal? DTSumRub
         { get { return this.DomainObject.DTSumRub; } }
+        public decimal? IncomeAlg
+        { get { return this.IsEnabled ? this.DomainObject.IncomeAlg : (decimal?)null; } }
         private string mymanagers;
         public string Managers
 		{
@@ -950,6 +1015,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mydeclarationnumberfilter.DeferredFill = true;
             mydeclarationnumberfilter.ExecCommand1 = () => { FilterRunExec(null); };
             mydeclarationnumberfilter.ExecCommand2 = () => { mydeclarationnumberfilter.Clear(); };
+            mydifprofitincomealgfilter = new libui.NumberFilterVM();
+            mydifprofitincomealgfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            mydifprofitincomealgfilter.ExecCommand2 = () => { mydtratefilter.Clear(); };
             mydtratefilter = new libui.NumberFilterVM();
             mydtratefilter.ExecCommand1 = () => { FilterRunExec(null); };
             mydtratefilter.ExecCommand2 = () => { mydtratefilter.Clear(); };
@@ -971,6 +1039,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mygtlsratefilter = new libui.NumberFilterVM();
             mygtlsratefilter.ExecCommand1 = () => { FilterRunExec(null); };
             mygtlsratefilter.ExecCommand2 = () => { mygtlsratefilter.Clear(); };
+            myincomealgfilter = new libui.NumberFilterVM();
+            myincomealgfilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myincomealgfilter.ExecCommand2 = () => { mymarkupalgfilter.Clear(); };
             mymarkupalgfilter = new libui.NumberFilterVM();
             mymarkupalgfilter.ExecCommand1 = () => { FilterRunExec(null); };
             mymarkupalgfilter.ExecCommand2 = () => { mymarkupalgfilter.Clear(); };
@@ -1094,6 +1165,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private GTDRegisterTotal mytotal;
         public GTDRegisterTotal Total { get { return mytotal; } }
 
+        public Visibility TDVisible
+        { get { return this.ServiceType == "ТД" ? Visibility.Visible : Visibility.Collapsed; } }
+
         #region Filter
         private lib.SQLFilter.SQLFilter myfilter;
         internal lib.SQLFilter.SQLFilter Filter
@@ -1123,6 +1197,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private GTDRegisterDeclarationNumberCheckListBoxVMFill mydeclarationnumberfilter;
         public GTDRegisterDeclarationNumberCheckListBoxVMFill DeclarationNumberFilter
         { get { return mydeclarationnumberfilter; } }
+        private libui.NumberFilterVM mydifprofitincomealgfilter;
+        public libui.NumberFilterVM DifProfitIncomeAlgFilter
+        { get { return mydifprofitincomealgfilter; } }
         private libui.NumberFilterVM mydtratefilter;
         public libui.NumberFilterVM DTRateFilter
         { get { return mydtratefilter; } }
@@ -1144,6 +1221,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private libui.NumberFilterVM mygtlsratefilter;
         public libui.NumberFilterVM GTLSRateFilter
         { get { return mygtlsratefilter; } }
+        private libui.NumberFilterVM myincomealgfilter;
+        public libui.NumberFilterVM IncomeAlgFilter
+        { get { return myincomealgfilter; } }
         private libui.NumberFilterVM mymarkupalgfilter;
         public libui.NumberFilterVM MarkupAlgFilter
         { get { return mymarkupalgfilter; } }
@@ -2102,6 +2182,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myparcelfilter.ItemsSource = myview.OfType<GTDRegisterVM>();
 
             mytotal = new GTDRegisterTotal(myview, mymaindbm.ServiceType);
+            
             this.PropertyChangedNotification(nameof(Total));
             this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
         }
@@ -2201,6 +2282,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         //public decimal EuroSum { set { myeurosum = value; } get { return myeurosum; } }
         private decimal myddspidy;
         public decimal DDSpidy { set { myddspidy = value; } get { return myddspidy; } }
+        public decimal DifProfitIncomeAlg { get { return myservicetype == "ТД" ? this.Profit - this.IncomeAlg : 0M; } }
         private decimal mydtsum;
         public decimal DTSum { set { mydtsum = value; } get { return mydtsum; } }
         private decimal mydtsumrub;
@@ -2211,6 +2293,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal GTLS { set { mygtls = value; } get { return mygtls; } }
         private decimal mygtlscur;
         public decimal GTLSCur { set { mygtlscur = value; } get { return mygtlscur; } }
+        private decimal myincomealg;
+        public decimal IncomeAlg { set { myincomealg = value; } get { return myincomealg; } }
         private decimal mymfk;
         public decimal MFK { set { mymfk = value; } get { return mymfk; } }
         public decimal MFKRate { get { return mymfk * 20M / 120M; } }
@@ -2252,6 +2336,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     mycc += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.CC));
                     PropertyChangedNotification(nameof(this.CostTotal));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     break;
@@ -2260,6 +2345,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.DDSpidy));
                     PropertyChangedNotification(nameof(this.CostLogistics));
                     PropertyChangedNotification(nameof(this.CostTotal));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     break;
@@ -2279,6 +2365,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.CostTotal));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.GTLS):
                     mygtls += newvalue - oldvalue;
@@ -2287,10 +2374,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.CostTotal));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.GTLSCur):
                     mygtlscur += newvalue - oldvalue;
                     PropertyChangedNotification(nameof(this.GTLSCur));
+                    break;
+                case "Total" + nameof(GTDRegisterClientVM.IncomeAlg):
+                    myincomealg += myservicetype == "ТД" ? newvalue - oldvalue : 0M;
+                    PropertyChangedNotification(nameof(this.IncomeAlg));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.MFK):
                     mymfk += newvalue - oldvalue;
@@ -2302,6 +2395,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     PropertyChangedNotification(nameof(this.VATPay));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.Pari):
                     mypari += newvalue - oldvalue;
@@ -2310,6 +2404,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.CostTotal));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.ProfitAlgE):
                     myprofitalge += myservicetype == "ТД" ? newvalue - oldvalue : 0M;
@@ -2331,12 +2426,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.Selling) when myservicetype == "ТД":
                     myselling += newvalue - oldvalue;
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     PropertyChangedNotification(nameof(this.Selling));
                     PropertyChangedNotification(nameof(this.SellingRate));
                     PropertyChangedNotification(nameof(this.SellingWithoutRate));
                     PropertyChangedNotification(nameof(this.VATPay));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.SL):
                     mysl += newvalue - oldvalue;
@@ -2348,6 +2445,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     PropertyChangedNotification(nameof(this.VATPay));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.Tax):
                     mytax += newvalue - oldvalue;
@@ -2355,6 +2453,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.CostTotal));
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
                 case "Total" + nameof(GTDRegisterClientTotal.Vat):
                     myvat += newvalue - oldvalue;
@@ -2375,6 +2474,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     PropertyChangedNotification(nameof(this.Profit));
                     PropertyChangedNotification(nameof(this.ProfitDiff));
                     PropertyChangedNotification(nameof(this.VATPay));
+                    PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
                     break;
             }
         }
@@ -2389,6 +2489,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee = 0M;
             mygtls = 0M;
             mygtlscur = 0M;
+            myincomealg = 0M;
             mymfk = 0M;
             mypari = 0M;
             myprofitalge = 0M;
@@ -2410,6 +2511,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee += item.ClientTotal.Fee;
             mygtls += item.ClientTotal.GTLS;
             mygtlscur += item.ClientTotal.GTLSCur;
+            myincomealg += item.IncomeAlg ?? 0M;
             mymfk += item.ClientTotal.MFK;
             //myeurosum += item.ClientTotal.EuroSum;
             mypari += item.ClientTotal.Pari;
@@ -2432,6 +2534,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfee -= item.ClientTotal.Fee;
             mygtls -= item.ClientTotal.GTLS;
             mygtlscur -= item.ClientTotal.GTLSCur;
+            myincomealg -= item.IncomeAlg ?? 0M;
             mymfk -= item.ClientTotal.MFK;
             //myeurosum -= item.ClientTotal.EuroSum;
             mypari -= item.ClientTotal.Pari;
@@ -2451,11 +2554,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             this.PropertyChangedNotification(nameof(this.CostLogistics));
             this.PropertyChangedNotification(nameof(this.CostTotal));
             this.PropertyChangedNotification(nameof(this.DDSpidy));
+            this.PropertyChangedNotification(nameof(this.DifProfitIncomeAlg));
             this.PropertyChangedNotification(nameof(this.DTSum));
             this.PropertyChangedNotification(nameof(this.DTSumRub));
             this.PropertyChangedNotification(nameof(this.Fee));
             this.PropertyChangedNotification(nameof(this.GTLS));
             this.PropertyChangedNotification(nameof(this.GTLSCur));
+            this.PropertyChangedNotification(nameof(this.IncomeAlg));
             this.PropertyChangedNotification(nameof(this.MFK));
             this.PropertyChangedNotification(nameof(this.MFKRate));
             this.PropertyChangedNotification(nameof(this.MFKWithoutRate));

@@ -11,9 +11,24 @@ using libui = KirillPolyanskiy.WpfControlLibrary;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Linq;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
+    public struct DeliveryCarryRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int request;
+        internal int? car1;
+        internal int? car2;
+        internal int? car3;
+        internal string address;
+        internal string note;
+        internal DateTime? shipmentdate;
+        internal int? shipmenttype;
+     }
+
     public class DeliveryCarry : lib.DomainBaseStamp
     {
         public DeliveryCarry(int id, long stamp, lib.DomainObjectState domainstate
@@ -128,7 +143,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { PropertyChangedNotification("Car" + n + "Cost"); PropertyChangedNotification("TotalCost"); }
     }
 
-    internal class DeliveryCarryStore : lib.DomainStorageLoad<DeliveryCarry, DeliveryCarryDBM>
+    internal class DeliveryCarryStore : lib.DomainStorageLoad<DeliveryCarryRecord,DeliveryCarry, DeliveryCarryDBM>
     {
         public DeliveryCarryStore(DeliveryCarryDBM dbm) : base(dbm) { }
 
@@ -138,7 +153,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class DeliveryCarryDBM : lib.DBManagerStamp<DeliveryCarry>
+    public class DeliveryCarryDBM : lib.DBManagerStamp<DeliveryCarryRecord,DeliveryCarry>
     {
         public DeliveryCarryDBM()
         {
@@ -194,17 +209,33 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             set { myfilter = value; }
         }
 
-        protected override DeliveryCarry CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override DeliveryCarryRecord CreateRecord(SqlDataReader reader)
         {
-            DeliveryCarry newitem = new DeliveryCarry(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
-                , CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestId")), addcon, out _)
-                , reader.IsDBNull(reader.GetOrdinal("c1")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c1")), addcon, out _)
-                , reader.IsDBNull(reader.GetOrdinal("c2")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c2")), addcon, out _)
-                , reader.IsDBNull(reader.GetOrdinal("c3")) ? null : CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("c3")), addcon, out _)
-                , reader.IsDBNull(reader.GetOrdinal("address")) ? null : reader.GetString(reader.GetOrdinal("address"))
-                , reader.IsDBNull(reader.GetOrdinal("note")) ? null : reader.GetString(reader.GetOrdinal("note"))
-                , reader.IsDBNull(reader.GetOrdinal("shipmentdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipmentdate"))
-                , reader.IsDBNull(reader.GetOrdinal("shipmenttype")) ? null : CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", reader.GetInt32(reader.GetOrdinal("shipmenttype"))));
+            return new DeliveryCarryRecord()
+            {
+                id=reader.GetInt32(0), stamp=reader.GetInt64(1)
+                , request=reader.GetInt32(reader.GetOrdinal("requestId"))
+                , car1=reader.IsDBNull(reader.GetOrdinal("c1")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("c1"))
+                , car2=reader.IsDBNull(reader.GetOrdinal("c2")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("c2"))
+                , car3=reader.IsDBNull(reader.GetOrdinal("c3")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("c3"))
+                , address=reader.IsDBNull(reader.GetOrdinal("address")) ? null : reader.GetString(reader.GetOrdinal("address"))
+                , note=reader.IsDBNull(reader.GetOrdinal("note")) ? null : reader.GetString(reader.GetOrdinal("note"))
+                , shipmentdate=reader.IsDBNull(reader.GetOrdinal("shipmentdate")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("shipmentdate"))
+                , shipmenttype=reader.IsDBNull(reader.GetOrdinal("shipmenttype")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("shipmenttype"))
+            };
+        }
+        protected override DeliveryCarry CreateModel(DeliveryCarryRecord record,SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
+            DeliveryCarry newitem = new DeliveryCarry(record.id, record.stamp, lib.DomainObjectState.Unchanged
+                , CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request, addcon, out _)
+                , record.car1.HasValue ? CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(record.car1.Value, addcon, out _) : null
+                , record.car2.HasValue ? CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(record.car2.Value, addcon, out _) : null
+                , record.car3.HasValue ? CustomBrokerWpf.References.DeliveryCarStore.GetItemLoad(record.car3.Value, addcon, out _) : null
+                , record.address
+                , record.note
+                , record.shipmentdate
+                , record.shipmenttype.HasValue ? CustomBrokerWpf.References.DeliveryTypes.FindFirstItem("Id", record.shipmenttype.Value) : null
+                );
             return CustomBrokerWpf.References.DeliveryCarryStore.UpdateItem(newitem);
         }
         protected override void GetOutputSpecificParametersValue(DeliveryCarry item)
@@ -300,8 +331,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.SelectParams[1].Value = myisall;
             base.SelectParams[2].Value = myfilter?.FilterWhereId;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class DeliveryCarryVM : lib.ViewModelErrorNotifyItem<DeliveryCarry>, lib.Interfaces.ITotalValuesItem
@@ -1510,7 +1539,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal DeliveryCarryVM Carry
         { set { mycarry = value; } get { return mycarry; } }
     }
-    internal class RequestAddressDeliveryDBM : lib.DBMSFill<CustomerAddressSelected>
+    internal class RequestAddressDeliveryDBM : lib.DBMSFill<CustomerAddressSelected, CustomerAddressSelected>
     {
         internal RequestAddressDeliveryDBM(Request request) : base()
         {
@@ -1526,16 +1555,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         private Request myrequest;
 
-        protected override CustomerAddressSelected CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override CustomerAddressSelected CreateRecord(SqlDataReader reader)
+		{
             return new CustomerAddressSelected(reader.GetInt32(2), lib.DomainObjectState.Unchanged, reader.IsDBNull(3) ? null : reader.GetString(3), reader.GetByte(1), reader.GetInt32(0), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5));
+		}
+        protected override CustomerAddressSelected CreateModel(CustomerAddressSelected reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void PrepareFill(SqlConnection addcon)
         {
             myselectparams[0].Value = myrequest.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class DeliveryCarryTotal : lib.TotalValues.TotalViewValues<DeliveryCarryVM>

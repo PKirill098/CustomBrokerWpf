@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -73,7 +74,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class MailTemplateStore : lib.DomainStorageLoad<MailTemplate, MailTemplateDBM>
+    internal class MailTemplateStore : lib.DomainStorageLoad<MailTemplate, MailTemplate, MailTemplateDBM>
     {
         public MailTemplateStore(MailTemplateDBM dbm) : base(dbm) { }
 
@@ -83,7 +84,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class MailTemplateDBM : lib.DBManagerStamp<MailTemplate>
+    public class MailTemplateDBM : lib.DBManagerStamp<MailTemplate,MailTemplate>
     {
         public MailTemplateDBM()
         {
@@ -122,7 +123,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             set { SelectParams[1].Value = value; SelectParams[0].Value = null; }
         }
 
-        protected override MailTemplate CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override MailTemplate CreateRecord(SqlDataReader reader)
         {
             return new MailTemplate(reader.GetInt32(0),reader.GetInt64(1),lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"))
@@ -131,7 +132,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(reader.GetOrdinal("body")) ? null : reader.GetString(reader.GetOrdinal("body"))
                 , reader.IsDBNull(reader.GetOrdinal("parameter1")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("parameter1")));
         }
-        protected override void GetOutputSpecificParametersValue(MailTemplate item)
+		protected override MailTemplate CreateModel(MailTemplate record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(MailTemplate item)
         {
         }
         protected override bool SaveChildObjects(MailTemplate item)
@@ -163,8 +176,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[5].Value = item.Delay;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class MailTemplateVM : lib.ViewModelErrorNotifyItem<MailTemplate>

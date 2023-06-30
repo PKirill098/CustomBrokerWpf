@@ -247,7 +247,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class DeliveryCarDBM : lib.DBManagerStamp<DeliveryCar>
+    public class DeliveryCarDBM : lib.DBManagerStamp<DeliveryCar,DeliveryCar>
     {
         public DeliveryCarDBM()
         {
@@ -302,8 +302,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return (bool)base.SelectParams[1].Value; }
         }
 
-        protected override DeliveryCar CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override DeliveryCar CreateRecord(SqlDataReader reader)
+		{
             DeliveryCar car = new DeliveryCar(
                 reader.GetInt32(0),reader.GetInt64(1),lib.DomainObjectState.Unchanged
                 , reader.GetInt32(reader.GetOrdinal("number"))
@@ -318,7 +318,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.IsDBNull(reader.GetOrdinal("note")) ? null : reader.GetString(reader.GetOrdinal("note"))
                 );
             return CustomBrokerWpf.References.DeliveryCarStore.UpdateItem(car);
+		}
+        protected override DeliveryCar CreateModel(DeliveryCar reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(DeliveryCar item)
         {
             if(item.DomainState==lib.DomainObjectState.Added)
@@ -416,11 +428,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class DeliveryCarStore : lib.DomainStorageLoad<DeliveryCar, DeliveryCarDBM>
+    internal class DeliveryCarStore : lib.DomainStorageLoad<DeliveryCar,DeliveryCar, DeliveryCarDBM>
     {
         public DeliveryCarStore(DeliveryCarDBM dbm) : base(dbm) { }
 

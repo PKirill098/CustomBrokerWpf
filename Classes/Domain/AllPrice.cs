@@ -558,7 +558,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class AllPriceDBM : lib.DBManager<AllPrice>
+    internal class AllPriceDBM : lib.DBManager<AllPrice,AllPrice>
     {
         internal AllPriceDBM()
         {
@@ -614,8 +614,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeletecommandtext = "spec.AllPriceDel_sp";
         }
 
-        protected override AllPrice CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override AllPrice CreateRecord(SqlDataReader reader)
+		{
             return new AllPrice(
                 reader.GetInt32(0),
                 reader.GetString(1),
@@ -647,7 +647,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 reader.GetDateTime(27),
                 reader.IsDBNull(28) ? string.Empty : reader.GetString(28),
                 lib.DomainObjectState.Unchanged);
+		}
+        protected override AllPrice CreateModel(AllPrice reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(AllPrice item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
@@ -712,8 +724,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AllPriceVM : lib.ViewModelErrorNotifyItem<AllPrice>

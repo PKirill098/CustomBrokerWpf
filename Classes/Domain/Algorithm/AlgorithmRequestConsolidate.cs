@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Collections.ObjectModel;
 using System.Windows;
 using KirillPolyanskiy.DataModelClassLibrary;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
 {
@@ -477,7 +478,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    internal class AlgorithmValuesRequestConDBM : lib.DBManagerStamp<AlgorithmValuesRequestCon>
+    internal class AlgorithmValuesRequestConDBM : lib.DBManagerStamp<AlgorithmValuesRequestRecord,AlgorithmValuesRequestCon>
     {
         public AlgorithmValuesRequestConDBM(ObservableCollection<Formula> formulas, AlgorithmConsolidateCommand cmd) : base()
         {
@@ -533,9 +534,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         //{ set { mystorage = value; } }
         private AlgorithmConsolidateCommand mycmd;
 
-        protected override AlgorithmValuesRequestCon CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override AlgorithmValuesRequestRecord CreateRecord(SqlDataReader reader)
+		{
+            AlgorithmValuesRequestRecord item = new AlgorithmValuesRequestRecord()
+            {
+                id = reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0)
+                , stamp = reader.IsDBNull(1) ? 0 : reader.GetInt64(1)
+                , value1 = reader.IsDBNull(reader.GetOrdinal("value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1"))
+                , value2 = reader.IsDBNull(reader.GetOrdinal("value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2"))
+                , value1user = reader.IsDBNull(reader.GetOrdinal("value1user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1user"))
+                , value2user =  reader.IsDBNull(reader.GetOrdinal("value2user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2user"))
+                , afstamp = reader.IsDBNull(reader.GetOrdinal("afstamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("afstamp"))
+            };
+            item.formula.id = reader.GetInt32(reader.GetOrdinal("formulaid"));
+            item.formula.code = reader.GetString(this.Fields["code"]);
+            item.formula.name = reader.GetString(this.Fields["name"]);
+            item.formula.type = reader.GetByte(this.Fields["type"]);
+            item.formula.formula1 = reader.GetString(this.Fields["formula1"]);
+            item.formula.formula2 = reader.GetString(this.Fields["formula2"]);
+            item.formula.ordinal = reader.GetInt32(this.Fields["ordinal"]);
+            return item;
+		}
+        protected override AlgorithmValuesRequestCon CreateModel(AlgorithmValuesRequestRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
-            int frmid = reader.GetInt32(reader.GetOrdinal("formulaid"));
             Formula formula = null;
             //if (mycmd.Parcel.Status.Id < 500)
             //{
@@ -549,22 +570,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             //else
             //{
                 formula = new Formula(
-                    frmid, 0, lib.DomainObjectState.Unchanged
-                    ,reader.GetString(this.Fields["code"])
-                    ,reader.GetString(this.Fields["name"])
-                    ,reader.GetByte(this.Fields["type"])
-                    ,reader.GetString(this.Fields["formula1"])
-                    ,reader.GetString(this.Fields["formula2"])
-                    ,reader.GetInt32(this.Fields["ordinal"]));
+                    record.formula.id, 0, lib.DomainObjectState.Unchanged
+                    ,record.formula.code
+                    ,record.formula.name
+                    ,record.formula.type
+                    ,record.formula.formula1
+                    ,record.formula.formula2
+                    ,record.formula.ordinal);
                 myformulas.Add(formula);
             //}
-            AlgorithmValuesRequestCon newitem = new AlgorithmValuesRequestCon(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), (mycmd.Parcel.Status.Id < 500 ? (reader.IsDBNull(0) ? lib.DomainObjectState.Added : lib.DomainObjectState.Modified) : lib.DomainObjectState.Sealed)
+            AlgorithmValuesRequestCon newitem = new AlgorithmValuesRequestCon(record.id, record.stamp, (mycmd.Parcel.Status.Id < 500 ? (record.id<0 ? lib.DomainObjectState.Added : lib.DomainObjectState.Modified) : lib.DomainObjectState.Sealed)
                 , mycmd.Algorithm, formula
-                , reader.IsDBNull(reader.GetOrdinal("value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1"))
-                , reader.IsDBNull(reader.GetOrdinal("value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2"))
-                , reader.IsDBNull(reader.GetOrdinal("value1user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1user"))
-                , reader.IsDBNull(reader.GetOrdinal("value2user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2user"))
-                , reader.IsDBNull(reader.GetOrdinal("afstamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("afstamp"))
+                , record.value1
+                , record.value2
+                , record.value1user
+                , record.value2user
+                , record.afstamp
                 , mycmd);
             return newitem; //mystorage.UpdateItem(newitem) as AlgorithmValuesRequest
         }
@@ -606,8 +627,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[11].Value = item.AFStamp;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AlgorithmConsolidateTotalDBM : lib.DBMExec
@@ -694,7 +713,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    public class AlgorithmConsolidateAlgorithmDBM : lib.DBManager<Algorithm>
+    public class AlgorithmConsolidateAlgorithmDBM : lib.DBManager<Algorithm,Algorithm>
     {
         public AlgorithmConsolidateAlgorithmDBM(int parcelid, string group)
         {
@@ -727,10 +746,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             this.SelectParams[0].Value = myparcelid; this.SelectParams[1].Value = mygroup;
         }
-        protected override Algorithm CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override Algorithm CreateRecord(SqlDataReader reader)
+		{
             return new Algorithm(0, lib.DomainObjectState.Sealed, reader.GetString(0), 0);
+		}
+        protected override Algorithm CreateModel(Algorithm reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override bool SaveReferenceObjects()
         {
             return true;
@@ -759,11 +790,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             item.AcceptChanches();
         }
-        protected override void CancelLoad()
-        { }
     }
 
-    internal class AlgorithmConsolidatePropertyDBM : lib.DBManagerStamp<AlgorithmConsolidateProperty>
+    internal class AlgorithmConsolidatePropertyDBM : lib.DBManagerStamp<AlgorithmConsolidateProperty, AlgorithmConsolidateProperty>
     {
         private AlgorithmConsolidateCommand mycmd;
         internal AlgorithmConsolidateCommand ConCMD
@@ -847,18 +876,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         break;
                 }
         }
-        protected override AlgorithmConsolidateProperty CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override AlgorithmConsolidateProperty CreateRecord(SqlDataReader reader)
+		{
             return new AlgorithmConsolidateProperty(reader.GetInt32(this.Fields["id"]), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
                 , mycmd
                 , reader.IsDBNull(this.Fields["cbx"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbx"])
                 , reader.IsDBNull(this.Fields["cmr"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cmr"])
                 , reader.IsDBNull(this.Fields["ex1t1"]) ? (decimal?)null : reader.GetDecimal(this.Fields["ex1t1"])
                 );
-        }
-        protected override void CancelLoad()
+		}
+        protected override AlgorithmConsolidateProperty CreateModel(AlgorithmConsolidateProperty reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
     }
 
     public class AlgorithmConsolidateCommand : AlgorithmFormulaCommand

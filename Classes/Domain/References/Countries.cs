@@ -132,7 +132,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         }
     }
 
-    public class CountryDBM : lib.DBManager<Country>
+    public class CountryDBM : lib.DBManager<Country,Country>
     {
         public CountryDBM()
         {
@@ -161,11 +161,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
             this.DeleteParams = new SqlParameter[] { new SqlParameter("@codeold", System.Data.SqlDbType.Int) };
         }
 
-        protected override void CancelLoad()
-        {
-        }
-        protected override Country CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override Country CreateRecord(SqlDataReader reader)
+		{
             return new Country(
                         reader.GetInt32(0),
                         reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
@@ -174,7 +171,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
                         reader.IsDBNull(4) ? null : CustomBrokerWpf.References.PriceCategories.FindFirstItem("Id", reader.GetInt32(4)),
                         reader.GetBoolean(5),
                         lib.DomainObjectState.Unchanged);
+		}
+        protected override Country CreateModel(Country reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputParametersValue(Country item)
         {
         }

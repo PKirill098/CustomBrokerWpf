@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using System.Data.SqlClient;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -90,7 +91,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class PrepayRubPayDBM : lib.DBManagerWhoWhen<PrepayRubPay>
+    internal class PrepayRubPayDBM : lib.DBManagerWhoWhen<PrepayRubPay,PrepayRubPay>
     {
         public PrepayRubPayDBM()
         {
@@ -124,16 +125,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private Prepay myprepay;
         internal Prepay Prepay { set { myprepay = value; } get { return myprepay; } }
 
-        protected override PrepayRubPay CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override PrepayRubPay CreateRecord(SqlDataReader reader)
         {
             return new PrepayRubPay(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , reader.GetDateTime(reader.GetOrdinal("pdate")), myprepay, reader.GetDecimal(reader.GetOrdinal("psum")));
         }
-        protected override void GetOutputSpecificParametersValue(PrepayRubPay item)
-        {
-        }
-        protected override void CancelLoad()
+		protected override PrepayRubPay CreateModel(PrepayRubPay record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(PrepayRubPay item)
         {
         }
         protected override bool SaveChildObjects(PrepayRubPay item)

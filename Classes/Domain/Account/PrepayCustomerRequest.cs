@@ -10,6 +10,25 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
+    public struct PrepayCustomerRequestRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal DateTime? updated;
+        internal string updater;
+        internal decimal? dtsum;
+        internal decimal eurosum;
+        internal DateTime? expirydate;
+        internal decimal initsum;
+        internal string note;
+        internal int prepay;
+        internal int request;
+        internal decimal? selling;
+        internal DateTime? sellingdate;
+        internal decimal sellingrate;
+        internal decimal? prepayrateset;
+        internal decimal? prepayratecalc;
+      }
     public class PrepayCustomerRequest : lib.DomainStampValueChanged
     {
         public PrepayCustomerRequest(int id, long stamp, DateTime? updated, string updater, lib.DomainObjectState mstate
@@ -904,7 +923,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class PrepayCustomerRequestDBM : lib.DBManagerStamp<PrepayCustomerRequest>
+    public class PrepayCustomerRequestDBM : lib.DBManagerStamp<PrepayCustomerRequestRecord,PrepayCustomerRequest>
     {
         public PrepayCustomerRequestDBM()
         {
@@ -977,27 +996,45 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set { myrdbm = value; } get { return myrdbm; } }
         private CustomsInvoiceDBM mycidbm;
 
-        protected override PrepayCustomerRequest CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override PrepayCustomerRequestRecord CreateRecord(SqlDataReader reader)
+        {
+            return new PrepayCustomerRequestRecord()
+            {
+                id = reader.GetInt32(0), stamp = reader.GetInt64(this.Fields["stamp"]), updated = reader.GetDateTime(this.Fields["updated"]), updater = reader.GetString(this.Fields["updater"])
+                , dtsum = reader.IsDBNull(this.Fields["dtsum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtsum"])
+                , eurosum = reader.GetDecimal(this.Fields["eurosum"])
+                , expirydate = reader.IsDBNull(this.Fields["expirydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["expirydate"])
+                , note = reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
+                , prepay = reader.GetInt32(reader.GetOrdinal("prepayid"))
+                , request = reader.GetInt32(reader.GetOrdinal("requestid"))
+                , selling = reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
+                , sellingdate = reader.IsDBNull(this.Fields["sellingdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["sellingdate"])
+                , sellingrate = reader.GetDecimal(this.Fields["sellingrate"])
+                , prepayrateset = reader.IsDBNull(this.Fields["sellingratecorr"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingratecorr"])
+                , prepayratecalc = !this.Fields.ContainsKey("rateselling") || reader.IsDBNull(this.Fields["rateselling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["rateselling"])
+            };
+        }
+        protected override PrepayCustomerRequest CreateModel(PrepayCustomerRequestRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
             PrepayCustomerRequest item, itemold = null;
             if (this.FillType == lib.FillType.PrefExist)
-                itemold = CustomBrokerWpf.References.PrepayRequestStore.GetItem(reader.GetInt32(0));
+                itemold = CustomBrokerWpf.References.PrepayRequestStore.GetItem(record.id);
             if (itemold == null)
             {
                 Prepay prepay;
                 List<lib.DBMError> errors;
-                if (this.CancelingLoad) return null;
+                if (canceltasktoken.IsCancellationRequested) return null;
                 if (mypdbm.FillType == lib.FillType.Refresh)
-                    prepay = CustomBrokerWpf.References.PrepayStore.UpdateItem(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon, out errors);
+                    prepay = CustomBrokerWpf.References.PrepayStore.UpdateItem(record.prepay, addcon, out errors);
                 else
-                    prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon, out errors);
+                    prepay = CustomBrokerWpf.References.PrepayStore.GetItemLoad(record.prepay, addcon, out errors);
                 this.Errors.AddRange(errors);
                 Request request;
-                if (this.CancelingLoad) return null;
+                if (canceltasktoken.IsCancellationRequested) return null;
                 if (this.FillType == lib.FillType.Refresh && myfilter != null)
-                    request = CustomBrokerWpf.References.RequestStore.UpdateItem(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                    request = CustomBrokerWpf.References.RequestStore.UpdateItem(record.request, addcon, out errors);
                 else
-                    request = CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("requestid")), addcon, out errors);
+                    request = CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request, addcon, out errors);
                 if (errors.Count > 0)
                     this.Errors.AddRange(errors);
                 else if(request!=null)
@@ -1011,34 +1048,34 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 RequestCustomerLegal customer = null; ;
                 if (myrequestcustomer != null)
                     customer = myrequestcustomer;
-                else if (!this.CancelingLoad)
+                else if (!canceltasktoken.IsCancellationRequested)
                 {
                     customer = CustomBrokerWpf.References.RequestCustomerLegalStore.GetItemLoad(prepay.Customer, request, addcon, out errors);
                     this.Errors.AddRange(errors);
                 }
 
-                if (this.CancelingLoad) return null;
-                item = new PrepayCustomerRequest(reader.GetInt32(0), reader.GetInt64(this.Fields["stamp"]), reader.GetDateTime(this.Fields["updated"]), reader.GetString(this.Fields["updater"]), lib.DomainObjectState.Unchanged
+                if (canceltasktoken.IsCancellationRequested) return null;
+                item = new PrepayCustomerRequest(record.id, record.stamp, record.updated, record.updater, lib.DomainObjectState.Unchanged
                     , customer
-                    , reader.IsDBNull(this.Fields["dtsum"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtsum"])
-                    , reader.GetDecimal(this.Fields["eurosum"])
-                    , reader.IsDBNull(this.Fields["expirydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["expirydate"])
+                    , record.dtsum
+                    , record.eurosum
+                    , record.expirydate
                     , 0M
-                    , reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
+                    , record.note
                     , prepay
                     , request
-                    , reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
-                    , reader.IsDBNull(this.Fields["sellingdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["sellingdate"])
-                    , reader.GetDecimal(this.Fields["sellingrate"])
-                    , reader.IsDBNull(this.Fields["sellingratecorr"]) ? (decimal?)null : reader.GetDecimal(this.Fields["sellingratecorr"])
-                    , !this.Fields.ContainsKey("rateselling") || reader.IsDBNull(this.Fields["rateselling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["rateselling"])
+                    , record.selling
+                    , record.sellingdate
+                    , record.sellingrate
+                    , record.prepayrateset
+                    , record.prepayratecalc
                     );
 
-                if (this.CancelingLoad) return null;
+                if (canceltasktoken.IsCancellationRequested) return null;
                 itemold = CustomBrokerWpf.References.PrepayRequestStore.UpdateItem(item, this.FillType == lib.FillType.Refresh);
                 if (item.Selling.HasValue) itemold.Selling = item.Selling;
                 if (item.SellingRateCalc.HasValue) itemold.SellingRateCalc = item.SellingRateCalc;
-                if (!this.CancelingLoad && myrequestcustomer == null && customer != null && this.FillType == lib.FillType.Refresh && myfilter != null)
+                if (!canceltasktoken.IsCancellationRequested && myrequestcustomer == null && customer != null && this.FillType == lib.FillType.Refresh && myfilter != null)
                     CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(customer.Id, addcon, out errors);
             }
             return itemold;
@@ -1218,10 +1255,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             return item.Prepay?.Id > 0 & !(item.RequestCustomer?.DomainState == lib.DomainObjectState.Added);
         }
-        protected override void CancelLoad()
-        {
-        }
-
         internal void SetRequestDBM()
         {
             myrdbm = new RequestDBM();
@@ -1235,7 +1268,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    public class PrepayCustomerRequestStore : lib.DomainStorageLoad<PrepayCustomerRequest, PrepayCustomerRequestDBM>
+    public class PrepayCustomerRequestStore : lib.DomainStorageLoad<PrepayCustomerRequestRecord,PrepayCustomerRequest, PrepayCustomerRequestDBM>
     {
         public PrepayCustomerRequestStore(PrepayCustomerRequestDBM dbm) : base(dbm) { }
         protected override void UpdateProperties(PrepayCustomerRequest olditem, PrepayCustomerRequest newitem)

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -14,6 +15,23 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
+    public struct RequestCustomerLegalRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int request;
+        internal int customerlegal;
+        internal bool selected;
+        internal decimal? actualweight;
+        internal int? cellnumber;
+        internal DateTime? currencydate;
+        internal decimal? currencyrate;
+        internal decimal? invoice;
+        internal decimal? invoicediscount;
+        internal decimal? officialweight;
+        internal decimal? volume;
+    }
+
     public class RequestCustomerLegal : lib.DomainBaseStamp
     {
         public RequestCustomerLegal(int id, long stamp, lib.DomainObjectState state
@@ -711,7 +729,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         #endregion
     }
 
-    internal class RequestCustomerLegalStore : lib.DomainStorageLoad<RequestCustomerLegal, RequestCustomerLegalDBM>
+    internal class RequestCustomerLegalStore : lib.DomainStorageLoad<RequestCustomerLegalRecord,RequestCustomerLegal, RequestCustomerLegalDBM>
     {
         public RequestCustomerLegalStore(RequestCustomerLegalDBM dbm) : base(dbm) { }
 
@@ -776,7 +794,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RequestCustomerLegalDBM : lib.DBManagerId<RequestCustomerLegal>
+    public class RequestCustomerLegalDBM : lib.DBManagerId<RequestCustomerLegalRecord,RequestCustomerLegal>
     {
         public RequestCustomerLegalDBM() : base()
         {
@@ -848,45 +866,62 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams[4].Value = mysku?.Id;
             mypdbm.FillType = this.FillType;
         }
-        protected override RequestCustomerLegal CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override RequestCustomerLegalRecord CreateRecord(SqlDataReader reader)
         {
-            CustomerLegal customerlegal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["customerlegalid"]), addcon, out List<lib.DBMError> errors);
+            return new RequestCustomerLegalRecord()
+            {
+                id=reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), stamp=reader.IsDBNull(1) ? 0 : reader.GetInt64(1)
+                , request=reader.GetInt32(this.Fields["requestid"])
+                , customerlegal=reader.GetInt32(this.Fields["customerlegalid"])
+                , selected=reader.GetBoolean(this.Fields["selected"])
+                , actualweight=reader.IsDBNull(this.Fields["actualweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualweight"])
+                , cellnumber=reader.IsDBNull(this.Fields["cellnumber"]) ? (int?)null : reader.GetInt16(this.Fields["cellnumber"])
+                , currencydate=reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
+                , currencyrate=reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
+                , invoice=reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
+                , invoicediscount=reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
+                , officialweight=reader.IsDBNull(this.Fields["officialweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialweight"])
+                , volume=reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"])
+            };
+        }
+        protected override RequestCustomerLegal CreateModel(RequestCustomerLegalRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
+            CustomerLegal customerlegal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.customerlegal, addcon, out List<lib.DBMError> errors);
             this.Errors.AddRange(errors);
-            if (this.CancelingLoad) return null;
-            Request request = myrequest ?? (this.FillType == lib.FillType.Refresh ? CustomBrokerWpf.References.RequestStore.UpdateItem(reader.GetInt32(this.Fields["requestid"]), addcon, out errors) : CustomBrokerWpf.References.RequestStore.GetItemLoad(reader.GetInt32(this.Fields["requestid"]), addcon, out errors));
+            if (canceltasktoken.IsCancellationRequested) return null;
+            Request request = myrequest ?? (this.FillType == lib.FillType.Refresh ? CustomBrokerWpf.References.RequestStore.UpdateItem(record.request, addcon, out errors) : CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request, addcon, out errors));
             this.Errors.AddRange(errors);
-            if (this.CancelingLoad) return null;
-            RequestCustomerLegal item = new RequestCustomerLegal(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), lib.DomainObjectState.Unchanged
+            if (canceltasktoken.IsCancellationRequested) return null;
+            RequestCustomerLegal item = new RequestCustomerLegal(record.id, record.stamp, lib.DomainObjectState.Unchanged
                 , request
                 , customerlegal
-                , reader.GetBoolean(this.Fields["selected"])
-                , reader.IsDBNull(this.Fields["actualweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["actualweight"])
-                , reader.IsDBNull(this.Fields["cellnumber"]) ? (int?)null : reader.GetInt16(this.Fields["cellnumber"])
-                , reader.IsDBNull(this.Fields["currencydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["currencydate"])
-                , reader.IsDBNull(this.Fields["currencyrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["currencyrate"])
-                , reader.IsDBNull(this.Fields["invoice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoice"])
-                , reader.IsDBNull(this.Fields["invoicediscount"]) ? (decimal?)null : reader.GetDecimal(this.Fields["invoicediscount"])
-                , reader.IsDBNull(this.Fields["officialweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["officialweight"])
-                , reader.IsDBNull(this.Fields["volume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["volume"]));
-            if (this.CancelingLoad) return null;
+                , record.selected
+                , record.actualweight
+                , record.cellnumber
+                , record.currencydate
+                , record.currencyrate
+                , record.invoice
+                , record.invoicediscount
+                , record.officialweight
+                , record.volume);
+            if (canceltasktoken.IsCancellationRequested) return null;
             if (item.Id > 0) item = CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(item, this.FillType == lib.FillType.Refresh);
 
-            if (this.CancelingLoad) return null;
+            if (canceltasktoken.IsCancellationRequested) return null;
             if ((this.FillType == lib.FillType.Refresh) & !item.CustomsInvoiceIsNull)
             {
                 CustomBrokerWpf.References.CustomsInvoiceStore.UpdateItem(item.CustomsInvoice.Id, addcon, out errors);
                 this.Errors.AddRange(errors);
             }
-            if (this.CancelingLoad) return null;
+            if (canceltasktoken.IsCancellationRequested) return null;
             mypdbm.Command.Connection = addcon;
             mypdbm.Errors.Clear();
             mypdbm.FillType = this.FillType;
             mypdbm.Collection = null;
             mypdbm.RequestCustomer = item;
-            if (this.CancelingLoad) return null;
-            mypdbm.CancelingLoad = this.CancelingLoad;
+            if (canceltasktoken.IsCancellationRequested) return null;
             mypdbm.Fill();
-            if (mypdbm.Errors.Count > 0 | this.CancelingLoad)
+            if (mypdbm.Errors.Count > 0 | canceltasktoken.IsCancellationRequested)
                 foreach (lib.DBMError err in mypdbm.Errors) this.Errors.Add(err);
             else
             {
@@ -894,7 +929,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     item.Prepays = mypdbm.Collection;
                 else
                 {
-                    if (this.CancelingLoad) return null;
+                    if (canceltasktoken.IsCancellationRequested) return null;
                     this.mydispatcher.Invoke(() =>
                     {
                         item.Prepays.Clear();
@@ -906,7 +941,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     { prepay.PropertyChangedNotification(nameof(PrepayCustomerRequest.FinalInvoiceRubSumPaid)); prepay.PropertyChangedNotification(nameof(PrepayCustomerRequest.CustomerBalance)); }
                 }
             }
-            if (this.CancelingLoad) return null;
+            if (canceltasktoken.IsCancellationRequested) return null;
             this.RefreshFund(item, this.Errors, addcon);
             mypdbm.Collection = null;
             item.IsLoaded = true;
@@ -1058,10 +1093,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void CancelLoad()
-        {
-            mypdbm.CancelingLoad = this.CancelingLoad;
-        }
+        //protected override void CancelLoad()
+        //{
+        //    mypdbm.CancelingLoad = this.CancelingLoad;
+        //}
         private void RefreshFund(RequestCustomerLegal requestlegal, List<lib.DBMError> errors, SqlConnection con)
         {
             if (requestlegal.Request.Status.Id == 0) return;

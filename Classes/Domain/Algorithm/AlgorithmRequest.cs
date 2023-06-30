@@ -6,9 +6,22 @@ using System.Windows.Data;
 using System.Windows.Media;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using System.Linq;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
 {
+    internal struct AlgorithmValuesRequestRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal FormulaRecord formula;
+        internal decimal? value1;
+        internal decimal? value2;
+        internal decimal? value1user;
+        internal decimal? value2user;
+        internal long afstamp;
+    }
+
     public class AlgorithmValuesRequest: AlgorithmValues, IDisposable
     {
         public AlgorithmValuesRequest(int id, long stamp, lib.DomainObjectState state, Algorithm algorithm, Formula formula, decimal? value1, decimal? value2, decimal? value1user, decimal? value2user, long afstamp, Request request) : base(id, stamp, state, algorithm, formula, value1user ?? value1, value2user ?? value2)
@@ -653,7 +666,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         #endregion
     }
 
-    internal class AlgorithmValuesRequestDBM : lib.DBManagerStamp<AlgorithmValuesRequest>
+    internal class AlgorithmValuesRequestDBM : lib.DBManagerStamp<AlgorithmValuesRequestRecord,AlgorithmValuesRequest>
     {
         public AlgorithmValuesRequestDBM(Algorithm algorithm, ObservableCollection<Formula> formulas, AlgorithmValuesStorage storage, Request request) : base()
         {
@@ -717,9 +730,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         private AlgorithmValuesStorage mystorage;
         private Request myrequest;
 
-        protected override AlgorithmValuesRequest CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override AlgorithmValuesRequestRecord CreateRecord(SqlDataReader reader)
+		{
+            AlgorithmValuesRequestRecord item = new AlgorithmValuesRequestRecord()
+            {
+                id = reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0)
+                ,stamp = reader.IsDBNull(1) ? 0 : reader.GetInt64(1)
+                , value1 = reader.IsDBNull(reader.GetOrdinal("value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1"))
+                , value2 = reader.IsDBNull(reader.GetOrdinal("value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2"))
+                , value1user = reader.IsDBNull(reader.GetOrdinal("value1user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1user"))
+                , value2user =  reader.IsDBNull(reader.GetOrdinal("value2user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2user"))
+                , afstamp = reader.IsDBNull(reader.GetOrdinal("afstamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("afstamp"))
+            };
+            item.formula.id = reader.GetInt32(reader.GetOrdinal("formulaid"));
+            item.formula.code = reader.GetString(this.Fields["code"]);
+            item.formula.name = reader.GetString(this.Fields["name"]);
+            item.formula.type = reader.GetByte(this.Fields["type"]);
+            item.formula.formula1 = reader.GetString(this.Fields["formula1"]);
+            item.formula.formula2 = reader.GetString(this.Fields["formula2"]);
+            item.formula.ordinal = reader.GetInt32(this.Fields["ordinal"]);
+            return item;
+		}
+        protected override AlgorithmValuesRequest CreateModel(AlgorithmValuesRequestRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
         {
-            int frmid = reader.GetInt32(this.Fields["formulaid"]);
             Formula formula = null;
             //if (myrequest.Status.Id < 70)
             //{
@@ -732,22 +765,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             //}
             //else
             //{
-                formula = new Formula(frmid, 0, lib.DomainObjectState.Unchanged
-                    ,reader.GetString(this.Fields["code"])
-                    ,reader.GetString(this.Fields["name"])
-                    ,reader.GetByte(this.Fields["type"])
-                    ,reader.GetString(this.Fields["formula1"])
-                    ,reader.GetString(this.Fields["formula2"])
-                    ,reader.GetInt32(this.Fields["ordinal"]));
+                formula = new Formula(record.formula.id, 0, lib.DomainObjectState.Unchanged
+                    ,record.formula.code
+                    ,record.formula.name
+                    ,record.formula.type
+                    ,record.formula.formula1
+                    ,record.formula.formula2
+                    ,record.formula.ordinal);
                 myformulas.Add(formula);
             //}
-            AlgorithmValuesRequest newitem = new AlgorithmValuesRequest(reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0), reader.IsDBNull(1) ? 0 : reader.GetInt64(1), (myrequest.Status.Id < 500 ? (reader.IsDBNull(0) ? lib.DomainObjectState.Added : lib.DomainObjectState.Unchanged) : lib.DomainObjectState.Sealed)
+            AlgorithmValuesRequest newitem = new AlgorithmValuesRequest(record.id, record.stamp, (myrequest.Status.Id < 500 ? (record.id<0 ? lib.DomainObjectState.Added : lib.DomainObjectState.Unchanged) : lib.DomainObjectState.Sealed)
                 , myalgorithm, formula
-                , reader.IsDBNull(this.Fields["value1"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1"])
-                , reader.IsDBNull(this.Fields["value2"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2"])
-                , reader.IsDBNull(this.Fields["value1user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1user"])
-                , reader.IsDBNull(this.Fields["value2user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2user"])
-                , reader.IsDBNull(this.Fields["afstamp"]) ? 0 : reader.GetInt64(this.Fields["afstamp"])
+                , record.value1
+                , record.value2
+                , record.value1user
+                , record.value2user
+                , record.afstamp
                 , myrequest);
             return newitem; //mystorage.UpdateItem(newitem) as AlgorithmValuesRequest
         }
@@ -826,8 +859,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 }
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AlgorithmGroupWeightDBM : lib.DBMExec
@@ -880,7 +911,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    public class AlgorithmRequestDBM : lib.DBManager<Algorithm>
+    public class AlgorithmRequestDBM : lib.DBManager<Algorithm,Algorithm>
     {
         internal AlgorithmRequestDBM(Request request) : base()
         {
@@ -906,10 +937,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             this.SelectParams[0].Value = myrequest.Id;
         }
-        protected override Algorithm CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override Algorithm CreateRecord(SqlDataReader reader)
+		{
             return new Algorithm(0, lib.DomainObjectState.Sealed, reader.GetString(0), 0);
+		}
+        protected override Algorithm CreateModel(Algorithm reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override bool SaveReferenceObjects()
         {
             return true;
@@ -935,8 +978,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             item.AcceptChanches();
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AlgorithmValuesRequestVM : AlgorithmValuesVM
@@ -2162,7 +2203,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             }
         }
     }
-    internal class AlgorithmPropertyDBM : lib.DBManagerStamp<AlgorithmProperty>
+    internal class AlgorithmPropertyDBM : lib.DBManagerStamp<AlgorithmProperty,AlgorithmProperty>
     {
         private AlgorithmFormulaRequestCommand mycmd;
         internal AlgorithmFormulaRequestCommand CMD
@@ -2271,8 +2312,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         break;
                 }
         }
-        protected override AlgorithmProperty CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override AlgorithmProperty CreateRecord(SqlDataReader reader)
+		{
             return new AlgorithmProperty(reader.GetInt32(this.Fields["id"]), reader.GetInt64(this.Fields["stamp"]), lib.DomainObjectState.Unchanged
                 , mycmd
                 , reader.IsDBNull(this.Fields["cbx"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cbx"])
@@ -2282,9 +2323,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 , reader.IsDBNull(this.Fields["ex1t1"]) ? (decimal?)null : reader.GetDecimal(this.Fields["ex1t1"])
                 , reader.GetBoolean(this.Fields["ex1t1isuser"])
                 );
-        }
-        protected override void CancelLoad()
+		}
+        protected override AlgorithmProperty CreateModel(AlgorithmProperty reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
     }
 }

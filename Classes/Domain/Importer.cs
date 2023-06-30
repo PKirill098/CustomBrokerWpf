@@ -44,7 +44,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ImporterDBM : lib.DBManagerStamp<Importer>
+    internal class ImporterDBM : lib.DBManagerStamp<Importer,Importer>
     {
         internal ImporterDBM()
         {
@@ -70,12 +70,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Importer CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Importer CreateRecord(SqlDataReader reader)
+		{
             Importer item = new Importer(reader.GetInt32(0),reader.GetInt64(1), lib.DomainObjectState.Unchanged
                 ,reader.GetString(2));
             return item /*CustomBrokerWpf.References.ImporterStore.UpdateItem(item)*/;
-        }
+		}
+		protected override Importer CreateModel(Importer record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(Importer item)
         {        }
         protected override bool SaveChildObjects(Importer item)
@@ -96,8 +108,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[1].Value = item.Name;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class ImporterVM : lib.ViewModelErrorNotifyItem<Importer>
@@ -275,7 +285,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     public class ImporterCollection : lib.ReferenceCollectionDomainBase<Importer>
     {
         public ImporterCollection() : this(new ImporterDBM()) { }
-        public ImporterCollection(lib.DBManager<Importer> dbm) : base(dbm) { }
+        public ImporterCollection(lib.DBManager<Importer,Importer> dbm) : base(dbm) { }
 
         public override Importer FindFirstItem(string propertyName, object value)
         {
@@ -308,5 +318,4 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal void DataLoad()
         { base.Fill(); }
     }
-
 }

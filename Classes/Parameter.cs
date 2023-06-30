@@ -1,4 +1,6 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes
@@ -39,7 +41,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         }
     }
 
-    internal class ParametrDBM : lib.DBManager<Parameter>
+    internal class ParametrDBM : lib.DBManager<Parameter,Parameter>
     {
         internal ParametrDBM()
         {
@@ -70,11 +72,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Parameter CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Parameter CreateRecord(SqlDataReader reader)
+		{
             return new Parameter(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4),lib.DomainObjectState.Unchanged);
+		}
+		protected override Parameter CreateModel(Parameter reader,SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override void GetOutputParametersValue(Parameter item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader),addcon,canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(Parameter item)
         {
         }
         protected override void ItemAcceptChanches(Parameter item)
@@ -101,7 +115,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             this.InsertUpdateParams[0].Value = item.Value;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 }

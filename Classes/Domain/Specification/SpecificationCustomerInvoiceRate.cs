@@ -18,7 +18,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public decimal? Selling { set; get; }
     }
 
-    public class SpecificationCustomerInvoiceRateDBM : lib.DBMSTake<SpecificationCustomerInvoiceRate>
+    public class SpecificationCustomerInvoiceRateDBM : lib.DBMSTake<SpecificationCustomerInvoiceRate,SpecificationCustomerInvoiceRate>
     {
         internal SpecificationCustomerInvoiceRateDBM()
         {
@@ -30,13 +30,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         internal Specification Specification { set;get;}
 
-        protected override SpecificationCustomerInvoiceRate CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override SpecificationCustomerInvoiceRate CreateRecord(SqlDataReader reader)
+		{
             return new SpecificationCustomerInvoiceRate() { CustomerId=reader.IsDBNull(0)?(int?)null: reader.GetInt32(0),Rate= reader.IsDBNull(1) ? (decimal?)null : reader.GetDecimal(1),Equally = reader.IsDBNull(2) ? false : reader.GetBoolean(2) };
-        }
-        protected override void CancelLoad()
+		}
+        protected override SpecificationCustomerInvoiceRate CreateModel(SpecificationCustomerInvoiceRate reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			this.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void PrepareFill(SqlConnection addcon)
         {
             SelectParams[0].Value = Specification.Id;

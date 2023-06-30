@@ -166,7 +166,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class DeclarationDBM : lib.DBManagerStamp<Declaration>
+    internal class DeclarationDBM : lib.DBManagerStamp<Declaration, Declaration>
     {
         internal DeclarationDBM()
         {
@@ -198,8 +198,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             };
         }
 
-        protected override Declaration CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Declaration CreateRecord(SqlDataReader reader)
+		{
             return new Declaration(reader.GetInt32(0), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("cbrate")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("cbrate"))
                 , reader.IsDBNull(reader.GetOrdinal("fee")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("fee"))
@@ -208,11 +208,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , reader.IsDBNull(reader.GetOrdinal("tax")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("tax"))
                 , reader.IsDBNull(reader.GetOrdinal("totalsum")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("totalsum"))
                 , reader.IsDBNull(reader.GetOrdinal("vat")) ? (decimal?)null : (decimal)reader.GetDecimal(reader.GetOrdinal("vat")));
-        }
-        protected override void GetOutputSpecificParametersValue(Declaration item)
+		}
+		protected override Declaration CreateModel(Declaration reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+			return reader;
         }
-        protected override void CancelLoad()
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(Declaration item)
         {
         }
         protected override bool SaveChildObjects(Declaration item)

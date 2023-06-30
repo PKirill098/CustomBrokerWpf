@@ -124,7 +124,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         { set { SetProperty<string>(ref mytnvedgroup, value); } get { return mytnvedgroup; } }
     }
 
-    public class MaterialDBM : lib.DBManager<Material>
+    public class MaterialDBM : lib.DBManager<Material,Material>
     {
         public MaterialDBM()
         {
@@ -158,11 +158,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Material CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Material CreateRecord(SqlDataReader reader)
+		{
             return new Material(reader.GetInt32(0), reader.IsDBNull(1) ? (int?)null : reader.GetInt32(1), reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5), reader.GetString(2), reader.GetString(3), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(6) ? null : reader.GetString(6), lib.DomainObjectState.Unchanged);
+		}
+		protected override Material CreateModel(Material record,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+            return record;
         }
-        protected override void GetOutputParametersValue(Material item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(Material item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
             {
@@ -210,14 +222,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[4].Value = string.IsNullOrEmpty(item.TNVEDGroup) ? DBNull.Value : (object)item.TNVEDGroup;
             return item.Upper?.DomainState != lib.DomainObjectState.Added;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class MaterialCollection : lib.ReferenceCollectionDomainBase<Material>
     {
         public MaterialCollection() : this(new MaterialDBM()) { }
-        public MaterialCollection(lib.DBManager<Material> dbm) : base(dbm) { }
+        public MaterialCollection(lib.DBManager<Material,Material> dbm) : base(dbm) { }
 
         public override Material FindFirstItem(string propertyName, object value)
         {
@@ -471,7 +481,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class MaterialCommand : lib.ViewModelCommand<Material, MaterialVM, MaterialDBM>
+    public class MaterialCommand : lib.ViewModelCommand<Material,Material, MaterialVM, MaterialDBM>
     {
         internal MaterialCommand(MaterialVM vm, System.Windows.Data.ListCollectionView view) : base(vm, view)
         {

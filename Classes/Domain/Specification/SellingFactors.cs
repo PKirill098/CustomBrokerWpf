@@ -42,7 +42,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         { set { SetProperty<string>(ref myservice, value); } get { return myservice; } }
     }
 
-    internal class SellingFactorsDBM : lib.DBMSTake<SellingFactors>
+    internal class SellingFactorsDBM : lib.DBMSTake<SellingFactors,SellingFactors>
     {
         internal SellingFactorsDBM()
         {
@@ -56,11 +56,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         internal Specification Specification { set; get; }
         internal List<SellingFactors> SellingFactors { set; get; }
-        protected override void CancelLoad()
-        {
-        }
-        protected override SellingFactors CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override SellingFactors CreateRecord(SqlDataReader reader)
+		{
             return new SellingFactors(
                 CustomBrokerWpf.References.CustomerLegalStore.GetItem(reader.GetInt32(this.Fields["customer"])),
                 reader.IsDBNull(this.Fields["request"]) ? null : CustomBrokerWpf.References.RequestStore.GetItem(reader.GetInt32(this.Fields["request"])),
@@ -68,7 +65,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 reader.IsDBNull(this.Fields["dtrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["dtrate"]),
                 reader.IsDBNull(this.Fields["persent"]) ? (decimal?)null : reader.GetDecimal(this.Fields["persent"]),
                 reader.IsDBNull(this.Fields["service"]) ? null : reader.GetString(this.Fields["service"]));
+		}
+        protected override SellingFactors CreateModel(SellingFactors reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			this.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams[0].Value=this.Specification.Id;

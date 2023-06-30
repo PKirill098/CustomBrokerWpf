@@ -6,6 +6,7 @@ using System.Linq;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using System.Windows.Input;
 using Org.BouncyCastle.Asn1;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -79,6 +80,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             return isvalid;
         }
     }
+
+    public struct CurrencyBuyrecord
+	{
+        internal int id;
+        internal long stamp;
+        internal DateTime? updated;
+        internal string updater;
+        internal DateTime buydate;
+        internal decimal buyrate;
+		internal decimal cursum;
+        internal string cclass;
+        internal int invoice;
+	}
 
     public class CurrencyBuyVM : lib.ViewModelErrorNotifyItem<CurrencyBuy>, lib.Interfaces.ITotalValuesItem
     {
@@ -238,7 +252,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-
     public class CurrencyBuyJoint : CurrencyBuy
 	{
         public CurrencyBuyJoint(int id, long stamp, lib.DomainObjectState mstate
@@ -269,7 +282,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-	internal class CurrencyBuyJointDBM : lib.DBMSFill<CurrencyBuyJoint>,lib.IDBManager
+	internal class CurrencyBuyJointDBM : lib.DBMSFill<CurrencyBuyrecord,CurrencyBuyJoint>,lib.IDBManager
 	{
 		internal CurrencyBuyJointDBM() : base()
 		{
@@ -289,28 +302,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		internal Importer Importer
 		{ set { myimporter = value; } get { return myimporter; } }
 
-		protected override CurrencyBuyJoint CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override CurrencyBuyrecord CreateRecord(SqlDataReader reader)
 		{
-			System.Collections.Generic.List<lib.DBMError> errors =new System.Collections.Generic.List<lib.DBMError>();
-            lib.DomainBaseStamp host=null;
-            switch(reader.GetString(reader.GetOrdinal("class")))
-			{
-                case "prepay":
-                    host = CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("invoiceid")), addcon, out errors);
-                    break;
-                case "final":
-                    host = CustomBrokerWpf.References.CustomsInvoiceStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("invoiceid")), addcon, out errors);
-                    break;
-            }
-            this.Errors.AddRange(errors);
-            return new CurrencyBuyJoint(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-				, DateTime.Today, 0M, reader.GetDecimal(reader.GetOrdinal("cursum")), host);
+            return new CurrencyBuyrecord()
+            {
+                cclass=reader.GetString(reader.GetOrdinal("class")),
+				invoice=reader.GetInt32(reader.GetOrdinal("invoiceid")),
+				cursum=reader.GetDecimal(reader.GetOrdinal("cursum"))
+			};
 		}
-		protected override void CancelLoad()
+		protected override CurrencyBuyJoint CreateModel(CurrencyBuyrecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
 		{
-            myfcdbm.CancelingLoad = this.CancelingLoad;
-            myfcdbm.CancelingLoad = this.CancelingLoad;
-        }
+			System.Collections.Generic.List<lib.DBMError> errors = new System.Collections.Generic.List<lib.DBMError>();
+			lib.DomainBaseStamp host = null;
+			switch (record.cclass)
+			{
+				case "prepay":
+					host = CustomBrokerWpf.References.PrepayStore.GetItemLoad(record.invoice, addcon, out errors);
+					break;
+				case "final":
+					host = CustomBrokerWpf.References.CustomsInvoiceStore.GetItemLoad(record.invoice, addcon, out errors);
+					break;
+			}
+			this.Errors.AddRange(errors);
+			return new CurrencyBuyJoint(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
+				, DateTime.Today, 0M, record.cursum, host);
+		}
 		protected override void PrepareFill(SqlConnection addcon)
 		{
 			this.SelectParams[0].Value = myimporter?.Id;
@@ -351,7 +368,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                             prepay.Invoice.PropertyChangedNotification(nameof(Prepay.CurrencyBoughtDate));
                         }
                     }
-
                 }
                 con.Close();
             }
@@ -628,7 +644,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     //    }
     }
 
-    internal class CurrencyBuyPrepayDBM : lib.DBManagerWhoWhen<CurrencyBuyPrepay>
+    internal class CurrencyBuyPrepayDBM : lib.DBManagerWhoWhen<CurrencyBuyPrepay, CurrencyBuyPrepay>
     {
         public CurrencyBuyPrepayDBM()
         {
@@ -664,16 +680,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private Prepay myprepay;
         internal Prepay Prepay { set { myprepay = value; } get { return myprepay; } }
 
-        protected override CurrencyBuyPrepay CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override CurrencyBuyPrepay CreateRecord(SqlDataReader reader)
         {
             return new CurrencyBuyPrepay(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , reader.GetDateTime(reader.GetOrdinal("buydate")), reader.GetDecimal(reader.GetOrdinal("buyrate")), reader.GetDecimal(reader.GetOrdinal("cursum")), myprepay);
         }
-        protected override void GetOutputSpecificParametersValue(CurrencyBuyPrepay item)
-        {
-        }
-        protected override void CancelLoad()
+		protected override CurrencyBuyPrepay CreateModel(CurrencyBuyPrepay record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(CurrencyBuyPrepay item)
         {
         }
         protected override bool SaveChildObjects(CurrencyBuyPrepay item)
@@ -870,7 +895,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class CurrencyBuyInvoiceDBM : lib.DBManagerWhoWhen<CurrencyBuyInvoice>
+    internal class CurrencyBuyInvoiceDBM : lib.DBManagerWhoWhen<CurrencyBuyInvoice, CurrencyBuyInvoice>
     {
         public CurrencyBuyInvoiceDBM()
         {
@@ -906,16 +931,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private CustomsInvoice myinvoice;
         internal CustomsInvoice Invoice { set { myinvoice = value; } get { return myinvoice; } }
 
-        protected override CurrencyBuyInvoice CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override CurrencyBuyInvoice CreateRecord(SqlDataReader reader)
         {
             return new CurrencyBuyInvoice(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , reader.GetDateTime(reader.GetOrdinal("buydate")), reader.GetDecimal(reader.GetOrdinal("buyrate")), reader.GetDecimal(reader.GetOrdinal("cursum")), myinvoice);
         }
-        protected override void GetOutputSpecificParametersValue(CurrencyBuyInvoice item)
-        {
-        }
-        protected override void CancelLoad()
+		protected override CurrencyBuyInvoice CreateModel(CurrencyBuyInvoice record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(CurrencyBuyInvoice item)
         {
         }
         protected override bool SaveChildObjects(CurrencyBuyInvoice item)

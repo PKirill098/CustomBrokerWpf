@@ -211,7 +211,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class RequestHistoryDBM : lib.DBMSFill<RequestHistory>
+    public class RequestHistoryDBM : lib.DBMSFill<RequestHistory,RequestHistory>
     {
         public RequestHistoryDBM() : base()
         {
@@ -228,8 +228,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myrequest; }
         }
 
-        protected override RequestHistory CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+ 		protected override RequestHistory CreateRecord(SqlDataReader reader)
+		{
             Request newitem = new Request(reader.GetInt32(0), 0
                 , reader.IsDBNull(this.Fields["UpdateWhen"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["UpdateWhen"])
                 , reader.IsDBNull(this.Fields["UpdateWho"]) ? null : reader.GetString(this.Fields["UpdateWho"]), lib.DomainObjectState.Sealed
@@ -323,14 +323,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 , reader.GetBoolean(reader.GetOrdinal("storageDatechd")), reader.GetBoolean(reader.GetOrdinal("storageInformchd")), reader.GetBoolean(reader.GetOrdinal("storageNotechd")), reader.GetBoolean(reader.GetOrdinal("storagePointchd"))
                 , reader.GetBoolean(reader.GetOrdinal("volumechd"))
                 );
+		}
+       protected override RequestHistory CreateModel(RequestHistory reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
 
         protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams[0].Value = myrequest?.Id;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class RequestHistoryVM

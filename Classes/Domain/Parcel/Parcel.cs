@@ -18,6 +18,49 @@ using MailKit;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
+    public struct ParcelRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal string updater;
+        internal DateTime? updated;
+        
+        internal string parcelnumber;
+        internal int status;
+        internal int parceltype;
+        internal DateTime shipplandate;
+        internal DateTime? shipdate;
+        internal DateTime? prepared;
+        internal DateTime? crossedborder;
+        internal DateTime? terminalin;
+        internal DateTime? terminalout;
+        internal DateTime? unloaded;
+        internal string carrier;
+        internal string carrierperson;
+        internal string carriertel;
+        internal string declaration;
+        internal string docdirpath;
+        internal int? goodstype;
+        internal string lorry;
+        internal string lorryregnum;
+        internal decimal? lorrytonnage;
+        internal decimal? lorryvolume;
+        internal string lorryvin;
+        internal string shipmentnumber;
+        internal string trailerregnum;
+        internal string trailervin;
+        internal string trucker;
+        internal string truckertel;
+        internal decimal? deliveryprice;
+        internal decimal? insuranceprice;
+        internal decimal? tdeliveryprice;
+        internal decimal? tinsuranceprice;
+        internal decimal? transportd;
+        internal decimal? transportt;
+        internal decimal? usdrate;
+        internal DateTime? ratedate;
+    }
+
     public class Parcel : lib.DomainBaseStamp
     {
         private decimal? mylorrytonnage, mylorryvolume, myusdrate;
@@ -955,7 +998,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelStore : lib.DomainStorageLoad<Parcel, ParcelDBM>
+    internal class ParcelStore : lib.DomainStorageLoad<ParcelRecord,Parcel, ParcelDBM>
     {
         public ParcelStore(ParcelDBM dbm) : base(dbm) { }
 
@@ -965,7 +1008,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ParcelDBM : lib.DBManagerStamp<Parcel>
+    public class ParcelDBM : lib.DBManagerStamp<ParcelRecord,Parcel>
     {
         public ParcelDBM()
         {
@@ -1088,46 +1131,87 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal bool RequestRefreshFill { set; get; } // load request for new parcel
         private Specification.SpecificationDBM mysdbm;
 
-        protected override Parcel CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override ParcelRecord CreateRecord(SqlDataReader reader)
+		{
+			return new ParcelRecord()
+            {
+                id = reader.GetInt32(0), stamp = reader.GetInt32(this.Fields["stamp"]), updater = reader.IsDBNull(this.Fields["UpdateWho"]) ? null : reader.GetString(this.Fields["UpdateWho"]), updated = reader.IsDBNull(this.Fields["UpdateWhen"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["UpdateWhen"])
+                , parcelnumber = reader.GetString(this.Fields["parcelnumber"])
+                , status = reader.GetInt32(this.Fields["parcelstatus"])
+                , parceltype = (int)reader.GetByte(this.Fields["parceltype"])
+                , shipplandate = reader.GetDateTime(this.Fields["shipplandate"])
+                , shipdate = reader.IsDBNull(this.Fields["shipdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipdate"])
+                , prepared = reader.IsDBNull(this.Fields["preparation"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["preparation"])
+                , crossedborder = reader.IsDBNull(this.Fields["borderdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["borderdate"])
+                , terminalin = reader.IsDBNull(this.Fields["terminalin"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalin"])
+                , terminalout = reader.IsDBNull(this.Fields["terminalout"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalout"])
+                , unloaded = reader.IsDBNull(this.Fields["unloaded"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["unloaded"])
+                , carrier = reader.IsDBNull(this.Fields["carrier"]) ? null : reader.GetString(this.Fields["carrier"])
+                , carrierperson = reader.IsDBNull(this.Fields["carrierperson"]) ? null : reader.GetString(this.Fields["carrierperson"])
+                , carriertel = reader.IsDBNull(this.Fields["carriertel"]) ? null : reader.GetString(this.Fields["carriertel"])
+                , declaration = reader.IsDBNull(this.Fields["declaration"]) ? null : reader.GetString(this.Fields["declaration"])
+                , docdirpath = reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
+                , goodstype = reader.IsDBNull(this.Fields["goodstype"]) ? (int?)null : reader.GetInt32(this.Fields["goodstype"])
+                , lorry = reader.IsDBNull(this.Fields["lorry"]) ? null : reader.GetString(this.Fields["lorry"])
+                , lorryregnum = reader.IsDBNull(this.Fields["lorryregnum"]) ? null : reader.GetString(this.Fields["lorryregnum"])
+                , lorrytonnage = reader.IsDBNull(this.Fields["lorrytonnage"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorrytonnage"])
+                , lorryvolume = reader.IsDBNull(this.Fields["lorryvolume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorryvolume"])
+                , lorryvin = reader.IsDBNull(this.Fields["lorryvin"]) ? null : reader.GetString(this.Fields["lorryvin"])
+                , shipmentnumber = reader.IsDBNull(this.Fields["shipmentnumber"]) ? null : reader.GetString(this.Fields["shipmentnumber"])
+                , trailerregnum = reader.IsDBNull(this.Fields["trailerregnum"]) ? null : reader.GetString(this.Fields["trailerregnum"])
+                , trailervin = reader.IsDBNull(this.Fields["trailervin"]) ? null : reader.GetString(this.Fields["trailervin"])
+                , trucker = reader.IsDBNull(this.Fields["trucker"]) ? null : reader.GetString(this.Fields["trucker"])
+                , truckertel = reader.IsDBNull(this.Fields["truckertel"]) ? null : reader.GetString(this.Fields["truckertel"])
+                , deliveryprice = reader.IsDBNull(this.Fields["deliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliveryprice"])
+                , insuranceprice = reader.IsDBNull(this.Fields["insuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insuranceprice"])
+                , tdeliveryprice = reader.IsDBNull(this.Fields["tdeliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdeliveryprice"])
+                , tinsuranceprice = reader.IsDBNull(this.Fields["tinsuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tinsuranceprice"])
+                , transportd = reader.IsDBNull(this.Fields["transportd"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportd"])
+                , transportt = reader.IsDBNull(this.Fields["transportt"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportt"])
+                , usdrate = reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
+                , ratedate = reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
+            };
+		}
+        protected override Parcel CreateModel(ParcelRecord record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
-            Parcel newitem = new Parcel(reader.GetInt32(0), reader.GetInt32(this.Fields["stamp"]), reader.IsDBNull(this.Fields["UpdateWho"]) ? null : reader.GetString(this.Fields["UpdateWho"]), reader.IsDBNull(this.Fields["UpdateWhen"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["UpdateWhen"]), lib.DomainObjectState.Unchanged
-                , reader.GetString(this.Fields["parcelnumber"])
-                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", reader.GetInt32(this.Fields["parcelstatus"]))
-                , CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", (int)reader.GetByte(this.Fields["parceltype"]))
-                , reader.GetDateTime(this.Fields["shipplandate"])
-                , reader.IsDBNull(this.Fields["shipdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["shipdate"])
-                , reader.IsDBNull(this.Fields["preparation"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["preparation"])
-                , reader.IsDBNull(this.Fields["borderdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["borderdate"])
-                , reader.IsDBNull(this.Fields["terminalin"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalin"])
-                , reader.IsDBNull(this.Fields["terminalout"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["terminalout"])
-                , reader.IsDBNull(this.Fields["unloaded"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["unloaded"])
-                , reader.IsDBNull(this.Fields["carrier"]) ? null : reader.GetString(this.Fields["carrier"])
-                , reader.IsDBNull(this.Fields["carrierperson"]) ? null : reader.GetString(this.Fields["carrierperson"])
-                , reader.IsDBNull(this.Fields["carriertel"]) ? null : reader.GetString(this.Fields["carriertel"])
-                , reader.IsDBNull(this.Fields["declaration"]) ? null : reader.GetString(this.Fields["declaration"])
-                , reader.IsDBNull(this.Fields["docdirpath"]) ? null : reader.GetString(this.Fields["docdirpath"])
-                , reader.IsDBNull(this.Fields["goodstype"]) ? null : CustomBrokerWpf.References.GoodsTypesParcel.FindFirstItem("Id", reader.GetInt32(this.Fields["goodstype"]))
-                , reader.IsDBNull(this.Fields["lorry"]) ? null : reader.GetString(this.Fields["lorry"])
-                , reader.IsDBNull(this.Fields["lorryregnum"]) ? null : reader.GetString(this.Fields["lorryregnum"])
-                , reader.IsDBNull(this.Fields["lorrytonnage"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorrytonnage"])
-                , reader.IsDBNull(this.Fields["lorryvolume"]) ? (decimal?)null : reader.GetDecimal(this.Fields["lorryvolume"])
-                , reader.IsDBNull(this.Fields["lorryvin"]) ? null : reader.GetString(this.Fields["lorryvin"])
-                , reader.IsDBNull(this.Fields["shipmentnumber"]) ? null : reader.GetString(this.Fields["shipmentnumber"])
-                , reader.IsDBNull(this.Fields["trailerregnum"]) ? null : reader.GetString(this.Fields["trailerregnum"])
-                , reader.IsDBNull(this.Fields["trailervin"]) ? null : reader.GetString(this.Fields["trailervin"])
-                , reader.IsDBNull(this.Fields["trucker"]) ? null : reader.GetString(this.Fields["trucker"])
-                , reader.IsDBNull(this.Fields["truckertel"]) ? null : reader.GetString(this.Fields["truckertel"])
-                , reader.IsDBNull(this.Fields["deliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["deliveryprice"])
-                , reader.IsDBNull(this.Fields["insuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["insuranceprice"])
-                , reader.IsDBNull(this.Fields["tdeliveryprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tdeliveryprice"])
-                , reader.IsDBNull(this.Fields["tinsuranceprice"]) ? (decimal?)null : reader.GetDecimal(this.Fields["tinsuranceprice"])
-                , reader.IsDBNull(this.Fields["transportd"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportd"])
-                , reader.IsDBNull(this.Fields["transportt"]) ? (decimal?)null : reader.GetDecimal(this.Fields["transportt"])
-                , reader.IsDBNull(this.Fields["usdrate"]) ? (decimal?)null : reader.GetDecimal(this.Fields["usdrate"])
-                , reader.IsDBNull(this.Fields["ratedate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["ratedate"])
+            Parcel newitem = new Parcel(record.id, record.stamp, record.updater, record.updated, lib.DomainObjectState.Unchanged
+                , record.parcelnumber
+                , CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", record.status)
+                , CustomBrokerWpf.References.ParcelTypes.FindFirstItem("Id", record.parceltype)
+                , record.shipplandate
+                , record.shipdate
+                , record.prepared
+                , record.crossedborder
+                , record.terminalin
+                , record.terminalout
+                , record.unloaded
+                , record.carrier
+                , record.carrierperson
+                , record.carriertel
+                , record.declaration
+                , record.docdirpath
+                , record.goodstype.HasValue ? CustomBrokerWpf.References.GoodsTypesParcel.FindFirstItem("Id", record.goodstype.Value) : null
+                , record.lorry
+                , record.lorryregnum
+                , record.lorrytonnage
+                , record.lorryvolume
+                , record.lorryvin
+                , record.shipmentnumber
+                , record.trailerregnum
+                , record.trailervin
+                , record.trucker
+                , record.truckertel
+                , record.deliveryprice
+                , record.insuranceprice
+                , record.tdeliveryprice
+                , record.tinsuranceprice
+                , record.transportd
+                , record.transportt
+                , record.usdrate
+                , record.ratedate
                 );
             Parcel item = CustomBrokerWpf.References.ParcelStore.UpdateItem(newitem, this.FillType == lib.FillType.Refresh);
-            if ((!item.RequestsIsNull | (this.RequestRefreshFill && item == newitem)) && !this.CancelingLoad) // refresh if the pascel has requests or parcel is new and it needs to refresh requests
+            if ((!item.RequestsIsNull | (this.RequestRefreshFill && item == newitem)) && !canceltasktoken.IsCancellationRequested) // refresh if the pascel has requests or parcel is new and it needs to refresh requests
             {
                 myrdbm.Command.Connection = addcon;
                 if (mydispatcher.Thread.ManagedThreadId == System.Windows.Threading.Dispatcher.CurrentDispatcher.Thread.ManagedThreadId)
@@ -1430,8 +1514,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { myrdbm.CancelingLoad = this.CancelingLoad; }
+        //protected override void CancelLoad()
+        //{ myrdbm.CancelingLoad = this.CancelingLoad; }
 
         private void RequestsRefresh(Parcel parcel)
         {
@@ -3393,7 +3477,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class ParcelCommander : lib.ViewModelCommand<Parcel, ParcelVM, ParcelDBM>
+    public class ParcelCommander : lib.ViewModelCommand<ParcelRecord,Parcel, ParcelVM, ParcelDBM>
     {
         public ParcelCommander(ParcelVM parcel, ListCollectionView view) : base(parcel, view)
         {
@@ -4993,7 +5077,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelNumberDBM : lib.DBMSFill<ParcelNumber>
+    internal class ParcelNumberDBM : lib.DBMSFill<ParcelNumber,ParcelNumber>
     {
         internal ParcelNumberDBM()
         {
@@ -5002,13 +5086,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectCommandText = "SELECT * FROM parcel.FullNumber_vw ORDER BY sort DESC";
         }
 
-        protected override ParcelNumber CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override ParcelNumber CreateRecord(SqlDataReader reader)
         {
             return new ParcelNumber() { Id = reader.GetInt32(0), Status = reader.GetInt32(1), FullNumber = reader.GetString(2), Sort = reader.GetString(3) };
         }
-        protected override void CancelLoad()
-        {
-        }
+		protected override ParcelNumber CreateModel(ParcelNumber record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader),addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
@@ -5040,5 +5133,4 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             olditem.UpdateProperties(newitem);
         }
     }
-
 }

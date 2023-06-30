@@ -122,7 +122,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
     }
 
-    internal class FinalInvoicePayDBM : lib.DBManagerWhoWhen<FinalInvoicePay>
+    internal class FinalInvoicePayDBM : lib.DBManagerWhoWhen<FinalInvoicePay,FinalInvoicePay>
     {
         public FinalInvoicePayDBM()
         {
@@ -159,18 +159,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
         private CustomsInvoice myinvoice;
         internal CustomsInvoice Invoice { set { myinvoice = value; } get { return myinvoice; } }
-
-        protected override FinalInvoicePay CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override FinalInvoicePay CreateRecord(SqlDataReader reader)
+		{
             return new FinalInvoicePay(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp"))
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , lib.DomainObjectState.Unchanged
                 , myinvoice, reader.GetDateTime(reader.GetOrdinal("curpdate")), reader.GetDecimal(reader.GetOrdinal("curpsum")), reader.GetDateTime(reader.GetOrdinal("rubpdate")), reader.GetDecimal(reader.GetOrdinal("rubpsum")));
-        }
-        protected override void GetOutputSpecificParametersValue(FinalInvoicePay item)
+		}
+		protected override FinalInvoicePay CreateModel(FinalInvoicePay reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+            return reader;
         }
-        protected override void CancelLoad()
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(FinalInvoicePay item)
         {
         }
         protected override bool SaveChildObjects(FinalInvoicePay item)

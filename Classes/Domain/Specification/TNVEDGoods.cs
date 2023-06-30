@@ -33,7 +33,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    internal class TNVEDGoodsDBM : lib.DBManager<TNVEDGoods>
+    internal class TNVEDGoodsDBM : lib.DBManager<TNVEDGoods,TNVEDGoods>
     {
         internal TNVEDGoodsDBM()
         {
@@ -75,11 +75,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             SelectParams[0].Value = mygroup.Id;
         }
-        protected override TNVEDGoods CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override TNVEDGoods CreateRecord(SqlDataReader reader)
+		{
             return new TNVEDGoods(reader.GetInt32(0), reader.GetString(2), lib.DomainObjectState.Unchanged);
+		}
+		protected override TNVEDGoods CreateModel(TNVEDGoods reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override void GetOutputParametersValue(TNVEDGoods item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(TNVEDGoods item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
             {
@@ -109,8 +121,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[0].Value = item.Name;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class TNVEDGoodsVM : lib.ViewModelErrorNotifyItem<TNVEDGoods>

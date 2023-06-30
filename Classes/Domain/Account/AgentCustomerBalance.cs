@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
@@ -33,7 +34,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set { myimporter = value; } get { return myimporter; } }
     }
 
-    internal class AgentCustomerBalanceDBM : lib.DBMSFill<AgentCustomerBalance>
+    internal class AgentCustomerBalanceRecord
+    {
+		internal int myagent;
+		internal decimal mybalance;
+		internal int mycustomer;
+	}
+
+	internal class AgentCustomerBalanceDBM : lib.DBMSFill<AgentCustomerBalanceRecord,AgentCustomerBalance>
     {
         internal AgentCustomerBalanceDBM()
         {
@@ -61,21 +69,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal decimal? MinBalance
         { set { myminbalance = value; } get { return myminbalance; } }
 
-        protected override AgentCustomerBalance CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override AgentCustomerBalanceRecord CreateRecord(SqlDataReader reader)
         {
-            return new AgentCustomerBalance(
-                CustomBrokerWpf.References.AgentStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("agentid")), addcon,out _),
-                CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("customerid")), addcon, out _),
-                reader.GetDecimal(reader.GetOrdinal("balance")),
-                myimporter
-                );
+            return new AgentCustomerBalanceRecord()
+            {
+                myagent = reader.GetInt32(reader.GetOrdinal("agentid")),
+                mycustomer = reader.GetInt32(reader.GetOrdinal("customerid")),
+                mybalance = reader.GetDecimal(reader.GetOrdinal("balance")),
+            };
         }
+		protected override AgentCustomerBalance CreateModel(AgentCustomerBalanceRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			return new AgentCustomerBalance(
+				CustomBrokerWpf.References.AgentStore.GetItemLoad(record.myagent, addcon, out _),
+				CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.mycustomer, addcon, out _),
+				record.mybalance,
+				myimporter
+				);
+		}
 
-        protected override void CancelLoad()
-        {
-        }
-
-        protected override void PrepareFill(SqlConnection addcon)
+		protected override void PrepareFill(SqlConnection addcon)
         {
             foreach(SqlParameter par in SelectParams)
                 switch (par.ParameterName)

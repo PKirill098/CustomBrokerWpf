@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Navigation;
@@ -64,7 +65,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class VariationDBM : lib.DBManagerId<Variation>
+    public class VariationDBM : lib.DBManagerId<Variation,Variation>
     {
         internal VariationDBM()
         {
@@ -97,15 +98,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal lib.SQLFilter.SQLFilter Filter
         { set { myfilter = value; } get { return myfilter; } }
 
-        protected override void CancelLoad()
-        {
-        }
-        protected override Variation CreateItem(SqlDataReader reader, SqlConnection addcon)
-        {
+		protected override Variation CreateRecord(SqlDataReader reader)
+		{
             return new Variation(reader.GetInt32(0),lib.DomainObjectState.Unchanged
                 ,reader.GetString(this.Fields["color"]), reader.GetString(this.Fields["singular"]), reader.GetString(this.Fields["plural"]));
+		}
+		protected override Variation CreateModel(Variation reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
-        protected override void GetOutputParametersValue(Variation item)
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(Variation item)
         {
             if(item.DomainState==lib.DomainObjectState.Added)
                 item.Id=(int)this.InsertParams[0].Value;

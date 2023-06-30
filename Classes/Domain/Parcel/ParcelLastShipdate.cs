@@ -24,7 +24,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class ParcelLastShipdateDBM : lib.DBMGetFirst<DateTime>
+    internal class ParcelLastShipdateDBM : lib.DBMGetFirst<DateTime,DateTime>
     {
         internal ParcelLastShipdateDBM():base()
         {
@@ -33,12 +33,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.SelectCommandText = "SELECT * FROM dbo.ParcelLast_vw";
         }
 
-        protected override void CancelLoad()
+        protected override DateTime CreateRecord(SqlDataReader reader)
         {
+           return reader.GetDateTime(0);
         }
-        protected override DateTime CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override DateTime CreateModel(DateTime record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
-            return reader.GetDateTime(0);
+            return record;
         }
         protected override void PrepareFill(SqlConnection addcon)
         {

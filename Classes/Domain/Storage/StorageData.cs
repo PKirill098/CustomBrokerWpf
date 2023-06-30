@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 {
@@ -141,7 +142,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 
 	}
 
-	internal class StorageDataDBM : lib.DBManager<StorageData>
+	internal class StorageDataDBM : lib.DBManager<SqlDataReader,StorageData>
 	{
 		internal StorageDataDBM()
 		{
@@ -210,7 +211,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 		internal lib.SQLFilter.SQLFilter Filter
 		{ set { myfilter = value; } get { return myfilter; } }
 
-		protected override StorageData CreateItem(SqlDataReader reader, SqlConnection addcon)
+		protected override SqlDataReader CreateRecord(SqlDataReader reader)
+		{
+			return reader;
+		}
+		protected override StorageData CreateModel(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
 		{
 			Request request = null;
 			if (!reader.IsDBNull(this.Fields["requestId"]))
@@ -240,6 +245,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 				, reader.GetDecimal(this.Fields["volume"])
 				);
 		}
+		protected override void GetRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.ModelFirst=this.CreateModel(reader,addcon,canceltasktoken);
+		}
+		protected override StorageData GetModel(SqlConnection addcon, CancellationToken canceltasktoken)
+		{
+			return base.ModelFirst;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
 		protected override void GetOutputParametersValue(StorageData item)
 		{
 			if (item.DomainState == lib.DomainObjectState.Added && this.InsertParams.First((SqlParameter par) => { return par.ParameterName == "@requestId"; }).Value != DBNull.Value)
@@ -253,9 +274,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 			item.AcceptChanches();
 		}
 
-		protected override void CancelLoad()
-		{
-		}
 		protected override bool SaveChildObjects(StorageData item)
 		{
 			return true;

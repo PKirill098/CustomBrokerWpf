@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
-			xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
+			 xmlns:lib="clr-namespace:KirillPolyanskiy.DataModelClassLibrary;assembly=DataModelClassLibrary"
+			 xmlns:libui="clr-namespace:KirillPolyanskiy.WpfControlLibrary;assembly=WpfControlLibrary"
 			 xmlns:local="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="3500" DataContextChanged="UserControl_DataContextChanged">
@@ -149,7 +149,9 @@
                                 <DataGridTextColumn Binding="{Binding Path=CostTotal, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=CostPer, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}"/>
                                 <DataGridTextColumn Binding="{Binding Path=Profit, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
-                                <DataGridTextColumn Binding="{Binding Path=ProfitAlgE, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
+								<DataGridTextColumn Binding="{Binding Path=IncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
+								<DataGridTextColumn Binding="{Binding Path=DifProfitIncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
+								<DataGridTextColumn Binding="{Binding Path=ProfitAlgE, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=ProfitAlgR, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=ProfitDiff, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
                                 <DataGridTextColumn Binding="{Binding Path=MarkupAlg, StringFormat=\{0:P0\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}"/>
@@ -1108,7 +1110,68 @@
                             </Style>
                         </DataGridTextColumn.HeaderStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Доход в евро" Binding="{Binding Path=ProfitAlgE, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
+					<DataGridTextColumn Header="Доход ТД" Binding="{Binding Path=IncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" Visibility="{Binding  Source={StaticResource DataContext},Path=Data.TDVisible,Mode=OneWay}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Доход ТД из алгоритма (Р44)"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal" Background="#FFF2DCDB">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.IncomeAlgFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold" Margin="0,0,1,0"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.IncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<EventSetter Event="MouseRightButtonUp" Handler="IncomeAlgFilterPopup_Open"/>
+								<!--<Style.Triggers>
+									<MultiTrigger >
+										<MultiTrigger.Conditions>
+											<Condition Property="IsMouseOver" Value="False"/>
+											<Condition Property="SortDirection" Value="{x:Null}"/>
+										</MultiTrigger.Conditions>
+								        <Setter Property="Background" Value="#FFF2DCDB"/>
+									</MultiTrigger>
+								</Style.Triggers>-->
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Разница Прибыль/Доход ТД" Binding="{Binding Path=DifProfitIncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}" Visibility="{Binding  Source={StaticResource DataContext},Path=Data.TDVisible,Mode=OneWay}">
+						<DataGridTextColumn.HeaderStyle>
+							<Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+								<Setter Property="ToolTip" Value="Разница Прибыль/Доход ТД"/>
+								<Setter Property="HorizontalContentAlignment" Value="Right"/>
+								<Setter Property="ContentTemplate">
+									<Setter.Value>
+										<DataTemplate>
+											<Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0">
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<StackPanel Orientation="Horizontal" Background="#FFF2DCDB">
+													<Image Source="/CustomBrokerWpf;component/Images/funnel.png" Height="10" VerticalAlignment="Center" Margin="0,0,4,0" Visibility="{Binding Source={StaticResource DataContext}, Path=Data.DifProfitIncomeAlgFilter.IconVisibile, Mode=OneWay}"/>
+													<TextBlock Text="{Binding}" FontWeight="Bold"/>
+												</StackPanel>
+												<TextBox Text="{Binding Source={StaticResource DataContext},Path=Data.Total.DifProfitIncomeAlg, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" FontWeight="Bold"/>
+											</Grid>
+										</DataTemplate>
+									</Setter.Value>
+								</Setter>
+								<!--<EventSetter Event="MouseRightButtonUp" Handler="DifProfitIncomeAlgFilterPopup_Open"/>-->
+							</Style>
+						</DataGridTextColumn.HeaderStyle>
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Доход в евро" Binding="{Binding Path=ProfitAlgE, StringFormat=\{0:N2\}, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRightTotal}">
                         <DataGridTextColumn.HeaderStyle>
                             <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                                 <Setter Property="ToolTip" Value="Доход по алгоритму в евро"/>

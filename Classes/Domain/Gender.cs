@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
@@ -69,7 +70,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class GenderDBM : lib.DBManager<Gender>
+    internal class GenderDBM : lib.DBManager<Gender,Gender>
     {
         internal GenderDBM()
         {
@@ -135,11 +136,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override Gender CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override Gender CreateRecord(SqlDataReader reader)
         {
             return new Gender(reader.GetInt32(0),reader.GetInt32(1), reader.GetString(2), reader.GetString(3), lib.DomainObjectState.Unchanged);
         }
-        protected override void GetOutputParametersValue(Gender item)
+		protected override Gender CreateModel(Gender record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputParametersValue(Gender item)
         {
             if (item.DomainState == lib.DomainObjectState.Added)
             {
@@ -170,14 +183,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[1].Value = item.ShortName;
             return item.Over?.DomainState != lib.DomainObjectState.Added;
         }
-        protected override void CancelLoad()
-        {}
     }
 
     public class GenderCollection : lib.ReferenceCollectionDomainBase<Gender>
     {
         public GenderCollection():this(new GenderDBM()) { }
-        public GenderCollection(lib.DBManager<Gender> dbm) : base(dbm) { }
+        public GenderCollection(lib.DBManager<Gender, Gender> dbm) : base(dbm) { }
 
         public override Gender FindFirstItem(string propertyName, object value)
         {

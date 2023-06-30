@@ -7,6 +7,7 @@ using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using System.Linq;
 using System.Windows.Input;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 {
@@ -106,7 +107,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal Credit { get {return mycredit; }  }
     }
 
-    internal class PrepayCurrencyPayDBM : lib.DBManagerWhoWhen<PrepayCurrencyPay>
+    public struct CurrencyPayRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal DateTime? updated;
+        internal string updater;
+        internal DateTime paydate;
+        internal decimal cursum;
+        internal int prepay;
+        internal decimal credit;
+	}
+
+    internal class PrepayCurrencyPayDBM : lib.DBManagerWhoWhen<SqlDataReader, PrepayCurrencyPay>
     {
         public PrepayCurrencyPayDBM()
         {
@@ -140,16 +153,33 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         private Prepay myprepay;
         internal Prepay Prepay { set { myprepay = value; } get { return myprepay; } }
 
-        protected override PrepayCurrencyPay CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override SqlDataReader CreateRecord(SqlDataReader reader)
         {
+			return reader;
+        }
+		protected override PrepayCurrencyPay CreateModel(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
             return new PrepayCurrencyPay(reader.GetInt32(reader.GetOrdinal("id")), reader.GetInt64(reader.GetOrdinal("stamp")), lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(reader.GetOrdinal("updated")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("updated")), reader.IsDBNull(reader.GetOrdinal("updater")) ? null : reader.GetString(reader.GetOrdinal("updater"))
                 , reader.GetDateTime(reader.GetOrdinal("paydate")), reader.GetDecimal(reader.GetOrdinal("cursum")), myprepay);
-        }
-        protected override void GetOutputSpecificParametersValue(PrepayCurrencyPay item)
+		}
+        protected override void GetRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
+            this.ModelFirst=CreateModel(reader,addcon,canceltasktoken);
         }
-        protected override void CancelLoad()
+        protected override PrepayCurrencyPay GetModel(SqlConnection addcon, System.Threading.CancellationToken canceltasktoken)
+        {
+            return this.ModelFirst;
+        }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, mycanceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
+		protected override void GetOutputSpecificParametersValue(PrepayCurrencyPay item)
         {
         }
         protected override bool SaveChildObjects(PrepayCurrencyPay item)
@@ -201,7 +231,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         internal Importer Importer
         { set { myimporter = value; } get { return myimporter; } }
 
-        protected override PrepayCurrencyPay CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override PrepayCurrencyPay CreateModel(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
         {
             return new CurrencyPay(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added, null, null
                 , DateTime.Today, reader.GetDecimal(reader.GetOrdinal("paysum"))
@@ -220,9 +250,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         par.Value = myimporter?.Id;
                         break;
                 }
-        }
-        protected override void CancelLoad()
-        {
         }
     }
 

@@ -114,7 +114,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
     }
 
-    public class VendorCodeDBM : lib.DBManagerStamp<VendorCode>
+    public class VendorCodeDBM : lib.DBManagerStamp<VendorCode,VendorCode>
     {
         public VendorCodeDBM()
         {
@@ -162,8 +162,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return myfilter; }
         }
 
-        protected override VendorCode CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override VendorCode CreateRecord(SqlDataReader reader)
+		{
             return new VendorCode(reader.GetInt32(0), reader.GetInt64(1), reader.GetDateTime(this.Fields["updated"]),lib.DomainObjectState.Unchanged
                 , reader.IsDBNull(this.Fields["brand"]) ? null: reader.GetString(this.Fields["brand"])
                 , reader.IsDBNull(this.Fields["contexture"]) ? null: reader.GetString(this.Fields["contexture"])
@@ -172,12 +172,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , reader.IsDBNull(this.Fields["goods"]) ? null: reader.GetString(this.Fields["goods"])
                 , reader.IsDBNull(this.Fields["gender"]) ? null: reader.GetString(this.Fields["gender"])
                 , reader.IsDBNull(this.Fields["note"]) ? null: reader.GetString(this.Fields["note"])
-                ,reader.GetBoolean(this.Fields["noupdate"])
+                , reader.GetBoolean(this.Fields["noupdate"])
                 , reader.IsDBNull(this.Fields["tnved"]) ? null: reader.GetString(this.Fields["tnved"])
                 , reader.IsDBNull(this.Fields["translation"]) ? null: reader.GetString(this.Fields["translation"])
                 , reader.IsDBNull(this.Fields["vendorcode"])?null:reader.GetString(this.Fields["vendorcode"])
                 );
+		}
+        protected override VendorCode CreateModel(VendorCode reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void GetOutputSpecificParametersValue(VendorCode item)
         {
         }
@@ -278,8 +290,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     internal class VendorCodesDBM : lib.DBMExec

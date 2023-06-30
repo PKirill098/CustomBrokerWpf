@@ -1,11 +1,24 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
 {
+    public struct FormulaRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal string code;
+        internal string name;
+        internal byte type;
+        internal string formula1;
+        internal string formula2;
+        internal int ordinal;
+    }
+    
     public class Formula : lib.DomainBaseStamp
     {
         public Formula(int id, long stamp, lib.DomainObjectState state
@@ -284,7 +297,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    public class FormulaDBM : lib.DBManagerStamp<Formula>
+    public class FormulaDBM : lib.DBManagerStamp<FormulaRecord, Formula>
     {
         internal FormulaDBM()
         {
@@ -320,15 +333,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
         }
 
-        protected override Formula CreateItem(SqlDataReader reader,SqlConnection addcon)
+        protected override FormulaRecord CreateRecord(SqlDataReader reader)
         {
-            Formula item = new Formula(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
-                , reader.GetString(this.Fields["code"])
-                , reader.GetString(this.Fields["name"])
-                , reader.GetByte(this.Fields["type"])
-                , reader.IsDBNull(this.Fields["formula1"]) ? null : reader.GetString(this.Fields["formula1"])
-                , reader.IsDBNull(this.Fields["formula2"]) ? null : reader.GetString(this.Fields["formula2"])
-                , reader.IsDBNull(this.Fields["ordinal"]) ? 0 : reader.GetInt32(this.Fields["ordinal"]));
+            return new FormulaRecord()
+            {
+                id=reader.GetInt32(0), stamp=reader.GetInt64(1)
+                , code=reader.GetString(this.Fields["code"])
+                , name=reader.GetString(this.Fields["name"])
+                , type=reader.GetByte(this.Fields["type"])
+                , formula1=reader.IsDBNull(this.Fields["formula1"]) ? null : reader.GetString(this.Fields["formula1"])
+                , formula2=reader.IsDBNull(this.Fields["formula2"]) ? null : reader.GetString(this.Fields["formula2"])
+                , ordinal=reader.IsDBNull(this.Fields["ordinal"]) ? 0 : reader.GetInt32(this.Fields["ordinal"])
+            };
+        }
+        protected override Formula CreateModel(FormulaRecord record,SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
+            Formula item = new Formula(record.id, record.stamp, lib.DomainObjectState.Unchanged
+                , record.code
+                , record.name
+                , record.type
+                , record.formula1
+                , record.formula2
+                , record.ordinal);
             return CustomBrokerWpf.References.FormulaStorage.UpdateItem(item);
         }
         protected override void GetOutputSpecificParametersValue(Formula item)
@@ -363,8 +389,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[5].Value = item.Formula2;
             return true;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class FormulaVM : lib.ViewModelErrorNotifyItem<Formula>

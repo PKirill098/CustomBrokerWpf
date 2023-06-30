@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
@@ -22,7 +23,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
         { get { return myname; } }
     }
 
-    public class ColorDBM : lib.DBMSFill<Color>
+    public class ColorDBM : lib.DBMSFill<Color,Color>
     {
         internal ColorDBM() : base()
         {
@@ -31,15 +32,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
             base.SelectCommandText = "SELECT id,name FROM dbo.Color_tb ORDER BY id";
         }
 
-        protected override Color CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override Color CreateRecord(SqlDataReader reader)
+		{
             return new Color(reader.GetString(0), reader.GetString(1));
-        }
+		}
+		protected override Color CreateModel(Color record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			return record;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(this.CreateRecord(reader));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class ColorCollection : lib.ReferenceCollectionDomainBase<Color>

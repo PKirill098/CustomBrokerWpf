@@ -14,7 +14,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         internal string Value { set; get; }
     }
 
-    internal class MailSMSDBM : lib.DBMSTake<MailSMS>
+    internal class MailSMSDBM : lib.DBMSTake<MailSMS,MailSMS>
     {
         internal MailSMSDBM(int parcel, MailSMSCommand cmd) :base()
         {
@@ -30,8 +30,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         protected override void PrepareFill(SqlConnection addcon)
         {
         }
-        protected override MailSMS CreateItem(SqlDataReader reader,SqlConnection addcon)
-        {
+		protected override MailSMS CreateRecord(SqlDataReader reader)
+		{
             MailSMS newitem = new MailSMS();
             newitem.ClientId = reader.IsDBNull(0) ? (int?)null : reader.GetInt32(0);
             newitem.LegalId = reader.IsDBNull(1) ? (int?)null : reader.GetInt32(1);
@@ -40,7 +40,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             //newitem.What = reader.GetString(0);
             newitem.Value = reader.IsDBNull(4)?string.Empty:reader.GetString(4);
             return newitem;
+		}
+        protected override MailSMS CreateModel(MailSMS reader,SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+			return reader;
         }
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			this.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,System.Func<bool> reading=null)
+		{
+			return true;
+		}
 
         private int clientid, legalid,c,m,t;
         protected override void TakeItem(MailSMS item)
@@ -74,8 +86,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                 { mysmcmd.SMS.AppendLine(item.Value); t++; }
             }
         }
-        protected override void CancelLoad()
-        {}
     }
 
     public class MailSMSCommand : lib.DomainBaseClass

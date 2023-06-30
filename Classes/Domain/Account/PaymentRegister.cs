@@ -1407,7 +1407,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             if (myloadtask != null && (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running || myloadtask.Status == System.Threading.Tasks.TaskStatus.WaitingForActivation))
             {
-                mymaindbm.CancelingLoad = true;
+                mymaindbm.LoadAsyncStop();
                 mycanceltasksource.Cancel();
                 if (myloadtask.Status == System.Threading.Tasks.TaskStatus.Running)
                     myloadtask.Wait(500);

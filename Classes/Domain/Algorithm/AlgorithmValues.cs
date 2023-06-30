@@ -7,9 +7,20 @@ using System.Windows.Media;
 using System.Data.SqlClient;
 using System.Collections.ObjectModel;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
+using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
 {
+    public struct AlgorithmValuesRecord
+    {
+        internal int id;
+        internal long stamp;
+        internal int algorithm;
+        internal int formula;
+        internal decimal? value1;
+        internal decimal? value2;
+    }
+
     public class AlgorithmValues : lib.DomainBaseStamp
     {
         public AlgorithmValues(int id, long stamp, lib.DomainObjectState state
@@ -553,7 +564,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
     }
 
-    public class AlgorithmValuesDBM : lib.DBManagerStamp<AlgorithmValues>
+    public class AlgorithmValuesDBM : lib.DBManagerStamp<AlgorithmValuesRecord,AlgorithmValues>
     {
         public AlgorithmValuesDBM(ObservableCollection<Algorithm> algorithms, ObservableCollection<Formula> formulas, AlgorithmValuesStorage storage) : base()
         {
@@ -604,26 +615,36 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         internal int? AlgorithmId
         { set { SelectParams[1].Value = value; } }
 
-        protected override AlgorithmValues CreateItem(SqlDataReader reader, SqlConnection addcon)
+        protected override AlgorithmValuesRecord CreateRecord(SqlDataReader reader)
         {
-            int algid = reader.GetInt32(2);
-            int frmid = reader.GetInt32(3);
+            return new AlgorithmValuesRecord()
+            {
+                id = reader.GetInt32(0)
+                , stamp = reader.GetInt64(1)
+                , algorithm=reader.GetInt32(2)
+                , formula=reader.GetInt32(3)
+                , value1=reader.IsDBNull(4) ? (decimal?)null : reader.GetDecimal(4)
+                , value2=reader.IsDBNull(5) ? (decimal?)null : reader.GetDecimal(5)
+            };
+        }
+        protected override AlgorithmValues CreateModel(AlgorithmValuesRecord record, SqlConnection addcon, CancellationToken canceltasktoken = default)
+        {
             Algorithm algorithm = null;
             Formula formula = null;
             foreach (Algorithm alg in myalgorithms)
-                if (alg.Id == algid)
+                if (alg.Id == record.algorithm)
                 {
                     algorithm = alg;
                     break;
                 }
             foreach (Formula frm in myformulas)
-                if (frm.Id == frmid)
+                if (frm.Id == record.formula)
                 {
                     formula = frm;
                     break;
                 }
-            AlgorithmValues newitem = new AlgorithmValues(reader.GetInt32(0), reader.GetInt64(1), lib.DomainObjectState.Unchanged
-                , algorithm, formula, reader.IsDBNull(4) ? (decimal?)null : reader.GetDecimal(4), reader.IsDBNull(5) ? (decimal?)null : reader.GetDecimal(5));
+            AlgorithmValues newitem = new AlgorithmValues(record.id, record.stamp, lib.DomainObjectState.Unchanged
+                , algorithm, formula, record.value1, record.value2);
             return newitem;//mystorage.UpdateItem()
         }
         protected override void GetOutputSpecificParametersValue(AlgorithmValues item)
@@ -659,8 +680,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             }
             return isSuccess;
         }
-        protected override void CancelLoad()
-        { }
     }
 
     public class AlgorithmValuesVM : lib.ViewModelErrorNotifyItem<AlgorithmValues>

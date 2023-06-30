@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -224,7 +225,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class WarehouseRUDBM : lib.DBManagerStamp<WarehouseRU>
+    public class WarehouseRUDBM : lib.DBManagerStamp<SqlDataReader,WarehouseRU>
     {
         public WarehouseRUDBM()
         {
@@ -275,11 +276,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public lib.SQLFilter.SQLFilter Filter
         { set { myfilter = value; } get { return myfilter; } }
 
-        protected override void CancelLoad()
-        {
-            myrdbm.CancelingLoad = this.CancelingLoad;
-        }
-        protected override WarehouseRU CreateItem(SqlDataReader reader, SqlConnection addcon)
+        //protected override void CancelLoad()
+        //{
+        //    myrdbm.CancelingLoad = this.CancelingLoad;
+        //}
+		protected override SqlDataReader CreateRecord(SqlDataReader reader)
+		{
+			return reader;
+		}
+        protected override WarehouseRU CreateModel(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
         {
             List<lib.DBMError> errors = new List<DBMError>();
             CustomerLegal legal = CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(reader.GetInt32(this.Fields["costomer"]), addcon, out errors);
@@ -301,6 +306,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             sku.CustomerLegalsPropertyUpdate();
             return sku;
         }
+		protected override void GetRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken canceltasktoken = default)
+		{
+			base.ModelFirst = this.CreateModel(reader, addcon, canceltasktoken);
+		}
+		protected override WarehouseRU GetModel(SqlConnection addcon, CancellationToken canceltasktoken)
+		{
+			return base.ModelFirst;
+		}
+		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+		{
+			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
+		}
+		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
+		{
+			return true;
+		}
 
         protected override void GetOutputSpecificParametersValue(WarehouseRU item)
         {
