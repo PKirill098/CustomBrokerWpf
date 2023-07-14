@@ -74,8 +74,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (CurrentUserRoles.Contains("Accounts"))
             {
                 App.Current.MainWindow = new AccountMainWin();
-                Classes.WarningAsyncItemPrepay prepay = new Classes.WarningAsyncItemPrepay();
-                mywarningasync = new Classes.WarningAsync(prepay);
+                //Classes.WarningAsyncItemPrepay prepay = new Classes.WarningAsyncItemPrepay();
+                //mywarningasync = new Classes.WarningAsync(prepay);
             }
             else if (CurrentUserRoles.Contains("Warehouse"))
             {

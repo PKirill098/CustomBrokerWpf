@@ -605,7 +605,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		}
 		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
 		{
-            bool success = base.GetModels(canceltasktoken);
+            bool success = base.GetModels(canceltasktoken,reading);
             if (!myisrefreshcollection || canceltasktoken.IsCancellationRequested) return success;
             foreach (Customer item in this.Collection)
             {

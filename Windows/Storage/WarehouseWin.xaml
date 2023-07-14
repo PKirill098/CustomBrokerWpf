@@ -40,6 +40,9 @@
             </DataGrid.Columns>
         </DataGrid>
 		<StatusBar Grid.Row="2" Background="#FFF0F0F0">
+			<StatusBarItem>
+				<TextBlock Text="{Binding Path=MessageLast}"/>
+			</StatusBarItem>
 			<StatusBarItem HorizontalAlignment="Right">
 				<TextBlock Text="{Binding Path=Items.Count}"/>
 			</StatusBarItem>

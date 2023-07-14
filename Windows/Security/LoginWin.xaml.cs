@@ -34,7 +34,7 @@ namespace KirillPolyanskiy.HotelWpf
             }
             if(passwordBox.SecurePassword.Length==0 & newpasswordBox.SecurePassword.Length == 0 & new2passwordBox.SecurePassword.Length == 0)
             {
-                ChanheTB.IsChecked = true;
+                ChangeTB.IsChecked = true;
                 newpasswordBox.Visibility = Visibility.Visible;
                 new2passwordBox.Visibility = Visibility.Visible;
                 newpasswordBlock.Visibility = Visibility.Visible;
@@ -83,10 +83,10 @@ namespace KirillPolyanskiy.HotelWpf
             }
         }
 
-        private void ChanheTB_Click(object sender, RoutedEventArgs e)
+        private void ChangeTB_Click(object sender, RoutedEventArgs e)
         {
             Visibility v;
-            if (ChanheTB.IsChecked.Value) v = Visibility.Visible; else v = Visibility.Collapsed;
+            if (ChangeTB.IsChecked.Value) v = Visibility.Visible; else v = Visibility.Collapsed;
             newpasswordBox.Visibility = v;
             new2passwordBox.Visibility = v;
             newpasswordBlock.Visibility = v;
@@ -129,6 +129,5 @@ namespace KirillPolyanskiy.HotelWpf
             conn.Open();
             return cmd.ExecuteReader(CommandBehavior.CloseConnection & CommandBehavior.SingleResult);
         }
-
     }
 }
