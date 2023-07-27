@@ -59,7 +59,7 @@ namespace KirillPolyanskiy.HotelWpf
                     cmd.Parameters.Add(new SqlParameter("@param2", passwordBox.Password));
                     cmd.Parameters.Add(new SqlParameter("@param3", newpasswordBox.Password));
                     cmd.Parameters.Add(new SqlParameter("@param4", SqlDbType.NVarChar,15));
-                    cmd.Parameters.Add(new SqlParameter("@param5", SqlDbType.NVarChar, 15));
+                    cmd.Parameters.Add(new SqlParameter("@param5", SqlDbType.NVarChar, 120));
                     cmd.Parameters[3].Direction = ParameterDirection.Output;
                     cmd.Parameters[4].Direction = ParameterDirection.Output;
                     cmd.Connection = conn;
@@ -72,7 +72,7 @@ namespace KirillPolyanskiy.HotelWpf
                     else
                     {
                         myresult1 = (string)cmd.Parameters[3].Value;
-                        myresult2 = string.IsNullOrEmpty(newpasswordBox.Password) ? passwordBox.Password : newpasswordBox.Password;
+                        myresult2 = string.IsNullOrEmpty((string)cmd.Parameters[4].Value) ? (string.IsNullOrEmpty(newpasswordBox.Password) ? passwordBox.Password : newpasswordBox.Password) : (string)cmd.Parameters[4].Value;
                         myresult3 = textBox1.Text;
                         this.DialogResult = true;
                         this.Close();
@@ -110,7 +110,7 @@ namespace KirillPolyanskiy.HotelWpf
                     SqlDataReader reader = GetReader(conn);
                     while (reader.Read())
                     {
-                        mylogins.Add(new Classes.LoginVM(reader.GetString(0), reader.GetBoolean(1)));
+                        mylogins.Add(new Classes.LoginVM(reader.GetString(reader.GetOrdinal("name")), reader.GetBoolean(reader.GetOrdinal("isnew"))));
                     }
                     reader.Close();
                 }

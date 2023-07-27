@@ -22,7 +22,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 try
                 {
-                    con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=1");
+                    con = new SqlConnection(CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8;Connect Timeout=2");
                     con.Open();
                     con.Close();
                     myconnectionstring = CustomBrokerWpf.Properties.Settings.Default.CustomBrokerConnectionString2 + "User ID=farlogin;Password=df(*&G$WXPOIN6S87g786rayo56358G65R(G6%#2ES^o8";
