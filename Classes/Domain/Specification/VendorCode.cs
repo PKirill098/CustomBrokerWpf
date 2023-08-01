@@ -1280,7 +1280,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.TNVED)) Items.Add(item.TNVED);
+            if (!Items.Contains(item.TNVED??string.Empty)) Items.Add(item.TNVED??string.Empty);
         }
     }
     public class VendorCodeTranslationFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
