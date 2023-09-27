@@ -248,5 +248,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             int n = (e.Source as DataGrid).CurrentColumn.DisplayIndex - 4;
             if(n>=0) mycmd.DeleteAlgorithm(n);
         }
-    }
+
+		private void MoveDown_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+            e.CanExecute = mycmd.MoveDown==null ? false : mycmd.MoveDown.CanExecute((e.Source as DataGrid).SelectedItem);
+		}
+		private void MoveDown_Execute(object sender, ExecutedRoutedEventArgs e)
+		{
+            DataGrid dg = e.Source as DataGrid;
+            dg.CommitEdit();
+            mycmd.MoveDown.Execute(dg.SelectedItem);
+            dg.Focus();
+		}
+		private void MoveUp_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+            e.CanExecute = mycmd.MoveUp==null ? false : mycmd.MoveUp.CanExecute((e.Source as DataGrid).SelectedItem);
+		}
+		private void MoveUp_Execute(object sender, ExecutedRoutedEventArgs e)
+		{
+            DataGrid dg = e.Source as DataGrid;
+            dg.CommitEdit();
+            mycmd.MoveUp.Execute(dg.SelectedItem);
+            dg.Focus();
+		}
+	}
 }

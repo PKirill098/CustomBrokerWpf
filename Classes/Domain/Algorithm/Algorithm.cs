@@ -25,6 +25,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         private byte myindex;
         public byte Index
         { set { SetProperty<byte>(ref myindex, value); } get { return myindex; } }
+        private List<AlgorithmFuncValue> mylistfunc;
+        internal List<AlgorithmFuncValue> ListFunc { set { mylistfunc = value; } get { return mylistfunc; } }
 
         private ObservableCollection<AlgorithmValues> myformulas;
         internal ObservableCollection<AlgorithmValues> Formulas
@@ -171,24 +173,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
 
     internal class AlgorithmFuncValue
     {
+        internal AlgorithmFuncValue():this(string.Empty,(string eer) => { return 0M; })
+        {
+
+        }
+        internal AlgorithmFuncValue(string name, Func<string,decimal> func)
+        {
+            myformula = name;
+            myfunc = func;
+        }
         private string myformula;
-        private Func<bool> myfunc;
-        internal Func<bool> FuncValue
+        internal string Name
+        { get { return myformula; } }
+        private Func<string,decimal> myfunc;
+        internal Func<string,decimal> FuncValue
         {
             set
             {
-                //if (value != null & string.IsNullOrEmpty(myformula))
-                //{
-                //    myformula = myformula.Formula1;
-                //    myformula.Formula1 = "ПРОГРАММА";
-                //}
-                //else if (!(value != null | string.IsNullOrEmpty(myformula)))
-                //{
-                //    myformula.Formula1 = myformula;
-                //    myformula = string.Empty;
-                //}
                 myfunc = value;
             }
+            get { return myfunc; }
         }
     }
 }

@@ -1238,42 +1238,42 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Brand)) Items.Add(item.Brand);
+            if (!Items.Contains(item.Brand??string.Empty)) Items.Add(item.Brand ?? string.Empty);
         }
     }
     public class VendorCodeContextureFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Contexture)) Items.Add(item.Contexture);
+            if (!Items.Contains(item.Contexture??string.Empty)) Items.Add(item.Contexture ?? string.Empty);
         }
     }
     public class VendorCodeCountryRuFilter : libui.CheckListBoxVMFillDefault<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.CountryRU)) Items.Add(item.CountryRU);
+            if (!Items.Contains(item.CountryRU ?? string.Empty)) Items.Add(item.CountryRU??string.Empty);
         }
     }
     public class VendorCodeDescriptionFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Description)) Items.Add(item.Description);
+            if (!Items.Contains(item.Description ?? string.Empty)) Items.Add(item.Description ?? string.Empty);
         }
     }
     public class VendorCodeGoodsFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Goods)) Items.Add(item.Goods);
+            if (!Items.Contains(item.Goods??string.Empty)) Items.Add(item.Goods??string.Empty);
         }
     }
     public class VendorCodeNoteFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Note)) Items.Add(item.Note);
+            if (!Items.Contains(item.Note ?? string.Empty)) Items.Add(item.Note ?? string.Empty);
         }
     }
     public class VendorCodeTNVEDFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
@@ -1287,14 +1287,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Translation)) Items.Add(item.Translation);
+            if (!Items.Contains(item.Translation ?? string.Empty)) Items.Add(item.Translation ?? string.Empty);
         }
     }
     public class VendorCodeCodeFilter : libui.CheckListBoxVMFill<VendorCodeVM, string>
     {
         protected override void AddItem(VendorCodeVM item)
         {
-            if (!Items.Contains(item.Code)) Items.Add(item.Code);
+            if (!Items.Contains(item.Code ?? string.Empty)) Items.Add(item.Code ?? string.Empty);
         }
     }
 }

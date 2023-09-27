@@ -80,15 +80,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             foreach (Algorithm alg in myalgorithms)
                 alg.FormulasInit();
             myview1 = new ListCollectionView(myalgorithmformulas);
-            myview1.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
             myview1.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return lib.ViewModelViewCommand.ViewFilterDefault(item) && formula.DomainObject.FormulaType < 100; };
+            myview1.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
             myview1.MoveCurrentToPosition(-1);
             myview2 = new ListCollectionView(myalgorithmformulas);
-            myview2.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
             myview2.Filter = (object item) => { FormulaVM formula = (item as AlgorithmFormula).Formula; return lib.ViewModelViewCommand.ViewFilterDefault(item) && formula.DomainObject.FormulaType > 100; };
+            myview2.SortDescriptions.Add(new System.ComponentModel.SortDescription("Formula.Order", System.ComponentModel.ListSortDirection.Ascending));
             myview2.MoveCurrentToPosition(-1);
+            
             myaddalgorithm = new RelayCommand(AddAlgorithmExec, AddAlgorithmCanExec);
             mydelalgorithm = new RelayCommand(DelAlgorithmExec, DelAlgorithmCanExec);
+            mymovedown = new RelayCommand(MoveDownExec, MoveDownCanExec);
+            mymoveup = new RelayCommand(MoveUpExec, MoveUpCanExec);
+            myupdate = new RelayCommand(UpdateExec, UpdateCanExec);
 
             if (err.Length > 22)
                 this.OpenPopup(err.ToString(), true);
@@ -185,6 +189,57 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             }
         }
         private bool DelAlgorithmCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand mymovedown;
+        public ICommand MoveDown
+        {
+            get { return mymovedown; }
+        }
+        private void MoveDownExec(object parametr)
+        {
+            if (parametr is AlgorithmFormula)
+            {
+                AlgorithmFormula frm = parametr as AlgorithmFormula;
+                frm.Formula.DomainObject.Order+=1;
+                if (frm.Formula.FormulaType > 100)
+                    myview2.Refresh();
+                else
+                    myview1.Refresh();
+            }
+        }
+        private bool MoveDownCanExec(object parametr)
+        { return true; }
+        private RelayCommand mymoveup;
+        public ICommand MoveUp
+        {
+            get { return mymoveup; }
+        }
+        private void MoveUpExec(object parametr)
+        {
+            if (parametr is AlgorithmFormula)
+            {
+                AlgorithmFormula frm = parametr as AlgorithmFormula;
+                frm.Formula.DomainObject.Order-=1;
+                if (frm.Formula.FormulaType > 100)
+                    myview2.Refresh();
+                else
+                    myview1.Refresh();
+            }
+        }
+        private bool MoveUpCanExec(object parametr)
+        { return true; }
+
+        private RelayCommand myupdate;
+        public ICommand Update
+        {
+            get { return myupdate; }
+        }
+        private void UpdateExec(object parametr)
+        {
+            lib.DBMEFunc dbm = new lib.DBMEFunc();
+        }
+        private bool UpdateCanExec(object parametr)
         { return true; }
 
         public Visibility Algorithm1ColumnVisibility
@@ -377,6 +432,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 else
                 {
                     newformula.FormulaType = 101;
+                    newformula.DomainObject.Order = 9;
                     myview2.AddNewItem(newitem);
                     myview2.CommitNew();
                 }

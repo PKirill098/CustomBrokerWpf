@@ -12,7 +12,7 @@
             <RowDefinition Height="32"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <ToolBar IsTabStop="False" Height="32">
+		<ToolBar IsTabStop="False" Height="32" FocusManager.IsFocusScope="True">
             <Button ToolTip="Добавить формулу в первый раздел" Command="{Binding Path=Add}" CommandParameter="1" IsTabStop="False" Visibility="{Binding Path=WriterMenuVisible}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="✚" FontFamily="Segoe UI Symbol" FontSize="14" Foreground="Green" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -43,7 +43,20 @@
                     <TextBlock Text="А" FontSize="18" Foreground="Red" FontWeight="Bold" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <Separator Visibility="{Binding Path=WriterMenuVisible}"/>
+			<Separator Visibility="{Binding Path=WriterMenuVisible}"/>
+			<Button ToolTip="Переместить строку вниз" Command="CancelPrint" IsTabStop="False" Focusable="False" Visibility="{Binding Path=WriterMenuVisible}">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="↓" FontFamily="Segoe UI Symbol" FontSize="18" Foreground="Green" FontWeight="Bold" VerticalAlignment="Center"/>
+					<TextBlock Text="Вниз" FontSize="16" Foreground="Green" FontWeight="Bold" VerticalAlignment="Center"/>
+				</StackPanel>
+			</Button>
+			<Button ToolTip="Переместить строку вверх" Command="PrintPreview" IsTabStop="False" Visibility="{Binding Path=WriterMenuVisible}">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="↑" FontFamily="Segoe UI Symbol" FontSize="18" Foreground="Green" FontWeight="Bold" VerticalAlignment="Center"/>
+					<TextBlock Text="Вверх" FontSize="16" Foreground="Green" FontWeight="Bold" VerticalAlignment="Center"/>
+				</StackPanel>
+			</Button>
+			<Separator Visibility="{Binding Path=WriterMenuVisible}"/>
             <Button Command="Copy" ToolTip="Копировать" IsTabStop="False">
                 <Image Source="/CustomBrokerWpf;component/Images/copy.png" />
             </Button>
@@ -88,7 +101,13 @@
                         <CommandBinding Command="{x:Static ApplicationCommands.Cut}" 
                             CanExecute="DeleteAlgorithm_CanExecute"
                             Executed="DeleteAlgorithm_Execute" />
-                    </DataGrid.CommandBindings>
+						<CommandBinding Command="{x:Static ApplicationCommands.CancelPrint}" 
+                            CanExecute="MoveDown_CanExecute"
+                            Executed="MoveDown_Execute" />
+						<CommandBinding Command="{x:Static ApplicationCommands.PrintPreview}" 
+                            CanExecute="MoveUp_CanExecute"
+                            Executed="MoveUp_Execute" />
+					</DataGrid.CommandBindings>
                     <DataGrid.Resources>
                         <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0.5,0" EndPoint="0.5,1">
                             <GradientStop Color="#FFFCD5B4" Offset="0"/>
@@ -1312,7 +1331,13 @@
                         <CommandBinding Command="{x:Static ApplicationCommands.Cut}" 
                             CanExecute="DeleteAlgorithm_CanExecute"
                             Executed="DeleteAlgorithm_Execute" />
-                    </DataGrid.CommandBindings>
+						<CommandBinding Command="{x:Static ApplicationCommands.CancelPrint}" 
+                            CanExecute="MoveDown_CanExecute"
+                            Executed="MoveDown_Execute" />
+						<CommandBinding Command="{x:Static ApplicationCommands.PrintPreview}" 
+                            CanExecute="MoveUp_CanExecute"
+                            Executed="MoveUp_Execute" />
+					</DataGrid.CommandBindings>
                     <DataGrid.Resources>
                         <Style x:Key="FormulaHeaderStyle" TargetType="DataGridColumnHeader">
                             <Setter Property="Height" Value="7"/>

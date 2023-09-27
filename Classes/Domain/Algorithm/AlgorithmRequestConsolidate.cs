@@ -500,9 +500,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
             InsertParams = new SqlParameter[]
             {
-            myinsertparams[0],
-            new SqlParameter("@parcelid", System.Data.SqlDbType.Int),
-            new SqlParameter("@group", System.Data.SqlDbType.NVarChar,5),
+                myinsertparams[0],
+                new SqlParameter("@parcelid", System.Data.SqlDbType.Int),
+                new SqlParameter("@group", System.Data.SqlDbType.NVarChar,5),
+                new SqlParameter("@ordinal", System.Data.SqlDbType.Int),
             };
             InsertUpdateParams = new SqlParameter[]
             {
@@ -540,13 +541,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             {
                 id = reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0)
                 , stamp = reader.IsDBNull(1) ? 0 : reader.GetInt64(1)
-                , value1 = reader.IsDBNull(reader.GetOrdinal("value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1"))
-                , value2 = reader.IsDBNull(reader.GetOrdinal("value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2"))
-                , value1user = reader.IsDBNull(reader.GetOrdinal("value1user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1user"))
-                , value2user =  reader.IsDBNull(reader.GetOrdinal("value2user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2user"))
-                , afstamp = reader.IsDBNull(reader.GetOrdinal("afstamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("afstamp"))
+                , value1 = reader.IsDBNull(this.Fields["value1"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1"])
+                , value2 = reader.IsDBNull(this.Fields["value2"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2"])
+                , value1user = reader.IsDBNull(this.Fields["value1user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1user"])
+                , value2user =  reader.IsDBNull(this.Fields["value2user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2user"])
+                , afstamp = reader.IsDBNull(this.Fields["afstamp"]) ? 0 : reader.GetInt64(this.Fields["afstamp"])
             };
-            item.formula.id = reader.GetInt32(reader.GetOrdinal("formulaid"));
+            item.formula.id = reader.GetInt32(this.Fields["formulaid"]);
             item.formula.code = reader.GetString(this.Fields["code"]);
             item.formula.name = reader.GetString(this.Fields["name"]);
             item.formula.type = reader.GetByte(this.Fields["type"]);
@@ -612,19 +613,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         protected override bool SetSpecificParametersValue(AlgorithmValuesRequestCon item)
         {
-            myinsertparams[1].Value = mycmd.Parcel.Id;
-            myinsertparams[2].Value = mycmd.Group;
-            myinsertupdateparams[1].Value = item.Formula.Id;
-            myinsertupdateparams[2].Value = item.Formula.Code;
-            myinsertupdateparams[3].Value = item.Formula.Name;
-            myinsertupdateparams[4].Value = item.Formula.FormulaType;
-            myinsertupdateparams[5].Value = item.Formula.Formula1;
-            myinsertupdateparams[6].Value = item.Formula.Formula2;
-            myinsertupdateparams[7].Value = item.Value1;
-            myinsertupdateparams[8].Value = item.Value2;
-            myinsertupdateparams[9].Value = item.Value1User.HasValue;
-            myinsertupdateparams[10].Value = item.Value2User.HasValue;
-            myinsertupdateparams[11].Value = item.AFStamp;
+            foreach(SqlParameter par in myinsertparams)
+                switch(par.ParameterName)
+                {
+                    case "@parcelid":
+                        par.Value = mycmd.Parcel.Id;
+                        break;
+                    case "@group":
+                        par.Value = mycmd.Group;
+                        break;
+                    case "@ordinal":
+                        par.Value = item.Formula.Order;
+                        break;
+                }
+            foreach (SqlParameter par in myinsertupdateparams)
+                switch (par.ParameterName)
+                {
+                    case "@formulaid":
+                        par.Value = item.Formula.Id;
+                        break;
+                    case "@code":
+                        par.Value = item.Formula.Code;
+                        break;
+                    case "@name":
+                        par.Value = item.Formula.Name;
+                        break;
+                    case "@type":
+                        par.Value = item.Formula.FormulaType;
+                        break;
+                    case "@formula1":
+                        par.Value = item.Formula.Formula1;
+                        break;
+                    case "@formula2":
+                        par.Value = item.Formula.Formula2;
+                        break;
+                    case "@value1":
+                        par.Value = item.Value1;
+                        break;
+                    case "@value2":
+                        par.Value = item.Value2;
+                        break;
+                    case "@isuser1":
+                        par.Value = item.Value1User.HasValue;
+                        break;
+                    case "@isuser2":
+                        par.Value = item.Value2User.HasValue;
+                        break;
+                    case "@afstamp":
+                        par.Value = item.AFStamp;
+                        break;
+                }
             return true;
         }
     }

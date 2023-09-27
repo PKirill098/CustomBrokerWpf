@@ -77,17 +77,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             switch(propertyname)
             {
                 case "Code":
-                    if (string.IsNullOrEmpty(this.Code))
+                    string code = (string)value;
+                    if (string.IsNullOrEmpty(code))
                     {
                         errmsg = "Необходимо указать № !";
                         isvalid = false;
                     }
-                    else if (this.Formula1 != null && this.Formula1.IndexOf(this.Code) > -1)
+                    else if (this.Formula1 != null && this.Formula1.IndexOf(code) > -1)
                     {
                         errmsg = "Формула 1 ссылается сама на себя !";
                         isvalid = false;
                     }
-                    //else if (this.Formula2.IndexOf(this.Code) > -1)
+                    //else if (this.Formula2.IndexOf(value) > -1)
                     //{
                     //    errmsg = "Формула 2 ссылается сама на себя !";
                     //    isvalid = false;
@@ -262,7 +263,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     break;
                 default:
                     success = false;
-                    err = "Не обрабатываемая  или пропущенная операция - " + operation;
+                    err = "Не обрабатываемая или пропущенная операция - " + operation;
                     break;
             }
             return success;
@@ -320,7 +321,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 new SqlParameter("@nametrue", System.Data.SqlDbType.Bit),
                 new SqlParameter("@typetrue", System.Data.SqlDbType.Bit),
                 new SqlParameter("@formula1true", System.Data.SqlDbType.Bit),
-                new SqlParameter("@formula2true", System.Data.SqlDbType.Bit)
+                new SqlParameter("@formula2true", System.Data.SqlDbType.Bit),
+                new SqlParameter("@ordinaltrue", System.Data.SqlDbType.Bit)
             };
             InsertUpdateParams = new SqlParameter[]
             {
@@ -329,7 +331,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50),
                 new SqlParameter("@type", System.Data.SqlDbType.TinyInt),
                 new SqlParameter("@formula1", System.Data.SqlDbType.NVarChar,50),
-                new SqlParameter("@formula2", System.Data.SqlDbType.NVarChar,50)
+                new SqlParameter("@formula2", System.Data.SqlDbType.NVarChar,50),
+                new SqlParameter("@ordinal", System.Data.SqlDbType.Int)
             };
         }
 
@@ -377,16 +380,51 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         protected override bool SetSpecificParametersValue(Formula item)
         {
-            myupdateparams[1].Value = item.HasPropertyOutdatedValue("Code");
-            myupdateparams[2].Value = item.HasPropertyOutdatedValue("Name");
-            myupdateparams[3].Value = item.HasPropertyOutdatedValue("FormulaType");
-            myupdateparams[4].Value = item.HasPropertyOutdatedValue("Formula1");
-            myupdateparams[5].Value = item.HasPropertyOutdatedValue("Formula2");
-            myinsertupdateparams[1].Value = item.Code;
-            myinsertupdateparams[2].Value = item.Name;
-            myinsertupdateparams[3].Value = item.FormulaType;
-            myinsertupdateparams[4].Value = item.Formula1;
-            myinsertupdateparams[5].Value = item.Formula2;
+            foreach(SqlParameter par in myupdateparams)
+                switch(par.ParameterName)
+                {
+                    case "@codetrue":
+                        par.Value = item.HasPropertyOutdatedValue("Code");
+                        break;
+                    case "@nametrue":
+                        par.Value = item.HasPropertyOutdatedValue("Name");
+                        break;
+                    case "@typetrue":
+                        par.Value = item.HasPropertyOutdatedValue("FormulaType");
+                        break;
+                    case "@formula1true":
+                        par.Value = item.HasPropertyOutdatedValue("Formula1");
+                        break;
+                    case "@formula2true":
+                        par.Value = item.HasPropertyOutdatedValue("Formula2");
+                        break;
+                    case "@ordinaltrue":
+                        par.Value = item.HasPropertyOutdatedValue("Order");
+                        break;
+                }
+            foreach (SqlParameter par in myinsertupdateparams)
+                switch (par.ParameterName)
+                {
+                    case "@code":
+                        par.Value = item.Code;
+                        break;
+                    case "@name":
+                        par.Value = item.Name;
+                        break;
+                    case "@type":
+                        par.Value = item.FormulaType;
+                        break;
+                    case "@formula1":
+                        par.Value = item.Formula1;
+                        break;
+                    case "@formula2":
+                        par.Value = item.Formula2;
+                        break;
+                    case "@ordinal":
+                        par.Value = item.Order;
+                        break;
+                }
+
             return true;
         }
     }

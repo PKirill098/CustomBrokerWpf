@@ -39,47 +39,58 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             switch(this.Formula.Code)
             {
                 case "Р1":
-                    this.FuncValue1 = (string eer) =>
+                    if (myrequest.ServiceType == "ТЭО")
+                        this.Formula.Formula1 = "Р5";
+                    else
                     {
-                        decimal p1 =
-                            myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
-                            {
-                                return legal.Prepays.Count();
-                            });
-                        if (p1 == 1M)
-                            p1 =
-                            myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
-                            {
-                                return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
-                                {
-                                    return prepay.Prepay.CBRatep2p ?? 0M;
-                                });
-                            });
-                        else if (p1 > 1M)
+                        this.Formula.Formula1 = "{Курс ЦБ +2%}";
+                        this.FuncValue1 = (string eer) =>
                         {
-                            p1 =
-                            myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
-                            {
-                                return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
+                            decimal p1 =
+                                myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
                                 {
-                                    return prepay.DTSum == 0 ? prepay.EuroSum : prepay.DTSum;
+                                    return legal.Prepays.Count();
                                 });
-                            });
-                            p1 =
-                           myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
-                           {
-                               return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
+                            if (p1 == 1M)
+                                p1 =
+                                myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
+                                {
+                                    return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
+                                    {
+                                        return prepay.Prepay.CBRatep2p ?? 0M;
+                                    });
+                                });
+                            else if (p1 > 1M)
+                            {
+                                p1 =
+                                myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
+                                {
+                                    return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
+                                    {
+                                        return prepay.DTSum == 0 ? prepay.EuroSum : prepay.DTSum;
+                                    });
+                                });
+                                p1 =
+                               myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
                                {
-                                   return (prepay.Prepay.CBRatep2p ?? 0M) * (prepay.DTSum == 0 ? prepay.EuroSum : prepay.DTSum);
-                               });
-                           })
-                           / p1;
-                        }
-                        return p1;
-                    };
+                                   return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
+                                   {
+                                       return (prepay.Prepay.CBRatep2p ?? 0M) * (prepay.DTSum == 0 ? prepay.EuroSum : prepay.DTSum);
+                                   });
+                               })
+                               / p1;
+                            }
+                            return p1;
+                        };
+                    }
                     break;
                 case "Р2":
-                    this.FuncValue1 = (string eer) =>
+                    if (myrequest.ServiceType == "ТЭО")
+                        this.Formula.Formula1 = "Р5";
+                    else
+                    {
+                        this.Formula.Formula1 = "{Курс покупки}";
+                        this.FuncValue1 = (string eer) =>
                     {
                         decimal p1 =
                             myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
@@ -118,6 +129,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         }
                         return p1;
                     };
+                    }
                     break;
                 case "Р3":
                     this.FuncValue1 = (string eer) =>
@@ -736,13 +748,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             {
                 id = reader.IsDBNull(0) ? lib.NewObjectId.NewId : reader.GetInt32(0)
                 ,stamp = reader.IsDBNull(1) ? 0 : reader.GetInt64(1)
-                , value1 = reader.IsDBNull(reader.GetOrdinal("value1")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1"))
-                , value2 = reader.IsDBNull(reader.GetOrdinal("value2")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2"))
-                , value1user = reader.IsDBNull(reader.GetOrdinal("value1user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value1user"))
-                , value2user =  reader.IsDBNull(reader.GetOrdinal("value2user")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("value2user"))
-                , afstamp = reader.IsDBNull(reader.GetOrdinal("afstamp")) ? 0 : reader.GetInt64(reader.GetOrdinal("afstamp"))
+                , value1 = reader.IsDBNull(this.Fields["value1"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1"])
+                , value2 = reader.IsDBNull(this.Fields["value2"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2"])
+                , value1user = reader.IsDBNull(this.Fields["value1user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value1user"])
+                , value2user =  reader.IsDBNull(this.Fields["value2user"]) ? (decimal?)null : reader.GetDecimal(this.Fields["value2user"])
+                , afstamp = reader.IsDBNull(this.Fields["afstamp"]) ? 0 : reader.GetInt64(this.Fields["afstamp"])
             };
-            item.formula.id = reader.GetInt32(reader.GetOrdinal("formulaid"));
+            item.formula.id = reader.GetInt32(this.Fields["formulaid"]);
             item.formula.code = reader.GetString(this.Fields["code"]);
             item.formula.name = reader.GetString(this.Fields["name"]);
             item.formula.type = reader.GetByte(this.Fields["type"]);
