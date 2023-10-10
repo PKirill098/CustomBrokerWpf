@@ -316,7 +316,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     ChangingDomainProperty = name; this.DomainObject.Expired = value;
                 }
             }
-            get { return this.IsEnabled ? !this.DomainObject.Expired : false; }
+            get { return this.IsEnabled ? this.DomainObject.Expired : false; }
         }
         public DateTime? ExpiryDate
         {

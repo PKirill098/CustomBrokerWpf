@@ -697,8 +697,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                     mycontracts = new ListCollectionView(mycntrsync.ViewModelCollection);
                     mycontracts.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
-                    mycontracts.SortDescriptions.Add(new System.ComponentModel.SortDescription("Expired", System.ComponentModel.ListSortDirection.Descending));
                     mycontracts.SortDescriptions.Add(new System.ComponentModel.SortDescription("ExpiryDate", System.ComponentModel.ListSortDirection.Descending));
+                    mycontracts.SortDescriptions.Add(new System.ComponentModel.SortDescription("Expired", System.ComponentModel.ListSortDirection.Descending));
                 }
                 return mycontracts;
             }

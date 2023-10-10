@@ -18,7 +18,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ToolBar Height="32">
-            <Button x:Name="AddButton" ToolTip="Добавить клиента" Click="AddButton_Click">
+			<Button ToolTip="в Excel" Command="{Binding CreateExcelReport}" Visibility="{Binding Source={StaticResource keyVisibilityTopManagers},Path=Visibility}">
+				<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
+			</Button>
+			<Separator/>
+			<Button x:Name="AddButton" ToolTip="Добавить клиента" Click="AddButton_Click">
                 <Image Source="/CustomBrokerWpf;component/Images/rPlus_01-66-512.png" />
             </Button>
             <!--<Button ToolTip="Удалить клиента" Command="{Binding Delete}">

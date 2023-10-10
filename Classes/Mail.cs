@@ -371,8 +371,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
                                             if (sent == 2)
                                                 item.Updated = DateTime.Now;
                                         }
-                                        if (sent == 0)
-                                            mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "2"));
+                                        //if (sent == 0)
+                                        //    mysenderrors.Add(new lib.DBMError(this, "Не найден адрес рассылки для " + CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(item.CustomerId,out _)?.Name ?? string.Empty, "2"));
                                     }
                                 }
                             }
