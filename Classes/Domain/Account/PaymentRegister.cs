@@ -1218,10 +1218,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         return;
                     }
                     CustomBrokerWpf.References.RequestStore.UpdateItem(request);
-                    CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(request.CustomerLegals[0]);
-                    CustomBrokerWpf.References.PrepayRequestStore.UpdateItem(request.CustomerLegals[0].Prepays[0]);
+                    CustomBrokerWpf.References.RequestCustomerLegalStore.UpdateItem(legal);
+                    CustomBrokerWpf.References.PrepayRequestStore.UpdateItem(legal.Prepays[0]);
                     pfdbm.GetFirst();
-                    mysync.DomainCollection.Add(request.CustomerLegals[0].Prepays[0]);
+                    mysync.DomainCollection.Add(legal.Prepays[0]);
                 }
                 prepay.EuroSum = prepay.DTSum;
                 mymaindbm.SaveItemChanches(prepay.DomainObject);
@@ -1230,6 +1230,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 					{
                         mymaindbm.ItemId = item.Id;
                         mymaindbm.GetFirst();
+                        if (mymaindbm.Errors.Count > 0)
+                        {
+                            this.OpenPopup(mymaindbm.ErrorMessage, true);
+                            return;
+                        }
                         mymaindbm.ItemId = null;
                         break;
 					}

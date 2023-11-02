@@ -2206,14 +2206,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         public override void AcceptChanches()
         {
-            bool sendmail = this.HasPropertyOutdatedValue(nameof(Request.Status)) && this.Status != this.GetPropertyOutdatedValue(nameof(Request.Status))
-                           & ( this.Status.Id == 1
-                               || this.Status.Id == 30
-                               || this.Status.Id == 70
-                               || this.Status.Id == 90
-                               || this.Status.Id == 100
-                               || this.Status.Id == 104
-                               || this.Status.Id == 107);
+            bool sendmail = CustomBrokerWpf.References.CurrentUserRoles.Contains("Managers")
+                && this.HasPropertyOutdatedValue(nameof(Request.Status)) && this.Status != this.GetPropertyOutdatedValue(nameof(Request.Status))
+                & ( this.Status.Id == 1
+                    || this.Status.Id == 30
+                    || this.Status.Id == 70
+                    || this.Status.Id == 90
+                    || this.Status.Id == 100
+                    || this.Status.Id == 104
+                    || this.Status.Id == 107);
             base.AcceptChanches();
             if(sendmail)
                 SendMailStatus();

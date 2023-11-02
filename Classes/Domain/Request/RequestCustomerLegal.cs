@@ -448,7 +448,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public override void AcceptChanches()
         {
             bool sendmail = false;
-            if (this.Id < 0)
+            if (this.Id < 0 && CustomBrokerWpf.References.CurrentUserRoles.Contains("Managers"))
                 sendmail = true;
             base.AcceptChanches();
             if (sendmail)

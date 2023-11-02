@@ -974,22 +974,52 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mypdbm = new PrepayDBM();
         }
 
+        private int? myid;
         private CustomerLegal mycustomer;
         internal CustomerLegal Customer
-        { set { mycustomer = value; } get { return mycustomer; } }
+        { set 
+            { 
+                if ((mycustomer == null) != (value == null)) 
+                    this.Fields.Clear();
+                mycustomer = value; 
+            }
+            get { return mycustomer; } }
         private Importer myimporter;
         internal Importer Importer
         { set { myimporter = value; } get { return myimporter; } }
         private Parcel myparcel;
         internal Parcel Parcel
-        { set { myparcel = value; } get { return myparcel; } }
-        internal Prepay Prepay { set; get; }
+        { 
+            set { 
+                if ((myparcel == null) != (value == null)) 
+                    this.Fields.Clear();
+                myparcel = value;
+            } 
+            get { return myparcel; }
+        }
+        private Prepay myprepay;
+        internal Prepay Prepay 
+        {
+            set
+            {                
+                if ((myprepay == null) != (value == null)) 
+                    this.Fields.Clear();
+                myprepay = value;
+ }
+            get { return myprepay; }
+        }
         private RequestCustomerLegal myrequestcustomer;
         internal RequestCustomerLegal RequestCustomer
         { set { myrequestcustomer = value; } get { return myrequestcustomer; } }
         private lib.SQLFilter.SQLFilter myfilter;
         internal lib.SQLFilter.SQLFilter Filter
-        { set { myfilter = value; } get { return myfilter; } }
+        { set 
+            { 
+                if ((myfilter?.isEmpty??true) != value.isEmpty) 
+                    this.Fields.Clear();
+                myfilter = value;
+            } 
+            get { return myfilter; } }
         private PrepayDBM mypdbm;
         private RequestDBM myrdbm;
         public RequestDBM RequestDBM
@@ -1005,8 +1035,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , eurosum = reader.GetDecimal(this.Fields["eurosum"])
                 , expirydate = reader.IsDBNull(this.Fields["expirydate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["expirydate"])
                 , note = reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
-                , prepay = reader.GetInt32(reader.GetOrdinal("prepayid"))
-                , request = reader.GetInt32(reader.GetOrdinal("requestid"))
+                , prepay = reader.GetInt32(this.Fields["prepayid"])
+                , request = reader.GetInt32(this.Fields["requestid"])
                 , selling = reader.IsDBNull(this.Fields["selling"]) ? (decimal?)null : reader.GetDecimal(this.Fields["selling"])
                 , sellingdate = reader.IsDBNull(this.Fields["sellingdate"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["sellingdate"])
                 , sellingrate = reader.GetDecimal(this.Fields["sellingrate"])
@@ -1158,6 +1188,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)
                 {
+                    case "@id":
+                        if (myid.HasValue != this.ItemId.HasValue)
+                            this.Fields.Clear();
+                        myid = (int?)par.Value;
+                        break;
                     case "@customerid":
                         par.Value = myrequestcustomer?.CustomerLegal?.Id ?? mycustomer?.Id;
                         break;

@@ -678,24 +678,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             SelectParams = new SqlParameter[] {
             new SqlParameter("@group", System.Data.SqlDbType.NVarChar,5),
             new SqlParameter("@parcel", System.Data.SqlDbType.Int),
-            new SqlParameter("@requestid", System.Data.SqlDbType.Int),
-            new SqlParameter("@requestsid", System.Data.SqlDbType.Structured),
-            new SqlParameter("@weight", System.Data.SqlDbType.Money),
-            new SqlParameter("@volume", System.Data.SqlDbType.SmallMoney),
-            new SqlParameter("@cellnumber", System.Data.SqlDbType.SmallInt),
-            new SqlParameter("@customspay", System.Data.SqlDbType.Money),
-            new SqlParameter("@invoice", System.Data.SqlDbType.Money),
-            new SqlParameter("@invoicediscount", System.Data.SqlDbType.Money),
-            new SqlParameter("@rcount", System.Data.SqlDbType.Money)
+            new SqlParameter("@requestsid", System.Data.SqlDbType.Structured){TypeName = "ID_TVP" },
+            new SqlParameter("@weight", System.Data.SqlDbType.Money){ Direction = System.Data.ParameterDirection.Output},
+            new SqlParameter("@volume", System.Data.SqlDbType.SmallMoney){Direction = System.Data.ParameterDirection.Output },
+            new SqlParameter("@cellnumber", System.Data.SqlDbType.SmallInt){Direction = System.Data.ParameterDirection.Output },
+            new SqlParameter("@customspay", System.Data.SqlDbType.Money){Direction = System.Data.ParameterDirection.Output },
+            new SqlParameter("@invoice", System.Data.SqlDbType.Money){Direction = System.Data.ParameterDirection.Output },
+            new SqlParameter("@invoicediscount", System.Data.SqlDbType.Money){Direction = System.Data.ParameterDirection.Output },
+            new SqlParameter("@rcount", System.Data.SqlDbType.Money){Direction = System.Data.ParameterDirection.Output },
             };
-            SelectParams[3].TypeName = "ID_TVP";
-            SelectParams[4].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[5].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[6].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[7].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[8].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[9].Direction = System.Data.ParameterDirection.Output;
-            SelectParams[10].Direction = System.Data.ParameterDirection.Output;
 
             myccmd = cmd;
         }
@@ -708,38 +699,42 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         private decimal? myweight;
         public decimal? Weight
-        { get { return DBNull.Value == (this.SelectParams[4].Value ?? DBNull.Value) ? myweight : (myweight ?? 0M) + (decimal)this.SelectParams[4].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@weight"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? myweight : (myweight ?? 0M) + (decimal)par.Value; } }
         private decimal? myvolume;
         public decimal? Volume
-        { get { return DBNull.Value == (this.SelectParams[5].Value ?? DBNull.Value) ? myvolume : (myvolume ?? 0M) + (decimal)this.SelectParams[5].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@volume"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? myvolume : (myvolume ?? 0M) + (decimal)par.Value; } }
         private decimal? mycellnumber;
         public decimal? CellNumber
-        { get { return DBNull.Value == (this.SelectParams[6].Value ?? DBNull.Value) ? mycellnumber : (mycellnumber ?? 0M) + (Int16)this.SelectParams[6].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@cellnumber"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? mycellnumber : (mycellnumber ?? 0M) + (Int16)par.Value; } }
         private decimal? mycustompay;
         public decimal? CustomsPay
-        { get { return DBNull.Value == (this.SelectParams[7].Value ?? DBNull.Value) ? mycustompay : (mycustompay ?? 0M) + (decimal)this.SelectParams[7].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@customspay"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? mycustompay : (mycustompay ?? 0M) + (decimal)par.Value; } }
         private decimal? myinvoice;
         public decimal? Invoice
-        { get { return DBNull.Value == (this.SelectParams[8].Value ?? DBNull.Value) ? myinvoice : (myinvoice ?? 0M) + (decimal)this.SelectParams[8].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@invoice"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? myinvoice : (myinvoice ?? 0M) + (decimal)par.Value; } }
         private decimal? myinvoicediscount;
         public decimal? InvoiceDiscount
-        { get { return DBNull.Value == (this.SelectParams[9].Value ?? DBNull.Value) ? myinvoicediscount : (myinvoicediscount ?? 0M) + (decimal)this.SelectParams[9].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@invoicediscount"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? myinvoicediscount : (myinvoicediscount ?? 0M) + (decimal)par.Value; } }
         private decimal? mycount;
         public decimal? Count
-        { get { return DBNull.Value == (this.SelectParams[10].Value ?? DBNull.Value) ? mycount : 1M + (decimal)this.SelectParams[10].Value; } }
+        { get { SqlParameter par = this.SelectParams.First((par_) => { return par_.ParameterName == "@rcount"; }); return DBNull.Value == (par.Value ?? DBNull.Value) ? mycount : 1M + (decimal)par.Value; } }
 
         protected override void PrepareFill(SqlConnection addcon)
         {
-            this.SelectParams[0].Value = myccmd.Group;
-            this.SelectParams[1].Value = myccmd.Parcel.Id;
-            //this.SelectParams[2].Value = myrequest?.Id;
+            this.SelectParams.First((par) => { return par.ParameterName == "@group"; }).Value = myccmd.Group;
+            this.SelectParams.First((par) => { return par.ParameterName == "@parcel"; }).Value = myccmd.Parcel.Id;
             mycellnumber = null; mycustompay = null; myinvoice = null; myinvoicediscount = null; myvolume = null; myweight = null; mycount = null;
             System.Data.DataTable requestids = new System.Data.DataTable();
             requestids.Columns.Add("id", typeof(Int32));
+            List<int> parcelgroups = new List<int>();
             foreach (Request req in myccmd.Requests)
             {
                 requestids.Rows.Add(req.Id);
-                mycount = (mycount ?? 0M) + 1;
+                if (!(req.ParcelGroup.HasValue && parcelgroups.Contains(req.ParcelGroup.Value)))
+                {
+                    mycount = (mycount ?? 0M) + 1;
+                    if (req.ParcelGroup.HasValue) parcelgroups.Add(req.ParcelGroup.Value);
+                }
                 if (req.CellNumber.HasValue) mycellnumber = (mycellnumber ?? 0M) + (req.CellNumber ?? 0M);
                 if (req.CustomsPay.HasValue) mycustompay = (mycustompay ?? 0M) + (req.CustomsPay ?? 0M);
                 if (req.Invoice.HasValue) myinvoice = (myinvoice ?? 0M) + (req.Invoice ?? 0M);
@@ -747,7 +742,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 if (req.Volume.HasValue) myvolume = (myvolume ?? 0M) + (req.Volume ?? 0M);
                 if (req.OfficialWeight.HasValue) myweight = (myweight ?? 0M) + (req.OfficialWeight ?? 0M);
             }
-            this.SelectParams[3].Value = requestids;
+            this.SelectParams.First((par) => { return par.ParameterName == "@requestsid"; }).Value = requestids;
         }
     }
 
