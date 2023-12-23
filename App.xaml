@@ -8,6 +8,7 @@
     <Application.Resources>
         <my:ReferenceDS x:Key="keyReferenceDS"/>
         <my:VisibilityfromUserRole x:Key="keyVisibilityfromUserRole"/>
+        <my:VisibilityAdmins x:Key="keyVisibilityAdmins"/>
         <my:VisibilityManagers x:Key="keyVisibilityManagers"/>
         <my:VisibilityAccounts x:Key="keyVisibilityAccounts"/>
         <my:VisibilityAccountVisors x:Key="keyVisibilityAccountVisors"/>

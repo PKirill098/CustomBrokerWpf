@@ -98,6 +98,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal string fullnumber;
         internal string managergroupname;
         internal string managernote;
+        internal string mskstorenote;
         internal string servicetype;
         internal string storenote;
         internal string storepoint;
@@ -114,7 +115,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         decimal? myadditionalpay, myadditionalcost, myactualweight, mybringcost, mybringpay, mybrokercost, mybrokerpay, mycorrcost, mycorrpay, mycurrencyrate, mycurrencysum, mycustomscost, mycustomspay, mydeliverycost, mydeliverypay, mydtrate, mygoodvalue, myfreightcost, myfreightpay, myinsurancecost, myinsurancepay, myinvoice, myinvoicediscount, myofficialweight, mypreparatncost, mypreparatnpay, myselling, mysellingmarkup, mysellingmarkuprate, mysertificatcost, mysertificatpay, mytdcost, mytdpay, myvolume;
         DateTime myrequestdate;
         DateTime? mycurrencydate, mycurrencypaiddate, mygtddate, myshipplandate, mystoredate, mystoreinform;
-        string myalgorithmnote1, myalgorithmnote2, mycolormark, myconsolidate, mycurrencynote, mycustomernote, mycargo, mydocdirpath, mygtd, myfullnumber, mymanagergroup, mymanagernote, myservicetype, mystorenote, mystorepoint;
+        string myalgorithmnote1, myalgorithmnote2, mycolormark, myconsolidate, mycurrencynote, mycustomernote, mycargo, mydocdirpath, mygtd, myfullnumber, mymanagergroup, mymanagernote, mymskstorenote, myservicetype, mystorenote, mystorepoint;
         lib.ReferenceSimpleItem mystatus, myparceltype;
         private Parcel myparcel;
         private Importer myimporter;
@@ -141,7 +142,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , sertificatcost: null, sertificatpay: null
             , tdcost: null, tdpay: null, volume: null
             , currencydate: null, currencypaiddate: null, gtddate: null, requestdate: DateTime.Now, shipplandate: CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10)), specification: null, storedate: null, storeinform: null
-            , algorithmnote1: "Свободное поле", algorithmnote2: null, cargo: null, colormark: null, consolidate: null, currencynote: null, customernote: null, docdirpath: null, gtd: null, fullnumber: null, managergroup: null, managernote: null, servicetype: null, storenote: null, storepoint: null
+            , algorithmnote1: "Свободное поле", algorithmnote2: null, cargo: null, colormark: null, consolidate: null, currencynote: null, customernote: null, docdirpath: null, gtd: null, fullnumber: null, managergroup: null, managernote: null, mskstorenote: null, servicetype: null, storenote: null, storepoint: null
             , importer: null, manager: null
             )
         { }
@@ -165,7 +166,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , decimal? sertificatcost, decimal? sertificatpay
             , decimal? tdcost, decimal? tdpay, decimal? volume
             , DateTime? currencydate, DateTime? currencypaiddate, DateTime? gtddate, DateTime requestdate, DateTime? shipplandate, DateTime? specification, DateTime? storedate, DateTime? storeinform
-            , string algorithmnote1, string algorithmnote2, string cargo, string colormark, string consolidate, string currencynote, string customernote, string docdirpath, string gtd, string fullnumber, string managergroup, string managernote, string servicetype, string storenote, string storepoint
+            , string algorithmnote1, string algorithmnote2, string cargo, string colormark, string consolidate, string currencynote, string customernote, string docdirpath, string gtd, string fullnumber, string managergroup, string managernote, string mskstorenote, string servicetype, string storenote, string storepoint
             , Importer importer, Manager manager, Parcel parcel=null
            ) : base(id, stamp, updated, updater, domainstate)
         {
@@ -216,6 +217,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mymanagergroup = managergroup;
             mymanager = manager;
             mymanagernote = managernote;
+            mymskstorenote = mskstorenote;
             myofficialweight = officialweight;
             myparcelgroup = parcelgroup;
             myparcel = parcel;
@@ -553,6 +555,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 base.SetProperty<string>(ref mymanagernote, value);
             }
             get { return mymanagernote; }
+        }
+        public string MSKStoreNote
+        {
+            set
+            {
+                base.SetProperty<string>(ref mymskstorenote, value);
+            }
+            get { return mymskstorenote; }
         }
         public decimal? OfficialWeight
         {
@@ -1927,6 +1937,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case "ManagerNote":
                     mymanagernote = (string)value;
                     break;
+                case nameof(Request.MSKStoreNote):
+                    mymskstorenote = (string)value;
+                    break;
                 case "OfficialWeight":
                     myofficialweight = (decimal?)value;
                     break;
@@ -2075,6 +2088,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.InvoiceDiscount = newitem.InvoiceDiscount;
             this.IsSpecification = newitem.IsSpecification;
             this.ManagerNote = newitem.ManagerNote;
+            this.MSKStoreNote = newitem.MSKStoreNote;
             this.Manager = newitem.Manager;
             this.OfficialWeight = newitem.OfficialWeight;
             this.ParcelGroup = newitem.ParcelGroup;
@@ -2634,7 +2648,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@parcel", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@isspecification", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@statustrue", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@specificationtrue", System.Data.SqlDbType.Bit)
+                //,new SqlParameter("@specificationtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storagePointtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storageDatetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@customerIdtrue", System.Data.SqlDbType.Bit)
@@ -2650,6 +2664,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@freighttrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storageNotetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@managerNotetrue", System.Data.SqlDbType.Bit)
+                ,new SqlParameter("@mskstorenotetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@customerNotetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@parcelgrouptrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@colorMarktrue", System.Data.SqlDbType.Bit)
@@ -2717,7 +2732,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
                 ,new SqlParameter("@status", System.Data.SqlDbType.Int){Direction = System.Data.ParameterDirection.InputOutput}
-                ,new SqlParameter("@specification", System.Data.SqlDbType.Date)
+                //,new SqlParameter("@specification", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@storagePoint", System.Data.SqlDbType.NVarChar,6)
                 ,new SqlParameter("@storageDate", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@customerId", System.Data.SqlDbType.Int)
@@ -2732,6 +2747,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@freight", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@storageNote", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@managerNote", System.Data.SqlDbType.NVarChar,100)
+                ,new SqlParameter("@mskstorenote", System.Data.SqlDbType.NVarChar,200)
                 ,new SqlParameter("@customerNote", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@parcelgroup", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@colorMark", System.Data.SqlDbType.NChar,9)
@@ -2901,6 +2917,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     , fullnumber=reader.IsDBNull(this.Fields["fullnumber"]) ? null : reader.GetString(this.Fields["fullnumber"])
                     , managergroupname=reader.IsDBNull(this.Fields["managergroupName"]) ? null : reader.GetString(this.Fields["managergroupName"])
                     , managernote=reader.IsDBNull(this.Fields["managerNote"]) ? null : reader.GetString(this.Fields["managerNote"])
+                    , mskstorenote=reader.IsDBNull(this.Fields["mskstorenote"]) ? null : reader.GetString(this.Fields["mskstorenote"])
                     , servicetype=reader.IsDBNull(this.Fields["servicetype"]) ? null : reader.GetString(this.Fields["servicetype"])
                     , storenote=reader.IsDBNull(this.Fields["storageNote"]) ? null : reader.GetString(this.Fields["storageNote"])
                     , storepoint=reader.IsDBNull(this.Fields["storagePoint"]) ? null : reader.GetString(this.Fields["storagePoint"])
@@ -2994,6 +3011,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     , record.fullnumber
                     , record.managergroupname
                     , record.managernote
+                    , record.mskstorenote
                     , record.servicetype
                     , record.storenote
                     , record.storepoint
@@ -3117,20 +3135,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SetSpecificParametersValue(Request item)
         {
             myinsertparams[1].Value = item.RequestDate;
-            int i = 1;
-            myupdateparams[++i].Value = item.IsSpecification;
-            ++i;
-            myupdateparams[++i].Value = false;
-            ++i;++i;++i;++i; ++i;
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("StoreId");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CellNumber");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("OfficialWeight");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ActualWeight");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("Volume");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("GoodValue");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("FreightId");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("StoreNote");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ManagerNote");
+            int i = 18;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerNote");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ParcelGroup");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ColorMark");
@@ -3186,6 +3191,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             foreach (SqlParameter par in myupdateparams)
                 switch (par.ParameterName)
                 {
+                    case "@actualWeighttrue":
+                        par.Value = item.HasPropertyOutdatedValue("ActualWeight");
+                        break;
                     case "@agentIdtrue":
                         par.Value = item.HasPropertyOutdatedValue("AgentId") || item.HasPropertyOutdatedValue("Agent");
                         break;
@@ -3194,6 +3202,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     case "@algorithmnote2":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.AlgorithmNote2));
+                        break;
+                    case "@cellNumbertrue":
+                        par.Value=item.HasPropertyOutdatedValue("CellNumber");
                         break;
                     case "@consolidatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Consolidate));
@@ -3207,14 +3218,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@customerIdtrue":
                         par.Value = item.HasPropertyOutdatedValue("CustomerId") || item.HasPropertyOutdatedValue("Customer");
                         break;
+                    case "@freighttrue":
+                        par.Value = item.HasPropertyOutdatedValue("FreightId");
+                        break;
+                    case "@goodValuetrue":
+                        par.Value = item.HasPropertyOutdatedValue("GoodValue");
+                        break;
                     case "@importertrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Importer));
+                        break;
+                    case "@isspecification":
+                        par.Value = item.IsSpecification;
                         break;
                     case "@loadDescriptiontrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Cargo));
                         break;
                     case "@manageridtrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Manager));
+                        break;
+                    case "@managerNotetrue":
+                        par.Value = item.HasPropertyOutdatedValue("ManagerNote");
+                        break;
+                    case "@mskstorenotetrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.MSKStoreNote));
+                        break;
+                    case "@officialWeighttrue":
+                        par.Value = item.HasPropertyOutdatedValue("OfficialWeight");
                         break;
                     case "@parcel":
                         par.Value = item.ParcelId;
@@ -3225,6 +3254,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@shipplandatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.ShipPlanDate));
                         break;
+                    case "@statustrue":
+                        par.Value = item.HasPropertyOutdatedValue("Status");
+                        break;
                     case "@storageDatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.StoreDate));
                         break;
@@ -3234,20 +3266,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@storagePointtrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.StorePoint));
                         break;
-                    case "@statustrue":
-                        par.Value = item.HasPropertyOutdatedValue("Status");
+                    case "@storeidtrue":
+                        par.Value = item.HasPropertyOutdatedValue("StoreId");
+                        break;
+                    case "@storageNotetrue":
+                        par.Value = item.HasPropertyOutdatedValue("StoreNote");
+                        break;
+                    case "@volumetrue":
+                        par.Value = item.HasPropertyOutdatedValue("Volume");
                         break;
                 }
-            i = 10;
-            myinsertupdateparams[i++].Value = item.StoreId;
-            myinsertupdateparams[i++].Value = item.CellNumber;
-            myinsertupdateparams[i++].Value = item.OfficialWeight;
-            myinsertupdateparams[i++].Value = item.ActualWeight;
-            myinsertupdateparams[i++].Value = item.Volume;
-            myinsertupdateparams[i++].Value = item.GoodValue;
-            myinsertupdateparams[i++].Value = item.FreightId;
-            myinsertupdateparams[i++].Value = item.StoreNote;
-            myinsertupdateparams[i++].Value = item.ManagerNote;
+            i = 19;
             myinsertupdateparams[i++].Value = item.CustomerNote;
             myinsertupdateparams[i++].Value = item.ParcelGroup;
             myinsertupdateparams[i++].Value = item.ColorMark;
@@ -3301,6 +3330,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             foreach(SqlParameter par in myinsertupdateparams)
                 switch(par.ParameterName)
                 {
+                    case "@actualWeight":
+                        par.Value = item.ActualWeight;
+                        break;
                     case "@agentId":
                         par.Value = item.Agent?.Id??item.AgentId;
                         break;
@@ -3309,6 +3341,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     case "@algorithmnote2":
                         par.Value = item.AlgorithmNote2;
+                        break;
+                    case "@cellNumber":
+                        par.Value = item.CellNumber;
                         break;
                     case "@consolidate":
                         par.Value = item.Consolidate;
@@ -3322,6 +3357,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@customerId":
                         par.Value = item.Customer?.Id??item.CustomerId;
                         break;
+                    case "@freight":
+                        par.Value = item.FreightId;
+                        break;
+                    case "@goodValue":
+                        par.Value = item.GoodValue;
+                        break;
                     case "@importer":
                         par.Value = item.Importer?.Id;
                         break;
@@ -3330,6 +3371,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                     case "@managerid":
                         par.Value = item.Manager?.Id;
+                        break;
+                    case "@managerNote":
+                        par.Value = item.ManagerNote;
+                        break;
+                    case "@mskstorenote":
+                        par.Value = item.MSKStoreNote;
+                        break;
+                    case "@officialWeight":
+                        par.Value = item.OfficialWeight;
                         break;
                     case "@shipplandate":
                         par.Value = item.ShipPlanDate;
@@ -3343,8 +3393,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@storageInform":
                         par.Value = item.StoreInform;
                         break;
+                    case "@storageNote":
+                        par.Value = item.StoreNote;
+                        break;
                     case "@storagePoint":
                         par.Value = item.StorePoint;
+                        break;
+                    case "@storeid":
+                        par.Value = item.StoreId;
+                        break;
+                    case "@volume":
+                        par.Value = item.Volume;
                         break;
                 }
             mydeleteparams[1].Value = myinsertupdateparams[0].Value;
@@ -4170,11 +4229,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             get { return this.IsEnabled ? this.DomainObject.ManagerNote : null; }
         }
+        public string MSKStoreNote
+        {
+            set
+            {
+                if (!(this.IsReadOnly || string.Equals(this.DomainObject.MSKStoreNote, value)))
+                {
+                    string name = nameof(RequestVM.MSKStoreNote);
+                    if (!myUnchangedPropertyCollection.ContainsKey(name))
+                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.MSKStoreNote);
+                    ChangingDomainProperty = name; this.DomainObject.MSKStoreNote = value;
+                }
+            }
+            get { return this.IsEnabled ? this.DomainObject.MSKStoreNote : null; }
+        }
         public string Notes
         {
             get
             {
-                return this.IsEnabled ? (this.DomainObject.StoreNote ?? string.Empty) + " " + (this.DomainObject.ManagerNote ?? string.Empty) + " " + (this.DomainObject.CustomerNote ?? string.Empty) : null;
+                return this.IsEnabled ? (this.DomainObject.StoreNote ?? string.Empty) + " " + (this.DomainObject.ManagerNote ?? string.Empty)+ " " + (this.DomainObject.MSKStoreNote ?? string.Empty) + " " + (this.DomainObject.CustomerNote ?? string.Empty) : null;
             }
         }
         public decimal? OfficialWeight
@@ -5283,6 +5356,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case nameof(RequestVM.CustomerNote):
                 case nameof(RequestVM.ManagerNote):
+                case nameof(RequestVM.MSKStoreNote):
                 case nameof(RequestVM.StoreNote):
                     this.PropertyChangedNotification(nameof(this.Notes));
                     break;
@@ -5532,6 +5606,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
                 case "ManagerNote":
                     this.DomainObject.ManagerNote = (string)value;
+                    break;
+                case nameof(RequestVM.MSKStoreNote):
+                    this.DomainObject.MSKStoreNote = (string)value;
                     break;
                 case "OfficialWeight":
                     this.DomainObject.OfficialWeight = (decimal?)value;

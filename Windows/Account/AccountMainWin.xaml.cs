@@ -26,6 +26,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private GTDRegisterViewCommander myteodcmd;
         private GTDRegisterViewCommander myteotcmd;
         private Classes.Domain.ParcelCurItemCommander myparcelcmd;
+        private Classes.Domain.WarehouseRUViewCommader mywarehouserucmd;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -78,6 +79,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             {
                 myparcelcmd = new Classes.Domain.ParcelCurItemCommander();
                 ParcelGrid.DataContext = myparcelcmd;
+            }
+        }
+        private void TabItemWarehouseRU_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (mywarehouserucmd == null)
+            {
+                mywarehouserucmd = new Classes.Domain.WarehouseRUViewCommader() { IsReadOnly=true };
+                WarehouseRUGrid.DataContext = mywarehouserucmd;
             }
         }
 
@@ -259,5 +268,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
         #endregion
+
     }
 }

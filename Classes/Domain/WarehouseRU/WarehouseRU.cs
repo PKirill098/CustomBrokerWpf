@@ -156,12 +156,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mystorageid = (mylegals?.FirstOrDefault()?.Request.ParcelGroup == null ? mylegals?.FirstOrDefault()?.Request.StorePoint : mylegals?.FirstOrDefault()?.Request.ParcelGroup?.ToString());
             myvolume = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.Volume; });
             rids.Clear();
+            int[] groups=new int[50];
             foreach (RequestCustomerLegal item in mylegals?.OrderBy((RequestCustomerLegal item) => { return item.Request.Id; }))
             {
-                if (!string.IsNullOrEmpty(item.Request.ManagerNote)) { rids.Append(item.Request.ManagerNote); rids.Append("; "); }
+                if (!(item.Request.ParcelGroup.HasValue && groups.Contains(item.Request.ParcelGroup.Value))) // примечания повторяются для всех заявок группы
+                {
+                    if (!string.IsNullOrEmpty(item.Request.ManagerNote)) { rids.Append(item.Request.ManagerNote); rids.Append("; "); }
+                    if (!string.IsNullOrEmpty(item.Request.StoreNote)) { rids.Append(item.Request.StoreNote); rids.Append("; "); }
+                    if (item.Request.ParcelGroup.HasValue) groups[groups.Count<int>((int n) => { return n > 0; })]=item.Request.ParcelGroup.Value;
+                }
                 if (!string.IsNullOrEmpty(item.Request.CustomerNote)) { rids.Append(item.Request.CustomerNote); rids.Append("; "); }
-                if (!string.IsNullOrEmpty(item.Request.StoreNote)) { rids.Append(item.Request.StoreNote); rids.Append("; "); }
-            }
+                if (!string.IsNullOrEmpty(item.Request.MSKStoreNote)) { rids.Append(item.Request.MSKStoreNote); rids.Append("; "); }
+           }
             mymanagernotes = rids.ToString().TrimEnd(new char[] { ';', ' ' });
 
             this.PropertyChangedNotification(nameof(this.ActualWeight));
@@ -1213,6 +1219,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             mytotal.StopCount();
             UpdateFilter();
+            mywdbm.Errors.Clear();
             mywdbm.FillAsync();
         }
         protected override void SettingView()

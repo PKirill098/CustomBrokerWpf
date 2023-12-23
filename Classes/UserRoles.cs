@@ -43,6 +43,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         public bool IsOutsider
         { get { return !myismember; } }
     }
+    class VisibilityAdmins: VisibilityRole
+    {
+        public VisibilityAdmins():base("Admins")
+        {
+        }
+    }
     class VisibilityManagers: VisibilityRole
     {
         public VisibilityManagers():base("Managers")

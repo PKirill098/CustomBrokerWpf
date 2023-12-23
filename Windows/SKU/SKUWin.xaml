@@ -15,7 +15,7 @@
 		<ToolBar Grid.ColumnSpan="2" Height="32">
             <Button ToolTip="Экспорт в Excel" Command="{Binding Path=ExcelExport}" CommandParameter="{Binding ElementName=SKU, Path=SKUDataGrid}" IsTabStop="False">
 								<Image Source="/CustomBrokerWpf;component/Images/excel_export.png" />
-							</Button>
+			</Button>
 			<Button ToolTip="Копировать" Command="Copy" IsTabStop="False">
 				<Image Source="/CustomBrokerWpf;component/Images/copy.png" />
 			</Button>
