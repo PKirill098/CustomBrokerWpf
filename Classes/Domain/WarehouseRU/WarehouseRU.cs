@@ -13,6 +13,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using libui = KirillPolyanskiy.WpfControlLibrary;
+using Excel = Microsoft.Office.Interop.Excel;
+using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -87,6 +89,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private string mymanagers;
         public string Managers
         { get { return mymanagers; } }
+        private string mymanagernotes;
+        public string ManagerNotes
+        { get { return mymanagernotes; } }
         private decimal? myofficialweight;
         public decimal? OfficialWeight
         { get { return myofficialweight; } }
@@ -150,6 +155,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myservicetype = mylegals?.FirstOrDefault()?.Request.ServiceType;
             mystorageid = (mylegals?.FirstOrDefault()?.Request.ParcelGroup == null ? mylegals?.FirstOrDefault()?.Request.StorePoint : mylegals?.FirstOrDefault()?.Request.ParcelGroup?.ToString());
             myvolume = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.Volume; });
+            rids.Clear();
+            foreach (RequestCustomerLegal item in mylegals?.OrderBy((RequestCustomerLegal item) => { return item.Request.Id; }))
+            {
+                if (!string.IsNullOrEmpty(item.Request.ManagerNote)) { rids.Append(item.Request.ManagerNote); rids.Append("; "); }
+                if (!string.IsNullOrEmpty(item.Request.CustomerNote)) { rids.Append(item.Request.CustomerNote); rids.Append("; "); }
+                if (!string.IsNullOrEmpty(item.Request.StoreNote)) { rids.Append(item.Request.StoreNote); rids.Append("; "); }
+            }
+            mymanagernotes = rids.ToString().TrimEnd(new char[] { ';', ' ' });
 
             this.PropertyChangedNotification(nameof(this.ActualWeight));
             this.PropertyChangedNotification(nameof(this.Agent));
@@ -158,6 +171,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.PropertyChangedNotification(nameof(this.CellNumber));
             this.PropertyChangedNotification(nameof(this.DeliveryAddress));
             this.PropertyChangedNotification(nameof(this.Importer));
+            this.PropertyChangedNotification(nameof(this.ManagerNotes));
             this.PropertyChangedNotification(nameof(this.OfficialWeight));
             this.PropertyChangedNotification(nameof(this.RequestsId));
             this.PropertyChangedNotification(nameof(this.ServiceType));
@@ -434,6 +448,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { get { return GetProperty(this.DomainObject.Importer, null); } }
         public string Managers
         { get { return GetProperty(this.DomainObject.Managers, null); } }
+        public string ManagerNotes
+        { get { return GetProperty(this.DomainObject.ManagerNotes, null); } }
         public decimal? OfficialWeight
         { get { return GetProperty(this.DomainObject.OfficialWeight, null); } }
         public Parcel Parcel
@@ -1080,6 +1096,115 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public string IsFiltered
         { get { return myfilter.isEmpty ? string.Empty : "Фильтр!"; } }
         #endregion
+
+        private lib.TaskAsync.TaskAsync myexceltask;
+		private libui.ExcelHelper myexcelexport;
+		public ICommand ExcelExport
+		{
+			get
+            {
+                if (myexcelexport == null)
+                {
+                    myexcelexport = new libui.ExcelHelper();
+                    myexcelexport.SheetName = "Склад Москва";
+                    myexcelexport.ColumnFormatDefault = new libui.ExcelFormat(string.Empty,"@");
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Status)+nameof(WarehouseRUVM.Status.Id), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(Parcel.ParcelNumberOrder), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.RequestsId), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.StorageId), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Importer) + nameof(Importer.Name), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Managers), "@", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.OfficialWeight), @"# ##0,00", libui.ExcelHorizontalAlignment.None));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.ActualWeight), @"# ##0,00", libui.ExcelHorizontalAlignment.None));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Volume), @"# ##0,00", libui.ExcelHorizontalAlignment.None));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.CellNumber), @"# ##0", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Receipted), @"date", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.ColumnsFormat.Add(new libui.ExcelFormat(nameof(WarehouseRUVM.Shipped), @"date", libui.ExcelHorizontalAlignment.Center));
+                    myexcelexport.GetCellValue = GetExcelCellValue;
+                    myexcelexport.TransformData = (System.Collections.IEnumerable coll)=> { return coll.OfType<WarehouseRUVM>(); };
+                    myexcelexport.CanExecute = ExcelExportCanExec;
+                }
+                return myexcelexport.Export;
+            }
+		}
+        private object GetExcelCellValue(string property,object row)
+        {
+            object value = null;
+            WarehouseRUVM item = row as WarehouseRUVM;
+            switch (property)
+            {
+                case nameof(WarehouseRUVM.Status)+nameof(WarehouseRUVM.Status.Id):
+                    value = item.Status.Name;
+                    break;
+                case nameof(WarehouseRUVM.Receipted):
+                    value = item.Receipted;
+                    break;
+                case nameof(WarehouseRUVM.Shipped):
+                    value = item.Shipped;
+                    break;
+                case nameof(Parcel.ParcelNumberOrder):
+                    value = item.Parcel?.ParcelNumber;
+                    break;
+                case nameof(WarehouseRUVM.RequestsId):
+                    value = item.RequestsId;
+                    break;
+                case nameof(WarehouseRUVM.StorageId):
+                    value = item.StorageId;
+                    break;
+                case nameof(WarehouseRUVM.Legal)+nameof(CustomerLegal.Name):
+                    value = item.Legal.Name;
+                    break;
+                case nameof(CustomerLegal.Customer)+nameof(Customer.Name):
+                    value = item.Legal.Customer.Name;
+                    break;
+                case nameof(WarehouseRUVM.Agent)+nameof(Agent.Name):
+                    value = item.Agent?.Name;
+                    break;
+                case nameof(WarehouseRUVM.BrandNames):
+                    value = item.BrandNames;
+                    break;
+                case nameof(WarehouseRUVM.Importer) + nameof(Importer.Name):
+                    value = item.Importer?.Name;
+                    break;
+                case nameof(WarehouseRUVM.Managers):
+                    value = item.Managers;
+                    break;
+                case nameof(WarehouseRUVM.ManagerNotes):
+                    value = item.ManagerNotes;
+                    break;
+                case nameof(WarehouseRUVM.OfficialWeight):
+                    value = item.OfficialWeight;
+                    break;
+                case nameof(WarehouseRUVM.ActualWeight):
+                    value = item.ActualWeight;
+                    break;
+                case nameof(WarehouseRUVM.Volume):
+                    value = item.Volume;
+                    break;
+                case nameof(WarehouseRUVM.CellNumber):
+                    value = item.CellNumber;
+                    break;
+                case nameof(WarehouseRUVM.ServiceType):
+                    value = item.ServiceType;
+                    break;
+                case nameof(item.Cargo):
+                    value = item.Cargo;
+                    break;
+                case nameof(CustomerLegal.DeliveryType_)+nameof(CustomerLegal.DeliveryType_.Name):
+                    value = item.Legal.DeliveryType_?.Name;
+                    break;
+                case nameof(item.DeliveryAddress):
+                    value = item.DeliveryAddress;
+                    break;
+                case nameof(item.Note):
+                    value = item.Note;
+                    break;
+            }
+            return value;
+        }
+		private bool ExcelExportCanExec(object parametr)
+		{ return !(myview == null || myview.IsAddingNew | myview.IsEditingItem); }
+
 
         protected override void OtherViewRefresh()
         {

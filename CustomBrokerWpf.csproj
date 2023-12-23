@@ -98,8 +98,9 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.10.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <HintPath>packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="DataModelClassLibrary">
-      <HintPath>..\..\..\..\DataModelClassLibrary\DataModelClassLibrary\bin\Release\DataModelClassLibrary.dll</HintPath>
+    <Reference Include="DataModelClassLibrary, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\WPF\DataModelClassLibrary\DataModelClassLibrary\bin\Release\DataModelClassLibrary.dll</HintPath>
     </Reference>
     <Reference Include="MailKit, Version=2.11.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
       <HintPath>packages\MailKit.2.11.1\lib\net47\MailKit.dll</HintPath>
@@ -137,8 +138,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="WpfControlLibrary">
-      <HintPath>..\..\..\..\WpfControlLibrary\WpfControlLibrary\bin\Release\WpfControlLibrary.dll</HintPath>
+    <Reference Include="WpfControlLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\WPF\WpfControlLibrary\WpfControlLibrary\bin\Release\WpfControlLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -245,10 +247,10 @@
     <Compile Include="Windows\Algorithm\AlgorithmWin.xaml.cs">
       <DependentUpon>AlgorithmWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AllPriceItemWin.xaml.cs">
+    <Compile Include="Windows\History\AllPriceItemWin.xaml.cs">
       <DependentUpon>AllPriceItemWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AllPriceWin.xaml.cs">
+    <Compile Include="Windows\History\AllPriceWin.xaml.cs">
       <DependentUpon>AllPriceWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\ChartManager.cs" />
@@ -322,7 +324,7 @@
     <Compile Include="Classes\Domain\Specification\MappingGender.cs" />
     <Compile Include="Classes\Domain\Specification\Material.cs" />
     <Compile Include="Trash\ViewModelBaseClass.cs" />
-    <Compile Include="ContractorWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\ContractorWin.xaml.cs">
       <DependentUpon>ContractorWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanClipBoardConverter.cs" />
@@ -352,7 +354,7 @@
     <Compile Include="Windows\Account\CurrencyBuyWin.xaml.cs">
       <DependentUpon>CurrencyBuyWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DeliveryWin.xaml.cs">
+    <Compile Include="Windows\Delivery\DeliveryWin.xaml.cs">
       <DependentUpon>DeliveryWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventLogFilterWin.xaml.cs">
@@ -464,8 +466,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ReferenceDS.xsd</DependentUpon>
     </Compile>
-    <Compile Include="RequestStoagePointValidationRule.cs" />
-    <Compile Include="RequestTotalConverter.cs" />
+    <Compile Include="Classes\RequestStoagePointValidationRule.cs" />
+    <Compile Include="Converters\RequestTotalConverter.cs" />
     <Compile Include="Classes\SQLFilterClass.cs" />
     <Compile Include="Windows\Client\ClientFilterWin.xaml.cs">
       <DependentUpon>ClientFilterWin.xaml</DependentUpon>
@@ -475,15 +477,15 @@
     <Compile Include="Windows\Client\ClientWin.xaml.cs">
       <DependentUpon>ClientWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ContactPointTypeWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\ContactPointTypeWin.xaml.cs">
       <DependentUpon>ContactPointTypeWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ContactPointValueConverter.cs" />
-    <Compile Include="ContactTypeWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\ContactTypeWin.xaml.cs">
       <DependentUpon>ContactTypeWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\UpperCaseFirstConverter.cs" />
-    <Compile Include="ForwarderWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\ForwarderWin.xaml.cs">
       <DependentUpon>ForwarderWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Dictionaries\GoodsTypeWin.xaml.cs">
@@ -512,8 +514,7 @@
     <Compile Include="Windows\ReferenceSympleItem.xaml.cs">
       <DependentUpon>ReferenceSympleItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TelephoneNumberFormat.cs" />
-    <Compile Include="TownWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\TownWin.xaml.cs">
       <DependentUpon>TownWin.xaml</DependentUpon>
     </Compile>
     <Page Include="ManagersWin.xaml">
@@ -612,15 +613,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AllPriceItemWin.xaml">
+    <Page Include="Windows\History\AllPriceItemWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AllPriceWin.xaml">
+    <Page Include="Windows\History\AllPriceWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BrandWin.xaml">
+    <Page Include="Windows\Dictionaries\BrandWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -640,15 +641,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ContactPointTypeWin.xaml">
+    <Page Include="Windows\Dictionaries\ContactPointTypeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ContactTypeWin.xaml">
+    <Page Include="Windows\Dictionaries\ContactTypeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ContractorWin.xaml">
+    <Page Include="Windows\Dictionaries\ContractorWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -660,7 +661,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="DeliveryWin.xaml">
+    <Page Include="Windows\Delivery\DeliveryWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -672,11 +673,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DeliveryTypeWin.xaml">
+    <Page Include="Windows\Dictionaries\DeliveryTypeWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ForwarderWin.xaml">
+    <Page Include="Windows\Dictionaries\ForwarderWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -734,10 +735,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BrandWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\BrandWin.xaml.cs">
       <DependentUpon>BrandWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DeliveryTypeWin.xaml.cs">
+    <Compile Include="Windows\Dictionaries\DeliveryTypeWin.xaml.cs">
       <DependentUpon>DeliveryTypeWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="GroupMngWin.xaml.cs">
@@ -859,7 +860,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TownWin.xaml">
+    <Page Include="Windows\Dictionaries\TownWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

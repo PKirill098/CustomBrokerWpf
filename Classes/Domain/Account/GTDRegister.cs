@@ -1751,9 +1751,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
 				int maxrow = (int)(args as object[])[2] + 1;
 				System.Collections.IEnumerable items = (args as object[])[1] as System.Collections.IEnumerable;
-				libui.ColumnInfo[] columns = ((args as object[])[0] as libui.ColumnInfo[]);
+				libui.WPFDataGrid.DataGridColumnInfo[] columns = ((args as object[])[0] as libui.WPFDataGrid.DataGridColumnInfo[]);
 				exWh.Rows[1, Type.Missing].HorizontalAlignment = Excel.Constants.xlCenter;
-				foreach (libui.ColumnInfo columninfo in columns)
+				foreach (libui.WPFDataGrid.DataGridColumnInfo columninfo in columns)
 				{
 					if (!string.IsNullOrEmpty(columninfo.Property))
 					{
@@ -1802,7 +1802,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 				foreach (GTDRegisterVM item in items.OfType<GTDRegisterVM>())
 				{
 					column = 1;
-					foreach (libui.ColumnInfo columninfo in columns)
+					foreach (libui.WPFDataGrid.DataGridColumnInfo columninfo in columns)
 					{
 						switch (columninfo.Property)
 						{
@@ -1949,7 +1949,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 						foreach (GTDRegisterClientVM client in item.Clients.OfType<GTDRegisterClientVM>())
 						{
 							column = 1;
-							foreach (libui.ColumnInfo columninfo in columns)
+							foreach (libui.WPFDataGrid.DataGridColumnInfo columninfo in columns)
 							{
 								switch (columninfo.Property)
 								{

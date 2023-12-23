@@ -16,6 +16,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private Window mywindow;
         WarehouseRUViewCommader mycmd;
         lib.BindingDischarger mybinddisp;
+        public DataGrid SKUDataGrid
+        { get { return this.MainDataGrid; } }
         public object SelectedItems
         { get { return this.MainDataGrid.SelectedItems; } }
         public SKUUI()

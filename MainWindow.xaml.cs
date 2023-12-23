@@ -875,25 +875,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemAllPrice_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winAllPrice") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new AllPriceWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
+        //private void MenuItemAllPrice_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window ObjectWin = null;
+        //    foreach (Window item in mychildwindows)
+        //    {
+        //        if (item.Name == "winAllPrice") ObjectWin = item;
+        //    }
+        //    if (ObjectWin == null)
+        //    {
+        //        ObjectWin = new AllPriceWin();
+        //        mychildwindows.Add(ObjectWin);
+        //        ObjectWin.Show();
+        //    }
+        //    else
+        //    {
+        //        ObjectWin.Activate();
+        //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+        //    }
+        //}
         private void MenuItemGoods_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;

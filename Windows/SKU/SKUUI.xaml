@@ -159,7 +159,7 @@
                 <DataGridTextColumn Header="№ заявки" Binding="{Binding Path=RequestsId, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                            <Setter Property="ToolTip" Value="Номер счета выставленного клиенту"/>
+                            <Setter Property="ToolTip" Value="Номера заявок"/>
                             <Setter Property="ContentTemplate">
                                 <Setter.Value>
                                     <DataTemplate>
@@ -182,7 +182,7 @@
                 <DataGridTextColumn Header="№ склад" Binding="{Binding Path=StorageId, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                            <Setter Property="ToolTip" Value="Номер счета выставленного клиенту"/>
+                            <Setter Property="ToolTip" Value="Номер склада"/>
                             <Setter Property="ContentTemplate">
                                 <Setter.Value>
                                     <DataTemplate>
@@ -293,6 +293,18 @@
                             <Setter Property="ToolTip" Value="Менеджер"/>
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Примечания менеджера" Binding="{Binding Path=ManagerNotes, TargetNullValue='', Mode=OneWay}" IsReadOnly="True" Width="100">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="ToolTip" Value="Примечания менеджера"/>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding Path= ManagerNotes}"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Вес Д" Binding="{Binding Path=OfficialWeight, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentRight}" Width="SizeToHeader">
                     <DataGridTextColumn.HeaderStyle>
