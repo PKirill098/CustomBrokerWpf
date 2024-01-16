@@ -2639,7 +2639,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[0].ParameterName = "@requestId";
             myinsertparams = new SqlParameter[]
            {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@requestDate", System.Data.SqlDbType.Date)
            };
             myupdateparams = new SqlParameter[]
@@ -2730,7 +2730,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+                myinsertupdateparams[0],myinsertupdateparams[1]
                 ,new SqlParameter("@status", System.Data.SqlDbType.Int){Direction = System.Data.ParameterDirection.InputOutput}
                 //,new SqlParameter("@specification", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@storagePoint", System.Data.SqlDbType.NVarChar,6)
@@ -3134,7 +3134,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetSpecificParametersValue(Request item)
         {
-            myinsertparams[1].Value = item.RequestDate;
+            myinsertparams[2].Value = item.RequestDate;
             int i = 18;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerNote");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ParcelGroup");
@@ -3276,7 +3276,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         par.Value = item.HasPropertyOutdatedValue("Volume");
                         break;
                 }
-            i = 19;
+            i = 18;
             myinsertupdateparams[i++].Value = item.CustomerNote;
             myinsertupdateparams[i++].Value = item.ParcelGroup;
             myinsertupdateparams[i++].Value = item.ColorMark;
@@ -3406,7 +3406,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         par.Value = item.Volume;
                         break;
                 }
-            mydeleteparams[1].Value = myinsertupdateparams[0].Value;
+            mydeleteparams[1].Value = myupdateparams[0].Value;
             return true;
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)

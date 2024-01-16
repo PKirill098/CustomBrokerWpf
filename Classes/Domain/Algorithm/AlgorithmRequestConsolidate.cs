@@ -500,14 +500,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
             InsertParams = new SqlParameter[]
             {
-                myinsertparams[0],
+                myinsertparams[0],myinsertparams[1],
                 new SqlParameter("@parcelid", System.Data.SqlDbType.Int),
                 new SqlParameter("@group", System.Data.SqlDbType.NVarChar,5),
                 new SqlParameter("@ordinal", System.Data.SqlDbType.Int),
             };
             InsertUpdateParams = new SqlParameter[]
             {
-            myinsertupdateparams[0],
             new SqlParameter("@formulaid", System.Data.SqlDbType.Int),
             new SqlParameter("@code", System.Data.SqlDbType.NVarChar,3),
             new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50),

@@ -55,14 +55,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 , new SqlParameter("@remtype",System.Data.SqlDbType.Char,5)
                 ,new SqlParameter("@objectid",System.Data.SqlDbType.Int)
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                , new SqlParameter("@note",System.Data.SqlDbType.NVarChar,50)
+                new SqlParameter("@note",System.Data.SqlDbType.NVarChar,50)
                 , new SqlParameter("@delay",System.Data.SqlDbType.DateTime2,0)
                 ,new SqlParameter("@stop",System.Data.SqlDbType.Bit)
             };
@@ -89,15 +88,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		}
         protected override void GetOutputSpecificParametersValue(Reminder item)
         {
-            if (item.DomainState == lib.DomainObjectState.Added)
-            {
-                item.Id = (int)myinsertparams[0].Value;
-                item.Stamp = (Int64)myinsertupdateparams[0].Value;
-            }
-            else if (item.DomainState == lib.DomainObjectState.Modified)
-            {
-                item.Stamp = (Int64)myinsertupdateparams[0].Value;
-            }
         }
         protected override bool SaveChildObjects(Reminder item)
         {
@@ -115,9 +105,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             myupdateparams[1].Value = item.RemType;
             myupdateparams[2].Value = item.ObjectId;
-            myinsertupdateparams[1].Value = item.Note;
-            myinsertupdateparams[2].Value = item.Delay;
-            myinsertupdateparams[3].Value = item.Stop;
+            myinsertupdateparams[0].Value = item.Note;
+            myinsertupdateparams[1].Value = item.Delay;
+            myinsertupdateparams[2].Value = item.Stop;
             return true;
         }
     }

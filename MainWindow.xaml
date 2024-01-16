@@ -204,7 +204,12 @@
 						<Image Source="/CustomBrokerWpf;component/Images/money_envelope.png" />
 					</MenuItem.Icon>
 				</MenuItem>-->
-				<MenuItem Header="Шаблоны писем" Click="MenuItemMailTemplate_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                <MenuItem Header="Цвета" Click="MenuItemColor_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
+                    <MenuItem.Icon>
+                        <Image Source="/CustomBrokerWpf;component/Images/Colors.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Шаблоны писем" Click="MenuItemMailTemplate_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/mail2.png" />
 					</MenuItem.Icon>

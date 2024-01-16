@@ -852,7 +852,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             SelectParams = new SqlParameter[] { new SqlParameter("@id", System.Data.SqlDbType.Int), new SqlParameter("@customerid", System.Data.SqlDbType.Int), new SqlParameter("@importerid", System.Data.SqlDbType.Int), new SqlParameter("@parcelid", System.Data.SqlDbType.Int), new SqlParameter("@requestid", System.Data.SqlDbType.Int), new SqlParameter("@notready", System.Data.SqlDbType.Bit) { Direction = System.Data.ParameterDirection.Output } };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@customerid",System.Data.SqlDbType.Int)
                 ,new SqlParameter("@importerid",System.Data.SqlDbType.Int)
                 ,new SqlParameter("@parcelid",System.Data.SqlDbType.Int)
@@ -871,7 +871,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
            };
             myinsertupdateparams = new SqlParameter[]
             {
-               myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+               myinsertupdateparams[0],myinsertupdateparams[1]
                ,new SqlParameter("@cbrate",System.Data.SqlDbType.Money)
                ,new SqlParameter("@custmcursum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@custmrubsum",System.Data.SqlDbType.Money)

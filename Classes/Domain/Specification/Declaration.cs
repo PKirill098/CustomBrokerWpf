@@ -187,8 +187,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 ,new SqlParameter("@totalsumupd", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@vatupd", System.Data.SqlDbType.Bit)
             };
-            InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
-                ,new SqlParameter("@cbrate", System.Data.SqlDbType.Money)
+            InsertUpdateParams = new SqlParameter[] {
+                 new SqlParameter("@cbrate", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@fee", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@number", System.Data.SqlDbType.NVarChar,25)
                 ,new SqlParameter("@spddate", System.Data.SqlDbType.DateTime2)

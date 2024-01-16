@@ -24,21 +24,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal string cellnumber;
         internal string certificate;
         internal int customerlegal;
+        internal string colorcode;
+        internal string colorname;
         internal string contexture;
+        internal string contexturelining;
+        internal string contexturesole;
         internal decimal? cost;
         internal string countryru;
         internal string countryen;
         internal string clientuser;
         internal string description;
         internal string descriptionaccount;
+        internal string ean13;
         internal string gender;
         internal decimal? grossweight;
+        internal string kitu;
         internal decimal? netweight;
         internal string name;
         internal string note;
         internal string packing;
         internal decimal? price;
         internal string producer;
+        internal string producertitle;
         internal int? request;
         internal int roworder;
         internal string sizeen;
@@ -51,7 +58,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
     public class SpecificationDetail : lib.DomainBaseStamp
     {
         private SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
+            int? amount, string branch, string brand, string cellnumber, string certificate, string colorcode, string colorname, string contexture, string contexturelining, string contexturesole, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string ean13, string gender, decimal? grossweight, string kitu, decimal? netweight, string name, string note, string packing, decimal? price, string producer, string producertitle, Request request, int roworder, string sizeen, string sizeru, string tnved, string vendorcode
             ) : base(id, stamp, null, null, mstate)
         {
             myamount = amount;
@@ -59,21 +66,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mybrand = brand;
             mycellnumber = cellnumber;
             mycertificate = certificate;
+            mycolorcode = colorcode;
+            mcolorname= colorname;
             mycontexture = contexture;
+            mycontexturelining= contexturelining;
+            mycontexturesole= contexturesole;
             mycost = cost;
             mycountryru = countryru;
             mycountryen = countryen;
             mycustomer = customer;
             mydescription = description;
             mydescriptionaccount = descriptionaccount;
+            myean13 = ean13;
             mygender = gender;
             mygrossweight = grossweight;
+            mykitu= kitu;
             mynetweight = netweight;
             myname = name;
             mynote = note;
             mypacking = packing;
             myprice = price;
             myproducer = producer;
+            myproducertitle = producertitle;
             myrequest = request;
             myroworder = roworder;
             mysizeen = sizeen;
@@ -82,14 +96,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myvendorcode = vendorcode;
         }
         public SpecificationDetail(int id, long stamp, lib.DomainObjectState mstate,
-            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string contexture, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string gender, decimal? grossweight, decimal? netweight, string name, string note, string packing, decimal? price, string producer, Request request, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
-            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,contexture,cost,countryru,countryen,customer,description, descriptionaccount, gender,grossweight,netweight,name,note,packing,price,producer,request, roworder,sizeen,sizeru,tnved,vendorcode)
+            int? amount, string branch, string brand, string cellnumber, string certificate, CustomerLegal client, string colorcode, string colorname, string contexture, string contexturelining, string contexturesole, decimal? cost, string countryru, string countryen, string customer, string description, string descriptionaccount, string ean13, string gender, decimal? grossweight, string kitu, decimal? netweight, string name, string note, string packing, decimal? price, string producer, string producertitle, Request request, int roworder, string sizeen, string sizeru, Specification spec, string tnved, string vendorcode
+            ):this(id, stamp, mstate,amount,branch,brand,cellnumber,certificate,colorcode,colorname,contexture,contexturelining,contexturesole,cost,countryru,countryen,customer,description, descriptionaccount,ean13, gender,grossweight,kitu,netweight,name,note,packing,price,producer,producertitle,request, roworder,sizeen,sizeru,tnved,vendorcode)
         {
             myclient = client;
             myspec = spec;
         }
         public SpecificationDetail() : this(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
-            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null
+            , 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null
             )
         { }
 
@@ -129,11 +143,35 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             set { SetProperty<CustomerLegal>(ref myclient, value); }
             get { return myclient; }
         }
+        private string mycolorcode;
+        public string ColorCode
+        {
+            set { SetProperty<string>(ref mycolorcode, value); }
+            get { return mycolorcode; }
+        }
+        private string mcolorname;
+        public string ColorName
+        {
+            set { SetProperty<string>(ref mcolorname, value); }
+            get { return mcolorname; }
+        }
         private string mycontexture;
         public string Contexture
         {
             set { SetProperty<string>(ref mycontexture, value); }
             get { return mycontexture; }
+        }
+        private string mycontexturelining;
+        public string ContextureLining
+        {
+            set { SetProperty<string>(ref mycontexturelining, value); }
+            get { return mycontexturelining; }
+        }
+        private string mycontexturesole;
+        public string ContextureSole
+        {
+            set { SetProperty<string>(ref mycontexturesole, value); }
+            get { return mycontexturesole; }
         }
         private decimal? mycost;
         public decimal? Cost
@@ -171,6 +209,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             set { SetProperty<string>(ref mydescriptionaccount, value); }
             get { return mydescriptionaccount; }
         }
+        private string myean13;
+        public string Ean13
+        {
+            set { SetProperty<string>(ref myean13, value); }
+            get { return myean13; }
+        }
         private string mygender;
         public string Gender
         {
@@ -182,6 +226,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             set { SetProperty<decimal?>(ref mygrossweight, value); }
             get { return mygrossweight; }
+        }
+        private string mykitu;
+        public string Kitu
+        {
+            set { SetProperty<string>(ref mykitu, value); }
+            get { return mykitu; }
         }
         private string myname;
         public string Name
@@ -218,6 +268,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             set { SetProperty<string>(ref myproducer, value); }
             get { return myproducer; }
+        }
+        private string myproducertitle;
+        public string ProducerTitle
+        {
+            set { SetProperty<string>(ref myproducertitle, value); }
+            get { return myproducertitle; }
         }
         private Request myrequest;
         public Request Request
@@ -271,21 +327,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             this.CellNumber = sample.CellNumber;
             this.Certificate = sample.Certificate;
             this.Client = sample.Client;
+            this.ColorCode = sample.ColorCode;
+            this.ColorName = sample.ColorName;
             this.Contexture = sample.Contexture;
+            this.ContextureLining = sample.ContextureLining;
+            this.ContextureSole = sample.ContextureSole;
             this.Cost = sample.Cost;
             this.CountryEN = sample.CountryEN;
             this.CountryRU = sample.CountryRU;
             this.Customer = sample.Customer;
             this.Description = sample.Description;
             this.DescriptionAccount = sample.DescriptionAccount;
+            this.Ean13 = sample.Ean13;
             this.Gender = sample.Gender;
             this.GrossWeight = sample.GrossWeight;
+            this.Kitu = sample.Kitu;
             this.Name = sample.Name;
             this.NetWeight = sample.NetWeight;
             this.Note = sample.Note;
             this.Packing = sample.Packing;
             this.Price = sample.Price;
             this.Producer = sample.Producer;
+            this.ProducerTitle = sample.ProducerTitle;
             this.Request = sample.Request;
             this.RowOrder = sample.RowOrder;
             this.SizeEN = sample.SizeEN;
@@ -312,7 +375,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             DeleteCommandText = "spec.SpecificationDetailDel_sp";
 
             SelectParams = new SqlParameter[] { new SqlParameter("@specid", System.Data.SqlDbType.Int), new SqlParameter("@filterid", System.Data.SqlDbType.Int) };
-            InsertParams = new SqlParameter[] { InsertParams[0]
+            InsertParams = new SqlParameter[] { InsertParams[0],InsertParams[1]
                 , new SqlParameter("@specificationid", System.Data.SqlDbType.Int)
             };
             UpdateParams = new SqlParameter[] {UpdateParams[0]
@@ -322,21 +385,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@brandtrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@cellnumbertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@certificatetrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@colorcodetrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@colornametrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@contexturetrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@contextureliningtrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@contexturesoletrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@costtrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@countryrutrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@countryentrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@customertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@descriptiontrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@descriptionaccounttrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@ean13true", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@gendertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@grossweighttrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@kitutrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@netweighttrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@nametrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@notetrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@packingtrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@pricetrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@producertrue", System.Data.SqlDbType.Bit)
+                , new SqlParameter("@producertitletrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@requesttrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@rowordertrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@sizeentrue", System.Data.SqlDbType.Bit)
@@ -344,13 +414,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@tnvedtrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@vendorcodetrue", System.Data.SqlDbType.Bit)
             };
-            InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
-                , new SqlParameter("@amount", System.Data.SqlDbType.Int)
+            InsertUpdateParams = new SqlParameter[] {
+                  new SqlParameter("@amount", System.Data.SqlDbType.Int)
                 , new SqlParameter("@branch", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@brand", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@cellnumber", System.Data.SqlDbType.NVarChar,10)
                 , new SqlParameter("@certificate", System.Data.SqlDbType.NVarChar,60)
+                , new SqlParameter("@colorcode", System.Data.SqlDbType.NVarChar,100)
+                , new SqlParameter("@colorname", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@contexture", System.Data.SqlDbType.NVarChar,100)
+                , new SqlParameter("@contexturelining", System.Data.SqlDbType.NVarChar,100)
+                , new SqlParameter("@contexturesole", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@cost", System.Data.SqlDbType.Money)
                 , new SqlParameter("@countryru", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@countryen", System.Data.SqlDbType.NVarChar,5)
@@ -358,14 +432,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@customerid", System.Data.SqlDbType.Int)
                 , new SqlParameter("@description", System.Data.SqlDbType.NVarChar,200)
                 , new SqlParameter("@descriptionaccount", System.Data.SqlDbType.NVarChar,200)
+                , new SqlParameter("@ean13", System.Data.SqlDbType.NChar,13)
                 , new SqlParameter("@gender", System.Data.SqlDbType.NVarChar,10)
                 , new SqlParameter("@grossweight", System.Data.SqlDbType.SmallMoney)
+                , new SqlParameter("@kitu", System.Data.SqlDbType.NVarChar,74)
                 , new SqlParameter("@netweight", System.Data.SqlDbType.SmallMoney)
                 , new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50)
                 , new SqlParameter("@note", System.Data.SqlDbType.NVarChar,200)
                 , new SqlParameter("@packing", System.Data.SqlDbType.NVarChar,50)
                 , new SqlParameter("@price", System.Data.SqlDbType.Money)
                 , new SqlParameter("@producer", System.Data.SqlDbType.NVarChar,100)
+                , new SqlParameter("@producertitle", System.Data.SqlDbType.NVarChar,100)
                 , new SqlParameter("@request", System.Data.SqlDbType.Int)
                 , new SqlParameter("@roworder", System.Data.SqlDbType.Int)
                 , new SqlParameter("@sizeen", System.Data.SqlDbType.NVarChar,10)
@@ -391,21 +468,28 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , cellnumber = reader.IsDBNull(this.Fields["cellnumber"]) ? null : reader.GetString(this.Fields["cellnumber"])
                 , certificate = reader.IsDBNull(this.Fields["certificate"]) ? null : reader.GetString(this.Fields["certificate"])
                 , customerlegal = reader.IsDBNull(this.Fields["customerid"]) ? 0 : reader.GetInt32(this.Fields["customerid"])
+                , colorcode = reader.IsDBNull(this.Fields["colorcode"]) ? null : reader.GetString(this.Fields["colorcode"])
+                , colorname = reader.IsDBNull(this.Fields["colorname"]) ? null : reader.GetString(this.Fields["colorname"])
                 , contexture = reader.IsDBNull(this.Fields["contexture"]) ? null : reader.GetString(this.Fields["contexture"])
+                , contexturelining = reader.IsDBNull(this.Fields["contexturelining"]) ? null : reader.GetString(this.Fields["contexturelining"])
+                , contexturesole = reader.IsDBNull(this.Fields["contexturesole"]) ? null : reader.GetString(this.Fields["contexturesole"])
                 , cost = reader.IsDBNull(this.Fields["cost"]) ? (decimal?)null : reader.GetDecimal(this.Fields["cost"])
                 , countryru = reader.IsDBNull(this.Fields["countryru"]) ? null : reader.GetString(this.Fields["countryru"])
                 , countryen = reader.IsDBNull(this.Fields["countryen"]) ? null : reader.GetString(this.Fields["countryen"])
                 , clientuser = reader.IsDBNull(this.Fields["customer"]) ? null : reader.GetString(this.Fields["customer"])
                 , description = reader.IsDBNull(this.Fields["description"]) ? null : reader.GetString(this.Fields["description"])
                 , descriptionaccount = reader.IsDBNull(this.Fields["descriptionaccount"]) ? null : reader.GetString(this.Fields["descriptionaccount"])
+                , ean13 = reader.IsDBNull(this.Fields["ean13"]) ? null : reader.GetString(this.Fields["ean13"])
                 , gender = reader.IsDBNull(this.Fields["gender"]) ? null : reader.GetString(this.Fields["gender"])
                 , grossweight = reader.IsDBNull(this.Fields["grossweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["grossweight"])
+                , kitu = reader.IsDBNull(this.Fields["kitu"]) ? null : reader.GetString(this.Fields["kitu"])
                 , netweight = reader.IsDBNull(this.Fields["netweight"]) ? (decimal?)null : reader.GetDecimal(this.Fields["netweight"])
                 , name = reader.IsDBNull(this.Fields["name"]) ? null : reader.GetString(this.Fields["name"])
                 , note = reader.IsDBNull(this.Fields["note"]) ? null : reader.GetString(this.Fields["note"])
                 , packing = reader.IsDBNull(this.Fields["packing"]) ? null : reader.GetString(this.Fields["packing"])
                 , price = reader.IsDBNull(this.Fields["price"]) ? (decimal?)null : reader.GetDecimal(this.Fields["price"])
                 , producer = reader.IsDBNull(this.Fields["producer"]) ? null : reader.GetString(this.Fields["producer"])
+                , producertitle = reader.IsDBNull(this.Fields["producertitle"]) ? null : reader.GetString(this.Fields["producertitle"])
                 , request = reader.IsDBNull(this.Fields["request"]) ? (int?)null : reader.GetInt32(this.Fields["request"])
                 , roworder = reader.GetInt32(this.Fields["roworder"])
                 , sizeen = reader.IsDBNull(this.Fields["sizeen"]) ? null : reader.GetString(this.Fields["sizeen"])
@@ -423,22 +507,29 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , record.brand
                 , record.cellnumber
                 , record.certificate
-                , CustomBrokerWpf.References.CustomerLegalStore.GetItemLoad(record.customerlegal, addcon, out _)
+                , References.CustomerLegalStore.GetItemLoad(record.customerlegal, addcon, out _)
+                , record.colorcode
+                , record.colorname
                 , record.contexture
+                , record.contexturelining
+                , record.contexturesole
                 , record.cost
                 , record.countryru
                 , record.countryen
                 , record.clientuser
                 , record.description
                 , record.descriptionaccount
+                , record.ean13
                 , record.gender
                 , record.grossweight
+                , record.kitu
                 , record.netweight
                 , record.name
                 , record.note
                 , record.packing
                 , record.price
                 , record.producer
+                , record.producertitle
                 , record.request.HasValue ? CustomBrokerWpf.References.RequestStore.GetItemLoad(record.request.Value, addcon, out _) : null
                 , record.roworder
                 , record.sizeen
@@ -470,7 +561,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         protected override bool SetSpecificParametersValue(SpecificationDetail item)
         {
-            InsertParams[1].Value = item.Specification.Id;
+            InsertParams[2].Value = item.Specification.Id;
             foreach (SqlParameter par in UpdateParams)
             {
                 switch (par.ParameterName)
@@ -490,8 +581,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@certificatetrue":
                         par.Value = item.HasPropertyOutdatedValue("Certificate");
                         break;
+                    case "@colorcodetrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.ColorCode));
+                        break;
+                    case "@colornametrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.ColorName));
+                        break;
                     case "@contexturetrue":
                         par.Value = item.HasPropertyOutdatedValue("Contexture");
+                        break;
+                    case "@contextureliningtrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.ContextureLining));
+                        break;
+                    case "@contexturesoletrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.ContextureSole));
                         break;
                     case "@costtrue":
                         par.Value = item.HasPropertyOutdatedValue("Cost");
@@ -514,11 +617,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@descriptionaccounttrue":
                         par.Value = item.HasPropertyOutdatedValue("DescriptionAccount");
                         break;
+                    case "@ean13true":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.Ean13));
+                        break;
                     case "@gendertrue":
                         par.Value = item.HasPropertyOutdatedValue("Gender");
                         break;
                     case "@grossweighttrue":
                         par.Value = item.HasPropertyOutdatedValue("GrossWeight");
+                        break;
+                    case "@kitutrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.Kitu));
                         break;
                     case "@netweighttrue":
                         par.Value = item.HasPropertyOutdatedValue("NetWeight");
@@ -537,6 +646,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                     case "@producertrue":
                         par.Value = item.HasPropertyOutdatedValue("Producer");
+                        break;
+                    case "@producertitletrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.ProducerTitle));
                         break;
                     case "@requesttrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(SpecificationDetail.Request));
@@ -576,8 +688,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@certificate":
                         par.Value = item.Certificate;
                         break;
+                    case "@colorcode":
+                        par.Value = item.ColorCode;
+                        break;
+                    case "@colorname":
+                        par.Value = item.ColorName;
+                        break;
                     case "@contexture":
                         par.Value = item.Contexture;
+                        break;
+                    case "@contexturelining":
+                        par.Value = item.ContextureLining;
+                        break;
+                    case "@contexturesole":
+                        par.Value = item.ContextureSole;
                         break;
                     case "@cost":
                         par.Value = item.Cost;
@@ -600,11 +724,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     case "@descriptionaccount":
                         par.Value = item.DescriptionAccount;
                         break;
+                    case "@ean13":
+                        par.Value = item.Ean13;
+                        break;
                     case "@gender":
                         par.Value = item.Gender;
                         break;
                     case "@grossweight":
                         par.Value = item.GrossWeight;
+                        break;
+                    case "@kitu":
+                        par.Value = item.Kitu;
                         break;
                     case "@netweight":
                         par.Value = item.NetWeight;
@@ -623,6 +753,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                     case "@producer":
                         par.Value = item.Producer;
+                        break;
+                    case "@producertitle":
+                        par.Value = item.ProducerTitle;
                         break;
                     case "@roworder":
                         par.Value = item.RowOrder;
@@ -740,6 +873,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             get { return this.IsEnabled ? this.DomainObject.Client : null; }
         }
+        public string ColorCode
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.ColorCode, (string val) => { this.DomainObject.ColorCode = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.ColorCode,null); }
+        }
+        public string ColorName
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.ColorName, (string val) => { this.DomainObject.ColorName = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.ColorName,null); }
+        }
         public string Contexture
         {
             set
@@ -753,6 +902,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.Contexture : null; }
+        }
+        public string ContextureLining
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.ContextureLining, (string val) => { this.DomainObject.ContextureLining = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.ContextureLining,null); }
+        }
+        public string ContextureSole
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.ContextureSole, (string val) => { this.DomainObject.ContextureSole = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.ContextureSole,null); }
         }
         public decimal? Cost
         {
@@ -838,6 +1003,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             get { return this.IsEnabled ? this.DomainObject.DescriptionAccount : null; }
         }
+        public string Ean13
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.Ean13, (string val) => { this.DomainObject.Ean13 = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.Ean13,null); }
+        }
         public string Gender
         {
             set
@@ -865,6 +1038,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.GrossWeight : null; }
+        }
+        public string Kitu
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.Kitu, (string val) => { this.DomainObject.Kitu = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.Kitu,null); }
         }
         public string Name
         {
@@ -949,6 +1130,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 }
             }
             get { return this.IsEnabled ? this.DomainObject.Producer : null; }
+        }
+        public string ProducerTitle
+        {
+            set
+            {
+                this.SetProperty<string>(this.DomainObject.ProducerTitle, (string val) => { this.DomainObject.ProducerTitle = val; }, value);
+            }
+            get { return this.GetProperty<string>(this.DomainObject.ProducerTitle,null); }
         }
         public Request Request
         {
@@ -1112,8 +1301,108 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             switch (property)
             {
-                case "Client":
+                case nameof(this.Amount):
+                    this.DomainObject.Amount = (int?)value;
+                    break;
+                case nameof(this.Branch):
+                    this.DomainObject.Branch = (string)value;
+                    break;
+                case nameof(this.Brand):
+                    this.DomainObject.Brand = (string)value;
+                    break;
+                case nameof(this.CellNumber):
+                    this.DomainObject.CellNumber = (string)value;
+                    break;
+                case nameof(this.Certificate):
+                    this.DomainObject.Certificate = (string)value;
+                    break;
+                case nameof(this.Client):
                     this.DomainObject.Client = (CustomerLegal)value;
+                    break;
+                case nameof(this.ColorCode):
+                    this.DomainObject.ColorCode = (string)value;
+                    break;
+                case nameof(this.ColorName):
+                    this.DomainObject.ColorName = (string)value;
+                    break;
+                case nameof(this.Contexture):
+                    this.DomainObject.Contexture = (string)value;
+                    break;
+                case nameof(this.ContextureLining):
+                    this.DomainObject.ContextureLining = (string)value;
+                    break;
+                case nameof(this.ContextureSole):
+                    this.DomainObject.ContextureSole = (string)value;
+                    break;
+                case nameof(this.Cost):
+                    this.DomainObject.Cost = (decimal?)value;
+                    break;
+                case nameof(this.CountryEN):
+                    this.DomainObject.CountryEN = (string)value;
+                    break;
+                case nameof(this.CountryRU):
+                    this.DomainObject.CountryRU = (string)value;
+                    break;
+                case nameof(this.Customer):
+                    this.DomainObject.Customer = (string)value;
+                    break;
+                case nameof(this.Description):
+                    this.DomainObject.Description = (string)value;
+                    break;
+                case nameof(this.DescriptionAccount):
+                    this.DomainObject.DescriptionAccount = (string)value;
+                    break;
+                case nameof(this.Ean13):
+                    this.DomainObject.Ean13 = (string)value;
+                    break;
+                case nameof(this.Gender):
+                    this.DomainObject.Gender = (string)value;
+                    break;
+                case nameof(this.GrossWeight):
+                    this.DomainObject.GrossWeight = (decimal?)value;
+                    break;
+                case nameof(this.Kitu):
+                    this.DomainObject.Kitu = (string)value;
+                    break;
+                case nameof(this.Name):
+                    this.DomainObject.Name = (string)value;
+                    break;
+                case nameof(this.NetWeight):
+                    this.DomainObject.NetWeight = (decimal?)value;
+                    break;
+                case nameof(this.Note):
+                    this.DomainObject.Note = (string)value;
+                    break;
+                case nameof(this.Packing):
+                    this.DomainObject.Packing = (string)value;
+                    break;
+                case nameof(this.Price):
+                    this.DomainObject.Price = (decimal?)value;
+                    break;
+                case nameof(this.Producer):
+                    this.DomainObject.Producer = (string)value;
+                    break;
+                case nameof(this.ProducerTitle):
+                    this.DomainObject.ProducerTitle = (string)value;
+                    break;
+                case nameof(this.StorePoint):
+                case nameof(this.Request):
+                    this.DomainObject.Request = (Request)value;
+                    break;
+                case nameof(this.SizeEN):
+                    this.DomainObject.SizeEN = (string)value;
+                    break;
+                case nameof(this.SizeRU):
+                    this.DomainObject.SizeRU = (string)value;
+                    break;
+                case nameof(this.Specification):
+                    this.DomainObject.Specification = (Specification)value;
+                    break;
+                case nameof(this.TNVED):
+                    this.DomainObject.TNVED = (string)value;
+                    break;
+                case nameof(this.VendorCode):
+                    this.DomainObject.VendorCode = (string)value;
                     break;
             }
         }
@@ -1187,6 +1476,18 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         myparcelfilter.Items.Add(item);
                 return myfilter.isEmpty;
             };
+            myproducertitlefilter = new SpecificationDetailProducerTitleFilter();
+            myproducertitlefilter.DeferredFill = true;
+            myproducertitlefilter.ItemsSource = myview.OfType<SpecificationDetailVM>();
+            myproducertitlefilter.ExecCommand1 = () => { FilterRunExec(null); };
+            myproducertitlefilter.ExecCommand2 = () => { myproducertitlefilter.Clear(); };
+            myproducertitlefilter.FillDefault = () =>
+            {
+                if (myfilter.isEmpty)
+                    foreach (string item in myproducertitlefilter.DefaultList)
+                        myproducertitlefilter.Items.Add(item);
+                return myfilter.isEmpty;
+            };
             mycertificatefilter = new SpecificationDetailCertificateFilter();
             mycertificatefilter.DeferredFill = true;
             mycertificatefilter.ItemsSource = myview.OfType<SpecificationDetailVM>();
@@ -1256,6 +1557,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myvendorcodefilter.ExecCommand1 = () => { FilterRunExec(null); };
             myvendorcodefilter.ExecCommand2 = () => { myvendorcodefilter.Clear(); };
 
+            myean13filter = new SpecificationDetailEan13Filter();
+            myean13filter.ItemsSource = myview.OfType<SpecificationDetailVM>();
+            myean13filter.ExecCommand1 = () => { FilterRunExec(null); };
+            myean13filter.ExecCommand2 = () => { myean13filter.Clear(); };
+
             mygenderfilter = new libui.CheckListBoxVM();
             mygenderfilter.DisplayPath = "Name";
             mygenderfilter.GetDisplayPropertyValueFunc = (item) => { return ((Gender)item).Name; };
@@ -1273,9 +1579,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myexcelexport = new RelayCommand(ExcelExportExec, ExcelExportCanExec);
             myspecfolderopen = new RelayCommand(SpecFolderOpenExec, SpecFolderOpenCanExec);
         }
-
         private SpecificationDetailDBM mysddbm;
         private SpecificationDetailSynchronizer mysync;
+        #region Filter
         private lib.SQLFilter.SQLFilter myfilter;
         internal lib.SQLFilter.SQLFilter Filter
         { get { return myfilter; } }
@@ -1304,6 +1610,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             get { return mycountryrufilter; }
         }
+        private SpecificationDetailEan13Filter myean13filter;
+        public SpecificationDetailEan13Filter Ean13Filter
+        {
+            get { return myean13filter; }
+        }
         private libui.CheckListBoxVM mygenderfilter;
         public libui.CheckListBoxVM GenderFilter
         { get { return mygenderfilter; } }
@@ -1316,6 +1627,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         public SpecificationDetailParcelNumberEntireFilter ParcelFilter
         {
             get { return myparcelfilter; }
+        }
+        private SpecificationDetailProducerTitleFilter myproducertitlefilter;
+        public SpecificationDetailProducerTitleFilter ProducerTitleFilter
+        {
+            get { return myproducertitlefilter; }
         }
         private SpecificationDetailVendorCodeFilter myvendorcodefilter;
         public SpecificationDetailVendorCodeFilter VendorCodeFilter
@@ -1376,6 +1692,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "countryru", new string[0]);
+            if (myean13filter.FilterOn)
+            {
+                int n = myean13filter.SelectedItems.Count;
+                string[] items = new string[n];
+                if(n > 0)
+                    for (int i = 0; i < n; i++)
+                        items[i] = (string)myean13filter.SelectedItems[i];
+                else 
+                {
+                    items = new string[1] { myean13filter.ItemsViewFilter };
+                }
+                myfilter.SetList(myfilter.FilterWhereId, "ean13", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "ean13", new string[0]);
             if (mygenderfilter.FilterOn)
             {
                 string[] items = new string[mygenderfilter.SelectedItems.Count];
@@ -1403,6 +1734,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             else
                 myfilter.SetList(myfilter.FilterWhereId, "parcel", new string[0]);
+            if (myproducertitlefilter.FilterOn)
+            {
+                string[] items = new string[myproducertitlefilter.SelectedItems.Count];
+                for (int i = 0; i < myproducertitlefilter.SelectedItems.Count; i++)
+                    items[i] = (string)myproducertitlefilter.SelectedItems[i];
+                myfilter.SetList(myfilter.FilterWhereId, "producertitle", items);
+            }
+            else
+                myfilter.SetList(myfilter.FilterWhereId, "producertitle", new string[0]);
             if (myvendorcodefilter.FilterOn)
             {
                 int n = myvendorcodefilter.SelectedItems.Count;
@@ -1439,8 +1779,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             //    foreach (SQLFilterCondition cond in myfilter.ConditionGet(myservicetypefiltergroup, "servicetype"))
             //        myfilter.ConditionDel(cond.propertyid);
             //myfilter.SetDate(myfilter.FilterWhereId, "shipmentdate", "shipmentdate", myshipmentdatefilter.DateStart, myshipmentdatefilter.DateStop);
-            if (!(mybranchfilter.FilterOn | mybrandfilter.FilterOn | myparcelfilter.FilterOn | myclientfilter.FilterOn | mycountryrufilter.FilterOn | mygenderfilter.FilterOn | mylegalfilter.FilterOn | mycertificatefilter.FilterOn | myvendorcodefilter.FilterOn))
-                this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора грузов!", false);
+            if (!(mybranchfilter.FilterOn | mybrandfilter.FilterOn | mycertificatefilter.FilterOn | myclientfilter.FilterOn | mycountryrufilter.FilterOn | myean13filter.FilterOn | mygenderfilter.FilterOn | mylegalfilter.FilterOn | myparcelfilter.FilterOn | myproducertitlefilter.FilterOn | myvendorcodefilter.FilterOn))
+                this.OpenPopup("Фильтр. Пожалуйста, задайте критерии выбора разбивок!", false);
             else
                 this.RefreshData(null);
         }
@@ -1463,12 +1803,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myclientfilter.IconVisibileChangedNotification();
             mycountryrufilter.Clear();
             mycountryrufilter.IconVisibileChangedNotification();
+            myean13filter.Clear();
+            myean13filter.IconVisibileChangedNotification();
             mygenderfilter.Clear();
             mygenderfilter.IconVisibileChangedNotification();
             mylegalfilter.Clear();
             mylegalfilter.IconVisibileChangedNotification();
             myparcelfilter.Clear();
             myparcelfilter.IconVisibileChangedNotification();
+            myproducertitlefilter.Clear();
+            myproducertitlefilter.IconVisibileChangedNotification();
             myvendorcodefilter.Clear();
             myvendorcodefilter.IconVisibileChangedNotification();
             this.FilterRunExec(null);
@@ -1476,7 +1820,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         private bool FilterClearCanExec(object parametr)
         { return true; }
-
+        #endregion
         private RelayCommand myspecfolderopen;
         public ICommand SpecFolderOpen
         {
@@ -1832,7 +2176,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     BranchDBM pdbm = new BranchDBM();
                     pdbm.Fill();
                     foreach (Branch goods in pdbm.Collection)
-                        mydefaultlist.Add(goods.Name);
+                        if (!mydefaultlist.Contains(goods.Name)) mydefaultlist.Add(goods.Name);
                 }
                 return mydefaultlist;
             }
@@ -1892,7 +2236,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     GoodsDBM pdbm = new GoodsDBM();
                     pdbm.Fill();
                     foreach (Goods goods in pdbm.Collection)
-                        mydefaultlist.Add(goods.Certificate);
+                        if (!mydefaultlist.Contains(goods.Certificate)) mydefaultlist.Add(goods.Certificate);
                 }
                 return mydefaultlist;
             }
@@ -1919,6 +2263,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             //        { contains = true; break; }
             //    if (!contains) Items.Add(name);
             //}
+        }
+    }
+    public class SpecificationDetailEan13Filter : libui.CheckListBoxVMFill<SpecificationDetailVM, string>
+    {
+        public SpecificationDetailEan13Filter() : base()
+        {
+            this.DeferredFill = true;
+        }
+        protected override void AddItem(SpecificationDetailVM item)
+        {
+            if (!Items.Contains(item.Ean13)) Items.Add(item.Ean13);
         }
     }
     public class SpecificationDetailLegalFilter : libui.CheckListBoxVMFillDefaultList<SpecificationDetailVM, CustomerLegal>
@@ -1958,6 +2313,56 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             ParcelNumber name;
             name = CustomBrokerWpf.References.ParcelNumbers.FindFirstItem("Id", item.Specification.Parcel.Id);
             if (!Items.Contains(name)) Items.Add(name);
+        }
+    }
+    public class SpecificationDetailProducerFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, string>
+    {
+        private List<string> mydefaultlist;
+        internal List<string> DefaultList
+        {
+            get
+            {
+                if (mydefaultlist == null)
+                {
+                    mydefaultlist = new List<string>();
+                    GoodsDBM pdbm = new GoodsDBM();
+                    pdbm.Fill();
+                    foreach (Goods goods in pdbm.Collection)
+                        if (!mydefaultlist.Contains(goods.Producer))
+                            mydefaultlist.Add(goods.Producer);
+                }
+                return mydefaultlist;
+            }
+        }
+
+        protected override void AddItem(SpecificationDetailVM item)
+        {
+            if (!Items.Contains(item.Producer)) Items.Add(item.Producer);
+        }
+    }
+    public class SpecificationDetailProducerTitleFilter : libui.CheckListBoxVMFillDefault<SpecificationDetailVM, string>
+    {
+        private List<string> mydefaultlist;
+        internal List<string> DefaultList
+        {
+            get
+            {
+                if (mydefaultlist == null)
+                {
+                    mydefaultlist = new List<string>();
+                    GoodsDBM pdbm = new GoodsDBM();
+                    pdbm.Fill();
+                    foreach (Goods goods in pdbm.Collection)
+                        if (!mydefaultlist.Contains(goods.Producer))
+                            mydefaultlist.Add(goods.Producer);
+                }
+                return mydefaultlist;
+            }
+        }
+
+        protected override void AddItem(SpecificationDetailVM item)
+        {
+            if (!Items.Contains(item.ProducerTitle)) Items.Add(item.ProducerTitle);
         }
     }
     public class SpecificationDetailVendorCodeFilter : libui.CheckListBoxVMFill<SpecificationDetailVM, string>

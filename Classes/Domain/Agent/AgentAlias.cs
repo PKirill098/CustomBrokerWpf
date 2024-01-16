@@ -86,13 +86,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@agentid", System.Data.SqlDbType.Int)
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@alias", System.Data.SqlDbType.NVarChar,100)
+                new SqlParameter("@alias", System.Data.SqlDbType.NVarChar,100)
             };
         }
 
@@ -135,8 +134,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetSpecificParametersValue(AgentAlias item)
         {
-            myinsertparams[1].Value=item.Agent.Id;
-            myinsertupdateparams[1].Value = item.Alias;
+            myinsertparams[2].Value=item.Agent.Id;
+            myinsertupdateparams[0].Value = item.Alias;
             return item.Agent.Id > 0;
         }
     }

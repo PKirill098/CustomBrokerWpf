@@ -378,7 +378,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertparams = new SqlParameter[]
            {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@parentid", System.Data.SqlDbType.Int)
            };
             myinsertparams[0].ParameterName = "@customerID";
@@ -410,7 +410,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[0].ParameterName = "@customerID";
             myinsertupdateparams = new SqlParameter[]
            {
-                myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+                myinsertupdateparams[0],myinsertupdateparams[1]
                 ,new SqlParameter("@customerName", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@customerFullName", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@customerDayEntry", System.Data.SqlDbType.DateTime)
@@ -432,8 +432,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@edod", System.Data.SqlDbType.TinyInt)
                 ,new SqlParameter("@edot", System.Data.SqlDbType.TinyInt)
            };
-            myinsertupdateparams[1].ParameterName = "@updtDate";
-            myinsertupdateparams[2].ParameterName = "@updtWho";
+            myinsertupdateparams[0].ParameterName = "@updtDate";
+            myinsertupdateparams[1].ParameterName = "@updtWho";
             myadbm = new AliasDBM();
             mycdbm = new CustomerAddressDBM();
             myccdbm = new CustomerContactDBM();
@@ -592,7 +592,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             if (item.Customer.DomainState == lib.DomainObjectState.Added)
                 return false;
-            myinsertparams[1].Value = item.Customer.Id;
+            myinsertparams[2].Value = item.Customer.Id;
             foreach(SqlParameter par in this.UpdateParams)
                 switch(par.ParameterName)
                 {

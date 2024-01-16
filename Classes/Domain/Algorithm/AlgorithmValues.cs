@@ -587,7 +587,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
             InsertParams = new SqlParameter[]
             {
-                myinsertparams[0],
+                myinsertparams[0],myinsertparams[1],
                 new SqlParameter("@algorithmid", System.Data.SqlDbType.Int),
                 new SqlParameter("@formulaid", System.Data.SqlDbType.Int)
             };
@@ -599,7 +599,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
             InsertUpdateParams = new SqlParameter[]
             {
-                myinsertupdateparams[0],
                 new SqlParameter("@value1", System.Data.SqlDbType.Decimal){Precision=18,Scale=8 },
                 new SqlParameter("@value2", System.Data.SqlDbType.Decimal){Precision=18,Scale=8 },
             };
@@ -671,12 +670,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             bool isSuccess = item.Algorithm.DomainState != lib.DomainObjectState.Added & item.Formula.DomainState != lib.DomainObjectState.Added;
             if (isSuccess) //this.Errors.Add(new lib.DBMError(item, "Форлула/Алгоритм не сохранены!","incerr"));
             {
-                myinsertparams[1].Value = item.Algorithm.Id;
-                myinsertparams[2].Value = item.Formula.Id;
+                myinsertparams[2].Value = item.Algorithm.Id;
+                myinsertparams[3].Value = item.Formula.Id;
                 myupdateparams[1].Value = item.HasPropertyOutdatedValue("Value1");
                 myupdateparams[2].Value = item.HasPropertyOutdatedValue("Value2");
-                myinsertupdateparams[1].Value = item.Value1;
-                myinsertupdateparams[2].Value = item.Value2;
+                myinsertupdateparams[0].Value = item.Value1;
+                myinsertupdateparams[1].Value = item.Value2;
             }
             return isSuccess;
         }

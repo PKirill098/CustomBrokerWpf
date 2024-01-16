@@ -643,8 +643,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
            };
             myinsertupdateparams = new SqlParameter[]
             {
-               myinsertupdateparams[0]
-               ,new SqlParameter("@agentid",System.Data.SqlDbType.Int)
+               new SqlParameter("@agentid",System.Data.SqlDbType.Int)
                ,new SqlParameter("@cbrate",System.Data.SqlDbType.Money)
                ,new SqlParameter("@customerid",System.Data.SqlDbType.Int)
                ,new SqlParameter("@dealpass", System.Data.SqlDbType.Bit)

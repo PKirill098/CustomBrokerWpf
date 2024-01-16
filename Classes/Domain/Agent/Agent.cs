@@ -270,8 +270,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]//,myinsertupdateparams[1],myinsertupdateparams[2]
-                ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,100)
+                //myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+                new SqlParameter("@name", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@fullname", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@dayentry", System.Data.SqlDbType.DateTime)
                 ,new SqlParameter("@recommend", System.Data.SqlDbType.NVarChar,100)

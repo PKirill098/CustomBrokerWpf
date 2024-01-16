@@ -139,8 +139,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 ,new SqlParameter("@tnvedchd", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@translationchd", System.Data.SqlDbType.Bit)
             };
-            InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
-                ,new SqlParameter("@idupd", System.Data.SqlDbType.Int)
+            InsertUpdateParams = new SqlParameter[] {
+                 new SqlParameter("@idupd", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@noupdate", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@vendorcode", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@brand", System.Data.SqlDbType.NVarChar,100)

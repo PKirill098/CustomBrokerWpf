@@ -1031,7 +1031,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams[0].ParameterName = "@parcelId";
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@parcelstatus", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@docdirpath", System.Data.SqlDbType.NVarChar,100) {Direction = System.Data.ParameterDirection.Output}
             };
@@ -1081,8 +1081,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@parcelnumber", System.Data.SqlDbType.NVarChar,5) {Direction = System.Data.ParameterDirection.InputOutput}
+                new SqlParameter("@parcelnumber", System.Data.SqlDbType.NVarChar,5) {Direction = System.Data.ParameterDirection.InputOutput}
                 ,new SqlParameter("@parceltype", System.Data.SqlDbType.TinyInt)
                 ,new SqlParameter("@declaration", System.Data.SqlDbType.NVarChar,106)
                 ,new SqlParameter("@goodstype", System.Data.SqlDbType.Int)

@@ -67,113 +67,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-		private void MenuItemMarking_Click(object sender, RoutedEventArgs e)
-		{
-            Window ObjectWin = null;
-            //foreach (Window item in mychildwindows)
-            //{
-            //    if (item.Name == "winGoods") ObjectWin = item;
-            //}
-            //if (ObjectWin == null)
-            //{
-                ObjectWin = new MarkingWin();
-                ObjectWin.DataContext = new Classes.Domain.Marking.MarkingViewCommader();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            //}
-            //else
-            //{
-            //    ObjectWin.Activate();
-            //    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            //}
-        }
-        private void MenuItemManagGroup_Click(object sender, RoutedEventArgs e)
+        private void MenuItemAddressType_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winGroupMng") ObjectWin = item;
+                if (item.Name == "winAddressType") ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new GroupMngWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-            //OpenSingleWindow(GroupMngWin.NameProperty, "winGroupMng");
-        }
-        private void MenuItemManagers_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winManagers") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new ManagersWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemBrand_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "itemBrandWin") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new BrandWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemPaymentType_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winPaymentType") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new PaymentTypeWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemDeliveryType_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winDeliveryType") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new DeliveryTypeWin();
+                ObjectWin = new AddressTypeWin();
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -202,16 +105,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemAddressType_Click(object sender, RoutedEventArgs e)
+        private void MenuItemBrand_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winAddressType") ObjectWin = item;
+                if (item.Name == "itemBrandWin") ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new AddressTypeWin();
+                ObjectWin = new BrandWin();
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -221,16 +124,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
-        private void MenuItemTown_Click(object sender, RoutedEventArgs e)
+        private void MenuItemColor_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winTown") ObjectWin = item;
+                if (item.Name == "winColor") ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new TownWin();
+                ObjectWin = new Windows.Specification.ColorWin();
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -259,6 +162,146 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
             }
         }
+        private void MenuItemCountries_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winCountries") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new CountriesWin();
+                mychildwindows.Add(ObjectWin);
+                IViewModelWindous win = ObjectWin as IViewModelWindous;
+                Classes.Domain.References.CountriesVM vm = new Classes.Domain.References.CountriesVM();
+                vm.EndEdit = win.vmEndEdit;
+                vm.CancelEdit = win.vmCancelEdit;
+                ObjectWin.DataContext = vm;
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemDeliveryType_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winDeliveryType") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new DeliveryTypeWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemMailTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winMailTemplate") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new MailTemplateWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemManagers_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winManagers") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new ManagersWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemManagGroup_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winGroupMng") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new GroupMngWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+            //OpenSingleWindow(GroupMngWin.NameProperty, "winGroupMng");
+        }
+		private void MenuItemMarking_Click(object sender, RoutedEventArgs e)
+		{
+            Window ObjectWin = null;
+            //foreach (Window item in mychildwindows)
+            //{
+            //    if (item.Name == "winGoods") ObjectWin = item;
+            //}
+            //if (ObjectWin == null)
+            //{
+                ObjectWin = new MarkingWin();
+                ObjectWin.DataContext = new Classes.Domain.Marking.MarkingViewCommader();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            //}
+            //else
+            //{
+            //    ObjectWin.Activate();
+            //    if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            //}
+        }
+        private void MenuItemPaymentType_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winPaymentType") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new PaymentTypeWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
         private void MenuItemRequestStatus_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -269,6 +312,25 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if (ObjectWin == null)
             {
                 ObjectWin = new RequestStatusWin();
+                mychildwindows.Add(ObjectWin);
+                ObjectWin.Show();
+            }
+            else
+            {
+                ObjectWin.Activate();
+                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
+            }
+        }
+        private void MenuItemTown_Click(object sender, RoutedEventArgs e)
+        {
+            Window ObjectWin = null;
+            foreach (Window item in mychildwindows)
+            {
+                if (item.Name == "winTown") ObjectWin = item;
+            }
+            if (ObjectWin == null)
+            {
+                ObjectWin = new TownWin();
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }
@@ -316,49 +378,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //        if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
         //    }
         //}
-        private void MenuItemMailTemplate_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winMailTemplate") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new MailTemplateWin();
-                mychildwindows.Add(ObjectWin);
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
-        private void MenuItemCountries_Click(object sender, RoutedEventArgs e)
-        {
-            Window ObjectWin = null;
-            foreach (Window item in mychildwindows)
-            {
-                if (item.Name == "winCountries") ObjectWin = item;
-            }
-            if (ObjectWin == null)
-            {
-                ObjectWin = new CountriesWin();
-                mychildwindows.Add(ObjectWin);
-                IViewModelWindous win = ObjectWin as IViewModelWindous;
-                Classes.Domain.References.CountriesVM vm = new Classes.Domain.References.CountriesVM();
-                vm.EndEdit = win.vmEndEdit;
-                vm.CancelEdit = win.vmCancelEdit;
-                ObjectWin.DataContext = vm;
-                ObjectWin.Show();
-            }
-            else
-            {
-                ObjectWin.Activate();
-                if (ObjectWin.WindowState == WindowState.Minimized) ObjectWin.WindowState = WindowState.Normal;
-            }
-        }
         private void MenuItemGoodsType_Click(object sender, RoutedEventArgs e)
         {
             Window ObjectWin = null;
@@ -1842,5 +1861,5 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
 
-	}
+    }
 }

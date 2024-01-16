@@ -110,7 +110,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			SelectParams = new SqlParameter[] { new SqlParameter("@invoiceid", System.Data.SqlDbType.Int) };
 			myinsertparams = new SqlParameter[]
 			{
-				myinsertparams[0]
+				myinsertparams[0],myinsertparams[1]
 				,new SqlParameter("@invoiceid",System.Data.SqlDbType.Int)
 			};
 			myupdateparams = new SqlParameter[]
@@ -122,7 +122,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			};
 			myinsertupdateparams = new SqlParameter[]
 			{
-			   myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+			   myinsertupdateparams[0],myinsertupdateparams[1]
 			   ,new SqlParameter("@psum",System.Data.SqlDbType.Money)
 			   ,new SqlParameter("@pdate",System.Data.SqlDbType.DateTime2)
 			   ,new SqlParameter("@cursum",System.Data.SqlDbType.Money)
@@ -174,9 +174,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		}
 		protected override bool SetSpecificParametersValue(InvoiceCurrencyPay item)
 		{
-			myinsertparams[1].Value = item.Invoice.Id;
-			myinsertupdateparams[3].Value = item.PaySum;
-			myinsertupdateparams[4].Value = item.PayDate;
+			myinsertparams[2].Value = item.Invoice.Id;
+			myinsertupdateparams[2].Value = item.PaySum;
+			myinsertupdateparams[3].Value = item.PayDate;
 			foreach (SqlParameter par in myupdateparams)
 				switch (par.ParameterName)
 				{

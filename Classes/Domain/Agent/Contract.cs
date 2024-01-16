@@ -128,7 +128,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[] { new SqlParameter("@id", System.Data.SqlDbType.Int), new SqlParameter("@agent", System.Data.SqlDbType.Int) };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 , new SqlParameter("@agent", System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
@@ -144,7 +144,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 myinsertupdateparams[0]
                ,myinsertupdateparams[1]
-               ,myinsertupdateparams[2]
                ,new SqlParameter("@amount",System.Data.SqlDbType.Money)
                ,new SqlParameter("@date",System.Data.SqlDbType.DateTime2)
                ,new SqlParameter("@expired", System.Data.SqlDbType.Bit)

@@ -52,14 +52,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@goodsid", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@countryid", System.Data.SqlDbType.Int)
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,100)
+                new SqlParameter("@name", System.Data.SqlDbType.NVarChar,100)
             };
         }
 
@@ -99,9 +98,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetSpecificParametersValue(Branch item)
         {
-            myinsertparams[1].Value=item.Goods.Id;
-            myinsertparams[2].Value = item.Country?.Code;
-            myinsertupdateparams[1].Value = item.Name;
+            myinsertparams[2].Value=item.Goods.Id;
+            myinsertparams[3].Value = item.Country?.Code;
+            myinsertupdateparams[0].Value = item.Name;
             return true;
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)

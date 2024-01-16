@@ -529,7 +529,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     detail.Brand = exWh.Cells[r, 11].Text;
                     detail.CellNumber = (exWh.Cells[r, 16].Value)?.ToString();
                     detail.Certificate = exWh.Cells[r, 22].Text;
+                    detail.ColorCode = exWh.Cells[r, 44].Text;
+                    detail.ColorName = exWh.Cells[r, 45].Text;
                     detail.Contexture = exWh.Cells[r, 5].Text;
+                    detail.ContextureLining = exWh.Cells[r, 50].Text;
+                    detail.ContextureSole = exWh.Cells[r, 51].Text;
                     if (decimal.TryParse(exWh.Cells[r, 19].Value.ToString(), out v) && v < 0)
                         throw new Exception("Некорректное значение стоимости товара: " + exWh.Cells[r, 19].Value.ToString());
                     else
@@ -539,14 +543,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     detail.Customer = exWh.Cells[r, 28].Text;
                     detail.Description = exWh.Cells[r, 6].Text;
                     detail.DescriptionAccount = exWh.Cells[r, 33].Text;
+                    detail.Ean13 = exWh.Cells[r, 43].Text;
                     detail.Gender = exWh.Cells[r, 4].Text;
                     detail.GrossWeight = (decimal?)exWh.Cells[r, 15].Value;
+                    detail.Kitu = exWh.Cells[r, 31].Text;
                     detail.Name = exWh.Cells[r, 3].Text;
                     detail.NetWeight = (decimal?)exWh.Cells[r, 14].Value;
                     detail.Note = exWh.Cells[r, 24].Text;
                     detail.Packing = exWh.Cells[r, 17].Text;
                     detail.Price = (decimal?)exWh.Cells[r, 18].Value;
                     detail.Producer = exWh.Cells[r, 13].Text;
+                    detail.ProducerTitle = exWh.Cells[r, 48].Text;
                     detail.RowOrder = r - 10;
                     detail.SizeEN = exWh.Cells[r, 7].Text;
                     detail.SizeRU = exWh.Cells[r, 8].Text;
@@ -1177,7 +1184,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 new SqlParameter("@parcelgroup", System.Data.SqlDbType.Int),
                 new SqlParameter("@consolidate", System.Data.SqlDbType.NVarChar,5)
             };
-            InsertParams = new SqlParameter[] { InsertParams[0]
+            InsertParams = new SqlParameter[] { InsertParams[0],InsertParams[1]
                 , new SqlParameter("@agentid", System.Data.SqlDbType.Int)
                 , new SqlParameter("@consolidate", System.Data.SqlDbType.NVarChar,5)
                 , new SqlParameter("@importerid", System.Data.SqlDbType.Int)
@@ -1196,8 +1203,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , new SqlParameter("@westgatetrue", System.Data.SqlDbType.Bit)
                 , new SqlParameter("@mfktrue", System.Data.SqlDbType.Bit)
             };
-            InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
-                , new SqlParameter("@filepath", System.Data.SqlDbType.NVarChar,200)
+            InsertUpdateParams = new SqlParameter[] {
+                  new SqlParameter("@filepath", System.Data.SqlDbType.NVarChar,200)
                 , new SqlParameter("@declarationid", System.Data.SqlDbType.Int)
                 , new SqlParameter("@pari", System.Data.SqlDbType.Money)
                 , new SqlParameter("@gtls", System.Data.SqlDbType.Money)

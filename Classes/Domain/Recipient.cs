@@ -202,7 +202,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertparams = new SqlParameter[]
            {
-                        myinsertparams[0]
+                        myinsertparams[0],myinsertparams[1]
                         ,new SqlParameter("@customerId", System.Data.SqlDbType.Int)
            };
             myinsertparams[0].ParameterName = "@recipientID";
@@ -224,7 +224,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[0].ParameterName = "@recipientID";
             myinsertupdateparams = new SqlParameter[]
            {
-                        myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+                        myinsertupdateparams[0],myinsertupdateparams[1]
                         ,new SqlParameter("@recipientName", System.Data.SqlDbType.NVarChar,30)
                         ,new SqlParameter("@recipientFullName", System.Data.SqlDbType.NVarChar,100)
                         ,new SqlParameter("@recipientType", System.Data.SqlDbType.NVarChar,3)
@@ -360,7 +360,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             if (item.Customer.DomainState == lib.DomainObjectState.Added)
                 return false;
-            myinsertparams[1].Value = item.Customer.Id;
+            myinsertparams[2].Value = item.Customer.Id;
             int i = 1;
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Name");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("FullName");
@@ -372,7 +372,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("PassportDate");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Note");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("State");
-            i = 3;
+            i = 2;
             myinsertupdateparams[i++].Value = item.Name;
             myinsertupdateparams[i++].Value = item.FullName;
             myinsertupdateparams[i++].Value = item.Type;

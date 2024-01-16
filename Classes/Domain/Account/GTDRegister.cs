@@ -463,8 +463,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 				, new SqlParameter("@westgatetrue", System.Data.SqlDbType.Bit)
 				, new SqlParameter("@mfktrue", System.Data.SqlDbType.Bit)
 			};
-			InsertUpdateParams = new SqlParameter[] {InsertUpdateParams[0]
-				, new SqlParameter("@filepath", System.Data.SqlDbType.NVarChar,200)
+			InsertUpdateParams = new SqlParameter[] {
+				  new SqlParameter("@filepath", System.Data.SqlDbType.NVarChar,200)
 				, new SqlParameter("@declarationid", System.Data.SqlDbType.Int)
 				, new SqlParameter("@pari", System.Data.SqlDbType.Money)
 				, new SqlParameter("@gtls", System.Data.SqlDbType.Money)

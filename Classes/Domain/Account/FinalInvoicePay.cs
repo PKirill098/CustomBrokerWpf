@@ -136,7 +136,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             SelectParams = new SqlParameter[] { new SqlParameter("@invoiceid", System.Data.SqlDbType.Int) };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@invoiceid",System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
@@ -149,7 +149,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
            };
             myinsertupdateparams = new SqlParameter[]
             {
-               myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+               myinsertupdateparams[0],myinsertupdateparams[1]
                ,new SqlParameter("@curpsum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@curpdate",System.Data.SqlDbType.DateTime2)
                ,new SqlParameter("@rubpsum",System.Data.SqlDbType.Money)
@@ -199,15 +199,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override bool SetSpecificParametersValue(FinalInvoicePay item)
         {
-            myinsertparams[1].Value = item.Invoice.Id;
+            myinsertparams[2].Value = item.Invoice.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(item.CurPaySum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(item.PayDate));
             myupdateparams[3].Value = item.HasPropertyOutdatedValue(nameof(item.RubPaySum));
             myupdateparams[4].Value = item.HasPropertyOutdatedValue(nameof(item.RubPayDate));
-            myinsertupdateparams[3].Value = item.CurPaySum;
-            myinsertupdateparams[4].Value = item.PayDate;
-            myinsertupdateparams[5].Value = item.RubPaySum;
-            myinsertupdateparams[6].Value = item.RubPayDate;
+            myinsertupdateparams[2].Value = item.CurPaySum;
+            myinsertupdateparams[3].Value = item.PayDate;
+            myinsertupdateparams[4].Value = item.RubPaySum;
+            myinsertupdateparams[5].Value = item.RubPayDate;
             return true;
         }
     }

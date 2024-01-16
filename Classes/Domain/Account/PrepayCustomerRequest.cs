@@ -944,7 +944,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 new SqlParameter("@prepayid", System.Data.SqlDbType.Int),
                 new SqlParameter("@requestid", System.Data.SqlDbType.Int) };
             InsertParams = new SqlParameter[] {
-                myinsertparams[0],
+                myinsertparams[0],myinsertparams[1],
                 new SqlParameter("@customerid", System.Data.SqlDbType.Int),
                 new SqlParameter("@prepayid", System.Data.SqlDbType.Int) { Direction=System.Data.ParameterDirection.InputOutput},
                 new SqlParameter("@requestid", System.Data.SqlDbType.Int),
@@ -961,7 +961,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 new SqlParameter("@sellingratecorrupd", System.Data.SqlDbType.Bit) };
 
             InsertUpdateParams = new SqlParameter[] {
-                myinsertupdateparams[0],
                 new SqlParameter("@initsum", System.Data.SqlDbType.Money),
                 new SqlParameter("@eurosum", System.Data.SqlDbType.Money),
                 new SqlParameter("@expirydate", System.Data.SqlDbType.Date),

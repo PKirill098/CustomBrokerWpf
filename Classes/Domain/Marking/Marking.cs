@@ -274,11 +274,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				new SqlParameter("@id", System.Data.SqlDbType.Int),
 				new SqlParameter("@filterid", System.Data.SqlDbType.Int){ Value = 0},
 			};
-			myinsertparams = new SqlParameter[]
-			{
-				myinsertparams[0],
-				myinsertupdateparams[0]
-			};
 			myupdateparams = new SqlParameter[]
 			{
 				myupdateparams[0]
@@ -374,13 +369,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 
 		protected override bool SetSpecificParametersValue(Marking item)
 		{
-			foreach (SqlParameter par in this.InsertParams)
-				switch (par.ParameterName)
-				{
-					case "@stamp":
-						par.Value = item.Stamp;
-						break;
-				}
 			foreach (SqlParameter par in this.UpdateParams)
 				switch (par.ParameterName)
 				{

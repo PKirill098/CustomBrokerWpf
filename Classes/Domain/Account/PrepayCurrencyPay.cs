@@ -133,7 +133,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             SelectParams = new SqlParameter[] { new SqlParameter("@prepayid", System.Data.SqlDbType.Int) };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@prepayid",System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
@@ -144,7 +144,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
            };
             myinsertupdateparams = new SqlParameter[]
             {
-               myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+               myinsertupdateparams[0],myinsertupdateparams[1]
                ,new SqlParameter("@cursum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@paydate",System.Data.SqlDbType.DateTime2)
              };
@@ -200,11 +200,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override bool SetSpecificParametersValue(PrepayCurrencyPay item)
         {
-            myinsertparams[1].Value = item.Prepay.Id;
+            myinsertparams[2].Value = item.Prepay.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(PrepayCurrencyPay.CurSum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(PrepayCurrencyPay.PayDate));
-            myinsertupdateparams[3].Value = item.CurSum;
-            myinsertupdateparams[4].Value = item.PayDate;
+            myinsertupdateparams[2].Value = item.CurSum;
+            myinsertupdateparams[3].Value = item.PayDate;
             return true;
         }
     }

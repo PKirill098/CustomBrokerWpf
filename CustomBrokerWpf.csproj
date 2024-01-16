@@ -172,6 +172,7 @@
     <Compile Include="Classes\Domain\Marking\Marking.cs" />
     <Compile Include="Classes\Domain\Parcel\ParcelLastShipdate.cs" />
     <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
+    <Compile Include="Classes\Domain\Specification\Color.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\Warehouse.cs" />
     <Compile Include="Classes\Domain\Storage\WarehouseAddress.cs" />
@@ -222,6 +223,9 @@
     </Compile>
     <Compile Include="Windows\SKU\SKUWin.xaml.cs">
       <DependentUpon>SKUWin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Specification\ColorWin.xaml.cs">
+      <DependentUpon>ColorWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Storage\WarehouseItemWin.xaml.cs">
       <DependentUpon>WarehouseItemWin.xaml</DependentUpon>
@@ -570,6 +574,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\SKU\SKUWin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Specification\ColorWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1387,6 +1395,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\funnel_edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\colors.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

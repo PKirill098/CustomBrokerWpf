@@ -469,7 +469,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertparams = new SqlParameter[]
            {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@parentid", 0)
            };
             myinsertparams[0].ParameterName = "@customerID";
@@ -499,7 +499,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[0].ParameterName = "@customerID";
             myinsertupdateparams = new SqlParameter[]
            {
-                myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+                myinsertupdateparams[0],myinsertupdateparams[1]
                 ,new SqlParameter("@customerName", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@customerFullName", System.Data.SqlDbType.NVarChar,100)
                 ,new SqlParameter("@customerDayEntry", System.Data.SqlDbType.DateTime)
@@ -519,8 +519,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@contractdate", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@customerState", System.Data.SqlDbType.TinyInt)
            };
-            myinsertupdateparams[1].ParameterName = "@updtDate";
-            myinsertupdateparams[2].ParameterName = "@updtWho";
+            myinsertupdateparams[0].ParameterName = "@updtDate";
+            myinsertupdateparams[1].ParameterName = "@updtWho";
             myldbm = new CustomerLegalDBM(); myldbm.Command = new SqlCommand();
             myadbm = new AliasDBM(); myadbm.Command = new SqlCommand();
             mycdbm = new CustomerAddressDBM(); mycdbm.Command = new SqlCommand();
@@ -748,7 +748,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("ContractNumber");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("ContractDate");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("State");
-            i = 3;
+            i = 2;
             myinsertupdateparams[i++].Value = item.Name;
             myinsertupdateparams[i++].Value = item.FullName;
             myinsertupdateparams[i++].Value = item.DayEntry;

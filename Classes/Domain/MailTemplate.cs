@@ -107,8 +107,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50)
+                 new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@state", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@subject", System.Data.SqlDbType.NVarChar,200)
                 ,new SqlParameter("@body", System.Data.SqlDbType.NVarChar,-1)
@@ -164,16 +163,44 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetSpecificParametersValue(MailTemplate item)
         {
-            myupdateparams[1].Value = item.HasPropertyOutdatedValue("Name");
-            myupdateparams[2].Value = item.HasPropertyOutdatedValue("State");
-            myupdateparams[3].Value = item.HasPropertyOutdatedValue("Subject");
-            myupdateparams[4].Value = item.HasPropertyOutdatedValue("Body");
-            myupdateparams[5].Value = item.HasPropertyOutdatedValue("Delay");
-            myinsertupdateparams[1].Value = item.Name;
-            myinsertupdateparams[2].Value = item.State;
-            myinsertupdateparams[3].Value = item.Subject;
-            myinsertupdateparams[4].Value = item.Body;
-            myinsertupdateparams[5].Value = item.Delay;
+            foreach(SqlParameter par in myupdateparams)
+                switch(par.ParameterName)
+                {
+                    case "@nametrue":
+                        par.Value = item.HasPropertyOutdatedValue("Name");
+                        break;
+                    case "@statetrue":
+                        par.Value = item.HasPropertyOutdatedValue("State");
+                        break;
+                    case "@subjecttrue":
+                        par.Value = item.HasPropertyOutdatedValue("Subject");
+                        break;
+                    case "@bodytrue":
+                        par.Value = item.HasPropertyOutdatedValue("Body");
+                        break;
+                    case "@parameter1true":
+                        par.Value = item.HasPropertyOutdatedValue("Delay");
+                        break;
+                }
+            foreach (SqlParameter par in myinsertupdateparams)
+                switch (par.ParameterName)
+                {
+                    case "@name":
+                        par.Value = item.Name;
+                        break;
+                    case "@state":
+                        par.Value = item.State;
+                        break;
+                    case "@subject":
+                        par.Value = item.Subject;
+                        break;
+                    case "@body":
+                        par.Value = item.Body;
+                        break;
+                    case "@parameter1":
+                        par.Value = item.Delay;
+                        break;
+                }
             return true;
         }
     }

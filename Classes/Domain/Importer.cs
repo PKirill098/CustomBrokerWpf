@@ -62,8 +62,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@name", System.Data.SqlDbType.NVarChar,200)
+                new SqlParameter("@name", System.Data.SqlDbType.NVarChar,200)
             };
         }
 
@@ -105,7 +104,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SetSpecificParametersValue(Importer item)
         {
             myupdateparams[1].Value = item.HasPropertyOutdatedValue("Name");
-            myinsertupdateparams[1].Value = item.Name;
+            myinsertupdateparams[0].Value = item.Name;
             return true;
         }
     }

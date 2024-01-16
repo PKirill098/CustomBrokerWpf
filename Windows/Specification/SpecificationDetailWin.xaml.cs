@@ -147,5 +147,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             ppp.IsOpen = true;
             e.Handled = true;
         }
+        private void Ean13FilterFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (mycmd.Ean13Filter != null && !mycmd.Ean13Filter.FilterOn) mycmd.Ean13Filter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("Ean13FilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
+        private void ProducerTitleFilterFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+            if (mycmd.ProducerTitleFilter != null && !mycmd.ProducerTitleFilter.FilterOn) mycmd.ProducerTitleFilter?.FillAsync();
+            Popup ppp = this.MainDataGrid.FindResource("ProducerTitleFilterPopup") as Popup;
+            ppp.PlacementTarget = (UIElement)sender;
+            ppp.IsOpen = true;
+            e.Handled = true;
+        }
     }
 }

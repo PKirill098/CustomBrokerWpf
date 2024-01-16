@@ -264,8 +264,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 new SqlParameter("@all", System.Data.SqlDbType.Bit)
             };
             base.SelectParams[1].Value = 0;
-            myinsertparams = new SqlParameter[] { myinsertparams[0], new SqlParameter("@number", System.Data.SqlDbType.Int) };
-            myinsertparams[1].Direction = System.Data.ParameterDirection.InputOutput;
+            myinsertparams = new SqlParameter[] { myinsertparams[0],myinsertparams[1], new SqlParameter("@number", System.Data.SqlDbType.Int) };
+            myinsertparams[2].Direction = System.Data.ParameterDirection.InputOutput;
             myupdateparams = new SqlParameter[]
             {
                 myupdateparams[0]
@@ -283,8 +283,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@invoicenumber", System.Data.SqlDbType.NVarChar,5)
+                new SqlParameter("@invoicenumber", System.Data.SqlDbType.NVarChar,5)
                 ,new SqlParameter("@invoicedate", System.Data.SqlDbType.DateTime2)
                 ,new SqlParameter("@invoicesum", System.Data.SqlDbType.Money)
                 ,new SqlParameter("@carnumber", System.Data.SqlDbType.NVarChar,10)
@@ -334,7 +333,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void GetOutputSpecificParametersValue(DeliveryCar item)
         {
             if(item.DomainState==lib.DomainObjectState.Added)
-                item.Number = (int?)myinsertparams[1].Value;
+                item.Number = (int?)myinsertparams[2].Value;
         }
         protected override bool SaveChildObjects(DeliveryCar item)
         {
@@ -353,7 +352,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool SetSpecificParametersValue(DeliveryCar item)
         {
-            myinsertparams[1].Value = item.Number;
+            myinsertparams[2].Value = item.Number;
             foreach (SqlParameter par in myupdateparams)
             {
                 switch (par.ParameterName)

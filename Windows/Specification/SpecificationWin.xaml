@@ -201,6 +201,13 @@
                 <DataGridTextColumn Header="Страна EN" Binding="{Binding Path=CountryEN, TargetNullValue='', Mode=OneWay}" ElementStyle="{StaticResource StyleTextBlockAlignmentCenter}"/>
                 <DataGridTextColumn Header="ДС.СРТ" Binding="{Binding Path=Certificate, TargetNullValue='', Mode=OneWay}" />
                 <DataGridTextColumn Header="Примечание" Binding="{Binding Path=Note, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="КИ" Binding="{Binding Path=Kitu, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="ЕАН" Binding="{Binding Path=Ean13, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Цвет код" Binding="{Binding Path=ColorCode, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Цвет наименование" Binding="{Binding Path=ColorName, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Производитель Титульный" Binding="{Binding Path=ProducerTitle, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Подкладка" Binding="{Binding Path=ContextureLining, TargetNullValue='', Mode=OneWay}" />
+                <DataGridTextColumn Header="Подошва" Binding="{Binding Path=ContextureSole, TargetNullValue='', Mode=OneWay}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

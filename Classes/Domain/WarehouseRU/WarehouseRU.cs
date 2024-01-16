@@ -265,7 +265,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@costomer", System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
@@ -278,8 +278,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0]
-                ,new SqlParameter("@note", System.Data.SqlDbType.NVarChar,300)
+                 new SqlParameter("@note", System.Data.SqlDbType.NVarChar,300)
                 ,new SqlParameter("@receipted", System.Data.SqlDbType.DateTime2)
                 ,new SqlParameter("@shipped", System.Data.SqlDbType.DateTime2)
                 ,new SqlParameter("@status", System.Data.SqlDbType.Int)

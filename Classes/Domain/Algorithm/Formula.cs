@@ -326,7 +326,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
             InsertUpdateParams = new SqlParameter[]
             {
-                myinsertupdateparams[0],
                 new SqlParameter("@code", System.Data.SqlDbType.NVarChar,3),
                 new SqlParameter("@name", System.Data.SqlDbType.NVarChar,50),
                 new SqlParameter("@type", System.Data.SqlDbType.TinyInt),

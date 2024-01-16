@@ -165,7 +165,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
             myinsertupdateparams = new SqlParameter[]
             {
-                myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2],
+                myinsertupdateparams[0],myinsertupdateparams[1],
                 new SqlParameter("@goods", System.Data.SqlDbType.NVarChar, 50),
                 new SqlParameter("@tnvedgroup", System.Data.SqlDbType.Char, 4),
                 new SqlParameter("@materialid", System.Data.SqlDbType.Int),
@@ -260,11 +260,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         }
         protected override bool SetSpecificParametersValue(Mapping item)
         {
-            myinsertupdateparams[3].Value=item.Goods;
+            myinsertupdateparams[2].Value=item.Goods;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue("Goods");
-            myinsertupdateparams[4].Value = item.TNVEDGroup;
+            myinsertupdateparams[3].Value = item.TNVEDGroup;
             myupdateparams[2].Value = item.HasPropertyOutdatedValue("TNVEDGroup");
-            myinsertupdateparams[5].Value = item.Material != null?(object)item.Material.Id:DBNull.Value;
+            myinsertupdateparams[4].Value = item.Material != null?(object)item.Material.Id:DBNull.Value;
             myupdateparams[3].Value = item.HasPropertyOutdatedValue("Material");
             return true;
         }

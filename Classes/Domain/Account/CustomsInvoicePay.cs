@@ -195,7 +195,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             SelectParams = new SqlParameter[] { new SqlParameter("@invoiceid", System.Data.SqlDbType.Int) };
             myinsertparams = new SqlParameter[]
             {
-                myinsertparams[0]
+                myinsertparams[0],myinsertparams[1]
                 ,new SqlParameter("@invoiceid",System.Data.SqlDbType.Int)
             };
             myupdateparams = new SqlParameter[]
@@ -206,7 +206,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
            };
             myinsertupdateparams = new SqlParameter[]
             {
-               myinsertupdateparams[0],myinsertupdateparams[1],myinsertupdateparams[2]
+               myinsertupdateparams[0],myinsertupdateparams[1]
                ,new SqlParameter("@psum",System.Data.SqlDbType.Money)
                ,new SqlParameter("@pdate",System.Data.SqlDbType.DateTime2)
              };
@@ -264,11 +264,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         protected override bool SetSpecificParametersValue(CustomsInvoicePay item)
         {
-            myinsertparams[1].Value = item.Invoice.Id;
+            myinsertparams[2].Value = item.Invoice.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(item.PaySum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(item.PayDate));
-            myinsertupdateparams[3].Value = item.PaySum;
-            myinsertupdateparams[4].Value = item.PayDate;
+            myinsertupdateparams[2].Value = item.PaySum;
+            myinsertupdateparams[3].Value = item.PayDate;
             return true;
         }
     }
