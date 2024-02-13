@@ -1003,7 +1003,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             {
                 Brush brush = null;
                 if ((this.DomainObject as AlgorithmValuesRequest).Value1Templ.HasValue && this.DomainObject.Value1 != (this.DomainObject as AlgorithmValuesRequest).Value1Templ)
-                    brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFFDCFCF"));
+                    brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFFDCFCF"));
                 else
                     brush = base.Value1Background;
                 return brush;
@@ -1015,7 +1015,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             {
                 Brush brush = null;
                 if ((this.DomainObject as AlgorithmValuesRequest).Value2Templ.HasValue && this.DomainObject.Value2 != (this.DomainObject as AlgorithmValuesRequest).Value2Templ)
-                    brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFFDCFCF"));
+                    brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFFDCFCF"));
                 else
                     brush = base.Value2Background;
                 return brush;

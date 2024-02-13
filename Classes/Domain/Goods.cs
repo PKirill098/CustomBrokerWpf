@@ -1088,7 +1088,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 object response=Binding.DoNothing;
                 if (IsEnabled & !string.IsNullOrEmpty(base.DomainObject.ColorMark))
                 {
-                    System.Windows.Media.Color color = lib.Common.MsOfficeHelper.StringToColor(base.DomainObject.ColorMark);
+                    System.Windows.Media.Color color = lib.Common.MsOfficeHelperColor.StringToColor(base.DomainObject.ColorMark);
                     response = new System.Windows.Media.SolidColorBrush(color);
                 }
                 return response;

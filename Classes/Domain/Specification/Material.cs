@@ -267,7 +267,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             return item1.Id.CompareTo(item2.Id);
         }
         protected override void UpdateItem(Material olditem, Material newitem)
-        { olditem.Name = newitem.Name; olditem.ShortName = newitem.ShortName; olditem.GoodsName = newitem.GoodsName; olditem.TNVEDGroup = newitem.TNVEDGroup; }
+        { olditem.Name = newitem.Name; olditem.ShortName = newitem.ShortName; olditem.GoodsName = newitem.GoodsName;olditem.Upper = newitem.Upper; olditem.TNVEDGroup = newitem.TNVEDGroup; }
 
         internal void DataLoad()
         { try { base.Fill(); } catch (Exception ex) { lib.ExceptionHandler myexhandler = new DataModelClassLibrary.ExceptionHandler("Загрузка материалов"); myexhandler.Handle(ex); myexhandler.ShowMessage(); } }

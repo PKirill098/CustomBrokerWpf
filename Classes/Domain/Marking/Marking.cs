@@ -892,7 +892,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		}
 		internal int ImportMarking(string filepath, int filetype, lib.TaskAsync.TaskAsync myexceltask)
 		{
-			int maxr, usedr = 0, r = 7;
+			int maxc, maxr, usedr = 0, c, r = 3;
 			Excel.Application exApp = new Excel.Application();
 			Excel.Application exAppProt = new Excel.Application();
 			try
@@ -904,23 +904,39 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				Excel.Workbook exWb = exApp.Workbooks.Open(filepath, false, true);
 				Excel.Worksheet exWh = exWb.Sheets[1];
 				maxr = exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row;
+				maxc = 50; //exWh.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Column;
 				myexceltask.ProgressChange(5);
 
-				int c;long gtin;
+				int cean13=0;
+				long gtin;
 				string ean13, inn;
 				DateTime date;
 				Marking marking;
 				System.Text.StringBuilder str = new System.Text.StringBuilder();
 				string[] dateformats = new string[] { "dd.MM.yyyy", "dd.MM.yy", "dd-MM-yyyy", "dd-MM-yy" };
+				c = 1; r = 3;
+				for (; c <= maxc; c++)
+				{
+					ean13 = (exWh.Cells[r, c].Text as string).Trim().ToLower();
+					switch ((exWh.Cells[r, c].Text as string).Trim().ToLower())
+					{
+						case "ean-13":
+							cean13 = c;
+							break;
+					}
+				}
+				if(cean13==0)
+					throw new Exception("Столбец EAN-13 не найден!");
+				r = 7;
 				for (; r <= maxr; r++)
 				{
 					if (string.IsNullOrEmpty(exWh.Cells[r, 2].Text as string)) continue;
 
-					c = filetype == 1 ? 19 : 27; // 1 - shoes 2 - clothes
-					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
+					// c = filetype == 1 ? 19 : 30; 1 - shoes 2 - clothes
+					if (string.IsNullOrEmpty(exWh.Cells[r, cean13].Text as string))
 						throw new Exception("Отсутствует EAN-13");
 					else
-						ean13 = exWh.Cells[r, c].Text;
+						ean13 = exWh.Cells[r, cean13].Text;
 					c = filetype == 1 ? 8 : 8;
 					if (string.IsNullOrEmpty(exWh.Cells[r, c].Text as string))
 						throw new Exception("Отсутствует ИНН");

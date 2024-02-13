@@ -118,7 +118,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertparams[1].Value=this.ItemId;
             myupdateparams[0].Value = item.Id;
             myinsertupdateparams[0].Value = item.Name;
-            return true;
+            return !string.IsNullOrEmpty(item.Name);
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
@@ -132,6 +132,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             ValidetingProperties.AddRange(new string[] { "Name" });
             DeleteRefreshProperties.AddRange(new string[] { "Name" });
             InitProperties();
+            this.Validate(true);
         }
         public AliasVM() : this(new Alias()) { }
 

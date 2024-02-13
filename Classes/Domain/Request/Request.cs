@@ -88,7 +88,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal DateTime? storeinform;
         internal string algorithmnote1;
         internal string algorithmnote2;
-        internal string cargo;
+        //internal string cargo;
         internal string colormark;
         internal string consolidate;
         internal string currencynote;
@@ -115,7 +115,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         decimal? myadditionalpay, myadditionalcost, myactualweight, mybringcost, mybringpay, mybrokercost, mybrokerpay, mycorrcost, mycorrpay, mycurrencyrate, mycurrencysum, mycustomscost, mycustomspay, mydeliverycost, mydeliverypay, mydtrate, mygoodvalue, myfreightcost, myfreightpay, myinsurancecost, myinsurancepay, myinvoice, myinvoicediscount, myofficialweight, mypreparatncost, mypreparatnpay, myselling, mysellingmarkup, mysellingmarkuprate, mysertificatcost, mysertificatpay, mytdcost, mytdpay, myvolume;
         DateTime myrequestdate;
         DateTime? mycurrencydate, mycurrencypaiddate, mygtddate, myshipplandate, mystoredate, mystoreinform;
-        string myalgorithmnote1, myalgorithmnote2, mycolormark, myconsolidate, mycurrencynote, mycustomernote, mycargo, mydocdirpath, mygtd, myfullnumber, mymanagergroup, mymanagernote, mymskstorenote, myservicetype, mystorenote, mystorepoint;
+        string myalgorithmnote1, myalgorithmnote2, mycolormark, myconsolidate, mycurrencynote, mycustomernote, mydocdirpath, mygtd, myfullnumber, mymanagergroup, mymanagernote, mymskstorenote, myservicetype, mystorenote, mystorepoint;
         lib.ReferenceSimpleItem mystatus, myparceltype;
         private Parcel myparcel;
         private Importer myimporter;
@@ -142,7 +142,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , sertificatcost: null, sertificatpay: null
             , tdcost: null, tdpay: null, volume: null
             , currencydate: null, currencypaiddate: null, gtddate: null, requestdate: DateTime.Now, shipplandate: CustomBrokerWpf.References.EndQuarter(DateTime.Today.AddDays(10)), specification: null, storedate: null, storeinform: null
-            , algorithmnote1: "Свободное поле", algorithmnote2: null, cargo: null, colormark: null, consolidate: null, currencynote: null, customernote: null, docdirpath: null, gtd: null, fullnumber: null, managergroup: null, managernote: null, mskstorenote: null, servicetype: null, storenote: null, storepoint: null
+            , algorithmnote1: "Свободное поле", algorithmnote2: null, colormark: null, consolidate: null, currencynote: null, customernote: null, docdirpath: null, gtd: null, fullnumber: null, managergroup: null, managernote: null, mskstorenote: null, servicetype: null, storenote: null, storepoint: null
             , importer: null, manager: null
             )
         { }
@@ -166,7 +166,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , decimal? sertificatcost, decimal? sertificatpay
             , decimal? tdcost, decimal? tdpay, decimal? volume
             , DateTime? currencydate, DateTime? currencypaiddate, DateTime? gtddate, DateTime requestdate, DateTime? shipplandate, DateTime? specification, DateTime? storedate, DateTime? storeinform
-            , string algorithmnote1, string algorithmnote2, string cargo, string colormark, string consolidate, string currencynote, string customernote, string docdirpath, string gtd, string fullnumber, string managergroup, string managernote, string mskstorenote, string servicetype, string storenote, string storepoint
+            , string algorithmnote1, string algorithmnote2, string colormark, string consolidate, string currencynote, string customernote, string docdirpath, string gtd, string fullnumber, string managergroup, string managernote, string mskstorenote, string servicetype, string storenote, string storepoint
             , Importer importer, Manager manager, Parcel parcel=null
            ) : base(id, stamp, updated, updater, domainstate)
         {
@@ -181,7 +181,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mybringpay = bringpay;
             mybrokercost = brokercost;
             mybrokerpay = brokerpay;
-            mycargo = cargo;
+            //mycargo = cargo;
             mycellnumber = cellnumber;
             mycolormark = colormark;
             myconsolidate = consolidate;
@@ -296,14 +296,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private string mybrandnames;
         public string BrandNames // refresh in BrandNamesRefresh and RequestBrand.Selected
         { get { return this.Brands!=null ? mybrandnames : mybrandnames; } } // to initialize the download
-        public string Cargo
-        {
-            set
-            {
-                base.SetProperty<string>(ref mycargo, value);
-            }
-            get { return mycargo; }
-        }
+        //public string Cargo
+        //{
+        //    set
+        //    {
+        //        base.SetProperty<string>(ref mycargo, value);
+        //    }
+        //    get { return mycargo; }
+        //}
         public short? CellNumber
         {
             set
@@ -1634,6 +1634,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mybrands;
             }
         }
+        private ObservableCollection<ReferenceSimpleItem> mycargo;
+        internal ObservableCollection<ReferenceSimpleItem> Cargo
+        {
+            set { mycargo = value; }
+            get
+            {
+                return mycargo;
+            }
+        }
         internal bool BrandsIsNull
         { get { return mybrands == null; } }
         private object mylegalslock;
@@ -1844,9 +1853,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case "BrokerCost":
                     mybrokercost = (decimal?)value;
                     break;
-                case "Cargo":
-                    mycargo = (string)value;
-                    break;
+                //case "Cargo":
+                //    mycargo = (string)value;
+                //    break;
                 case "CellNumber":
                     mycellnumber = (short?)value;
                     break;
@@ -2022,6 +2031,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     myvolume = (decimal?)value;
                     break;
                 case "DependentNew":
+                    int i = 0;
+                    if(mycargo != null)
+                    {
+                        lib.ReferenceSimpleItem[] additem = new lib.ReferenceSimpleItem[mycargo.Count];
+                        foreach (lib.ReferenceSimpleItem item in mycargo)
+                        {
+                            if (item.DomainState == lib.DomainObjectState.Added)
+                            { additem[i] = item; i++; }
+                            else if (item.DomainState == lib.DomainObjectState.Deleted)
+                            {
+                                item.DomainState = lib.DomainObjectState.Unchanged;
+                            }
+                        }
+                        for (int ii = 0; ii < i; ii++) mycargo.Remove(additem[ii]);
+
+                    }
                     //int i = 0;
                     //if (mypayments != null)
                     //{
@@ -2055,7 +2080,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.BringPay = newitem.BringPay;
             this.BrokerCost = newitem.BrokerCost;
             this.BrokerPay = newitem.BrokerPay;
-            this.Cargo = newitem.Cargo;
+            //this.Cargo = newitem.Cargo;
             this.CellNumber = newitem.CellNumber;
             this.ColorMark = newitem.ColorMark;
             this.Consolidate = newitem.Consolidate;
@@ -2653,7 +2678,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@storageDatetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@customerIdtrue", System.Data.SqlDbType.Bit)
                 //,new SqlParameter("@customerlegaltrue", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@loadDescriptiontrue", System.Data.SqlDbType.Bit)
+                //,new SqlParameter("@loadDescriptiontrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@agentIdtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@storeidtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@cellNumbertrue", System.Data.SqlDbType.Bit)
@@ -2736,7 +2761,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@storagePoint", System.Data.SqlDbType.NVarChar,6)
                 ,new SqlParameter("@storageDate", System.Data.SqlDbType.Date)
                 ,new SqlParameter("@customerId", System.Data.SqlDbType.Int)
-                ,new SqlParameter("@loadDescription", System.Data.SqlDbType.NVarChar,50)
+                //,new SqlParameter("@loadDescription", System.Data.SqlDbType.NVarChar,50)
                 ,new SqlParameter("@agentId", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@storeid", System.Data.SqlDbType.Int)
                 ,new SqlParameter("@cellNumber", System.Data.SqlDbType.SmallInt)
@@ -2815,12 +2840,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
 
             mybdbm = new RequestBrandDBM();
+            mycdbm=new RequestCargoDBM();
             //mypmdbm = new RequestPaymentDBM(); mypmdbm.Command = new SqlCommand();
             myldbm = new RequestCustomerLegalDBM();
             myspdbm = new SpecificationDBM();
         }
 
         private RequestBrandDBM mybdbm;
+        private RequestCargoDBM mycdbm; 
         private ParcelDBM mypdbm;
         internal ParcelDBM ParcelDBM
         { set { mypdbm = value; } get { return mypdbm; } }
@@ -2907,7 +2934,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     , storeinform=reader.IsDBNull(this.Fields["storageInform"]) ? (DateTime?)null : reader.GetDateTime(this.Fields["storageInform"])
                     , algorithmnote1=reader.IsDBNull(this.Fields["algorithmnote1"]) ? null : reader.GetString(this.Fields["algorithmnote1"])
                     , algorithmnote2=reader.IsDBNull(this.Fields["algorithmnote2"]) ? null : reader.GetString(this.Fields["algorithmnote2"])
-                    , cargo=reader.IsDBNull(this.Fields["loadDescription"]) ? null : reader.GetString(this.Fields["loadDescription"])
+                    //, cargo=reader.IsDBNull(this.Fields["loadDescription"]) ? null : reader.GetString(this.Fields["loadDescription"])
                     , colormark=reader.IsDBNull(this.Fields["colorMark"]) ? null : reader.GetString(this.Fields["colorMark"])
                     , consolidate=reader.IsDBNull(this.Fields["consolidate"]) ? null : reader.GetString(this.Fields["consolidate"])
                     , currencynote=reader.IsDBNull(this.Fields["currencynote"]) ? null : reader.GetString(this.Fields["currencynote"])
@@ -3001,7 +3028,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     , record.storeinform
                     , record.algorithmnote1
                     , record.algorithmnote2
-                    , record.cargo
+                    //, record.cargo
                     , record.colormark
                     , record.consolidate
                     , record.currencynote
@@ -3029,6 +3056,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mybdbm.Connection = addcon;
                     mybdbm.Fill();
                 }
+                if (canceltasktoken.IsCancellationRequested) return request;
+                if(request.Cargo == null | this.FillType == lib.FillType.Refresh)
+                {
+                    mycdbm.Request= request;
+                    mycdbm.Collection = request.Cargo;
+                    mycdbm.FillType = this.FillType;
+                    mycdbm.Connection = addcon;
+                    mycdbm.Fill();
+                    request.Cargo = mycdbm.Collection;
+                }
+
                 if (myldbm != null && (request.CustomerLegalsIsNull | this.FillType == lib.FillType.Refresh)) // Fill only first fill or willfully refresh (CustomerLegals contains new record, id<0, have Lost)
                 {
                     myldbm.FillType = this.FillType;
@@ -3098,6 +3136,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 {
                     isSuccess = false;
                     foreach (lib.DBMError err in mybdbm.Errors) this.Errors.Add(err);
+                }
+            }
+            if (item.Cargo != null)
+            {
+                mycdbm.Errors.Clear();
+                mycdbm.Request = item;
+                mycdbm.Collection = item.Cargo;
+                if (!mycdbm.SaveCollectionChanches())
+                {
+                    isSuccess = false;
+                    foreach (lib.DBMError err in mycdbm.Errors) this.Errors.Add(err);
                 }
             }
             if (!(myspdbm==null | item.SpecificationIsNull))
@@ -3230,9 +3279,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@isspecification":
                         par.Value = item.IsSpecification;
                         break;
-                    case "@loadDescriptiontrue":
-                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.Cargo));
-                        break;
+                    //case "@loadDescriptiontrue":
+                    //    par.Value = item.HasPropertyOutdatedValue(nameof(Request.Cargo));
+                    //    break;
                     case "@manageridtrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Manager));
                         break;
@@ -3366,9 +3415,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@importer":
                         par.Value = item.Importer?.Id;
                         break;
-                    case "@loadDescription":
-                        par.Value = item.Cargo;
-                        break;
+                    //case "@loadDescription":
+                    //    par.Value = item.Cargo;
+                    //    break;
                     case "@managerid":
                         par.Value = item.Manager?.Id;
                         break;
@@ -5726,7 +5775,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     isvalid = this.DomainObject.ValidateProperty(propertyname, null, out errmsg, out errcode);
                     break;
                 case nameof(this.Cargo):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Cargo, out errmsg, out errcode);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.CargoString, out errmsg, out errcode);
                     break;
                 case nameof(this.Country):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.Country, out errmsg, out errcode);

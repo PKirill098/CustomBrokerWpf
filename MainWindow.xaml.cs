@@ -380,14 +380,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         //}
         private void MenuItemGoodsType_Click(object sender, RoutedEventArgs e)
         {
+            string wintitle = "Вид груза";
             Window ObjectWin = null;
             foreach (Window item in mychildwindows)
             {
-                if (item.Name == "winGoodsType") ObjectWin = item;
+                if (item.Name == "winDictionary" && item.Title == wintitle) ObjectWin = item;
             }
             if (ObjectWin == null)
             {
-                ObjectWin = new GoodsTypeWin();
+                lib.ReferenceCollectionSimpleItemVM vm = new lib.ReferenceCollectionSimpleItemVM(CustomBrokerWpf.References.GoodsTypesParcel,wintitle,"Удалить выбранные виды груза?");
+                ObjectWin = new DictionaryWin();
+                ObjectWin.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri(@"pack://application:,,,/Images\weight2.png", UriKind.Absolute));
+                ObjectWin.DataContext = vm;
+                //ObjectWin.Title = "Вид груза";
                 mychildwindows.Add(ObjectWin);
                 ObjectWin.Show();
             }

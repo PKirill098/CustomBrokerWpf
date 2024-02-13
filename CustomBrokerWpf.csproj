@@ -172,6 +172,7 @@
     <Compile Include="Classes\Domain\Marking\Marking.cs" />
     <Compile Include="Classes\Domain\Parcel\ParcelLastShipdate.cs" />
     <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
+    <Compile Include="Classes\Domain\Request\RequestGoodsType.cs" />
     <Compile Include="Classes\Domain\Specification\Color.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\Warehouse.cs" />
@@ -492,8 +493,8 @@
     <Compile Include="Windows\Dictionaries\ForwarderWin.xaml.cs">
       <DependentUpon>ForwarderWin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Dictionaries\GoodsTypeWin.xaml.cs">
-      <DependentUpon>GoodsTypeWin.xaml</DependentUpon>
+    <Compile Include="Windows\Dictionaries\DictionaryWin.xaml.cs">
+      <DependentUpon>DictionaryWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\Interfaces.cs" />
     <Compile Include="Converters\NoNullValueBackConverter.cs" />
@@ -697,7 +698,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Dictionaries\GoodsTypeWin.xaml">
+    <Page Include="Windows\Dictionaries\DictionaryWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
