@@ -220,6 +220,7 @@
         </Style>
         <Style TargetType="ToolBar">
             <Setter Property="Height" Value="30"/>
+            <Setter Property="ToolBarTray.IsLocked" Value="True"/>
         </Style>
         <ContextMenu x:Key="DataGridCellContextMenu" FocusManager.IsFocusScope="True">
             <MenuItem Command="ApplicationCommands.Copy" Header="Копировать" Height="22">

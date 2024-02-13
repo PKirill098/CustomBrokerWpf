@@ -462,7 +462,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     else
                     {
                         double color = exWh.Cells[r, 1].Interior.Color?? 16777215D;
-                        if (color != 16777215D) findbranchcnt.Goods.ColorMark = lib.Common.MsOfficeHelper.OfficeColorToString(color);
+                        if (color != 16777215D) findbranchcnt.Goods.ColorMark = lib.Common.MsOfficeHelperColor.OfficeColorToString(color);
                         for (int c = 3; c <= maxc; c++)
                         {
                             sert = (exWh.Cells[r, c].Text as string).Trim();
@@ -545,7 +545,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     exWh.Cells[row, 2] = item.Goods.Producer;
                     if(item.Goods.ColorMark != null)
                     {
-                        color = lib.Common.MsOfficeHelper.StringToOfficeColor((string)item.Goods.ColorMark);
+                        color = lib.Common.MsOfficeHelperColor.StringToOfficeColor((string)item.Goods.ColorMark);
                         exWh.Cells[row, 1].Interior.Color = color;
                         exWh.Cells[row, 2].Interior.Color = color;
                     }

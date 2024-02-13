@@ -497,19 +497,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     switch(this.Code)
                     {
                         case "П21":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFD9D9D9"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFD9D9D9"));
                             break;
                         case "П31":
                         case "П32":
                         case "П33":
                         case "П34":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFC4D79B"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFC4D79B"));
                             break;
                         case "П40":
                         case "П46":
                         case "П47":
                         case "П48":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FF92D050"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FF92D050"));
                             break;
                         case "П9":
                         case "П10":
@@ -523,7 +523,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         case "П37":
                         case "П38":
                         case "П39":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFEBF1DE"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFEBF1DE"));
                             break;
                     }
                 }
@@ -577,19 +577,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     switch (this.Code)
                     {
                         case "П21":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFD9D9D9"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFD9D9D9"));
                             break;
                         case "П31":
                         case "П32":
                         case "П33":
                         case "П34":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFC4D79B"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFC4D79B"));
                             break;
                         case "П40":
                         case "П46":
                         case "П47":
                         case "П48":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FF92D050"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FF92D050"));
                             break;
                     }
                 }
@@ -633,22 +633,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     switch (this.Code)
                     {
                         case "П10":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFFFFF00"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFFFFF00"));
                             break;
                         case "П21":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFD9D9D9"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFD9D9D9"));
                             break;
                         case "П31":
                         case "П32":
                         case "П33":
                         case "П34":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FFC4D79B"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FFC4D79B"));
                             break;
                         case "П40":
                         case "П46":
                         case "П47":
                         case "П48":
-                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelper.StringToColor("#FF92D050"));
+                            brush = new System.Windows.Media.SolidColorBrush(lib.Common.MsOfficeHelperColor.StringToColor("#FF92D050"));
                             break;
                     }
                 }
