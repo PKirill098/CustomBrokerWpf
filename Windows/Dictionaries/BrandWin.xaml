@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:my="clr-namespace:KirillPolyanskiy.CustomBrokerWpf"
-        Title="Брэнды" x:Name="itemBrandWin" Height="300" Width="300"  Loaded="Window_Loaded" Closing="itemBrandWin_Closing" Icon="/CustomBrokerWpf;component/Images/factory.png">
+        Title="Торговые марки" x:Name="itemBrandWin" Height="300" Width="300"  Loaded="Window_Loaded" Closing="itemBrandWin_Closing" Icon="/CustomBrokerWpf;component/Images/factory.png">
     <Window.Resources>
         <CollectionViewSource x:Key="brandViewSource" Source="{Binding Path=tableBrand, Source={StaticResource keyReferenceDS}}">
             <CollectionViewSource.SortDescriptions>
