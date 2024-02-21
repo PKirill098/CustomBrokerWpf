@@ -942,7 +942,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             }
             if (canceltasktoken.IsCancellationRequested) return null;
-            this.RefreshFund(item, this.Errors, addcon);
+            this.RefreshFund(item, this.Errors, addcon, null);
             mypdbm.Collection = null;
             item.IsLoaded = true;
 
@@ -991,7 +991,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                 foreach (PrepayCustomerRequest prepay in destroyed)
                     item.PrePrepays.Remove(prepay);
-                this.RefreshFund(item, this.Errors, mypdbm.Command.Connection);
+                this.RefreshFund(item, this.Errors, mypdbm.Command.Connection, mypdbm.Command.Transaction);
             }
             return isSuccess;
         }
@@ -1097,13 +1097,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //{
         //    mypdbm.CancelingLoad = this.CancelingLoad;
         //}
-        private void RefreshFund(RequestCustomerLegal requestlegal, List<lib.DBMError> errors, SqlConnection con)
+        private void RefreshFund(RequestCustomerLegal requestlegal, List<lib.DBMError> errors, SqlConnection con, SqlTransaction tran)
         {
             if (requestlegal.Request.Status.Id == 0) return;
             bool find = false;
             PrepayFundDBM mypfdbm = new PrepayFundDBM();
             mypfdbm.Customer = requestlegal;
             mypfdbm.Command.Connection = con;
+            mypfdbm.Command.Transaction = tran;
             mypfdbm.Fill();
             if (mypfdbm.Errors.Count > 0)
                 foreach (lib.DBMError err in mypfdbm.Errors) errors.Add(err);

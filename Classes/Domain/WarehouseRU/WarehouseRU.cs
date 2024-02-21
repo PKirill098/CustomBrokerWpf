@@ -139,8 +139,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             mybrandnames = rids.ToString().TrimEnd(new char[] { ',', ' ' });
             rids.Clear();
-            foreach (RequestCustomerLegal item in mylegals?.OrderBy((RequestCustomerLegal item) => { return item.Request.Cargo; }))
-            { rids.Append(item.Request.Cargo); rids.Append(", "); }
+            List<lib.ReferenceSimpleItem> cargolist = new List<ReferenceSimpleItem>();
+            foreach (RequestCustomerLegal item in mylegals)
+            {
+                foreach(RequestCargo cargo in item.Request.CargoList)
+                    if(!cargolist.Any((lib.ReferenceSimpleItem check) => { return check.Id == cargo.Id; }))
+                        cargolist.Add(cargo.InnerObject); 
+            }
+            foreach(lib.ReferenceSimpleItem cargo in cargolist.OrderBy((lib.ReferenceSimpleItem item) => { return item.Name; }))
+                rids.Append(cargo.Name); rids.Append(", ");
             mycargo = rids.ToString().TrimEnd(new char[] { ',', ' ' });
             mycellnumber = mylegals?.Sum((RequestCustomerLegal item) => { return item.Request.CellNumber; });
             mydeliveryaddress = mylegal.Addresses.FirstOrDefault((Address adr) => { return adr.AddressTypeID == 4; })?.FullAddress;

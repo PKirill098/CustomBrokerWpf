@@ -812,7 +812,31 @@
 							<DataGridTextColumn Header="Инвойс" Binding="{Binding Path=Invoice, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80"/>
 							<DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True,UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80"/>
 							<DataGridComboBoxColumn Header="Услуга" SelectedValueBinding="{Binding Path=ServiceType, TargetNullValue=''}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" SelectedValuePath="Name" DisplayMemberPath="Name"/>
-							<DataGridComboBoxColumn Header="Тип груза" SelectedValueBinding="{Binding Path=Cargo}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" ClipboardContentBinding="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text}" />
+                            <DataGridTemplateColumn Header="Тип груза" CanUserSort="True" SortMemberPath="Cargo" ClipboardContentBinding="{Binding Path=Cargo}" Width="SizeToHeader">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Cargo, TargetNullValue=''}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path=Cargo}"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Path=CargoList}" Text="{Binding Path=Cargo,Mode=OneWay, TargetNullValue=''}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" IsDropDownOpen="True" ToolTip="{Binding Path=Cargo}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center" Style="{StaticResource ErrorStyle}">
+                                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                    </CheckBox>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
 							<!--<DataGridTextColumn Header="Расход" Binding="{Binding Path=TotalCost, StringFormat=\{0:N0\}, TargetNullValue=''}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" IsReadOnly="True" Width="80">
 								<DataGridTextColumn.CellStyle>
 									<Style TargetType="{x:Type DataGridCell}">

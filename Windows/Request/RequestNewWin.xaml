@@ -497,12 +497,29 @@
                         </Border>
                         <Border Grid.Row="8" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <Grid VerticalAlignment="Center" >
-                                <ComboBox SelectedItem="{Binding Path=Status,Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" Visibility="{Binding Path=StatusVisible}" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2"/>
+                                <ComboBox ToolTip="Статус заявки" SelectedItem="{Binding Path=Status,Converter={StaticResource keyNoNullValueBackConverter}}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.Statuses}" DisplayMemberPath="Name" Visibility="{Binding Path=StatusVisible}" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2"/>
                                 <TextBlock Text="{Binding Path=ParcelNumber, Mode=OneWay}" Visibility="{Binding Path=ParcelNumberVisible}" TextAlignment="Center"/>
                             </Grid>
                         </Border>
                         <Border Grid.Row="9" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
-                            <ComboBox ToolTip="Описание груза" SelectedValue="{Binding Path=Cargo}" ItemsSource="{Binding  Source={StaticResource MainDataContext}, Path=Data.LoadDescriptions}" SelectedValuePath="Name" DisplayMemberPath="Name" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>
+                            <ComboBox ToolTip="{Binding Path=Cargo}" Text="{Binding Path=Cargo, Mode=OneWay, TargetNullValue=''}" ItemsSource="{Binding Path=CargoList}" IsEditable="True" IsReadOnly="True" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" BorderThickness="0" Margin="2">
+                                <ComboBox.Style>
+                                    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                                        <Style.Triggers>
+                                            <Trigger Property="Text" Value="{x:Null}">
+                                                <Setter Property="ToolTip" Value="Описание груза"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Selected, Mode=TwoWay}" IsThreeState="False" Margin="0" HorizontalContentAlignment="Stretch" Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox}, Path=ActualWidth}" VerticalContentAlignment="Center" Style="{StaticResource ErrorStyle}">
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" ToolTip="{Binding Name}"/>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Border>
                         <Border Grid.Row="10" Grid.Column="3" BorderBrush="White" BorderThickness="1,1,0,0">
                             <ComboBox SelectedValue="{Binding Path=ServiceType, TargetNullValue='Услуга'}" ItemsSource="{Binding Source={StaticResource MainDataContext}, Path=Data.ServiceTypes}" ToolTip="Услуга" SelectedValuePath="Name" DisplayMemberPath="Name" IsSynchronizedWithCurrentItem="False" Background="#e0f7e3" BorderBrush="{x:Null}" Margin="2"/>

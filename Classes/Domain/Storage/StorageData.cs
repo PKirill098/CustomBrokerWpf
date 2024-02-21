@@ -898,6 +898,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 		{ set { mydbm.Command.Connection = value; } get { return mydbm.Command.Connection; } }
 		internal SqlTransaction Transaction
 		{ set { mydbm.Transaction = value; } get { return mydbm.Transaction; } }
+		internal lib.TransactionArea TransactionArea
+		{ set { mydbm.TransactionArea = value; } get { return mydbm.TransactionArea; } }
 		internal List<DBMError> Errors
 		{ get { return mydbm.Errors; } }
 		internal string ErrorMessage
@@ -1659,9 +1661,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 					connection.Open();
 					mymaindbm.Errors.Clear();
 					mymaindbm.Command.Connection = connection;
+					mymaindbm.TransactionArea=lib.TransactionArea.Collection;
 					mymaindbm.Transaction = connection.BeginTransaction();
 					mymathdbm.Errors.Clear();
 					mymathdbm.Connection = connection;
+					mymathdbm.TransactionArea = lib.TransactionArea.Collection;
 					mymathdbm.Transaction = mymaindbm.Transaction;
 					mymathdbm.SaveItemChanches(math.Request.DomainObject);
 					if (mymathdbm.Errors.Count > 0)

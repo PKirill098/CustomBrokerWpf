@@ -172,7 +172,7 @@
     <Compile Include="Classes\Domain\Marking\Marking.cs" />
     <Compile Include="Classes\Domain\Parcel\ParcelLastShipdate.cs" />
     <Compile Include="Classes\Domain\Request\RequestBrand.cs" />
-    <Compile Include="Classes\Domain\Request\RequestGoodsType.cs" />
+    <Compile Include="Classes\Domain\Request\RequestCargo.cs" />
     <Compile Include="Classes\Domain\Specification\Color.cs" />
     <Compile Include="Classes\Domain\Storage\StorageData.cs" />
     <Compile Include="Classes\Domain\Storage\Warehouse.cs" />

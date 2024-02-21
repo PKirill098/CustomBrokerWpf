@@ -10,7 +10,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
     {
         public RequestHistory(int id,Request request
             , bool actualweightchanged, bool agentchanged
-            , bool cargochanged, bool cellnumberchanged, bool customerchanged, bool customernotechanged
+            /*, bool cargochanged*/, bool cellnumberchanged, bool customerchanged, bool customernotechanged
             , bool goodvaluechanged, bool importerchanged, bool invoicechanged, bool invoicediscountchanged
             , bool managerchanged, bool managergroupchanged, bool managernotechanged, bool officialweightchanged, bool parcelgroupchanged, bool parcelnumberchanged, bool parceltypechanged
             , bool servicetypechanged, bool specificationchanged,bool statuschanged, bool storedatechanged, bool storeinformchanged, bool storenotechanged, bool storepointchanged
@@ -21,7 +21,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             myactualweightchanged = actualweightchanged;
             myagentchanged = agentchanged;
-            mycargochanged = cargochanged;
+            //mycargochanged = cargochanged;
             mycellnumberchanged = cellnumberchanged;
             mycustomerchanged = customerchanged;
             mycustomernotechanged = customernotechanged;
@@ -315,7 +315,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 );
             return new RequestHistory(0, newitem
                 , reader.GetBoolean(reader.GetOrdinal("actualWeightchd")), reader.GetBoolean(reader.GetOrdinal("agentIdchd"))
-                //, reader.GetBoolean(reader.GetOrdinal("loadDescriptionchd")), reader.GetBoolean(reader.GetOrdinal("cellNumberchd")), reader.GetBoolean(reader.GetOrdinal("customerIdchd")), reader.GetBoolean(reader.GetOrdinal("customerNotechd"))
+                /*, reader.GetBoolean(reader.GetOrdinal("loadDescriptionchd"))*/, reader.GetBoolean(reader.GetOrdinal("cellNumberchd")), reader.GetBoolean(reader.GetOrdinal("customerIdchd")), reader.GetBoolean(reader.GetOrdinal("customerNotechd"))
                 , reader.GetBoolean(reader.GetOrdinal("goodValuechd")), reader.GetBoolean(reader.GetOrdinal("importerchd")), reader.GetBoolean(reader.GetOrdinal("invoicechd")), reader.GetBoolean(reader.GetOrdinal("invoicediscountchd"))
                 , reader.GetBoolean(reader.GetOrdinal("managerchd")), reader.GetBoolean(reader.GetOrdinal("managergroupchd")), reader.GetBoolean(reader.GetOrdinal("managerNotechd"))
                 , reader.GetBoolean(reader.GetOrdinal("officialWeightchd"))

@@ -15,7 +15,6 @@ using KirillPolyanskiy.DataModelClassLibrary;
 using System.Collections.Generic;
 using KirillPolyanskiy.DataModelClassLibrary.Interfaces;
 using KirillPolyanskiy.DataModelClassLibrary.Filter;
-using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References;
 using System.Threading;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
@@ -122,7 +121,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         public Request() : this(id: lib.NewObjectId.NewId, stamp: 0, updated: null, updater: null, domainstate: lib.DomainObjectState.Added
             , agent: null, agentid: null
-            ,country: CustomBrokerWpf.References.Countries.First((References.Country item)=> { return item.RequestList && item.Code == 276; })
+            , country: CustomBrokerWpf.References.Countries.First((References.Country item) => { return item.RequestList && item.Code == 276; })
             , currency: 0, customer: null, customerid: null, customerlegal: null, freightid: null
             , parcelgroup: null, parcelid: null, parceltype: CustomBrokerWpf.References.ParcelTypes.GetDefault()
             , status: CustomBrokerWpf.References.RequestStates.GetDefault(), storeid: null
@@ -145,7 +144,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             , algorithmnote1: "Свободное поле", algorithmnote2: null, colormark: null, consolidate: null, currencynote: null, customernote: null, docdirpath: null, gtd: null, fullnumber: null, managergroup: null, managernote: null, mskstorenote: null, servicetype: null, storenote: null, storepoint: null
             , importer: null, manager: null
             )
-        { }
+        {
+            if (this.CargoList == null) this.CargoList = new ObservableCollection<RequestCargo>();
+            foreach (lib.ReferenceSimpleItem def in CustomBrokerWpf.References.GoodsTypesParcel.Where(cargo => cargo.IsDefault && cargo.IsActual))
+                this.CargoList.Add(new RequestCargo() { InnerObject = def, DomainState = lib.DomainObjectState.Added });
+        }
         public Request(int id, Int64 stamp, DateTime? updated, string updater, lib.DomainObjectState domainstate
             , Agent agent, lib.ReferenceSimpleItem status, int? agentid, References.Country country, int currency, Customer customer, int? customerid, int? customerlegal, int? freightid, int? parcelgroup, int? parcelid, int? storeid
             , short? cellnumber, byte? statedoc, byte? stateexc, byte? stateinv
@@ -256,6 +259,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.PropertyChanged += Request_PropertyChanged;
             this.LoadedPropertiesNotification.Add(nameof(this.CustomerLegalsNames));
             mylegalslock = new object();
+            mycargo = new ReferenceContainerNotifier<ReferenceSimpleItem, RequestCargo>() { ChangedNotification = Cargo_Changed};
         }
 
         public decimal? ActualWeight
@@ -296,14 +300,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private string mybrandnames;
         public string BrandNames // refresh in BrandNamesRefresh and RequestBrand.Selected
         { get { return this.Brands!=null ? mybrandnames : mybrandnames; } } // to initialize the download
-        //public string Cargo
-        //{
-        //    set
-        //    {
-        //        base.SetProperty<string>(ref mycargo, value);
-        //    }
-        //    get { return mycargo; }
-        //}
+        public string Cargo
+        {
+            //set
+            //{
+            //    base.SetProperty<string>(ref mycargo, value);
+            //}
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (RequestCargo item in this.CargoList.Where((RequestCargo rg) => { return rg.DomainState == lib.DomainObjectState.Unchanged | rg.DomainState == lib.DomainObjectState.Added; }).OrderBy(ord => ord.Name))
+                    builder.Append(item.Name + ", ");
+                return builder.ToString().TrimEnd(new char[] { ' ', ',' });
+            }
+        }
         public short? CellNumber
         {
             set
@@ -393,7 +403,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             {
                 base.SetProperty<int?>(ref mycustomerid, value, () => {
                     mycustomer = mycustomerid.HasValue ? CustomBrokerWpf.References.CustomerStore.GetItemLoad(mycustomerid.Value, out _) : null;
-                    this.ManagerGroupName = mycustomer.ManagerGroup.Name;
+                    this.ManagerGroupName = mycustomer.ManagerGroup?.Name;
                     base.PropertyChangedNotification("Customer");
                     base.PropertyChangedNotification("CustomerName");
                     RequestCustomerLegalDBM ldbm = App.Current.Dispatcher.Invoke<RequestCustomerLegalDBM>(() => { return new RequestCustomerLegalDBM(); });
@@ -1634,15 +1644,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mybrands;
             }
         }
-        private ObservableCollection<ReferenceSimpleItem> mycargo;
-        internal ObservableCollection<ReferenceSimpleItem> Cargo
+        private ReferenceContainerNotifier<lib.ReferenceSimpleItem, RequestCargo> mycargo;
+        internal ObservableCollection<RequestCargo> CargoList
         {
-            set { mycargo = value; }
+            set
+            {
+                mycargo.ContainerCollection = value;
+                this.PropertyChangedNotification(nameof(Request.CargoList));
+            }
             get
             {
-                return mycargo;
+                return mycargo.ContainerCollection;
             }
         }
+        private void Cargo_Changed()
+        {
+            this.PropertyChangedNotification(nameof(Request.Cargo));
+        }
+
         internal bool BrandsIsNull
         { get { return mybrands == null; } }
         private object mylegalslock;
@@ -2034,8 +2053,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     int i = 0;
                     if(mycargo != null)
                     {
-                        lib.ReferenceSimpleItem[] additem = new lib.ReferenceSimpleItem[mycargo.Count];
-                        foreach (lib.ReferenceSimpleItem item in mycargo)
+                        RequestCargo[] additem = new RequestCargo[mycargo.ContainerCollection.Count];
+                        foreach (RequestCargo item in mycargo.ContainerCollection)
                         {
                             if (item.DomainState == lib.DomainObjectState.Added)
                             { additem[i] = item; i++; }
@@ -2044,8 +2063,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                                 item.DomainState = lib.DomainObjectState.Unchanged;
                             }
                         }
-                        for (int ii = 0; ii < i; ii++) mycargo.Remove(additem[ii]);
-
+                        for (int ii = 0; ii < i; ii++) mycargo.ContainerCollection.Remove(additem[ii]);
                     }
                     //int i = 0;
                     //if (mypayments != null)
@@ -2171,7 +2189,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         isvalid = false;
                     }
                     break;
-                case nameof(this.Cargo):
+                case nameof(this.CargoList):
                     if (string.IsNullOrEmpty((string)value))
                     {
                         errmsg = "В заявке " + (this.Id > 0 ? this.Id.ToString() : string.Empty) + " необходимо указать описание груза!";
@@ -2693,8 +2711,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 ,new SqlParameter("@customerNotetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@parcelgrouptrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@colorMarktrue", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@eurousdtrue", System.Data.SqlDbType.Bit)
-                ,new SqlParameter("@pay1true", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@specloadedtrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@parceltypetrue", System.Data.SqlDbType.Bit)
                 ,new SqlParameter("@invoicetrue", System.Data.SqlDbType.Bit)
@@ -3057,14 +3073,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mybdbm.Fill();
                 }
                 if (canceltasktoken.IsCancellationRequested) return request;
-                if(request.Cargo == null | this.FillType == lib.FillType.Refresh)
+                if(request.CargoList == null | this.FillType == lib.FillType.Refresh)
                 {
                     mycdbm.Request= request;
-                    mycdbm.Collection = request.Cargo;
+                    mycdbm.Collection = request.CargoList;
                     mycdbm.FillType = this.FillType;
                     mycdbm.Connection = addcon;
                     mycdbm.Fill();
-                    request.Cargo = mycdbm.Collection;
+                    request.CargoList = mycdbm.Collection;
                 }
 
                 if (myldbm != null && (request.CustomerLegalsIsNull | this.FillType == lib.FillType.Refresh)) // Fill only first fill or willfully refresh (CustomerLegals contains new record, id<0, have Lost)
@@ -3120,6 +3136,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 myldbm.Request = item;
                 myldbm.Collection = item.CustomerLegals;
                 myldbm.Command.Connection = this.Command.Connection;
+                myldbm.Transaction = this.Transaction;
                 if (!myldbm.SaveCollectionChanches())
                 {
                     isSuccess = false;
@@ -3138,11 +3155,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     foreach (lib.DBMError err in mybdbm.Errors) this.Errors.Add(err);
                 }
             }
-            if (item.Cargo != null)
+            if (item.CargoList != null)
             {
                 mycdbm.Errors.Clear();
                 mycdbm.Request = item;
-                mycdbm.Collection = item.Cargo;
+                mycdbm.Collection = item.CargoList;
                 if (!mycdbm.SaveCollectionChanches())
                 {
                     isSuccess = false;
@@ -3184,32 +3201,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override bool SetSpecificParametersValue(Request item)
         {
             myinsertparams[2].Value = item.RequestDate;
-            int i = 18;
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomerNote");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ParcelGroup");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ColorMark");
-            myupdateparams[++i].Value = false;
-            myupdateparams[++i].Value = false;
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("IsSpecification");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("ParcelType");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("Invoice");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("InvoiceDiscount");
-            //myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomsCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("DeliveryCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("BrokerCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("InsuranceCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("FreightCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("SertificatCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("AdditionalCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("PreparatnCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("TotalCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("BringCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CorrCost");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("CustomsPay");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("DeliveryPay");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("BrokerPay");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("InsurancePay");
-            myupdateparams[++i].Value = item.HasPropertyOutdatedValue("FreightPay");
+            int i = 39;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("SertificatPay");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("AdditionalPay");
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("PreparatnPay");
@@ -3243,6 +3235,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@actualWeighttrue":
                         par.Value = item.HasPropertyOutdatedValue("ActualWeight");
                         break;
+                    case "@additionalcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.AdditionalCost));
+                        break;
                     case "@agentIdtrue":
                         par.Value = item.HasPropertyOutdatedValue("AgentId") || item.HasPropertyOutdatedValue("Agent");
                         break;
@@ -3252,8 +3247,20 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@algorithmnote2":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.AlgorithmNote2));
                         break;
+                    case "@bringcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.BringCost));
+                        break;
+                    case "@brokercosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.BrokerCost));
+                        break;
+                    case "@brokerpaytrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.BrokerPay));
+                        break;
                     case "@cellNumbertrue":
                         par.Value=item.HasPropertyOutdatedValue("CellNumber");
+                        break;
+                    case "@colorMarktrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.ColorMark));
                         break;
                     case "@consolidatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Consolidate));
@@ -3261,20 +3268,53 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@countrytrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Country));
                         break;
+                    case "@corrcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.CorrCost));
+                        break;
                     case "@currencytrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Currency));
                         break;
                     case "@customerIdtrue":
                         par.Value = item.HasPropertyOutdatedValue("CustomerId") || item.HasPropertyOutdatedValue("Customer");
                         break;
+                    case "@customerNotetrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.CustomerNote));
+                        break;
+                    case "@customspaytrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.CustomsPay));
+                        break;
+                    case "@deliverycosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.DeliveryCost));
+                        break;
+                    case "@deliverypaytrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.DeliveryPay));
+                        break;
                     case "@freighttrue":
                         par.Value = item.HasPropertyOutdatedValue("FreightId");
+                        break;
+                    case "@freightcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.FreightCost));
+                        break;
+                    case "@freightpaytrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.FreightPay));
                         break;
                     case "@goodValuetrue":
                         par.Value = item.HasPropertyOutdatedValue("GoodValue");
                         break;
                     case "@importertrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Importer));
+                        break;
+                    case "@insurancecosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.InsuranceCost));
+                        break;
+                    case "@insurancepaytrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.InsurancePay));
+                        break;
+                    case "@invoicetrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.Invoice));
+                        break;
+                    case "@invoicediscounttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.InvoiceDiscount));
                         break;
                     case "@isspecification":
                         par.Value = item.IsSpecification;
@@ -3300,8 +3340,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@parceltrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.Parcel)) || item.HasPropertyOutdatedValue(nameof(Request.ParcelId));
                         break;
+                    case "@parcelgrouptrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.ParcelGroup));
+                        break;
+                    case "@parceltypetrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.ParcelType));
+                        break;
+                    case "@preparatncosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.PreparatnCost));
+                        break;
+                    case "@sertificatcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.SertificatCost));
+                        break;
                     case "@shipplandatetrue":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Request.ShipPlanDate));
+                        break;
+                    case "@specloadedtrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.IsSpecification));
                         break;
                     case "@statustrue":
                         par.Value = item.HasPropertyOutdatedValue("Status");
@@ -3321,11 +3376,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     case "@storageNotetrue":
                         par.Value = item.HasPropertyOutdatedValue("StoreNote");
                         break;
+                    case "@tdcosttrue":
+                        par.Value = item.HasPropertyOutdatedValue(nameof(Request.TotalCost));
+                        break;
                     case "@volumetrue":
                         par.Value = item.HasPropertyOutdatedValue("Volume");
                         break;
                 }
-            i = 18;
+            i = 17;
             myinsertupdateparams[i++].Value = item.CustomerNote;
             myinsertupdateparams[i++].Value = item.ParcelGroup;
             myinsertupdateparams[i++].Value = item.ColorMark;
@@ -3538,6 +3596,13 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             RejectPropertiesOrder.AddRange(new string[] { "CustomerId", "CustomerLegal" });
             InitProperties();
             mysendmail = new RelayCommand(SendMailExec, SendMailCanExec);
+            mycargosincronaser = new RequestCargoSincronaser()
+            {
+                DomainCollection = item.CargoList
+                , ReferenceCollection = CustomBrokerWpf.References.GoodsTypesParcel
+            };
+            mycargolist = new ListCollectionView(mycargosincronaser.ViewModelCollection);
+            mycargolist.SortDescriptions.Add(new SortDescription("Name",ListSortDirection.Ascending));
             base.PropertyChanged += this.RequestVM_PropertyChanged;
             item.ValueChanged += this.DomenObject_ValueChanged;
         }
@@ -3746,16 +3811,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         { get { return this.IsEnabled ? ((this.DomainObject.BrokerCost.HasValue ? this.DomainObject.BrokerCost.Value.ToString("N2") : string.Empty) + " / " + (this.DomainObject.BrokerPay.HasValue ? this.DomainObject.BrokerPay.Value.ToString("N2") : string.Empty)) : null; } }
         public string Cargo
         {
-            set
-            {
-                if (!(this.IsReadOnly || string.Equals(this.DomainObject.Cargo, value)))
-                {
-                    string name = "Cargo";
-                    if (!myUnchangedPropertyCollection.ContainsKey(name))
-                        this.myUnchangedPropertyCollection.Add(name, this.DomainObject.Cargo);
-                    ChangingDomainProperty = name; this.DomainObject.Cargo = value;
-                }
-            }
             get { return this.IsEnabled ? this.DomainObject.Cargo : null; }
         }
         public short? CellNumber
@@ -5169,6 +5224,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
+        private RequestCargoSincronaser mycargosincronaser;
+        private ListCollectionView mycargolist;
+        public ListCollectionView CargoList { get { return mycargolist; } }
         //private RequestPaymentSynchronizer mypsync;
         //private ListCollectionView mypaymentsinvoice;
         //public ListCollectionView PaymentsInvoice
@@ -5551,9 +5609,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 case "BrokerPay":
                     this.DomainObject.BrokerPay = (decimal?)value;
                     break;
-                case "Cargo":
-                    this.DomainObject.Cargo = (string)value;
-                    break;
+                //case "Cargo":
+                //    this.DomainObject.Cargo = (string)value;
+                //    break;
                 case "CellNumber":
                     this.DomainObject.CellNumber = (short?)value;
                     break;
@@ -5758,6 +5816,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     }
                     foreach (RequestBrandVM item in removed)
                         if (item != null) this.Brands.Remove(item);
+
+                    foreach (RequestCargoVM item in this.CargoList)
+                    {
+                        item.RejectProperty();
+                        //if (item.DomainObject.DomainState == lib.DomainObjectState.Added)
+                        //    mycargosincronaser.DomainCollection.Remove(item.DomainObject);
+                        //else if (item.DomainObject.DomainState == lib.DomainObjectState.Deleted)
+                        //    item.DomainObject.DomainState = lib.DomainObjectState.Unchanged;
+                    }
                     break;
             }
         }
@@ -5775,7 +5842,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     isvalid = this.DomainObject.ValidateProperty(propertyname, null, out errmsg, out errcode);
                     break;
                 case nameof(this.Cargo):
-                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.CargoString, out errmsg, out errcode);
+                    isvalid = this.DomainObject.ValidateProperty(propertyname, this.Cargo, out errmsg, out errcode);
                     break;
                 case nameof(this.Country):
                     isvalid = this.DomainObject.ValidateProperty(propertyname, this.Country, out errmsg, out errcode);
@@ -5912,7 +5979,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycountries = new ListCollectionView(CustomBrokerWpf.References.Countries);
             mycountries.Filter = (object item) => { return lib.ViewModelViewCommand.ViewFilterDefault(item) && (item as References.Country).RequestList; };
             mycountries.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-            CustomBrokerWpf.References.CountryViewCollector.AddView(mycountries);
+            CustomBrokerWpf.References.CountryViewCollector.AddView(mycountries as IRefresh);
         }
 
         public RequestVM VM
