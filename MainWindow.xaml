@@ -72,11 +72,6 @@
 						<Image Source="/CustomBrokerWpf;component/Images/creditcards.png" />
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="Брэнды" Click="MenuItemBrand_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" >
-					<MenuItem.Icon>
-						<Image Source="/CustomBrokerWpf;component/Images/factory.png" />
-					</MenuItem.Icon>
-				</MenuItem>
 				<MenuItem Header="Вид адреса" Click="MenuItemAddressType_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/mail2.png" />
@@ -197,6 +192,11 @@
 				<MenuItem Header="Страны" Click="MenuItemCountries_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}">
 					<MenuItem.Icon>
 						<Image Source="/CustomBrokerWpf;component/Images/earth.png" />
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="Торговые марки" Click="MenuItemBrand_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" >
+					<MenuItem.Icon>
+						<Image Source="/CustomBrokerWpf;component/Images/factory.png" />
 					</MenuItem.Icon>
 				</MenuItem>
 				<!--<MenuItem Header="Типы затрат" Click="MenuItemExpenditureType_Click" Height="{Binding ElementName=referenceMenu, Path=ActualHeight}" Visibility="Collapsed">
