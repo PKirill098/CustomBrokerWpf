@@ -801,7 +801,7 @@
 								<DataGridTextColumn Header="Инвойс" Binding="{Binding Path=Invoice, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80" />
 								<DataGridTextColumn Header="Со скидкой" Binding="{Binding Path=InvoiceDiscount, StringFormat=\{0:N\}, TargetNullValue='', NotifyOnValidationError=True, UpdateSourceTrigger=LostFocus}" ElementStyle="{StaticResource MoneyStyleView}" EditingElementStyle="{StaticResource MoneyStyleEdit}" Selector.IsSelected="True" Width="80" />
 								<DataGridTextColumn Header="Услуга" Binding="{Binding Path=ServiceType, TargetNullValue=''}"/>
-								<DataGridTextColumn Header="Тип груза" Binding="{Binding Path=Cargo}" />
+								<DataGridTextColumn Header="Тип груза" Binding="{Binding Path=Cargo, Mode=OneWay}" />
 								<DataGridTextColumn Header="Счет" Binding="{Binding Path=TotalPay, StringFormat=\{0:N0\}, TargetNullValue=''}" IsReadOnly="True" Width="80">
 									<DataGridTextColumn.CellStyle>
 										<Style TargetType="{x:Type DataGridCell}">

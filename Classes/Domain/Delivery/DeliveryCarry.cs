@@ -1222,7 +1222,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     mycars = new ListCollectionView(CustomBrokerWpf.References.DeliveryCars);
                     mycars.Filter = (object item) => { return lib.ViewModelViewCommand.ViewFilterDefault(item) && (item as DeliveryCar).State.Id < 10; };
                     mycars.SortDescriptions.Add(new System.ComponentModel.SortDescription("Number", System.ComponentModel.ListSortDirection.Ascending));
-                    CustomBrokerWpf.References.CarsViewCollector.AddView(mycars);
+                    CustomBrokerWpf.References.CarsViewCollector.AddView(mycars as IRefresh);
                 }
                 return mycars;
             }
@@ -1313,14 +1313,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             myview.SortDescriptions.Add(new System.ComponentModel.SortDescription("Request.Parcel.Id", System.ComponentModel.ListSortDirection.Ascending));
             myview.SortDescriptions.Add(new System.ComponentModel.SortDescription("Request.CustomerName", System.ComponentModel.ListSortDirection.Ascending));
-            CustomBrokerWpf.References.CarryViewCollector.AddView(myview);
+            CustomBrokerWpf.References.CarryViewCollector.AddView(myview as IRefresh);
         }
 
         public void Dispose()
         {
             myfilter.RemoveFilter();
-            CustomBrokerWpf.References.CarsViewCollector.RemoveView(mycars);
-            CustomBrokerWpf.References.CarryViewCollector.RemoveView(myview);
+            CustomBrokerWpf.References.CarsViewCollector.RemoveView(mycars as IRefresh);
+            CustomBrokerWpf.References.CarryViewCollector.RemoveView(myview as IRefresh);
         }
     }
 

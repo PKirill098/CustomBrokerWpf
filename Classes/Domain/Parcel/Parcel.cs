@@ -4002,7 +4002,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override void OtherViewRefresh()
         {
-            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items);
+            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items as IRefresh);
         }
         protected override void RefreshData(object parametr)
         {
@@ -4015,7 +4015,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             myview.Filter = lib.ViewModelViewCommand.ViewFilterDefault;
             myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
-            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items);
+            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items as IRefresh);
         }
 
         private void ParcelSetFilterButtonImage()
@@ -4496,7 +4496,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void OtherViewRefresh()
         {
             CustomBrokerWpf.References.ParcelNumbers.RefreshAsinc();
-            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items);
+            CustomBrokerWpf.References.ParcelViewCollector.RefreshViews(this.Items as IRefresh);
         }
         protected override void RefreshData(object parametr)
         {
@@ -4570,7 +4570,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             base.SettingView();
             myview.SortDescriptions.Add(new SortDescription("ParcelNumberOrder", ListSortDirection.Descending));
             myview.MoveCurrentToFirst();
-            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items);
+            CustomBrokerWpf.References.ParcelViewCollector.AddView(this.Items as IRefresh);
         }
 
         private void ParcelSetFilterButtonImage()

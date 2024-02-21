@@ -70,7 +70,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                                         return prepay.DTSum == 0 ? prepay.EuroSum : prepay.DTSum;
                                     });
                                 });
-                                p1 =
+                                if(p1 != 0M) p1 =
                                myrequest.CustomerLegals.Where((RequestCustomerLegal legal) => { return legal.Selected; }).Sum((RequestCustomerLegal legal) =>
                                {
                                    return legal.Prepays.Sum((Account.PrepayCustomerRequest prepay) =>
