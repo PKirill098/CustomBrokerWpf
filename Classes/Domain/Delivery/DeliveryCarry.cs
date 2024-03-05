@@ -116,7 +116,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             DeliveryCarry newitem = (DeliveryCarry)sample;
             this.Address = newitem.Address;
@@ -238,8 +238,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 );
             return CustomBrokerWpf.References.DeliveryCarryStore.UpdateItem(newitem);
         }
-        protected override void GetOutputSpecificParametersValue(DeliveryCarry item)
+        protected override void GetOutputParametersValue(DeliveryCarry item)
         {
+            base.GetOutputParametersValue(item);
             item.Id = (int)myupdateparams[0].Value;
         }
         protected override bool SaveChildObjects(DeliveryCarry item)
@@ -270,8 +271,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override bool SetSpecificParametersValue(DeliveryCarry item)
+        protected override bool SetParametersValue(DeliveryCarry item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in myupdateparams)
             {
                 switch (par.ParameterName)

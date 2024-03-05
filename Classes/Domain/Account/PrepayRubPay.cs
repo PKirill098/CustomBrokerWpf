@@ -30,7 +30,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public Prepay Prepay
         { set { SetProperty<Prepay>(ref myprepay, value); }get { return myprepay; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             PrepayRubPay templ = sample as PrepayRubPay;
             this.PayDate=templ.PayDate;
@@ -143,9 +143,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(PrepayRubPay item)
-        {
-        }
         protected override bool SaveChildObjects(PrepayRubPay item)
         {
             return true;
@@ -162,8 +159,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             this.SelectParams[0].Value= myprepay?.Id;
         }
-        protected override bool SetSpecificParametersValue(PrepayRubPay item)
+        protected override bool SetParametersValue(PrepayRubPay item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value=item.Prepay.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(PrepayRubPay.PaySum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(PrepayRubPay.PayDate));

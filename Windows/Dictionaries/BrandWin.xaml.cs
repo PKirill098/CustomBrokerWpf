@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf
 {
@@ -18,6 +19,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf
     /// </summary>
     public partial class BrandWin : Window
     {
+		Classes.Domain.BrandViewCMD mycmd;
+		lib.BindingDischarger mybinddisp;
         public BrandWin()
         {
             InitializeComponent();
@@ -25,91 +28,69 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            DataLoad();
+            mybinddisp = new lib.BindingDischarger(this, new DataGrid[] { this.MainDataGrid });
+            mycmd = new Classes.Domain.BrandViewCMD();
+            mycmd.CancelEdit = mybinddisp.CancelEdit;
+			mycmd.EndEdit = mybinddisp.EndEdit;
+            this.DataContext = mycmd;
         }
-        private void DataLoad()
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            try
-            {
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemBrandDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.TableBrandAdapter BrandAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.TableBrandAdapter();
-                BrandAdapter.ClearBeforeFill = false;
-                BrandAdapter.Fill(itemBrandDS.tableBrand);
-                System.Windows.Data.CollectionViewSource brandVS = ((System.Windows.Data.CollectionViewSource)(this.FindResource("brandViewSource")));
-                brandVS.View.MoveCurrentToFirst();
-            }
-            catch (Exception ex)
-            {
-                if (ex is System.Data.SqlClient.SqlException)
-                {
-                    System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-                    System.Text.StringBuilder errs = new System.Text.StringBuilder();
-                    foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-                    {
-                        errs.Append(sqlerr.Message + "\n");
-                    }
-                    MessageBox.Show(errs.ToString(), "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    MessageBox.Show(ex.Message + "\n" + ex.Source, "Загрузка данных", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                if (MessageBox.Show("Повторить загрузку данных?", "Загрузка данных", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                {
-                    DataLoad();
-                }
-            }
+			if (mybinddisp.EndEdit())
+			{
+				bool isdirty = false;
+				foreach (Classes.Domain.BrandVM item in mycmd.Items.SourceCollection) isdirty = isdirty | item.DomainObject.IsDirty;
+				if (isdirty)
+				{
+					if (MessageBox.Show("Сохранить изменения?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+					{
+						if (!mycmd.SaveDataChanges())
+						{
+							this.Activate();
+							if (MessageBox.Show("\nИзменения в ДС не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+							{
+								e.Cancel = true;
+							}
+							else
+								mycmd.Reject.Execute(null);
+						}
+					}
+					else
+						mycmd.Reject.Execute(null);
+				}
+			}
+			else
+			{
+				this.Activate();
+				if (MessageBox.Show("\nИзменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+				{
+					e.Cancel = true;
+				}
+				else
+				{
+					mycmd.Reject.Execute(null);
+				}
+			}
+			if (!e.Cancel)
+			{
+				mycmd.Dispose();
+				if (!e.Cancel) (App.Current.MainWindow as MainWindow).ListChildWindow.Remove(this);
+				(App.Current.MainWindow as MainWindow).Activate();
+			}
         }
-        private bool SaveChanges()
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            bool isSuccess = false;
-            try
-            {
-                mainDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDS itemBrandDS = ((KirillPolyanskiy.CustomBrokerWpf.ReferenceDS)(this.FindResource("keyReferenceDS")));
-                KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.TableBrandAdapter BrandAdapter = new KirillPolyanskiy.CustomBrokerWpf.ReferenceDSTableAdapters.TableBrandAdapter();
-                BrandAdapter.Update(itemBrandDS.tableBrand);
-                isSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                if (ex is System.Data.SqlClient.SqlException)
-                {
-                    System.Data.SqlClient.SqlException err = ex as System.Data.SqlClient.SqlException;
-                    if (err.Number > 49999) MessageBox.Show(err.Message, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-                    else
-                    {
-                        System.Text.StringBuilder errs = new System.Text.StringBuilder();
-                        foreach (System.Data.SqlClient.SqlError sqlerr in err.Errors)
-                        {
-                            errs.Append(sqlerr.Message + "\n");
-                        }
-                        MessageBox.Show(errs.ToString(), "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show(ex.Message + "\n" + ex.Source, "Сохранение изменений", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                if (MessageBox.Show("Повторить попытку сохранения?", "Сохранение изменений", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                {
-                    isSuccess = SaveChanges();
-                }
-            }
-            return isSuccess;
+            this.Close();
         }
 
-        private void itemBrandWin_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void CommandBindingDel_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (!SaveChanges())
-            {
-                this.Activate();
-                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-                {
-                    e.Cancel = true;
-                }
-            }
-            if (!e.Cancel) (App.Current.MainWindow as MainWindow).ListChildWindow.Remove(this);
+            e.CanExecute = MainDataGrid.SelectedItems.Count > 0 & mycmd.Delete.CanExecute(MainDataGrid.SelectedItems);
+            e.Handled = true;
+        }
+        private void CommandBindingDel_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            mycmd.Delete.Execute(MainDataGrid.SelectedItems);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
 
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
         }
         protected override void RejectProperty(string property, object value)

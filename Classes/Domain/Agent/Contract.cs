@@ -65,7 +65,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return mynumber; }
         }
 
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             Contract templ = sample as Contract;
             //this.Agent = templ.Agent;
@@ -188,11 +188,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 				, record.expirydate
 				, record.number);
 		}
-		protected override void GetOutputSpecificParametersValue(Contract item)
-        {
-            //if(item.DomainState==lib.DomainObjectState.Added)
-            //    if (myinsertparams[1].Value != DBNull.Value) item.Stamp = (Int64)myinsertparams[1].Value;
-        }
         protected override bool SaveChildObjects(Contract item)
         {
             return true;
@@ -210,8 +205,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams[0].Value = this.ItemId;
             SelectParams[1].Value=myagent?.Id;
         }
-        protected override bool SetSpecificParametersValue(Contract item)
+        protected override bool SetParametersValue(Contract item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertParams)
                 switch(par.ParameterName)
             {

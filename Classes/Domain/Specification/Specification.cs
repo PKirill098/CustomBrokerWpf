@@ -309,7 +309,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             else
                 name.Append("_").Append(this.Consolidate);
             StringBuilder agentname=new StringBuilder(this.Agent.Name);
-            foreach (char c in Path.InvalidPathChars)
+            foreach (char c in Path.GetInvalidFileNameChars())
                 agentname.Replace(c.ToString(), string.Empty);
             name.Append('_').Append(agentname);
             
@@ -351,7 +351,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
 
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Specification newitem = (Specification)sample;
             this.Id = newitem.Id;
@@ -1333,9 +1333,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             return specsore;
         }
-        protected override void GetOutputSpecificParametersValue(Specification item)
-        {
-        }
         protected override bool SaveChildObjects(Specification item)
         {
             bool issuccess = true;
@@ -1412,8 +1409,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         break;
                 }
         }
-        protected override bool SetSpecificParametersValue(Specification item)
+        protected override bool SetParametersValue(Specification item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertParams)
             {
                 switch (par.ParameterName)

@@ -218,7 +218,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Agent templ = sample as Agent;
             this.DayEntry = templ.DayEntry;
@@ -391,9 +391,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 			}
 			return agent;
 		}
-		protected override void GetOutputSpecificParametersValue(Agent item)
-        {
-        }
         protected override bool SaveChildObjects(Agent item)
         {
             bool success = true;
@@ -473,8 +470,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.SelectParams[2].Value = myfilter?.FilterWhereId;
             this.NeedAddConnection = myadbm != null | myaddbm != null | mybrdbm != null | mycdbm != null | mycntrdbm != null;
         }
-        protected override bool SetSpecificParametersValue(Agent item)
+        protected override bool SetParametersValue(Agent item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertUpdateParams)
                 switch (par.ParameterName)
                 {
@@ -944,8 +942,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydbm.ContactDBM = new AgentContactDBM();
             mydbm.ContractDBM = new ContractDBM();
 
-            BrandDBM bdbm = new BrandDBM() { Collection = new System.Collections.Generic.List<Brand>()};
-            bdbm.Load();
+            BrandDBM bdbm = new BrandDBM();
+            bdbm.Fill();
             mybrands = new ListCollectionView(bdbm.Collection);
         }
         public AgentCommand(AgentVM vm) : this(vm,null) { }

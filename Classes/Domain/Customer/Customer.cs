@@ -390,7 +390,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Customer newitem = (Customer)sample;
             this.Account = newitem.Account;
@@ -653,7 +653,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return this.Errors.Count == 0;
 		}
-		protected override void GetOutputSpecificParametersValue(Customer item) { }
         protected override bool SaveChildObjects(Customer item)
         {
             bool issuccess = true;
@@ -727,8 +726,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myrdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override bool SetSpecificParametersValue(Customer item)
+        protected override bool SetParametersValue(Customer item)
         {
+            base.SetParametersValue(item);
             int i = 1;
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("Name");
             myupdateparams[i++].Value = item.HasPropertyOutdatedValue("FullName");

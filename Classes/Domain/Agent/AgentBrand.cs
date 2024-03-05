@@ -30,19 +30,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void RejectProperty(string property, object value)
         {
         }
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             AgentBrand templ = (AgentBrand)sample;
             this.Brand = templ.Brand;
         }
     }
 
-    public class AgentBrandDBM : lib.DBManager<AgentBrand,AgentBrand>
+    public class AgentBrandDBM : lib.DBManager<int,AgentBrand>
     {
         public AgentBrandDBM()
         {
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
-
+            NeedAddConnection = true;
             SelectProcedure = true;
             InsertProcedure = true;
             UpdateProcedure = true;
@@ -79,26 +79,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return myagent; }
         }
 
-        protected override AgentBrand CreateRecord(SqlDataReader reader)
+        protected override int CreateRecord(SqlDataReader reader)
         {
-            return new AgentBrand(lib.DomainObjectState.Unchanged
-                    , myagent
-                    ,new Brand(reader.GetInt32(this.Fields["brandID"])
-                        , lib.DomainObjectState.Unchanged
-                        , reader.GetString(this.Fields["brandName"]))
-                    );
+            return reader.GetInt32(this.Fields["brandID"]);
         }
-		protected override AgentBrand CreateModel(AgentBrand record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+		protected override AgentBrand CreateModel(int record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
 		{
-			return record;
-		}
-		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
-		{
-			base.TakeItem(this.CreateRecord(reader));
-		}
-		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default,Func<bool> reading=null)
-		{
-			return true;
+            List<DBMError> errors;
+            AgentBrand brand = new AgentBrand(lib.DomainObjectState.Unchanged
+                    , myagent
+                    , CustomBrokerWpf.References.BrandStorage.GetItemLoad(record, addcon, out errors)
+                    );
+            if (errors != null) { this.Errors.AddRange(errors); }
+            return brand;
 		}
 		protected override void GetOutputParametersValue(AgentBrand item)
         {

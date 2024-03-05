@@ -506,7 +506,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Goods newitem=(Goods)sample;
             if (!this.HasPropertyOutdatedValue("Name")) this.Name = newitem.Name;

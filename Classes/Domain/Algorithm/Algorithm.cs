@@ -44,7 +44,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 item.FormulaInit();
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Algorithm newitem = (Algorithm)sample;
             this.Name = newitem.Name;

@@ -66,7 +66,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal bool PointsIsNull
         { get { return mypoints == null; } }
 
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             Contact newitem = (Contact)sample;
             this.ContactType = newitem.ContactType;

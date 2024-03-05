@@ -1,4 +1,5 @@
-﻿using KirillPolyanskiy.CustomBrokerWpf.Domain.References;
+﻿using KirillPolyanskiy.CustomBrokerWpf.Classes.Domain;
+using KirillPolyanskiy.CustomBrokerWpf.Domain.References;
 using System;
 using System.Data.SqlClient;
 using System.Windows;
@@ -730,6 +731,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             myagentstore = new Classes.Domain.AgentStore(new Classes.Domain.AgentDBM());
             myalgorithmconsolidatestore = new Classes.Domain.Algorithm.AlgorithmFormulaRequestConCommandStore();
+            mybrandstorage = new Classes.Domain.BrandStorage();
             mybranchstore = new Classes.Domain.BranchStore(new Classes.Domain.BranchDBM());
             mycustomerstore = new Classes.Domain.CustomerStore(new Classes.Domain.CustomerDBM());
             mycustomerlegalstore = new Classes.Domain.CustomerLegalStore(new Classes.Domain.CustomerLegalDBM());
@@ -760,6 +762,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             get
             {
                 return myalgorithmconsolidatestore;
+            }
+        }
+        static private BrandStorage mybrandstorage;
+        static public BrandStorage BrandStorage
+        {
+            get
+            {
+                return mybrandstorage;
             }
         }
         static private Classes.Domain.BranchStore mybranchstore;
@@ -883,6 +893,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
         }
         #endregion
+        #region ViewCollector
+        static private lib.ViewCollector mybrandviewcollector;
+        static internal lib.ViewCollector BrandViewCollector
+        {
+            get
+            {
+                if (mybrandviewcollector == null)
+                    mybrandviewcollector = new lib.ViewCollector();
+                return mybrandviewcollector;
+            }
+        }
         static private lib.ViewCollector mycarviewcollector;
         static internal lib.ViewCollector CarsViewCollector
         {
@@ -933,7 +954,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 return myparcelviewcollector;
             }
         }
-
+        #endregion
         static private void PropertiesInit()
         {
             myparcellastshipdate = new Classes.Domain.ParcelLastShipdate();

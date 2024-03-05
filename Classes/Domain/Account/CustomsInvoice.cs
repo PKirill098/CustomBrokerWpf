@@ -559,7 +559,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         //    }
         //}
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             CustomsInvoice templ = sample as CustomsInvoice;
             this.CBRate = templ.CBRate;
@@ -1030,9 +1030,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
 			return item;
 		}
-		protected override void GetOutputSpecificParametersValue(CustomsInvoice item)
-        {
-        }
         //protected override void CancelLoad()
         //{
         //    mypdbm.CancelingLoad = this.CancelingLoad;
@@ -1133,8 +1130,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                         break;
                 }
         }
-        protected override bool SetSpecificParametersValue(CustomsInvoice item)
+        protected override bool SetParametersValue(CustomsInvoice item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertParams)
                 switch (par.ParameterName)
                 {

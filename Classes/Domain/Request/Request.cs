@@ -2084,7 +2084,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                     break;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Request newitem = (Request)sample;
             this.ActualWeight = newitem.ActualWeight;
@@ -3118,8 +3118,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return request;
         }
-        protected override void GetOutputSpecificParametersValue(Request item)
+        protected override void GetOutputParametersValue(Request item)
         {
+            base.GetOutputParametersValue(item);
             SqlParameter status = myinsertupdateparams.First((SqlParameter par) => { return par.ParameterName == "@status"; });
             if (status.Value != null)
                 item.Status = CustomBrokerWpf.References.RequestStates.FindFirstItem("Id", (int)status.Value);
@@ -3198,8 +3199,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             //mypmdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override bool SetSpecificParametersValue(Request item)
+        protected override bool SetParametersValue(Request item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value = item.RequestDate;
             int i = 39;
             myupdateparams[++i].Value = item.HasPropertyOutdatedValue("SertificatPay");
@@ -6468,10 +6470,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydbm.FillAsyncCompleted = () => { 
                 if (mydbm.Errors.Count > 0) 
                     OpenPopup(mydbm.ErrorMessage, true);
-                else
-                    mydbm.FillAsyncCompleted = () => {
-                        if (mydbm.Errors.Count > 0)
-                            OpenPopup(mydbm.ErrorMessage, true);
+                //else
+                //    mydbm.FillAsyncCompleted = () => {
+                //        if (mydbm.Errors.Count > 0)
+                //            OpenPopup(mydbm.ErrorMessage, true);
                         //else
                         //{
                         //    RequestCustomerLegalDBM ldbm = App.Current.Dispatcher.Invoke<RequestCustomerLegalDBM>(() => { return new RequestCustomerLegalDBM(); });
@@ -6479,7 +6481,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         //    foreach (Request ritem in mydbm.Collection)
                         //    { ritem.CustomerLegalsRefresh(ldbm); ldbm.Collection = null; }
                         //}
-                    };
+                    //};
             };
             mydbm.FillAsync();
             mysync = new RequestSynchronizer();

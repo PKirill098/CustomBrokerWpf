@@ -43,7 +43,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             CustomerLegal newitem = (CustomerLegal)sample;
             this.Name = newitem.Name;

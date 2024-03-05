@@ -63,7 +63,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             MailTemplate newitem = (MailTemplate)sample;
             this.Name = newitem.Name;
@@ -143,9 +143,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(MailTemplate item)
-        {
-        }
         protected override bool SaveChildObjects(MailTemplate item)
         {
             return true;
@@ -161,8 +158,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool SetSpecificParametersValue(MailTemplate item)
+        protected override bool SetParametersValue(MailTemplate item)
         {
+            base.SetParametersValue(item);
             foreach(SqlParameter par in myupdateparams)
                 switch(par.ParameterName)
                 {

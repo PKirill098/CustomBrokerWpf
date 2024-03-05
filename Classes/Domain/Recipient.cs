@@ -168,7 +168,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Recipient newitem = (Recipient)sample;
             if (!this.HasPropertyOutdatedValue("FullName")) this.FullName = newitem.FullName;
@@ -291,9 +291,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(Recipient item)
-        {
-        }
         protected override bool SaveChildObjects(Recipient item)
         {
             bool issuccess = true;
@@ -356,8 +353,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myccdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override bool SetSpecificParametersValue(Recipient item)
+        protected override bool SetParametersValue(Recipient item)
         {
+            base.SetParametersValue(item);
             if (item.Customer.DomainState == lib.DomainObjectState.Added)
                 return false;
             myinsertparams[2].Value = item.Customer.Id;

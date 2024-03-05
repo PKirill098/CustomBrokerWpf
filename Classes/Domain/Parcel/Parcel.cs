@@ -938,7 +938,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Parcel newitem = (Parcel)sample;
 
@@ -1221,8 +1221,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             return item;
         }
 
-        protected override void GetOutputSpecificParametersValue(Parcel item)
+        protected override void GetOutputParametersValue(Parcel item)
         {
+            base.GetOutputParametersValue(item);
             if (item.DomainState == lib.DomainObjectState.Added)
                 CustomBrokerWpf.References.ParcelStore.UpdateItem(item);
             SqlParameter par = myinsertupdateparams.Where((SqlParameter ipar) => { return ipar.ParameterName == "@parcelnumber"; }).First();
@@ -1275,8 +1276,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mysdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override bool SetSpecificParametersValue(Parcel item)
+        protected override bool SetParametersValue(Parcel item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in myinsertparams)
             {
                 switch (par.ParameterName)

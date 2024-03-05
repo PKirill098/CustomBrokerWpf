@@ -396,7 +396,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
         }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Prepay templ = sample as Prepay;
             this.Agent = templ.Agent;
@@ -753,8 +753,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 
 			return item;
 		}
-		protected override void GetOutputSpecificParametersValue(Prepay item)
+		protected override void GetOutputParametersValue(Prepay item)
         {
+            base.GetOutputParametersValue(item);
             if(item.DomainState==lib.DomainObjectState.Added)
                 CustomBrokerWpf.References.PrepayStore.UpdateItem(item);
         }
@@ -823,8 +824,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mycpdbm.Command.Connection = addcon;
             this.Command.CommandTimeout = 1000;
         }
-        protected override bool SetSpecificParametersValue(Prepay item)
+        protected override bool SetParametersValue(Prepay item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertUpdateParams)
                 switch (par.ParameterName)
                 {

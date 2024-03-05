@@ -318,7 +318,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return myvendorcode; }
         }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject templ)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate templ)
         {
             SpecificationDetail sample = (SpecificationDetail)templ;
             this.Amount = sample.Amount;
@@ -539,9 +539,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                 , record.vendorcode
             );
         }
-        protected override void GetOutputSpecificParametersValue(SpecificationDetail item)
-        {
-        }
         protected override bool SaveChildObjects(SpecificationDetail item)
         {
             return true;
@@ -559,8 +556,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             SelectParams[0].Value = myspec?.Id;
             SelectParams[1].Value = this.Filter?.FilterWhereId;
         }
-        protected override bool SetSpecificParametersValue(SpecificationDetail item)
+        protected override bool SetParametersValue(SpecificationDetail item)
         {
+            base.SetParametersValue(item);
             InsertParams[2].Value = item.Specification.Id;
             foreach (SqlParameter par in UpdateParams)
             {

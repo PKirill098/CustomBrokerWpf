@@ -3,6 +3,11 @@ using lib = KirillPolyanskiy.DataModelClassLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
+    internal struct RequestBrandRecord
+    {
+        internal int brandid;
+        internal bool selected;
+    }
     public class RequestBrand:lib.DomainBaseNotifyChanged
     {
         public RequestBrand(AgentBrand brand, Request request, bool selected, lib.DomainObjectState state):base(0,state)
@@ -29,12 +34,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class RequestBrandDBM : lib.DBManager<RequestBrand,RequestBrand>
+    internal class RequestBrandDBM : lib.DBManager<RequestBrandRecord,RequestBrand>
     {
         internal RequestBrandDBM()
         {
             base.ConnectionString = CustomBrokerWpf.References.ConnectionString;
-
+            NeedAddConnection = true;
             SelectProcedure = true;
             UpdateProcedure = true;
 
@@ -72,31 +77,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         //{
         //    abdbm.CancelingLoad = this.CancelingLoad;
         //}
-		protected override RequestBrand CreateRecord(SqlDataReader reader)
-		{
-            return new RequestBrand(
+		protected override RequestBrandRecord CreateRecord(SqlDataReader reader)
+		{   
+            return new RequestBrandRecord() { 
+                brandid = reader.GetInt32(this.Fields["brandID"]),
+                selected = reader.GetBoolean(this.Fields["selected"])
+            };
+		}
+        protected override RequestBrand CreateModel(RequestBrandRecord record, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
+        {
+            System.Collections.Generic.List<lib.DBMError> errors;
+            RequestBrand brand = new RequestBrand(
                 new AgentBrand(lib.DomainObjectState.Unchanged
                     , myagent
-                    , new Brand(reader.GetInt32(this.Fields["brandID"])
-                        , lib.DomainObjectState.Unchanged
-                        , reader.GetString(this.Fields["brandName"])))
+                    , CustomBrokerWpf.References.BrandStorage.GetItemLoad(record.brandid, addcon, out errors))
                 ,myrequest
-                , reader.GetBoolean(this.Fields["selected"])
+                , record.selected
                 , lib.DomainObjectState.Unchanged
                 );
-		}
-        protected override RequestBrand CreateModel(RequestBrand reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
-        {
-			return reader;
+            if (errors != null) { this.Errors.AddRange(errors); }
+			return brand;
         }
-		protected override void LoadRecord(SqlDataReader reader, SqlConnection addcon, System.Threading.CancellationToken canceltasktoken = default)
-		{
-			base.TakeItem(CreateModel(this.CreateRecord(reader), addcon, canceltasktoken));
-		}
-		protected override bool GetModels(System.Threading.CancellationToken canceltasktoken=default, System.Func<bool> reading =null)
-		{
-			return true;
-		}
         protected override void GetOutputParametersValue(RequestBrand item)
         {
         }

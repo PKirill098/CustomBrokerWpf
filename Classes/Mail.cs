@@ -99,7 +99,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }
@@ -162,9 +162,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(MailStateCustomer item)
-        {
-        }
         protected override bool SaveChildObjects(MailStateCustomer item)
         {
             return true;
@@ -182,8 +179,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             SelectParams[0].Value = mytype;
             SelectParams[1].Value = myobject.Id;
         }
-        protected override bool SetSpecificParametersValue(MailStateCustomer item)
+        protected override bool SetParametersValue(MailStateCustomer item)
         {
+            base.SetParametersValue(item);
             myupdateparams[1].Value = myobject.Id;
             myupdateparams[2].Value = item.CustomerId;
             myupdateparams[3].Value = item.TypeId;

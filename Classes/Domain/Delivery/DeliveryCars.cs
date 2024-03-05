@@ -219,7 +219,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             DeliveryCar newitem=(DeliveryCar)sample;
             this.CarNumber = newitem.CarNumber;
@@ -330,8 +330,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(DeliveryCar item)
+        protected override void GetOutputParametersValue(DeliveryCar item)
         {
+            base.GetOutputParametersValue(item);
             if(item.DomainState==lib.DomainObjectState.Added)
                 item.Number = (int?)myinsertparams[2].Value;
         }
@@ -350,8 +351,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool SetSpecificParametersValue(DeliveryCar item)
+        protected override bool SetParametersValue(DeliveryCar item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value = item.Number;
             foreach (SqlParameter par in myupdateparams)
             {

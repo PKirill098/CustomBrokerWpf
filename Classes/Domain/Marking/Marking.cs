@@ -181,7 +181,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 			}
 			return isvalid;
 		}
-		protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+		protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
 		{
 			Marking temp = sample as Marking;
 			this.Brand = temp.Brand;
@@ -352,9 +352,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(Marking item)
-		{
-		}
 
 		protected override void SetSelectParametersValue(SqlConnection addcon)
 		{
@@ -367,8 +364,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Marking
 				}
 		}
 
-		protected override bool SetSpecificParametersValue(Marking item)
+		protected override bool SetParametersValue(Marking item)
 		{
+            base.SetParametersValue(item);
 			foreach (SqlParameter par in this.UpdateParams)
 				switch (par.ParameterName)
 				{

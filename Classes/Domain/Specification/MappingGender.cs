@@ -39,7 +39,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     break;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new System.NotImplementedException();
         }

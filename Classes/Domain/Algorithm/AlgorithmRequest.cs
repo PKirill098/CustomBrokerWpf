@@ -795,9 +795,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 , myrequest);
             return newitem; //mystorage.UpdateItem(newitem) as AlgorithmValuesRequest
         }
-        protected override void GetOutputSpecificParametersValue(AlgorithmValuesRequest item)
-        {
-        }
         protected override bool SaveChildObjects(AlgorithmValuesRequest item)
         {
             return true;
@@ -816,8 +813,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             if (myrequest.Status.Id < 500) this.SelectParams[1].Value = myalgorithm.Id; else this.SelectParams[1].Value = null;
             this.SelectParams[2].Value = myrequest.ParcelGroup;
         }
-        protected override bool SetSpecificParametersValue(AlgorithmValuesRequest item)
+        protected override bool SetParametersValue(AlgorithmValuesRequest item)
         {
+            base.SetParametersValue(item);
             foreach(SqlParameter par in myinsertparams)
                 switch(par.ParameterName)
                 {
@@ -1504,7 +1502,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         private void LoadData()
         {
-            AlgorithmValuesRequest values49 = null; // update after RequestProperties init
+            //AlgorithmValuesRequest values49 = null; // update after RequestProperties init
             System.Text.StringBuilder err = new System.Text.StringBuilder();
             err.AppendLine("Данные не загружены");
             // удаление значений и ссылок на Request
@@ -2179,7 +2177,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 }
         }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             AlgorithmProperty temp = (AlgorithmProperty)sample;
             this.CBX = temp.CBX;
@@ -2249,8 +2247,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
         }
 
-        protected override bool SetSpecificParametersValue(AlgorithmProperty item)
+        protected override bool SetParametersValue(AlgorithmProperty item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in myinsertparams)
                 switch (par.ParameterName)
                 {
@@ -2306,9 +2305,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         break;
                 }
             return true;
-        }
-        protected override void GetOutputSpecificParametersValue(AlgorithmProperty item)
-        {
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {

@@ -32,7 +32,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Branch bsample = (Branch)sample;
             this.Name = bsample.Name;
@@ -83,7 +83,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(Branch item) {}
         protected override bool SaveChildObjects(Branch item)
         {
             return true;
@@ -96,8 +95,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override bool SetSpecificParametersValue(Branch item)
+        protected override bool SetParametersValue(Branch item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value=item.Goods.Id;
             myinsertparams[3].Value = item.Country?.Code;
             myinsertupdateparams[0].Value = item.Name;

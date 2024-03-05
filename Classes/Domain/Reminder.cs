@@ -36,7 +36,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }
@@ -86,9 +86,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(Reminder item)
-        {
-        }
         protected override bool SaveChildObjects(Reminder item)
         {
             return true;
@@ -101,8 +98,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override bool SetSpecificParametersValue(Reminder item)
+        protected override bool SetParametersValue(Reminder item)
         {
+            base.SetParametersValue(item);
             myupdateparams[1].Value = item.RemType;
             myupdateparams[2].Value = item.ObjectId;
             myinsertupdateparams[0].Value = item.Note;

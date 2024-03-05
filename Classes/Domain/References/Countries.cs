@@ -95,7 +95,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
             }
             return;
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Country newitem = (Country)sample;
             this.Code = newitem.Code;

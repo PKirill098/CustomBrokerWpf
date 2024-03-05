@@ -68,7 +68,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }
@@ -138,9 +138,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(ParcelCustomerMailState item)
-        {
-        }
         protected override bool SaveChildObjects(ParcelCustomerMailState item)
         {
             return true;
@@ -157,8 +154,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             SelectParams[0].Value = myparcel.Id;
         }
-        protected override bool SetSpecificParametersValue(ParcelCustomerMailState item)
+        protected override bool SetParametersValue(ParcelCustomerMailState item)
         {
+            base.SetParametersValue(item);
             myupdateparams[1].Value = myparcel.Id;
             myupdateparams[2].Value = item.CustomerId;
             myupdateparams[3].Value = item.ShipDate;

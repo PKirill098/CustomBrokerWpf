@@ -101,7 +101,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
 		public decimal Volume
 		{ set { SetProperty<decimal>(ref myvolume, value); } get { return myvolume; } }
 
-		protected override void PropertiesUpdate(DomainBaseReject sample)
+		protected override void PropertiesUpdate(DomainBaseUpdate sample)
 		{
 			
 		}

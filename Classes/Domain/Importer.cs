@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Importer newitem = (Importer)sample;
             this.Name = newitem.Name;
@@ -87,8 +87,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(Importer item)
-        {        }
         protected override bool SaveChildObjects(Importer item)
         {
             return true;
@@ -101,8 +99,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override bool SetSpecificParametersValue(Importer item)
+        protected override bool SetParametersValue(Importer item)
         {
+            base.SetParametersValue(item);
             myupdateparams[1].Value = item.HasPropertyOutdatedValue("Name");
             myinsertupdateparams[0].Value = item.Name;
             return true;

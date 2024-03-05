@@ -589,9 +589,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 , mycmd);
             return newitem; //mystorage.UpdateItem(newitem) as AlgorithmValuesRequest
         }
-        protected override void GetOutputSpecificParametersValue(AlgorithmValuesRequestCon item)
-        {
-        }
         protected override bool SaveChildObjects(AlgorithmValuesRequestCon item)
         {
             return true;
@@ -610,8 +607,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             this.SelectParams[1].Value = mycmd.Group;
             if (mycmd.Parcel.Status.Id < 500) this.SelectParams[2].Value = mycmd.Algorithm.Id; else this.SelectParams[2].Value = null;
         }
-        protected override bool SetSpecificParametersValue(AlgorithmValuesRequestCon item)
+        protected override bool SetParametersValue(AlgorithmValuesRequestCon item)
         {
+            base.SetParametersValue(item);
             foreach(SqlParameter par in myinsertparams)
                 switch(par.ParameterName)
                 {
@@ -852,8 +850,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             };
         }
 
-        protected override bool SetSpecificParametersValue(AlgorithmConsolidateProperty item)
+        protected override bool SetParametersValue(AlgorithmConsolidateProperty item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in myinsertparams)
                 switch (par.ParameterName)
                 {
@@ -891,9 +890,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         break;
                 }
             return true;
-        }
-        protected override void GetOutputSpecificParametersValue(AlgorithmConsolidateProperty item)
-        {
         }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
@@ -2077,7 +2073,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                         }
         }
 
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             AlgorithmConsolidateProperty temp = (AlgorithmConsolidateProperty)sample;
             this.CBX = temp.CBX;

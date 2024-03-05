@@ -233,7 +233,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			}
 		}
 
-		protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+		protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
 		{
 			this.Specification.UpdateProperties((sample as GTDRegister).Specification);
 			ManagersRefresh();
@@ -590,9 +590,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			}
 			return gtd;
 		}
-		protected override void GetOutputSpecificParametersValue(GTDRegister item)
-		{
-		}
 		protected override bool SaveChildObjects(GTDRegister item)
 		{
 			bool issuccess = true;
@@ -648,8 +645,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 						break;
 				}
 		}
-		protected override bool SetSpecificParametersValue(GTDRegister item)
+		protected override bool SetParametersValue(GTDRegister item)
 		{
+            base.SetParametersValue(item);
 			foreach (SqlParameter par in this.UpdateParams)
 			{
 				switch (par.ParameterName)

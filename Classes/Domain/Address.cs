@@ -57,7 +57,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             Address newitem = (Address)sample;
             this.AddressDescription = newitem.AddressDescription;

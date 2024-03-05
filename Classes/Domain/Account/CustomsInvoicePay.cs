@@ -30,7 +30,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal PaySum
         { set { SetProperty<decimal>(ref mypsum, value); } get { return mypsum; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             CustomsInvoicePay templ = sample as CustomsInvoicePay;
             this.Invoice = templ.Invoice;
@@ -243,9 +243,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(CustomsInvoicePay item)
-        {
-        }
         protected override bool SaveChildObjects(CustomsInvoicePay item)
         {
             return true;
@@ -262,8 +259,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             this.SelectParams[0].Value = myinvoice?.Id;
         }
-        protected override bool SetSpecificParametersValue(CustomsInvoicePay item)
+        protected override bool SetParametersValue(CustomsInvoicePay item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value = item.Invoice.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(item.PaySum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(item.PayDate));

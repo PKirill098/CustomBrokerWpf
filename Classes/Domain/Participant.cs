@@ -99,7 +99,7 @@ namespace KirillPolyanskiy.HotelWpf.Classes
 			}
 			return;
 		}
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }

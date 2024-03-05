@@ -108,7 +108,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
 
         }
@@ -190,9 +190,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 		{
 			return true;
 		}
-        protected override void GetOutputSpecificParametersValue(VendorCode item)
-        {
-        }
         protected override bool SaveChildObjects(VendorCode item)
         {
             return true;
@@ -209,8 +206,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
            SelectParams[0].Value= myfilter?.FilterWhereId;
         }
-        protected override bool SetSpecificParametersValue(VendorCode item)
+        protected override bool SetParametersValue(VendorCode item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in UpdateParams)
                 switch (par.ParameterName)
                 {

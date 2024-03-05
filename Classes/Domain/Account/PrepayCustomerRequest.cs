@@ -668,7 +668,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myrater.PropertyChanged -= Rater_PropertyChanged;
         }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             PrepayCustomerRequest templ = sample as PrepayCustomerRequest;
             this.DTSumSet = templ.DTSumSet;
@@ -1109,8 +1109,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             return itemold;
         }
-        protected override void GetOutputSpecificParametersValue(PrepayCustomerRequest item)
+        protected override void GetOutputParametersValue(PrepayCustomerRequest item)
         {
+            base.GetOutputParametersValue(item);
             if (item.DomainState == lib.DomainObjectState.Added)
             {
                 int prepayid = (int)InsertParams.First((SqlParameter par) => { return par.ParameterName == "@prepayid"; }).Value;
@@ -1213,8 +1214,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 }
             mypdbm.FillType = this.FillType;
         }
-        protected override bool SetSpecificParametersValue(PrepayCustomerRequest item)
+        protected override bool SetParametersValue(PrepayCustomerRequest item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertUpdateParams)
                 switch (par.ParameterName)
                 {

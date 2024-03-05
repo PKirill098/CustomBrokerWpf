@@ -279,7 +279,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public decimal? WestGateWithoutRate
         { get { return this.WestGate - this.WestGateRate; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             GTDRegisterClient templ = sample as GTDRegisterClient;
             this.ProfitAlgE = templ.ProfitAlgE;
@@ -606,9 +606,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 );
             return item;
         }
-        protected override void GetOutputSpecificParametersValue(GTDRegisterClient item)
-        {
-        }
         //protected override void CancelLoad()
         //{
         //    if (mygdtdbm != null) mygdtdbm.CancelingLoad = this.CancelingLoad;
@@ -648,8 +645,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                     mygtdstore.Clear();
             }
         }
-        protected override bool SetSpecificParametersValue(GTDRegisterClient item)
+        protected override bool SetParametersValue(GTDRegisterClient item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.UpdateParams)
             {
                 switch (par.ParameterName)

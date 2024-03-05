@@ -134,7 +134,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             for (int i = 0; i < l; i++) rchar[i] = chars[l - i - 1];
             return rchar;
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }

@@ -63,7 +63,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return myvat; }
         }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Declaration templ= sample as Declaration;
             this.CBRate = templ.CBRate;
@@ -221,9 +221,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(Declaration item)
-        {
-        }
         protected override bool SaveChildObjects(Declaration item)
         {
             return true;
@@ -239,8 +236,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool SetSpecificParametersValue(Declaration item)
+        protected override bool SetParametersValue(Declaration item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in UpdateParams)
                 switch(par.ParameterName)
                 {

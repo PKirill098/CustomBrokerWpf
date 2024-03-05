@@ -43,7 +43,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
         }
 
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             Color temple = (Color)sample; 
             this.Brand= temple.Brand;
@@ -75,8 +75,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         internal string ColorCode { set; get; }
         internal string Producer { set; get;}
 
-        protected override bool SetSpecificParametersValue(Color item)
+        protected override bool SetParametersValue(Color item)
         {
+            base.SetParametersValue(item);
             foreach(SqlParameter par in UpdateParams)
                 switch(par.ParameterName)
                 {
@@ -102,10 +103,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                         par.Value=item.Producer; break;
                 }
             return true;
-        }
-
-        protected override void GetOutputSpecificParametersValue(Color item)
-        {
         }
 
         protected override void SetSelectParametersValue(SqlConnection addcon)

@@ -210,7 +210,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        protected override void PropertiesUpdate(DomainBaseReject sample)
+        protected override void PropertiesUpdate(DomainBaseUpdate sample)
         {
             WarehouseRU temp = sample as WarehouseRU;
             this.Legal = temp.Legal;
@@ -349,9 +349,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 			return true;
 		}
 
-        protected override void GetOutputSpecificParametersValue(WarehouseRU item)
-        {
-        }
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
             foreach (SqlParameter par in this.SelectParams)
@@ -365,8 +362,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         break;
                 }
         }
-        protected override bool SetSpecificParametersValue(WarehouseRU item)
+        protected override bool SetParametersValue(WarehouseRU item)
         {
+            base.SetParametersValue(item);
             foreach (SqlParameter par in this.InsertParams)
                 switch (par.ParameterName)
                 {
@@ -1271,16 +1269,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.SearchPath = "Name";
             this.GetDisplayPropertyValueFunc = (item) => { return ((Brand)item).Name; };
             // запустим загрузку списка по умолчанию
-            mydefaultlist = new List<Brand>(); // из за долгой загрузки
+            // из за долгой загрузки
             BrandDBM bdbm;
-            bdbm = App.Current.Dispatcher.Invoke<BrandDBM>(() => { return new BrandDBM(); });
+            bdbm = App.Current.Dispatcher.Invoke<BrandDBM>(() => { mydefaultlist = new ObservableCollection<Brand>(); return new BrandDBM(); });
             bdbm.Collection = mydefaultlist;
-            bdbm.LoadAsync();
-
+            bdbm.FillAsync();
         }
 
-        private List<Brand> mydefaultlist;
-        internal List<Brand> DefaultList
+        private ObservableCollection<Brand> mydefaultlist;
+        internal ObservableCollection<Brand> DefaultList
         {
             get
             {

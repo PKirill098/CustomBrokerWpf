@@ -328,7 +328,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             throw new NotImplementedException();
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             CustomerLegal newitem = (CustomerLegal)sample;
             if (!this.HasPropertyOutdatedValue("Account")) this.Account = newitem.Account;
@@ -512,9 +512,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 );
             return CustomBrokerWpf.References.CustomerLegalStore.UpdateItem(newitem);
         }
-        protected override void GetOutputSpecificParametersValue(CustomerLegal item)
-        {
-        }
         protected override bool SaveChildObjects(CustomerLegal item)
         {
             bool issuccess = true;
@@ -588,8 +585,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
             return true;
         }
-        protected override bool SetSpecificParametersValue(CustomerLegal item)
+        protected override bool SetParametersValue(CustomerLegal item)
         {
+            base.SetParametersValue(item);
             if (item.Customer.DomainState == lib.DomainObjectState.Added)
                 return false;
             myinsertparams[2].Value = item.Customer.Id;

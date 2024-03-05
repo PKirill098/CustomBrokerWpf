@@ -151,7 +151,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
                     break;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             throw new NotImplementedException();
         }
@@ -258,8 +258,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mgdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override bool SetSpecificParametersValue(Mapping item)
+        protected override bool SetParametersValue(Mapping item)
         {
+            base.SetParametersValue(item);
             myinsertupdateparams[2].Value=item.Goods;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue("Goods");
             myinsertupdateparams[3].Value = item.TNVEDGroup;
@@ -267,9 +268,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myinsertupdateparams[4].Value = item.Material != null?(object)item.Material.Id:DBNull.Value;
             myupdateparams[3].Value = item.HasPropertyOutdatedValue("Material");
             return true;
-        }
-        protected override void GetOutputSpecificParametersValue(Mapping item)
-        {
         }
     }
 

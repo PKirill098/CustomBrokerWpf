@@ -56,7 +56,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public int Order
         { set { SetProperty<int>(ref myorder, value); } get { return myorder; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             Formula newitem = (Formula)sample;
             this.Code = newitem.Code;
@@ -359,9 +359,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 , record.ordinal);
             return CustomBrokerWpf.References.FormulaStorage.UpdateItem(item);
         }
-        protected override void GetOutputSpecificParametersValue(Formula item)
-        {
-        }
         protected override bool SaveChildObjects(Formula item)
         {
             return true;
@@ -377,8 +374,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
         }
-        protected override bool SetSpecificParametersValue(Formula item)
+        protected override bool SetParametersValue(Formula item)
         {
+            base.SetParametersValue(item);
             foreach(SqlParameter par in myupdateparams)
                 switch(par.ParameterName)
                 {

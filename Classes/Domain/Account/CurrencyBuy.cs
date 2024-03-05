@@ -32,7 +32,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         { set { SetPropertyOnValueChanged<decimal>(ref mycursum, value); } get { return mycursum; } }
         internal bool Selected { set; get; }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             CurrencyBuy templ = sample as CurrencyBuy;
             this.BuyDate = templ.BuyDate;
@@ -601,7 +601,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public Prepay Prepay
         { set { SetProperty<Prepay>(ref myprepay, value); } get { return myprepay; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             base.PropertiesUpdate(sample);
             CurrencyBuyPrepay templ = sample as CurrencyBuyPrepay;
@@ -698,9 +698,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(CurrencyBuyPrepay item)
-        {
-        }
         protected override bool SaveChildObjects(CurrencyBuyPrepay item)
         {
             return true;
@@ -717,8 +714,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             this.SelectParams[0].Value = myprepay?.Id;
         }
-        protected override bool SetSpecificParametersValue(CurrencyBuyPrepay item)
+        protected override bool SetParametersValue(CurrencyBuyPrepay item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value = item.Prepay.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(CurrencyBuyPrepay.CurSum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(CurrencyBuyPrepay.BuyDate));
@@ -875,7 +873,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         public CustomsInvoice Invoice
         { set { SetProperty<CustomsInvoice>(ref myinvoice, value); } get { return myinvoice; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             base.PropertiesUpdate(sample);
             CurrencyBuyInvoice templ = sample as CurrencyBuyInvoice;
@@ -949,9 +947,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(CurrencyBuyInvoice item)
-        {
-        }
         protected override bool SaveChildObjects(CurrencyBuyInvoice item)
         {
             return true;
@@ -968,8 +963,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             this.SelectParams[0].Value = myinvoice?.Id;
         }
-        protected override bool SetSpecificParametersValue(CurrencyBuyInvoice item)
+        protected override bool SetParametersValue(CurrencyBuyInvoice item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value = item.Invoice.Id;
             myupdateparams[1].Value = item.HasPropertyOutdatedValue(nameof(CurrencyBuy.CurSum));
             myupdateparams[2].Value = item.HasPropertyOutdatedValue(nameof(CurrencyBuy.BuyDate));

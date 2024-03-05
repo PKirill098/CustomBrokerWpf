@@ -327,7 +327,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 return mypreprepays;
             }
         }
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             RequestCustomerLegal templ = sample as RequestCustomerLegal;
             this.CustomerLegal = templ.CustomerLegal;

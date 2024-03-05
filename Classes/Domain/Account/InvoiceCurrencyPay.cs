@@ -82,7 +82,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 					break;
 			}
 		}
-		protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+		protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
 		{
 			base.PropertiesUpdate(sample);
 			InvoiceCurrencyPay templ = sample as InvoiceCurrencyPay;
@@ -153,9 +153,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			return true;
 		}
-		protected override void GetOutputSpecificParametersValue(InvoiceCurrencyPay item)
-		{
-		}
 		protected override bool SaveChildObjects(InvoiceCurrencyPay item)
 		{
 			return true;
@@ -172,8 +169,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 		{
 			this.SelectParams[0].Value = myinvoice?.Id;
 		}
-		protected override bool SetSpecificParametersValue(InvoiceCurrencyPay item)
+		protected override bool SetParametersValue(InvoiceCurrencyPay item)
 		{
+            base.SetParametersValue(item);
 			myinsertparams[2].Value = item.Invoice.Id;
 			myinsertupdateparams[2].Value = item.PaySum;
 			myinsertupdateparams[3].Value = item.PayDate;

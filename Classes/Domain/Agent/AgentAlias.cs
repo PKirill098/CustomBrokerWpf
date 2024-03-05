@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         public string Alias
         { set { SetProperty<string>(ref myalias, value); } get { return myalias; } }
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             AgentAlias templ = sample as AgentAlias;
             this.Alias = templ.Alias;
@@ -112,9 +112,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 				, this.Agent ?? CustomBrokerWpf.References.AgentStore.GetItemLoad(record.agent, addcon, out _)
 				, record.alias);
 		}
-		protected override void GetOutputSpecificParametersValue(AgentAlias item)
-        {
-        }
         protected override bool SaveChildObjects(AgentAlias item)
         {
             return true;
@@ -132,8 +129,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.SelectParams[0].Value = this.Agent?.Id;
             this.SelectParams[1].Value = this.Alias;
         }
-        protected override bool SetSpecificParametersValue(AgentAlias item)
+        protected override bool SetParametersValue(AgentAlias item)
         {
+            base.SetParametersValue(item);
             myinsertparams[2].Value=item.Agent.Id;
             myinsertupdateparams[0].Value = item.Alias;
             return item.Agent.Id > 0;

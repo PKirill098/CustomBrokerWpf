@@ -116,7 +116,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         }
         #endregion
 
-        protected override void PropertiesUpdate(lib.DomainBaseReject sample)
+        protected override void PropertiesUpdate(lib.DomainBaseUpdate sample)
         {
             AlgorithmValues newitem = (AlgorithmValues)sample;
             if (myvalue1editable) this.Value1 = newitem.Value1;
@@ -646,9 +646,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 , algorithm, formula, record.value1, record.value2);
             return newitem;//mystorage.UpdateItem()
         }
-        protected override void GetOutputSpecificParametersValue(AlgorithmValues item)
-        {
-        }
         protected override bool SaveChildObjects(AlgorithmValues item)
         {
             return true;
@@ -665,9 +662,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
 
         }
-        protected override bool SetSpecificParametersValue(AlgorithmValues item)
+        protected override bool SetParametersValue(AlgorithmValues item)
         {
             bool isSuccess = item.Algorithm.DomainState != lib.DomainObjectState.Added & item.Formula.DomainState != lib.DomainObjectState.Added;
+            base.SetParametersValue(item);
             if (isSuccess) //this.Errors.Add(new lib.DBMError(item, "Форлула/Алгоритм не сохранены!","incerr"));
             {
                 myinsertparams[2].Value = item.Algorithm.Id;
