@@ -92,5 +92,37 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         {
             mycmd.Delete.Execute(MainDataGrid.SelectedItems);
         }
+
+        private void BrandFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+			if (mycmd.BrandFilter != null && !mycmd.BrandFilter.FilterOn) mycmd.BrandFilter?.FillAsync();
+			System.Windows.Controls.Primitives.Popup ppp = this.MainDataGrid.FindResource("BrandFilterPopup") as System.Windows.Controls.Primitives.Popup;
+			ppp.PlacementTarget = (UIElement)sender;
+			ppp.IsOpen = true;
+			e.Handled = true;
+        }
+        private void ProducerFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+			if (mycmd.ProducerFilter != null && !mycmd.ProducerFilter.FilterOn) mycmd.ProducerFilter?.FillAsync();
+			System.Windows.Controls.Primitives.Popup ppp = this.MainDataGrid.FindResource("ProducerFilterPopup") as System.Windows.Controls.Primitives.Popup;
+			ppp.PlacementTarget = (UIElement)sender;
+			ppp.IsOpen = true;
+			e.Handled = true;
+        }
+        private void HomelandFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+			if (mycmd.HomelandFilter != null && !mycmd.HomelandFilter.FilterOn) mycmd.HomelandFilter?.FillAsync();
+			System.Windows.Controls.Primitives.Popup ppp = this.MainDataGrid.FindResource("HomelandFilterPopup") as System.Windows.Controls.Primitives.Popup;
+			ppp.PlacementTarget = (UIElement)sender;
+			ppp.IsOpen = true;
+			e.Handled = true;
+        }
+        private void SizePlusFilterPopup_Open(object sender, MouseButtonEventArgs e)
+        {
+			System.Windows.Controls.Primitives.Popup ppp = this.MainDataGrid.FindResource("SizePlusFilterPopup") as System.Windows.Controls.Primitives.Popup;
+			ppp.PlacementTarget = (UIElement)sender;
+			ppp.IsOpen = true;
+			e.Handled = true;
+        }
     }
 }

@@ -6702,9 +6702,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void RunFastFilterExec(object parametr)
         {
-            myfastfilter.SetNumber(myfastfilter.FilterWhereId, "customerId", 0, (RequestClientFilter?.ToString() ?? string.Empty));
-            myfastfilter.SetNumber(mynumbergroup, "storagePoint", 0, this.RequestStoragePointFilter);
-            myfastfilter.SetNumber(mynumbergroup, "requestID", 0, this.RequestStoragePointFilter);
+            myfastfilter.SetNumber(myfastfilter.FilterWhereId, "customerId", "=", (RequestClientFilter?.ToString() ?? string.Empty));
+            myfastfilter.SetNumber(mynumbergroup, "storagePoint", "=", this.RequestStoragePointFilter);
+            myfastfilter.SetNumber(mynumbergroup, "requestID", "=", this.RequestStoragePointFilter);
             if (!this.SaveDataChanges())
                 this.OpenPopup("Применение фильтра невозможно. Регистр содержит не сохраненные данные. \n Сохраните данные и повторите попытку.", true);
             else

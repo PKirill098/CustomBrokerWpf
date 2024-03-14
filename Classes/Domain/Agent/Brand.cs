@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
+using libui = KirillPolyanskiy.WpfControlLibrary;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 {
@@ -23,22 +24,22 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal string Producer;
         internal int? SizePlus;
     }
-    public class Brand:lib.DomainBaseStamp
+    public class Brand : lib.DomainBaseStamp
     {
-        public Brand (int id,Int64 stamp, DateTime? updeted, String updater, lib.DomainObjectState state
-            ,Country homeland,string name, string producer,int? sizeplus
-            ) :base(id, stamp, updeted, updater, state)
+        public Brand(int id, Int64 stamp, DateTime? updeted, String updater, lib.DomainObjectState state
+            , Country homeland, string name, string producer, int? sizeplus
+            ) : base(id, stamp, updeted, updater, state)
         {
             myhomeland = homeland;
             myname = name;
             myproducer = producer;
             mysizeplus = sizeplus;
         }
-        public Brand() : this(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added,null,null,null,null) { }
+        public Brand() : this(lib.NewObjectId.NewId, 0, null, null, lib.DomainObjectState.Added, null, null, null, null) { }
 
         private Country myhomeland;
         public Country Homeland
-        { set { SetProperty(ref myhomeland, value); }  get { return myhomeland; } }
+        { set { SetProperty(ref myhomeland, value); } get { return myhomeland; } }
         private string myname;
         public string Name
         { set { SetProperty<string>(ref myname, value); } get { return myname; } }
@@ -71,7 +72,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             errmsg = string.Empty;
             errmsgkey = 0;
             bool result = true;
-            switch(propertyname)
+            switch (propertyname)
             {
                 case nameof(Brand.Name):
                     if (string.IsNullOrEmpty((string)value))
@@ -85,7 +86,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    internal class BrandDBM : lib.DBManagerId<BrandRecord,Brand>
+    internal class BrandDBM : lib.DBManagerId<BrandRecord, Brand>
     {
         public BrandDBM()
         {
@@ -131,23 +132,23 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 SizePlus = reader.IsDBNull(this.Fields["size+"]) ? (int?)null : reader.GetInt32(this.Fields["size+"])
             };
         }
-		protected override Brand CreateModel(BrandRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
-		{
+        protected override Brand CreateModel(BrandRecord record, SqlConnection addcon, CancellationToken mycanceltasktoken = default)
+        {
             Brand brand = null;
             if (this.FillType == FillType.PrefExist)
                 brand = CustomBrokerWpf.References.BrandStorage.GetItem(record.Id);
-            if(brand == null)
+            if (brand == null)
                 brand = CustomBrokerWpf.References.BrandStorage.UpdateItem(
-                    new Brand(record.Id, record.Stamp, record.Updated, record.Updater,lib.DomainObjectState.Unchanged
-                        ,CustomBrokerWpf.References.Countries.FindFirstItem("Code", record.Homeland),record.Name,record.Producer,record.SizePlus
+                    new Brand(record.Id, record.Stamp, record.Updated, record.Updater, lib.DomainObjectState.Unchanged
+                        , CustomBrokerWpf.References.Countries.FindFirstItem("Code", record.Homeland), record.Name, record.Producer, record.SizePlus
                 ));
             return brand;
-		}
+        }
         protected override bool SetParametersValue(Brand item)
         {
             base.SetParametersValue(item);
-            foreach(SqlParameter par in this.InsertUpdateParams)
-                switch(par.ParameterName) 
+            foreach (SqlParameter par in this.InsertUpdateParams)
+                switch (par.ParameterName)
                 {
                     case "@homeland":
                         par.Value = item.Homeland?.Code;
@@ -162,8 +163,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                         par.Value = item.SizePlus;
                         break;
                 }
-            foreach(SqlParameter par in this.SelectParams)
-                switch(par.ParameterName) 
+            foreach (SqlParameter par in this.SelectParams)
+                switch (par.ParameterName)
                 {
                     case "@homelandupd":
                         par.Value = item.HasPropertyOutdatedValue(nameof(Brand.Homeland));
@@ -183,8 +184,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override void SetSelectParametersValue(SqlConnection addcon)
         {
-            foreach(SqlParameter par in this.SelectParams)
-                switch(par.ParameterName) 
+            foreach (SqlParameter par in this.SelectParams)
+                switch (par.ParameterName)
                 {
                     case "@filter":
                         par.Value = myfilter?.FilterWhereId;
@@ -195,26 +196,26 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
     internal class BrandStorage : lib.DomainStorageLoad<BrandRecord, Brand, BrandDBM>
     {
-        public BrandStorage() : base(new BrandDBM()) {}
+        public BrandStorage() : base(new BrandDBM()) { }
     }
 
-    public class BrandVM:lib.ViewModelErrorNotifyItem<Brand>
+    public class BrandVM : lib.ViewModelErrorNotifyItem<Brand>
     {
-        public BrandVM(Brand brand):base(brand) 
+        public BrandVM(Brand brand) : base(brand)
         {
-            this.ValidetingProperties.AddRange(new string[] {nameof(BrandVM.Name) });
-            this.DeleteRefreshProperties.AddRange(new string[] {nameof(BrandVM.Homeland),nameof(BrandVM.Name),nameof(BrandVM.Producer),nameof(BrandVM.SizePlus) });
+            this.ValidetingProperties.AddRange(new string[] { nameof(BrandVM.Name) });
+            this.DeleteRefreshProperties.AddRange(new string[] { nameof(BrandVM.Homeland), nameof(BrandVM.Name), nameof(BrandVM.Producer), nameof(BrandVM.SizePlus) });
             InitProperties();
 
             mycountries = new ListCollectionView(CustomBrokerWpf.References.Countries);
         }
-        public BrandVM():this(new Brand()) { }
+        public BrandVM() : this(new Brand()) { }
 
         public Country Homeland
         { set { SetProperty(this.DomainObject.Homeland, (Country country) => { this.DomainObject.Homeland = country; }, value); } get { return GetProperty(this.DomainObject.Homeland, null); } }
         private string myname;
         public string Name
-        { set { SetPropertyValidateNotNull(ref myname, () => { this.DomainObject.Name = value; }, value); }  get { return GetProperty(myname, null); } }
+        { set { SetPropertyValidateNotNull(ref myname, () => { this.DomainObject.Name = value; }, value); } get { return GetProperty(myname, null); } }
         public string Producer
         { set { SetProperty(this.DomainObject.Producer, (String pr) => { this.DomainObject.Producer = pr; }, value); } get { return GetProperty(this.DomainObject.Producer, null); } }
         public int? SizePlus
@@ -225,12 +226,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         protected override bool DirtyCheckProperty()
         {
-            return myname!=this.DomainObject.Name;
+            return myname != this.DomainObject.Name;
         }
 
         protected override void RejectProperty(string property, object value)
         {
-            switch(property)
+            switch (property)
             {
                 case nameof(BrandVM.Homeland):
                     this.DomainObject.Homeland = (Country)value; break;
@@ -263,7 +264,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
         protected override void InitProperties()
         {
-            myname=this.DomainObject.Name;
+            myname = this.DomainObject.Name;
         }
 
         private ListCollectionView mycountries;
@@ -272,7 +273,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 
     }
 
-    public class BrandSynchronizer:lib.ModelViewCollectionsSynchronizer<Brand,BrandVM>
+    public class BrandSynchronizer : lib.ModelViewCollectionsSynchronizer<Brand, BrandVM>
     {
         protected override BrandVM Wrap(Brand fill)
         {
@@ -285,18 +286,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
     }
 
-    public class BrandViewCMD:lib.ViewModelViewCommand
+    public class BrandViewCMD : lib.ViewModelViewCommand
     {
         internal BrandViewCMD()
         {
-            myfilter = new lib.SQLFilter.SQLFilter("brand", "AND", CustomBrokerWpf.References.ConnectionString);
-            myfilter.GetDefaultFilter(lib.SQLFilter.SQLFilterPart.Where);
-            mybdbm=new BrandDBM();
+            myfiltermanager = new libui.Filter.CommandFilterManager(CustomBrokerWpf.References.ConnectionString, "brand");
+            myfiltermanager.RunFilter = this.RunFilter;
+            mybdbm = new BrandDBM();
             mydbm = mybdbm;
             mybdbm.Collection = new System.Collections.ObjectModel.ObservableCollection<Brand>();
-            mybdbm.Filter = myfilter;
-            mybdbm.FillAsyncCompleted = () => { 
-                if (mydbm.Errors.Count > 0) 
+            mybdbm.Filter = myfiltermanager.SQLFilter;
+            mybdbm.FillAsyncCompleted = () =>
+            {
+                if (mydbm.Errors.Count > 0)
                     OpenPopup(mydbm.ErrorMessage, true);
             };
             mybdbm.FillAsync();
@@ -306,37 +308,130 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mycountries = new ListCollectionView(CustomBrokerWpf.References.Countries);
             mycountries.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(Country.Name), System.ComponentModel.ListSortDirection.Ascending));
             CustomBrokerWpf.References.CountryViewCollector.AddView(mycountries as lib.Interfaces.IRefresh);
+
+            #region Filter
+            mybrandfilter = myfiltermanager.FilterCreate<BrandCheckListFilter>(libui.Filter.FilterType.CheckListFill, "brand", myview.OfType<BrandVM>());
+            myproducerfilter = myfiltermanager.FilterCreate<ProducerCheckListFilter>(libui.Filter.FilterType.CheckListFill, "producer", myview.OfType<BrandVM>());
+            myhomelandfilter = myfiltermanager.FilterCreate<HomelandCheckListFilter>(libui.Filter.FilterType.CheckListFill, "homeland", myview.OfType<BrandVM>());
+            mysizeplusfilter = myfiltermanager.FilterCreate<libui.NumberFilterVM>(libui.Filter.FilterType.NumberFilter, "sizeplus");
+   			if (myfiltermanager.SQLFilter.isEmpty)
+				this.OpenPopup("Пожалуйста, задайте критерии выбора!", false);
+            else
+                myfiltermanager.FilterFill();
+            #endregion
         }
-		~BrandViewCMD() { Dispose();}
+        ~BrandViewCMD() { Dispose(); }
         public void Dispose()
-		{
+        {
             CustomBrokerWpf.References.CountryViewCollector.RemoveView(mycountries as lib.Interfaces.IRefresh);
-			myfilter.RemoveFilter();
-			myfilter.Dispose();
-		}
+            myfiltermanager.Dispose();
+        }
 
         private BrandDBM mybdbm;
         private BrandSynchronizer mysync;
         #region Filter
-        private lib.SQLFilter.SQLFilter myfilter;
+        private libui.Filter.CommandFilterManager myfiltermanager;
+        public libui.Filter.CommandFilterManager FilterManager { get { return myfiltermanager; } }
+
+        private BrandCheckListFilter mybrandfilter;
+        public BrandCheckListFilter BrandFilter { get { return mybrandfilter; } }
+        private ProducerCheckListFilter myproducerfilter;
+        public ProducerCheckListFilter ProducerFilter { get { return myproducerfilter; } }
+        private HomelandCheckListFilter myhomelandfilter;
+        public HomelandCheckListFilter HomelandFilter { get { return myhomelandfilter; } }
+        private libui.NumberFilterVM mysizeplusfilter;
+        public libui.NumberFilterVM SizePlusFilter { get { return mysizeplusfilter; } }
+
+        public void RunFilter(object filters)
+		{
+			this.Save.Execute(null);
+			if (!LastSaveResult)
+				this.OpenPopup("Применение фильтра\nПрименение фильтра невозможно. Не удалось сохранить изменения. \n Сохраните или отмените изменения, затем примените фильтр.", true);
+			else
+			{
+				this.Refresh.Execute(null);
+			}
+		}
+
+        #endregion
         private ListCollectionView mycountries;
         public ListCollectionView Countries
         { get { return mycountries; } }
 
-        #endregion
         protected override void OtherViewRefresh()
         {
             CustomBrokerWpf.References.BrandViewCollector.RefreshViews();
         }
         protected override void SettingView()
         {
-   			myview.NewItemPlaceholderPosition = System.ComponentModel.NewItemPlaceholderPosition.AtBeginning;
-            this.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(BrandVM.Name),System.ComponentModel.ListSortDirection.Ascending));
+            myview.NewItemPlaceholderPosition = System.ComponentModel.NewItemPlaceholderPosition.AtBeginning;
+            this.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(BrandVM.Name), System.ComponentModel.ListSortDirection.Ascending));
         }
         protected override void RefreshData(object parametr)
         {
-			//UpdateFilter();
-			mybdbm.FillAsync();
+            myfiltermanager.FilterUpdate();
+            this.FilterUpdate();
+            mybdbm.FillAsync();
+        }
+        private void FilterUpdate()
+        {
+			if (mybrandfilter.FilterOn)
+			{
+				string[] items = new string[mybrandfilter.SelectedItems.Count];
+				for (int i = 0; i < mybrandfilter.SelectedItems.Count; i++)
+					items[i] = (string)mybrandfilter.SelectedItems[i];
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "brand", items);
+			}
+			else
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "brand", new string[0]);
+			if (myproducerfilter.FilterOn)
+			{
+				string[] items = new string[myproducerfilter.SelectedItems.Count];
+				for (int i = 0; i < myproducerfilter.SelectedItems.Count; i++)
+					items[i] = (string)myproducerfilter.SelectedItems[i];
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "producer", items);
+			}
+			else
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "producer", new string[0]);
+			if (myhomelandfilter.FilterOn)
+			{
+				string[] items = new string[myhomelandfilter.SelectedItems.Count];
+				for (int i = 0; i < myhomelandfilter.SelectedItems.Count; i++)
+					items[i] = (myhomelandfilter.SelectedItems[i] as Country).Code.ToString();
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "homeland", items);
+			}
+			else
+				myfiltermanager.SQLFilter.SetList(myfiltermanager.SQLFilter.FilterWhereId, "homeland", new string[0]);
         }
     }
+
+    public class BrandCheckListFilter : libui.CheckListBoxVMFill<BrandVM, string>
+    {
+        protected override void AddItem(BrandVM item)
+        {
+            if (!Items.Contains(item.Name)) Items.Add(item.Name);
+        }
+    }
+    public class ProducerCheckListFilter : libui.CheckListBoxVMFill<BrandVM, string>
+    {
+        protected override void AddItem(BrandVM item)
+        {
+            if (!Items.Contains(item.Producer)) Items.Add(item.Producer);
+        }
+    }
+    public class HomelandCheckListFilter : libui.CheckListBoxVMFill<BrandVM, Country>
+    {
+        public HomelandCheckListFilter()
+        {
+            this.DisplayPath = "Name";
+            this.SearchPath = "Name";
+            this.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+            this.GetDisplayPropertyValueFunc = (item) => { return ((Country)item).Name; };
+        }
+        protected override void AddItem(BrandVM item)
+        {
+            if (!Items.Contains(item.Homeland)) Items.Add(item.Homeland);
+        }
+    }
+
 }

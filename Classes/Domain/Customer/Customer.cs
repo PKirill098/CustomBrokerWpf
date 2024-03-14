@@ -1871,32 +1871,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
         private void NumberFilterRun(libui.NumberFilterVM filter, string property)
         {
-            List<lib.SQLFilter.SQLFilterCondition> cond = myfilter.ConditionGet(myfilter.FilterWhereId, property);
-            if (filter.FilterOn)
-            {
-                if (!filter.IsNotNull)
-                {
-                    if (cond.Count > 0)
-                    {
-                        if (!cond[0].propertyOperator.Equals("IS NULL"))
-                        {
-                            myfilter.ConditionValuesDel(cond[0].propertyid);
-                            myfilter.ConditionUpd(cond[0].propertyid, "IS NULL");
-                        }
-                    }
-                    else
-                        myfilter.ConditionAdd(myfilter.FilterWhereId, property, "IS NULL");
-                }
-                else if (filter.IsRange)
-                    myfilter.SetRange(myfilter.FilterWhereId, property, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture), filter.NumberStop?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                else
-                {
-                    myfilter.ConditionValuesDel(cond[0].propertyid);
-                    myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                }
-            }
-            else if (cond.Count > 0)
-                myfilter.ConditionDel(cond[0].propertyid);
+			if (filter.Synchronized) return;
+			myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator1.SQLOperator, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture), filter.Operator2.SQLOperator, filter.NumberStop?.ToString(System.Globalization.CultureInfo.InvariantCulture),filter.IsNull);
+			filter.Synchronized = true;
         }
 
         private RelayCommand myfilterrunnew;

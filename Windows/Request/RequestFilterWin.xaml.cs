@@ -327,27 +327,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (isChanchedcellNumber)
             {
-                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "cellNumber", (lib.SQLFilter.Operators)cellNumberComboBox.SelectedIndex, cellNumberTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "cellNumber", (string)cellNumberComboBox.SelectedItem, cellNumberTextBox.Text);
                 isChanchedcellNumber = false;
             }
             if (isChanchedvolume)
             {
-                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "volume", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, volumeTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "volume", (string)volumeComboBox.SelectedItem, volumeTextBox.Text);
                 isChanchedvolume = false;
             }
             if (isChanchedofficialWeight)
             {
-                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "officialWeight", (lib.SQLFilter.Operators)officialWeightComboBox.SelectedIndex, officialWeightTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "officialWeight", (string)officialWeightComboBox.SelectedItem, officialWeightTextBox.Text);
                 isChanchedofficialWeight = false;
             }
             if (isChanchedactualWeight)
             {
-                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "actualWeight", (lib.SQLFilter.Operators)actualWeightComboBox.SelectedIndex, actualWeightTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "actualWeight", (string)actualWeightComboBox.SelectedItem, actualWeightTextBox.Text);
                 isChanchedactualWeight = false;
             }
             if (isChanchedgoodValue)
             {
-                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "goodValue", (lib.SQLFilter.Operators)goodValueComboBox.SelectedIndex, goodValueTextBox.Text);
+                myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "goodValue", (string)goodValueComboBox.SelectedItem, goodValueTextBox.Text);
                 isChanchedgoodValue = false;
             }
             if (isChanchedCustomerNote)
@@ -478,9 +478,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             if(isChanchedParcelType)
             {
                 if (parceltypeComboBox.SelectedIndex != -1)
-                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", 0,parceltypeComboBox.SelectedIndex.ToString());
+                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", "=",parceltypeComboBox.SelectedIndex.ToString());
                 else
-                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", 0, string.Empty);
+                    myfilterowner.Filter.SetNumber(myfilterowner.Filter.FilterWhereId, "currency", "=", string.Empty);
                 isChanchedParcelType = false;
             }
         }

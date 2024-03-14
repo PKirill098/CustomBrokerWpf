@@ -527,7 +527,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                     case "П40":
                         if (myrequest.ServiceType == "ТД")
                         {
-                            if (!string.IsNullOrEmpty(myrequest.Consolidate) & this.isValid1 & this.isValid2 & this.Value1.HasValue & this.Value2.HasValue && myrequest.AlgorithmCMD != null & myrequest.AlgorithmConCMD != null)
+                            if (!string.IsNullOrEmpty(myrequest.Consolidate) & this.isValid1 & this.isValid2 & this.Value1.HasValue & this.Value2.HasValue && myrequest.AlgorithmCMD != null & myrequest.AlgorithmConCMD != null && myrequest.AlgorithmConCMD.Algorithm != null)
                             {
                                 decimal? p40 = null;
                                 foreach (AlgorithmValuesRequestCon values in myrequest.AlgorithmConCMD.Algorithm.Formulas)
@@ -1768,7 +1768,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                                             break;
                                         }
                                     }
-                                    if (p31.HasValue & p231.HasValue)
+                                    if (p31.HasValue & p231.HasValue && myrequest.AlgorithmConCMD.Algorithm != null)
                                     {
                                         foreach (AlgorithmValuesRequestCon values31 in myrequest.AlgorithmConCMD.Algorithm.Formulas)
                                         {

@@ -1392,8 +1392,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             if (!myfilter.isEmpty) myfilter.RemoveCurrentWhere();
             myfilter.GroupAdd(myfilter.FilterWhereId, "date", "AND");
             myfilter.SetDate(myfilter.FilterWhereId, "date", "shipplandate", DateTime.MinValue.AddYears(2018), null);
-            myfilter.SetNumber(myfilter.FilterWhereId, "parceltype", lib.SQLFilter.Operators.Equal, "2");
-            myfilter.SetNumber(myfilter.FilterWhereId, "parcelstatus", lib.SQLFilter.Operators.Less, "500");
+            myfilter.SetNumber(myfilter.FilterWhereId, "parceltype", "=", "2");
+            myfilter.SetNumber(myfilter.FilterWhereId, "parcelstatus", "<", "500");
             myfilter.ConditionAdd(myfilter.FilterWhereId, "terminalin", "NOT NULL");
             mydbm = new ParcelDBM();
             mydbm.Filter = myfilter.FilterWhereId;
@@ -1426,8 +1426,8 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myfilter = new lib.SQLFilter.SQLFilter("Request", "AND", CustomBrokerWpf.References.ConnectionString);
             if (!myfilter.isEmpty) myfilter.RemoveCurrentWhere();
             myfilter.GroupAdd(myfilter.FilterWhereId, "date", "AND");
-            myfilter.SetNumber(myfilter.FilterWhereId, "parceltype", lib.SQLFilter.Operators.Equal, "2");
-            myfilter.SetNumber(myfilter.FilterWhereId, "status", lib.SQLFilter.Operators.Less, "500");
+            myfilter.SetNumber(myfilter.FilterWhereId, "parceltype", "=", "2");
+            myfilter.SetNumber(myfilter.FilterWhereId, "status", "<", "500");
             mydbm = new RequestDBM();
             mydbm.Filter = myfilter.FilterWhereId;
             mydbm.Collection = new ObservableCollection<Request>();

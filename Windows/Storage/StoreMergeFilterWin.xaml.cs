@@ -389,27 +389,27 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (isChanchedcellNumber)
             {
-                filter.SetNumber(filter.FilterWhereId, "cellnumber", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, cellNumberTextBox.Text);
+                filter.SetNumber(filter.FilterWhereId, "cellnumber", (string)volumeComboBox.SelectedItem, cellNumberTextBox.Text);
                 isChanchedcellNumber = false;
             }
             if (isChanchedvolume)
             {
-                filter.SetNumber(filter.FilterWhereId, "volume", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, volumeTextBox.Text);
+                filter.SetNumber(filter.FilterWhereId, "volume", (string)volumeComboBox.SelectedItem, volumeTextBox.Text);
                 isChanchedvolume = false;
             }
             if (isChanchedBrutto)
             {
-                filter.SetNumber(filter.FilterWhereId, "grossweight", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, officialWeightTextBox.Text);
+                filter.SetNumber(filter.FilterWhereId, "grossweight", (string)volumeComboBox.SelectedItem, officialWeightTextBox.Text);
                 isChanchedBrutto = false;
             }
             if (isChanchedNetto)
             {
-                filter.SetNumber(filter.FilterWhereId, "netweight", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, actualWeightTextBox.Text);
+                filter.SetNumber(filter.FilterWhereId, "netweight", (string)volumeComboBox.SelectedItem, actualWeightTextBox.Text);
                 isChanchedNetto = false;
             }
             if (isChanchedgoodValue)
             {
-                filter.SetNumber(filter.FilterWhereId, "goodvalue", (lib.SQLFilter.Operators)volumeComboBox.SelectedIndex, goodValueTextBox.Text);
+                filter.SetNumber(filter.FilterWhereId, "goodvalue", (string)volumeComboBox.SelectedItem, goodValueTextBox.Text);
                 isChanchedgoodValue = false;
             }
             if (isChanchedCustomer)

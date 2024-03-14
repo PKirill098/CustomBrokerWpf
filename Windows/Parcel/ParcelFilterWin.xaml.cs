@@ -275,14 +275,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (isChanchedLorryVolume)
             {
-                lib.SQLFilter.Operators oper = lib.SQLFilter.Operators.Equal;
+                string oper = "=";
                 switch (volumeComboBox.SelectedIndex)
                 {
                     case 1:
-                        oper = lib.SQLFilter.Operators.Greater;
+                        oper = ">";
                         break;
                     case 2:
-                        oper = lib.SQLFilter.Operators.Less;
+                        oper = "<";
                         break;
                 }
                 filter.SetNumber(filter.FilterWhereId, "lorryvolume", oper, volumeTextBox.Text);
@@ -290,14 +290,14 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             }
             if (isChanchedLorryWeight)
             {
-                lib.SQLFilter.Operators oper = lib.SQLFilter.Operators.Equal;
-                switch (weightComboBox.SelectedIndex)
+                string oper = "=";
+                switch (volumeComboBox.SelectedIndex)
                 {
                     case 1:
-                        oper = lib.SQLFilter.Operators.Greater;
+                        oper = ">";
                         break;
                     case 2:
-                        oper = lib.SQLFilter.Operators.Less;
+                        oper = "<";
                         break;
                 }
                 filter.SetNumber(filter.FilterWhereId, "lorrytonnage", oper, weightTextBox.Text);

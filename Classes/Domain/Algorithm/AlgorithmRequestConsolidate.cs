@@ -719,7 +719,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         protected override void PrepareFill(SqlConnection addcon)
         {
             this.SelectParams.First((par) => { return par.ParameterName == "@group"; }).Value = myccmd.Group;
-            this.SelectParams.First((par) => { return par.ParameterName == "@parcel"; }).Value = myccmd.Parcel.Id;
+            this.SelectParams.First((par) => { return par.ParameterName == "@parcel"; }).Value = myccmd.Parcel?.Id;
             mycellnumber = null; mycustompay = null; myinvoice = null; myinvoicediscount = null; myvolume = null; myweight = null; mycount = null;
             System.Data.DataTable requestids = new System.Data.DataTable();
             requestids.Columns.Add("id", typeof(Int32));
@@ -1848,6 +1848,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         private void UpdateServiceType(Request request)
         {
             this.ServiceType = request.ServiceType;
+            if (this.Algorithm != null)
             foreach (AlgorithmValuesRequest item in this.Algorithm.Formulas)
                 switch (item.Formula.Code)
                 {

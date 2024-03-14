@@ -462,12 +462,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             if (mydealpassportfilter.FilterOn)
             {
                 if (mydealpassportfilter.SelectedItems[0] == mydealpassportfilter.Items[0])
-                    myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", lib.SQLFilter.Operators.Equal, "1");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", "=", "1");
                 else
-                    myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", lib.SQLFilter.Operators.Equal, "0");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", "=", "0");
             }
             else
-                myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", lib.SQLFilter.Operators.Equal, string.Empty);
+                myfilter.SetNumber(myfilter.FilterWhereId, "dealpass", "=", string.Empty);
             //if (!myeurosumfilter.IsNotNull)
             //    myfilter.ConditionAdd(myfilter.FilterWhereId, "eurosum", "IS NULL");
             //else if (myeurosumfilter.IsRange)
@@ -553,21 +553,21 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             if (myprepayfilter.FilterOn)
             { 
                 if(myprepayfilter.SelectedItems[0] == myprepayfilter.Items[0])
-                    myfilter.SetNumber(myfilter.FilterWhereId, "prepay", lib.SQLFilter.Operators.Equal, "0");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "prepay", "=", "0");
                 else
-                    myfilter.SetNumber(myfilter.FilterWhereId, "prepay", lib.SQLFilter.Operators.NotEqual, "0");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "prepay", "<>", "0");
             }
             else
-                myfilter.SetNumber(myfilter.FilterWhereId, "prepay", lib.SQLFilter.Operators.Equal, string.Empty);
+                myfilter.SetNumber(myfilter.FilterWhereId, "prepay", "=", string.Empty);
             if (myratediffresultfilter.FilterOn)
             {
                 if (myratediffresultfilter.SelectedItems[0] == myratediffresultfilter.Items[0])
-                    myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", lib.SQLFilter.Operators.Less, "0.00501");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", "<", "0.00501");
                 else
-                    myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", lib.SQLFilter.Operators.Greater, "0.00500");
+                    myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", ">", "0.00500");
             }
             else
-                myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", lib.SQLFilter.Operators.Equal, string.Empty);
+                myfilter.SetNumber(myfilter.FilterWhereId, "ratediffper", "=", string.Empty);
             myfilter.SetDate(myfilter.FilterWhereId, "rubpaiddate", "rubpaiddate", myrubpaiddatefilter.DateStart, myrubpaiddatefilter.DateStop, myrubpaiddatefilter.IsNull);
             //if(!myrubsumfilter.IsNotNull)
             //    myfilter.ConditionAdd(myfilter.FilterWhereId, "rubsum", "IS NULL");
@@ -698,55 +698,15 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         }
         private void NumberFilterRun(libui.NumberFilterVM filter,string property)
         {
-            List<lib.SQLFilter.SQLFilterCondition> cond = myfilter.ConditionGet(myfilter.FilterWhereId, property);
-            if (filter.FilterOn)
-            {
-                if (!filter.IsNotNull)
-                {
-                    if (cond.Count > 0)
-                    {
-                        if (!cond[0].propertyOperator.Equals("IS NULL"))
-                        {
-                            myfilter.ConditionValuesDel(cond[0].propertyid);
-                            myfilter.ConditionUpd(cond[0].propertyid, "IS NULL");
-                        }
-                    }
-                    else
-                        myfilter.ConditionAdd(myfilter.FilterWhereId, property, "IS NULL");
-                }
-                else if (filter.IsRange)
-                    myfilter.SetRange(myfilter.FilterWhereId, property, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture), filter.NumberStop?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                else
-                    myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            }
-            else if(cond.Count > 0)
-                myfilter.ConditionDel(cond[0].propertyid);
+			if (filter.Synchronized) return;
+			myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator1.SQLOperator, filter.NumberStart?.ToString(System.Globalization.CultureInfo.InvariantCulture), filter.Operator2.SQLOperator, filter.NumberStop?.ToString(System.Globalization.CultureInfo.InvariantCulture),filter.IsNull);
+			filter.Synchronized = true;
         }
         private void PercentFilterRun(libui.NumberFilterVM filter, string property)
         {
-            List<lib.SQLFilter.SQLFilterCondition> cond = myfilter.ConditionGet(myfilter.FilterWhereId, property);
-            if (filter.FilterOn)
-            {
-                if (!filter.IsNotNull)
-                {
-                    if (cond.Count > 0)
-                    {
-                        if (!cond[0].propertyOperator.Equals("IS NULL"))
-                        {
-                            myfilter.ConditionValuesDel(cond[0].propertyid);
-                            myfilter.ConditionUpd(cond[0].propertyid, "IS NULL");
-                        }
-                    }
-                    else
-                        myfilter.ConditionAdd(myfilter.FilterWhereId, property, "IS NULL");
-                }
-                else if (filter.IsRange)
-                    myfilter.SetRange(myfilter.FilterWhereId, property, filter.NumberStart.HasValue ? decimal.Divide(filter.NumberStart.Value, 100M).ToString(System.Globalization.CultureInfo.InvariantCulture) : null, filter.NumberStop.HasValue ? decimal.Divide(filter.NumberStop.Value, 100M).ToString(System.Globalization.CultureInfo.InvariantCulture) : null);
-                else
-                    myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator, filter.NumberStart.HasValue ? decimal.Divide(filter.NumberStart.Value,100M).ToString(System.Globalization.CultureInfo.InvariantCulture):null);
-            }
-            else if (cond.Count > 0)
-                myfilter.ConditionDel(cond[0].propertyid);
+			if (filter.Synchronized) return;
+			myfilter.SetNumber(myfilter.FilterWhereId, property, filter.Operator1.SQLOperator, filter.NumberStart.HasValue ? decimal.Divide(filter.NumberStart.Value, 100M).ToString(System.Globalization.CultureInfo.InvariantCulture) : null, filter.Operator2.SQLOperator, filter.NumberStop.HasValue ? decimal.Divide(filter.NumberStop.Value, 100M).ToString(System.Globalization.CultureInfo.InvariantCulture) : null, filter.IsNull);
+			filter.Synchronized = true;
         }
         private void DateFilterRun(libui.DateFilterVM filter, string property)
         {
