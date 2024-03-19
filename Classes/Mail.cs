@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using lib = KirillPolyanskiy.DataModelClassLibrary;
 using MailKit;
 using System.Threading;
+//using System.Net;
+//using System.Net.Mail;
 
 namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 {
