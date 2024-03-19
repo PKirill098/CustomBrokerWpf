@@ -45,7 +45,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         }
 
         internal Request Request { set; get; }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = this.Request.Id;
         }

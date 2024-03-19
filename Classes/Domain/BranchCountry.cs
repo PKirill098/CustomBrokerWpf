@@ -99,7 +99,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return item;
         }
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
         }
     }

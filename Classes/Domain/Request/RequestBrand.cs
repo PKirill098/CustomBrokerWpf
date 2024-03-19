@@ -8,9 +8,9 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal int brandid;
         internal bool selected;
     }
-    public class RequestBrand:lib.DomainBaseNotifyChanged
+    public class RequestBrand:lib.DomainBaseNotifyChanged //lib.ReferenceContainer<Brand>
     {
-        public RequestBrand(AgentBrand brand, Request request, bool selected, lib.DomainObjectState state):base(0,state)
+        public RequestBrand(AgentBrand brand, Request request, bool selected, lib.DomainObjectState state) : base(0, state)
         {
             mybrand = brand;
             myrequest = request;
@@ -29,7 +29,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         private bool myselected;
         public bool Selected
         {
-            set { SetProperty<bool>(ref myselected, value,()=> { myrequest.BrandNamesRefresh(); }); }
+            set { SetProperty<bool>(ref myselected, value, () => { myrequest.BrandNamesRefresh(); }); }
             get { return myselected; }
         }
     }
@@ -142,7 +142,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value=this.Agent?.Id;
             SelectParams[1].Value = this.Request?.Id;

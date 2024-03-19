@@ -817,7 +817,10 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             mycpdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
+        {
+        }
+        protected override void GetModelsPrepare(SqlConnection addcon)
         {
             myrdbm.Command.Connection = addcon;
             mycbdbm.Command.Connection = addcon;
@@ -937,7 +940,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             prepay.IsPrepay = record.isprepay;
             return prepay;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)
@@ -976,7 +979,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
     //    internal Importer Importer
     //    { set { myimporter = value; } get { return myimporter; } }
 
-    //    protected override void SetSelectParametersValue(SqlConnection addcon)
+    //    protected override void SetSelectParametersValue()
     //    {
     //        foreach (SqlParameter par in this.SelectParams)
     //            switch (par.ParameterName)

@@ -1000,7 +1000,7 @@
 					</StackPanel>
 				</Grid>
 			</TabItem>
-            <TabItem Header="ОТПРАВКИ" x:Name="ParcelNew">
+            <TabItem Header="ОТПРАВКИ" x:Name="ParcelNew" GotFocus="ParcelTabItem_GotFocus">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -1021,7 +1021,7 @@
                 </StatusBar>
                 </Grid>
             </TabItem>
-            <TabItem Header="Склад Москва" x:Name="WarehouseRUTabItem">
+            <TabItem Header="Склад Москва" x:Name="WarehouseRUTabItem" GotFocus="WarehouseRUTabItem_GotFocus">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

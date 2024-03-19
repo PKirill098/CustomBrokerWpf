@@ -1182,7 +1182,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.Command.CommandTimeout = 1000;
             foreach (SqlParameter par in this.SelectParams)

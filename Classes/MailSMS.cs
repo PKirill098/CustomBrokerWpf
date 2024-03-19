@@ -27,7 +27,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 
         MailSMSCommand mysmcmd;
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
         }
 		protected override MailSMS CreateRecord(SqlDataReader reader)

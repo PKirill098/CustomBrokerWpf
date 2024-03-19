@@ -202,7 +202,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
            SelectParams[0].Value= myfilter?.FilterWhereId;
         }
@@ -307,7 +307,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return myspecification; }
         }
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             SelectParams[0].Value=myspecification?.Id
 ;

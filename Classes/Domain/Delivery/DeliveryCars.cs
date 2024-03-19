@@ -348,7 +348,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
            return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
         protected override bool SetParametersValue(DeliveryCar item)

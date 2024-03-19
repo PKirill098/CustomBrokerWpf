@@ -328,7 +328,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 			return new CurrencyBuyJoint(lib.NewObjectId.NewId, 0, lib.DomainObjectState.Added
 				, DateTime.Today, 0M, record.cursum, host);
 		}
-		protected override void PrepareFill(SqlConnection addcon)
+		protected override void PrepareFill()
 		{
 			this.SelectParams[0].Value = myimporter?.Id;
 		}
@@ -710,7 +710,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myprepay?.Id;
         }
@@ -959,7 +959,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myinvoice?.Id;
         }

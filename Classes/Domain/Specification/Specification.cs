@@ -1384,7 +1384,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             myddbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)

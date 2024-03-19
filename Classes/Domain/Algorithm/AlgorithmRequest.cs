@@ -807,7 +807,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myrequest.Id;
             if (myrequest.Status.Id < 500) this.SelectParams[1].Value = myalgorithm.Id; else this.SelectParams[1].Value = null;
@@ -913,7 +913,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public decimal? Volume
         { get { return DBNull.Value == this.SelectParams[5].Value ? (myrequest == null ? (decimal?)null : 0M) : (decimal?)this.SelectParams[5].Value; } }
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             this.SelectParams[0].Value = mygroup;
             this.SelectParams[1].Value = myrequest?.Id;
@@ -942,7 +942,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             get { return myrequest; }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myrequest.Id;
         }
@@ -2306,7 +2306,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
                 }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)

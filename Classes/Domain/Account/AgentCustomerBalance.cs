@@ -88,7 +88,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
 				);
 		}
 
-		protected override void PrepareFill(SqlConnection addcon)
+		protected override void PrepareFill()
         {
             foreach(SqlParameter par in SelectParams)
                 switch (par.ParameterName)

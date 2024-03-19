@@ -150,7 +150,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = myparcel.Id;
         }
@@ -195,7 +195,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return new KeyValuePair<int, string>(reader.GetInt32(0), reader.IsDBNull(1) ? null : reader.GetString(1));
         }
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             SelectParams[0].Value = myparcel.Id;
         }

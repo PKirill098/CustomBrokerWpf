@@ -769,7 +769,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[i++].Value = item.State;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)

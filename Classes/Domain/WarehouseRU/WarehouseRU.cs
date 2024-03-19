@@ -349,7 +349,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 			return true;
 		}
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)

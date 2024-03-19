@@ -191,7 +191,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myprepay?.Id;
         }
@@ -236,7 +236,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
                 , CustomBrokerWpf.References.PrepayStore.GetItemLoad(reader.GetInt32(reader.GetOrdinal("prepayid")), addcon,out _)
                 , reader.GetDecimal(reader.GetOrdinal("credit")));
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)

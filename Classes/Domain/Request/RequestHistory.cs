@@ -338,7 +338,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 			return true;
 		}
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             this.SelectParams[0].Value = myrequest?.Id;
         }

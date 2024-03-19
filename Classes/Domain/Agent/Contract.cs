@@ -200,7 +200,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = this.ItemId;
             SelectParams[1].Value=myagent?.Id;

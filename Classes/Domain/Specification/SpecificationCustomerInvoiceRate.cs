@@ -46,7 +46,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 		{
 			return true;
 		}
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             SelectParams[0].Value = Specification.Id;
         }

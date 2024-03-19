@@ -464,7 +464,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 mycntrdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[1].Value = myname;
             this.SelectParams[2].Value = myfilter?.FilterWhereId;

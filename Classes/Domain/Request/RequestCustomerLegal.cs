@@ -858,7 +858,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal WarehouseRU SKU
         { set { mysku = value; this.Collection = mysku.CustomerLegals; } get { return mysku; } }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[1].Value = myrequest?.Id;
             SelectParams[2].Value = myrequest?.CustomerId;

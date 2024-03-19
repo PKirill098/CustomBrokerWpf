@@ -450,7 +450,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return (int)base.SelectParams[1].Value; }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
         protected override CustomerRecord CreateRecord(SqlDataReader reader)

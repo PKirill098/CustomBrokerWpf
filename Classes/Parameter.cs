@@ -69,7 +69,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
             get { return (string)this.SelectParams[0].Value; }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override Parameter CreateRecord(SqlDataReader reader)

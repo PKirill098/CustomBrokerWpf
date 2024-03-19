@@ -158,7 +158,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             myinsertupdateparams[4].Value = item.ContactType;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = myagent?.Id;
         }

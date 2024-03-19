@@ -67,7 +67,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             };
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override Reminder CreateRecord(SqlDataReader reader)

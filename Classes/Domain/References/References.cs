@@ -569,6 +569,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             //    Classes.Domain.GenderCollection genders=null;
             //    genders = new Classes.Domain.GenderCollection();
             //    genders.DataLoad(); return genders; });
+           new BrandDBM().FillAsync();
         }
         private static Classes.Domain.References.ColorCollection mycolors;
         public static Classes.Domain.References.ColorCollection Colors

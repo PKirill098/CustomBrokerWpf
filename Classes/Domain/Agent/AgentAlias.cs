@@ -124,7 +124,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = this.Agent?.Id;
             this.SelectParams[1].Value = this.Alias;

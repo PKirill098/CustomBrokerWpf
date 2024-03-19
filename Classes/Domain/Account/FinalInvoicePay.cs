@@ -190,7 +190,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[0].Value = myinvoice?.Id;
         }

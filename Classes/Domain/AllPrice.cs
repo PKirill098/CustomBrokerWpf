@@ -721,7 +721,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             item.AcceptChanches();
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
     }

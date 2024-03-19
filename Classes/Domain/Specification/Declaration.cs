@@ -233,7 +233,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
         protected override bool SetParametersValue(Declaration item)

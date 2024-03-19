@@ -118,7 +118,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
 
         private TNVEDGoodsDBM mygdbm;
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override TNVEDGroup CreateRecord(SqlDataReader reader)

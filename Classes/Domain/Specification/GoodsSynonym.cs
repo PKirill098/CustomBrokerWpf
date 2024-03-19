@@ -88,7 +88,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return mymapping; }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
         protected override GoodsSynonym CreateRecord(SqlDataReader reader)

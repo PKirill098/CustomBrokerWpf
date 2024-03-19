@@ -260,6 +260,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             this.LoadedPropertiesNotification.Add(nameof(this.CustomerLegalsNames));
             mylegalslock = new object();
             mycargo = new ReferenceContainerNotifier<ReferenceSimpleItem, RequestCargo>() { ChangedNotification = Cargo_Changed};
+            //mybrandscontainer = new ReferenceContainerNotifier<Brand, RequestBrand>() { ChangedNotification = Brands_Changed };
         }
 
         public decimal? ActualWeight
@@ -1631,9 +1632,24 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             get { return mybalancefinal; }
         }
 
+        //private ReferenceContainerNotifier<Brand, RequestBrand> mybrandscontainer;
         private ObservableCollection<RequestBrand> mybrands;
         internal ObservableCollection<RequestBrand> Brands
         {
+            //set
+            //{
+            //    mybrandscontainer.ContainerCollection = value;
+            //    this.PropertyChangedNotification(nameof(Request.Brands));
+            //}
+            //get
+            //{
+            //    return mybrandscontainer.ContainerCollection;
+            //}
+            set
+            {
+                mybrands = value;
+                this.PropertyChangedNotification(nameof(this.Brands)); BrandNamesRefresh();
+            }
             get
             {
                 if (mybrands == null)
@@ -1643,6 +1659,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 }
                 return mybrands;
             }
+        }
+        internal bool BrandsIsNull
+        { get { return mybrands == null; } } //mybrandscontainer.ContainerCollection
+        private void Brands_Changed()
+        {
+            this.PropertyChangedNotification(nameof(Request.BrandNames));
         }
         private ReferenceContainerNotifier<lib.ReferenceSimpleItem, RequestCargo> mycargo;
         internal ObservableCollection<RequestCargo> CargoList
@@ -1661,9 +1683,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         {
             this.PropertyChangedNotification(nameof(Request.Cargo));
         }
-
-        internal bool BrandsIsNull
-        { get { return mybrands == null; } }
         private object mylegalslock;
         private ObservableCollection<RequestCustomerLegal> mylegals;
         internal ObservableCollection<RequestCustomerLegal> CustomerLegals
@@ -2294,14 +2313,12 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
         internal void BrandNamesRefresh()
         {
             System.Text.StringBuilder str = new System.Text.StringBuilder();
-            foreach (RequestBrand item in this.Brands.OrderBy((RequestBrand item)=> { return item.Brand.Brand.Name; }))
+            IEnumerable<RequestBrand> brandsname = this.Brands.Where((RequestBrand sel) => { return sel.Selected; }).OrderBy((RequestBrand ord) => { return ord.Brand.Brand.Name; });
+            foreach (RequestBrand item in brandsname)
             {
-                if (item.Selected)
-                {
-                    if (str.Length > 0)
-                        str.Append(", ");
-                    str.Append(item.Brand?.Brand?.Name);
-                }
+                if (str.Length > 0)
+                    str.Append(", ");
+                str.Append(item.Brand?.Brand?.Name);
             }
             mybrandnames = str.ToString();
             App.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => { this.PropertyChangedNotification(nameof(this.BrandNames)); }));
@@ -3064,13 +3081,17 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
                 request = CustomBrokerWpf.References.RequestStore.UpdateItem(newitem, this.FillType == lib.FillType.Refresh);
                 
                 if (canceltasktoken.IsCancellationRequested) return request;
-                if(!request.BrandsIsNull & this.FillType == lib.FillType.Refresh)
+                if(request.BrandsIsNull | this.FillType == lib.FillType.Refresh)
                 {
                     mybdbm.Request= request;
                     mybdbm.Agent = request.Agent;
                     mybdbm.FillType = this.FillType;
                     mybdbm.Connection = addcon;
+                    if (!request.BrandsIsNull) mybdbm.Collection = request.Brands; // запрос нулевого Brands вызывает создание и BrandRefresh
                     mybdbm.Fill();
+                    if (request.BrandsIsNull) request.Brands = mybdbm.Collection;
+                    else request.BrandNamesRefresh();
+
                 }
                 if (canceltasktoken.IsCancellationRequested) return request;
                 if(request.CargoList == null | this.FillType == lib.FillType.Refresh)
@@ -3518,7 +3539,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             mydeleteparams[1].Value = myupdateparams[0].Value;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach(SqlParameter par in this.SelectParams)
                 switch(par.ParameterName)

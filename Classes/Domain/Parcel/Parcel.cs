@@ -1512,7 +1512,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
         //protected override void CancelLoad()
@@ -5103,7 +5103,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
         }
     }

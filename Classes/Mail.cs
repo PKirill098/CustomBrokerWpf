@@ -174,7 +174,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = mytype;
             SelectParams[1].Value = myobject.Id;
@@ -228,7 +228,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes
 		{
 			return true;
 		}
-		protected override void PrepareFill(SqlConnection addcon)
+		protected override void PrepareFill()
         {
             SelectParams[0].Value = myobject.Id;
         }

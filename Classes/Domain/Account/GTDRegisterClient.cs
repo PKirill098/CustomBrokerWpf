@@ -622,7 +622,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
         {
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             foreach (SqlParameter par in SelectParams)
                 switch (par.ParameterName)

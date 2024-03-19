@@ -148,7 +148,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Storage
             myinsertupdateparams[3].Value = item.ContactType;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = mywarehouse?.Id;
         }

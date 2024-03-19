@@ -597,7 +597,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override Goods CreateRecord(SqlDataReader reader)
@@ -2650,7 +2650,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             SelectParams = new SqlParameter[] { new SqlParameter("@clientid", clientid) };
         }
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
         }
 		protected override string CreateRecord(SqlDataReader reader)

@@ -1106,13 +1106,16 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Account
             myfpdbm.Command.Connection = this.Command.Connection;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void GetModelsPrepare(SqlConnection addcon)
         {
             mypdbm.Command.Connection = addcon;
             myfpdbm.Command.Connection = addcon;
             mycurdbm.Command.Connection = addcon;
             mycbdbm.Command.Connection = addcon;
             //mycpdbm.Command.Connection = addcon;
+        }
+        protected override void SetSelectParametersValue()
+        {
             foreach (SqlParameter par in this.SelectParams)
                 switch (par.ParameterName)
                 {

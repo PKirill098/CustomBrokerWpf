@@ -139,7 +139,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
             myinsertupdateparams[1].Value = item.Index;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
     }
@@ -165,7 +165,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.Algorithm
         public int? AlgorithmId
         { get { return DBNull.Value == this.SelectParams[1].Value ? (int?)null : (int)this.SelectParams[1].Value; } }
 
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             this.SelectParams[0].Value= myweight;
         }

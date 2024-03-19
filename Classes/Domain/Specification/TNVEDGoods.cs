@@ -71,7 +71,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             get { return mygroup; }
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             SelectParams[0].Value = mygroup.Id;
         }

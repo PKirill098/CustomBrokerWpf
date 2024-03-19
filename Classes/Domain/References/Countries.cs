@@ -216,7 +216,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain.References
             this.DeleteParams[0].Value = item.HasPropertyOutdatedValue("code") ? item.GetPropertyOutdatedValue("code") : item.Code;
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
     }

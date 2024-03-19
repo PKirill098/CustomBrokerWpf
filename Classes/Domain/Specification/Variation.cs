@@ -188,7 +188,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             this.SelectParams[1].Value = myplural;
             this.SelectParams[2].Value = myfilter?.FilterWhereId;

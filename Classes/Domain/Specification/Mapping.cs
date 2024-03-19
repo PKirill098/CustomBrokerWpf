@@ -192,7 +192,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
         private GoodsSynonymDBM gsdbm;
         private MappingGenderDBM mgdbm;
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override Mapping CreateRecord(SqlDataReader reader)

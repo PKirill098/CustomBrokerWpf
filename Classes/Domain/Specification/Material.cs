@@ -155,7 +155,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Specification
             mydeletecommandtext = "DELETE FROM [spec].[Material_tb] WHERE id=@id";
         }
 
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
         }
 		protected override Material CreateRecord(SqlDataReader reader)

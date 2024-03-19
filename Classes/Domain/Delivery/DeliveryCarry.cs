@@ -327,7 +327,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
             }
             return true;
         }
-        protected override void SetSelectParametersValue(SqlConnection addcon)
+        protected override void SetSelectParametersValue()
         {
             base.SelectParams[0].Value = mycars?.Id;
             base.SelectParams[1].Value = myisall;
@@ -1573,7 +1573,7 @@ namespace KirillPolyanskiy.CustomBrokerWpf.Classes.Domain
 		{
 			return true;
 		}
-        protected override void PrepareFill(SqlConnection addcon)
+        protected override void PrepareFill()
         {
             myselectparams[0].Value = myrequest.Id;
         }

@@ -43,8 +43,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
                 SetFilterButtonImage();
             }
             Request_Loaded();
-            Parcel_Loaded();
-            WarehouseRU_Loaded();
         }
 
         private void OpenSingleWindow(Type winClass, string winName)
@@ -990,8 +988,6 @@ namespace KirillPolyanskiy.CustomBrokerWpf
             else
             {
                 myrequestcmd.Filter.Dispose();
-                myparcelcmd.Filter.Dispose();
-                myskucmd.Filter.Dispose();
                 //this.PaymentlistUC.Filter.Dispose();
             }
         }
@@ -1719,54 +1715,32 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         #region Машина
         private ParcelCurItemCommander myparcelcmd;
-
+        private void ParcelTabItem_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (myparcelcmd == null)
+                Parcel_Loaded();
+        }
         private void Parcel_Loaded()
         {
             myparcelcmd = new ParcelCurItemCommander();
             this.ParcelNew.DataContext = myparcelcmd;
-
-            //myparcelbinddisp = new lib.BindingDischarger(this, new DataGrid[] { ParcelRequestDataGrid, NoParcelRequestDataGrid });
-            //myparcelcmd.CancelEdit = myparcelbinddisp.CancelEdit;
-            //myparcelcmd.EndEdit = myparcelbinddisp.EndEdit;
-            //ParcelGrid.DataContext = myparcelcmd;
-
-            ////Синхронизация ширины столбцов
-            //for(int i=0;i< this.ParcelRequestDataGrid.Columns.Count;i++)
-            //    if (this.ParcelRequestDataGrid.Columns[i].ActualWidth > this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
-            //        this.NoParcelRequestDataGrid.Columns[i].Width = this.ParcelRequestDataGrid.Columns[i].ActualWidth;
-            //    else if(this.ParcelRequestDataGrid.Columns[i].ActualWidth < this.NoParcelRequestDataGrid.Columns[i].ActualWidth)
-            //        this.ParcelRequestDataGrid.Columns[i].Width = this.NoParcelRequestDataGrid.Columns[i].ActualWidth;
-            //DependencyPropertyDescriptor textDescr = DependencyPropertyDescriptor.FromProperty(DataGridColumn.ActualWidthProperty, typeof(DataGridColumn));
-            //if (textDescr != null)
-            //{
-            //    foreach (DataGridColumn column in this.ParcelRequestDataGrid.Columns)
-            //    {
-            //        textDescr.AddValueChanged(column, delegate
-            //      {
-            //          if(column.DisplayIndex>=0) ParcelRequestDataGrid_SizeChanged(column);
-            //      });
-            //    }
-            //    foreach (DataGridColumn column in this.NoParcelRequestDataGrid.Columns)
-            //    {
-            //        textDescr.AddValueChanged(column, delegate
-            //        {
-            //            if (column.DisplayIndex >= 0) NoParcelRequestDataGrid_SizeChanged(column);
-            //        });
-            //    }
-            //}
         }
 
         private bool Parcel_Closing()
         {
             bool cancel = false;
-            myparcelcmd.Save.Execute(null);
-            if (!myparcelcmd.LastSaveResult)
+            if (myparcelcmd != null)
             {
-                this.Activate();
-                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                myparcelcmd.Save.Execute(null);
+                if (!myparcelcmd.LastSaveResult)
                 {
-                    cancel = true;
+                    this.Activate();
+                    if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                    {
+                        cancel = true;
+                    }
                 }
+                if (!cancel) myparcelcmd.Filter.Dispose();
             }
             return cancel;
         }
@@ -1835,6 +1809,11 @@ namespace KirillPolyanskiy.CustomBrokerWpf
 
         #region Склад Москва
         private WarehouseRUViewCommader myskucmd;
+        private void WarehouseRUTabItem_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (myskucmd == null)
+                WarehouseRU_Loaded();
+        }
         private void WarehouseRU_Loaded()
         {
             myskucmd = new Classes.Domain.WarehouseRUViewCommader();
@@ -1844,15 +1823,19 @@ namespace KirillPolyanskiy.CustomBrokerWpf
         private bool WarehouseRU_Closing()
         {
             bool cancel = false;
-            myskucmd.Save.Execute(null);
-            if (!myskucmd.LastSaveResult)
+            if (myskucmd != null)
             {
-                this.Activate();
-                if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                myskucmd.Save.Execute(null);
+                if (!myskucmd.LastSaveResult)
                 {
-                    cancel = true;
-                    this.WarehouseRUTabItem.IsSelected = true;
+                    this.Activate();
+                    if (MessageBox.Show("Изменения не сохранены и будут потеряны при закрытии окна. \n Отменить закрытие окна?", "Закрытие окна", MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
+                    {
+                        cancel = true;
+                        this.WarehouseRUTabItem.IsSelected = true;
+                    }
                 }
+                if(!cancel) {myskucmd.Filter.Dispose(); }
             }
             return cancel;
         }
